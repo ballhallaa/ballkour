@@ -18,7 +18,11 @@ settings {
     "gamemodes": {
         "skirmish": {
             "enabledMaps": [
-                "watchpointGibraltar"
+                {
+                    "watchpointGibraltar": [
+                        "972777519512068292"
+                    ]
+                }
             ]
         },
         "general": {
