@@ -1950,7 +1950,7 @@ rule "23.1.2: Load Controls HUD":
         (
             "<fg808080FF>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</fg>\n"
             "<fgEC9900FF>        Spectator Controls</fg>\n"
-            "Disable:                        <fg00E092FF>{} + {}</fg>"
+            "Disable:                         <fg00E092FF>{} + {}</fg>"
         ).format(
             inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_1)
         ),
