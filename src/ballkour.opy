@@ -1864,7 +1864,13 @@ rule "23.1.2: Load Controls HUD":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and (
-                (not localPlayer.spectating[0] and localPlayer.runCurrentCp != 0)
+                (
+                    not localPlayer.spectating[0] and localPlayer.runCurrentCp > 0
+                )
+                or (
+                    localPlayer.spectating[1] != null 
+                    and localPlayer.spectating[1].runCurrentCp > 0
+                )
                 or (localPlayer.spectating[3] and localPlayer.spectating[4] > 0)
             )
         ),
@@ -1882,7 +1888,11 @@ rule "23.1.2: Load Controls HUD":
             and (
                 (
                     not localPlayer.spectating[0]
-                    and localPlayer.runCurrentCp != len(cps) - 1
+                    and localPlayer.runCurrentCp < len(cps) - 1
+                )
+                or (
+                    localPlayer.spectating[1] != null 
+                    and localPlayer.spectating[1].runCurrentCp < len(cps) - 1
                 )
                 or (
                     localPlayer.spectating[3]
@@ -1891,15 +1901,33 @@ rule "23.1.2: Load Controls HUD":
             )
         ),
         (
-            "Next CP:                              <fg00E092FF>{} + {}</fg>\n"
-            "Reset CP:                           <fg00E092FF>{} (Hold)</fg>"
+            "Next CP:                              <fg00E092FF>{} + {}</fg>"
         ).format(
             inputBindingString(Button.ULTIMATE),
-            inputBindingString(Button.SECONDARY_FIRE),
-            inputBindingString(Button.RELOAD)
+            inputBindingString(Button.SECONDARY_FIRE)
         ),
         HudPosition.LEFT,
         2,
+        Color.TURQUOISE,
+        HudReeval.VISIBILITY_AND_STRING
+    )
+    hudSubheader(
+        getAllPlayers().filter(
+            lambda localPlayer: localPlayer.isViewingCtrlsHud
+            and (
+                (
+                    not localPlayer.spectating[0]
+                    and localPlayer.runCurrentCp < len(cps) - 1
+                )
+            )
+        ),
+        (
+            "Reset CP:                           <fg00E092FF>{} (Hold)</fg>"
+        ).format(
+            inputBindingString(Button.RELOAD)
+        ),
+        HudPosition.LEFT,
+        3,
         Color.TURQUOISE,
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -1909,7 +1937,7 @@ rule "23.1.2: Load Controls HUD":
             inputBindingString(Button.ULTIMATE), inputBindingString(Button.RELOAD)
         ),
         HudPosition.LEFT,
-        3,
+        4,
         Color.TURQUOISE,
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -1923,7 +1951,7 @@ rule "23.1.2: Load Controls HUD":
             inputBindingString(Button.ULTIMATE), inputBindingString(Button.INTERACT)
         ),
         HudPosition.LEFT,
-        4,
+        5,
         Color.TURQUOISE,
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -1936,7 +1964,7 @@ rule "23.1.2: Load Controls HUD":
             inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_1)
         ),
         HudPosition.LEFT,
-        5,
+        6,
         Color.TURQUOISE,
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -1949,7 +1977,7 @@ rule "23.1.2: Load Controls HUD":
             inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_2)
         ),
         HudPosition.LEFT,
-        6,
+        7,
         Color.TURQUOISE,
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -1962,7 +1990,7 @@ rule "23.1.2: Load Controls HUD":
             inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_2)
         ),
         HudPosition.LEFT,
-        6,
+        7,
         Color.TURQUOISE,
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -1979,7 +2007,7 @@ rule "23.1.2: Load Controls HUD":
             inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_1)
         ),
         HudPosition.LEFT,
-        6,
+        7,
         Color.TURQUOISE,
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -1994,7 +2022,7 @@ rule "23.1.2: Load Controls HUD":
             inputBindingString(Button.ABILITY_1), inputBindingString(Button.RELOAD)
         ),
         HudPosition.LEFT,
-        7,
+        8,
         Color.TURQUOISE,
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -2008,7 +2036,7 @@ rule "23.1.2: Load Controls HUD":
             inputBindingString(Button.ABILITY_1), inputBindingString(Button.INTERACT)
         ),
         HudPosition.LEFT,
-        8,
+        9,
         Color.TURQUOISE,
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -2028,7 +2056,7 @@ rule "23.1.2: Load Controls HUD":
             inputBindingString(Button.SECONDARY_FIRE)
         ),
         HudPosition.LEFT,
-        9,
+        10,
         Color.TURQUOISE,
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -2043,7 +2071,7 @@ rule "23.1.2: Load Controls HUD":
             inputBindingString(Button.ABILITY_1), inputBindingString(Button.JUMP)
         ),
         HudPosition.LEFT,
-        10,
+        11,
         Color.TURQUOISE,
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -2055,7 +2083,7 @@ rule "23.1.2: Load Controls HUD":
         ),
         ("Freecam:                             <fg00E092FF>Move</fg>"),
         HudPosition.LEFT,
-        11,
+        12,
         Color.TURQUOISE,
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -2584,7 +2612,6 @@ def enableSpectator():
 
 
 rule "23.7.2.3: Spectating Camera Loop":
-    @Disabled
     @Event eachPlayer
     @Condition eventPlayer.spectating[0] == true
     @Condition eventPlayer.spectating[2] == false
