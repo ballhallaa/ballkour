@@ -1819,7 +1819,7 @@ rule "22: Turn Inactive Players Tiny":
     @Condition eventPlayer.spectating[0] == false
     @Condition eventPlayer.isDummy() == false
 
-    wait(15, Wait.ABORT_WHEN_FALSE)
+    wait(60, Wait.ABORT_WHEN_FALSE)
     eventPlayer.isTiny = true
     eventPlayer.startScalingSize(0.1, false)
     waitUntil(
