@@ -229,7 +229,6 @@ rule "8.5.2: Resume Run Circle Entry":
     eventPlayer.isInLobby = false
     cpResetPlayer()
     setCpAbilities()
-    loadCpObjects()
     eventPlayer.nameplate = "{} | {}".format(eventPlayer, eventPlayer.runCurrentCp)
     eventPlayer.setFacing(directionTowards(eventPlayer.getEyePosition(), cps[eventPlayer.runCurrentCp][7]), Relativity.TO_WORLD)
     eventPlayer.isLoading = false
