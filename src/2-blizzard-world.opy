@@ -55,11 +55,10 @@ settings {
 
 rule "0: Contact & Course Info":
     logToInspector("Hello! Welcome to Ballkour's Blizzard World (Winter) course!")
-    logToInspector("Original course (6B9Z09) by Spiz. Redeveloped by ballmybeloved. Math help from Kalaziel64. workshop.codes logo by Madje.")
+    logToInspector("Original course (6B9Z09) created by Spiz. Recreated by ballhallaa.")
     logToInspector("Changes: this route's checkpoints are slightly bigger")
     logToInspector("Discord: ballkour.com/discord")
-    logToInspector("Found a bug or have a suggestion? Please let us know in our Discord or open an issue at ballkour.com/github!")
-    logToInspector("Set a top-10 time? Submit a video with your run in our Discord or open an issue at ballkour.com/github!")
+    logToInspector("Set a top-10 time? Submit a video with your run in our Discord!")
     logToInspector("Course playthrough: ballkour.com/blizz-world")
 
 
