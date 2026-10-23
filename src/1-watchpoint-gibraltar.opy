@@ -18,7 +18,11 @@ settings {
     "gamemodes": {
         "skirmish": {
             "enabledMaps": [
-                "watchpointGibraltar"
+                {
+                    "watchpointGibraltar": [
+                        "972777519512068292"
+                    ]
+                }
             ]
         },
         "general": {
@@ -73,15 +77,15 @@ rule "2: Leaderboard (LB)":
     # lb[i]: [0]name [1]time [2]mistakes [3]alignmentSeparator
     lb = []
     lb[1] = "BALLMYBLOVED, 3:54.23, 5, '           '"
-    lb[2] = "JAKOBONEDGE, 4:21.96, 12, '         '"
-    lb[3] = "COLDSKIN, 4:30.11, 10, '                  '"
+    lb[2] = "COLDSKIN, 4:05.81, 2, '                     '"
+    lb[3] = "JAKOBONEDGE, 4:21.96, 12, '         '"
     lb[4] = "BACKLINEREIN, 4:34.15, 15, '           '"
     lb[5] = "DVD, 5:02.50, 15, '                             '"
     lb[6] = "GAMINGCHAIR, 5:08.37, 16, '         '"
     lb[7] = "BLOWSKI, 5:40.50, 24, '                    '"
     lb[8] = "安宁, 5:50.20, 40, '                           '"
     lb[9] = "KINGO, 6:26.18, 37, '                       '"
-    lb[10] = "ABIKE, 7:38.38, 46, '                        '"
+    lb[10] = "VANESSA, 6:59.56, 58, '                 '"
 
 
 rule "3: Checkpoints (CPs)":
@@ -115,7 +119,7 @@ rule "3: Checkpoints (CPs)":
     cps[20] = [(cps[len(cps) - 2])[7], (cps[len(cps) - 2])[8], false, false, true, null, null, vect(45.4, 5.31, -51.18), cpDefaults[2]]
     cps[21] = [(cps[len(cps) - 2])[7], (cps[len(cps) - 2])[8], false, false, true, null, null, vect(36.368, -2.134, -56.973), cpDefaults[2]]
     cps[22] = [(cps[len(cps) - 2])[7], (cps[len(cps) - 2])[8], true, true, true, null, null, vect(45.662, 3, -36.151), cpDefaults[2]]
-    cps[23] = [(cps[len(cps) - 2])[7], (cps[len(cps) - 2])[8], true, true, true, null, null, vect(65.85, 13.14, -38.91), cpDefaults[2]]
+    cps[23] = [(cps[len(cps) - 2])[7], (cps[len(cps) - 2])[8], true, true, true, null, null, vect(67.50, 9.01, -42.18), cpDefaults[2]]
     cps[24] = [(cps[len(cps) - 2])[7], (cps[len(cps) - 2])[8], true, true, true, null, null, vect(41.77, 3, -73.61), cpDefaults[2]]
     cps[25] = [(cps[len(cps) - 2])[7], (cps[len(cps) - 2])[8], false, false, true, null, null, vect(36.668, -2.134, -57.072), cpDefaults[2]]
     cps[26] = [(cps[len(cps) - 2])[7], (cps[len(cps) - 2])[8], true, true, true, null, null, vect(53.683, 8.908, -36.387), cpDefaults[2]]
@@ -134,7 +138,7 @@ rule "3: Checkpoints (CPs)":
     cps[39] = [(cps[len(cps) - 2])[7], (cps[len(cps) - 2])[8], true, true, true, null, null, vect(98.874, 2.745, -16.184), cpDefaults[2]]
     cps[40] = [(cps[len(cps) - 2])[7], (cps[len(cps) - 2])[8], true, true, true, null, null, vect(68.47, -3.14, -13.22), cpDefaults[2]]
     cps[41] = [(cps[len(cps) - 2])[7], (cps[len(cps) - 2])[8], false, false, true, null, null, vect(64.54, -3, -17.9), cpDefaults[2]]
-    cps[42] = [(cps[len(cps) - 2])[7], (cps[len(cps) - 2])[8], true, true, true, null, null, vect(65.85, 13.14, -38.91), cpDefaults[2]]
+    cps[42] = [(cps[len(cps) - 2])[7], (cps[len(cps) - 2])[8], true, true, true, null, null, vect(65.06, 9.53, -31.73), cpDefaults[2]]
     cps[43] = [(cps[len(cps) - 2])[7], (cps[len(cps) - 2])[8], false, false, true, null, null, vect(53.419, 8.734, -38.662), cpDefaults[2]]
     cps[44] = [(cps[len(cps) - 2])[7], (cps[len(cps) - 2])[8], false, false, true, null, null, vect(36.26, -0.26, -47.19), cpDefaults[2]]
     cps[45] = [(cps[len(cps) - 2])[7], (cps[len(cps) - 2])[8], false, false, true, null, null, vect(45.993, 3, -36.446), cpDefaults[2]]
