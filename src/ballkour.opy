@@ -2105,6 +2105,7 @@ rule "22.2: Prev. Checkpoint Input":
             wait(0.02)
         loadCpData()
         cpResetPlayer()
+        setCpAbilities()
         if not eventPlayer.spectating[0]:
             eventPlayer.setFacing(
                 directionTowards(eventPlayer.getEyePosition(), eventPlayer.cpData[7]),
@@ -2224,6 +2225,7 @@ rule "22.3: Next Checkpoint Input":
             wait(0.02)
         loadCpData()
         cpResetPlayer()
+        setCpAbilities()
         if not eventPlayer.spectating[0]:
             eventPlayer.setFacing(
                 directionTowards(eventPlayer.getEyePosition(), eventPlayer.cpData[7]),
@@ -2236,6 +2238,8 @@ rule "22.3: Next Checkpoint Input":
                 ),
                 Relativity.TO_WORLD
             )
+    if eventPlayer.spectating[0]:
+        eventPlayer.setSecondaryFireEnabled(true)
     eventPlayer.isLoading = false
 
 
@@ -2562,12 +2566,12 @@ def disableSpectator():
     eventPlayer.startForcingHero(Hero.WRECKING_BALL)
     eventPlayer.allowButton(Button.PRIMARY_FIRE)
     eventPlayer.allowButton(Button.SECONDARY_FIRE)
-    eventPlayer.setSecondaryFireEnabled(true)  # ?
+    eventPlayer.setSecondaryFireEnabled(true)
     eventPlayer.allowButton(Button.CROUCH)
     eventPlayer.allowButton(Button.ABILITY_1)
     eventPlayer.setAbility1Enabled(true)
     eventPlayer.allowButton(Button.ABILITY_2)
-    eventPlayer.setAbility2Enabled(true)  # ?
+    eventPlayer.setAbility2Enabled(true)
     eventPlayer.spectating[0] = false
     eventPlayer.spectating[1].spectating[10]--
     eventPlayer.spectating[1] = null
