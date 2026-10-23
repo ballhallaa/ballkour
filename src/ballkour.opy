@@ -73,6 +73,7 @@ rule "6.3: Start Elapsed Timer":
 
 
 rule "6.4: Destroy Disruptive Environment":
+    wait(1)
     # dd[i]: [0]nextDdInNewBatch [1]batchSize [2]currentDd [3]ddEntity
     dd = [1, 0, 0, 0]
     while dd[0] < len(ddBots):
@@ -128,7 +129,9 @@ rule "7.1: Player Joins":
 rule "7.2: Player Leaves":
     @Event playerLeft
     
-    enableFreecamForAffectedSpecs()
+    enableFreecamForSpectators()
+    for index in range(len(getAllPlayers())):
+        getAllPlayers()[index].spectating[10] = len(getAllPlayers().filter(lambda p: p.spectating[0] and p.spectating[1] == getAllPlayers()[index]))
             
 
 def loadLobby():
@@ -289,6 +292,8 @@ def newRun():
     @Name "11: Initialize New Run"
     
     eventPlayer.isLoading = true
+    if eventPlayer.spectating[0]:
+        disableSpectator()
     eventPlayer.isRunLoaded = false
     eventPlayer.isRunLoaded = true
     eventPlayer.isRunPaused = true
@@ -299,10 +304,14 @@ def newRun():
     eventPlayer.runTime = 0
     eventPlayer.runTimeFormatted = "0.00"
     eventPlayer.runMistakes = 0
+    for eventPlayer.index in range(len(getAllPlayers())):
+        if (
+            getAllPlayers()[eventPlayer.index].spectating[1] == eventPlayer 
+            and getAllPlayers()[eventPlayer.index].spectating[3] == false
+        ):
+            getAllPlayers()[eventPlayer.index].spectating[4] = 0
     loadCpData()
     setCpAbilities()
-    if eventPlayer.spectating[0]:
-        disableSpectatorMode()
     cpResetPlayer()
     eventPlayer.setFacing(directionTowards(eventPlayer.getEyePosition(), eventPlayer.cpData[7]), Relativity.TO_WORLD)
     eventPlayer.isLoading = false
@@ -349,7 +358,7 @@ def setCpAbilities():
 
 
 rule "13: Load Checkpoint Objects":
-    # Non-Spectating
+    # Non-Spectating Objects
     createEffect(getAllPlayers()
         .filter(lambda localPlayer: not localPlayer.isInLobby and not localPlayer.spectating[0] and not localPlayer.runCurrentCp == len(cps) - 1), 
         Effect.RING, Color.GREEN, localPlayer.cpData[0], localPlayer.cpData[1], EffectReeval.VISIBILITY_POSITION_AND_RADIUS)
@@ -370,42 +379,42 @@ rule "13: Load Checkpoint Objects":
         Effect.LIGHT_SHAFT, Color.GRAY, localPlayer.cpData[7], localPlayer.cpData[8], EffectReeval.VISIBILITY_POSITION_AND_RADIUS)
     # Spectating Objects
     createEffect(getAllPlayers()
-        .filter(lambda localPlayer: localPlayer.spectating[0] and not localPlayer.spectating[4] and not localPlayer.spectating[1].runCurrentCp == len(cps) - 1), 
+        .filter(lambda localPlayer: localPlayer.spectating[0] and not localPlayer.spectating[3] and not localPlayer.spectating[1].runCurrentCp == len(cps) - 1), 
         Effect.RING, Color.GREEN, localPlayer.spectating[1].cpData[0], localPlayer.spectating[1].cpData[1], EffectReeval.VISIBILITY_POSITION_AND_RADIUS)
     createEffect(getAllPlayers()
-        .filter(lambda localPlayer: localPlayer.spectating[0] and not localPlayer.spectating[4] and localPlayer.cpData[5] != null and not localPlayer.spectating[1].runCurrentCp == len(cps) - 1), 
+        .filter(lambda localPlayer: localPlayer.spectating[0] and not localPlayer.spectating[3] and localPlayer.spectating[1].cpData[5] != null and not localPlayer.spectating[1].runCurrentCp == len(cps) - 1), 
         Effect.RING, Color.ORANGE, localPlayer.spectating[1].cpData[5], localPlayer.spectating[1].cpData[6], EffectReeval.VISIBILITY_POSITION_AND_RADIUS)
     createIcon(getAllPlayers()
-        .filter(lambda localPlayer: localPlayer.spectating[0] and not localPlayer.spectating[4] and localPlayer.cpData[5] != null and not localPlayer.spectating[1].runCurrentCp == len(cps) - 1), 
+        .filter(lambda localPlayer: localPlayer.spectating[0] and not localPlayer.spectating[3] and localPlayer.spectating[1].cpData[5] != null and not localPlayer.spectating[1].runCurrentCp == len(cps) - 1), 
         localPlayer.spectating[1].cpData[5], Icon.ARROW_UP, IconReeval.VISIBILITY_AND_POSITION, Color.YELLOW, false)
     createEffect(getAllPlayers()
-        .filter(lambda localPlayer: localPlayer.spectating[0] and not localPlayer.spectating[4] and not localPlayer.spectating[1].runCurrentCp == len(cps) - 1), 
+        .filter(lambda localPlayer: localPlayer.spectating[0] and not localPlayer.spectating[3] and not localPlayer.spectating[1].runCurrentCp == len(cps) - 1), 
         Effect.RING, Color.AQUA, localPlayer.spectating[1].cpData[7], localPlayer.spectating[1].cpData[8], EffectReeval.VISIBILITY_POSITION_AND_RADIUS)
     createIcon(getAllPlayers()
-        .filter(lambda localPlayer: localPlayer.spectating[0] and not localPlayer.spectating[4] and not localPlayer.spectating[1].runCurrentCp == len(cps) - 1), 
+        .filter(lambda localPlayer: localPlayer.spectating[0] and not localPlayer.spectating[3] and not localPlayer.spectating[1].runCurrentCp == len(cps) - 1), 
         localPlayer.spectating[1].cpData[7] - vect(0, 0.5, 0), Icon.FLAG, IconReeval.VISIBILITY_AND_POSITION, Color.GREEN)
     createEffect(getAllPlayers()
-        .filter(lambda localPlayer: localPlayer.spectating[0] and not localPlayer.spectating[4] and not localPlayer.spectating[1].runCurrentCp == len(cps) - 1), 
+        .filter(lambda localPlayer: localPlayer.spectating[0] and not localPlayer.spectating[3] and not localPlayer.spectating[1].runCurrentCp == len(cps) - 1), 
         Effect.LIGHT_SHAFT, Color.GRAY, localPlayer.spectating[1].cpData[7], localPlayer.spectating[1].cpData[8], EffectReeval.VISIBILITY_POSITION_AND_RADIUS)
-    # Spectating Objects — Freecam Detached
+    # Spectating Objects — Freecam Disconnected
     createEffect(getAllPlayers()
-        .filter(lambda localPlayer: localPlayer.spectating[0] and localPlayer.spectating[4] and not localPlayer.spectating[1].runCurrentCp == len(cps) - 1), 
-        Effect.RING, Color.GREEN, cps[localPlayer.spectating[3]][0], cps[localPlayer.spectating[3]][1], EffectReeval.VISIBILITY_POSITION_AND_RADIUS)
+        .filter(lambda localPlayer: localPlayer.spectating[0] and localPlayer.spectating[3] and not localPlayer.spectating[4] == len(cps) - 1), 
+        Effect.RING, Color.GREEN, cps[localPlayer.spectating[4]][0], cps[localPlayer.spectating[4]][1], EffectReeval.VISIBILITY_POSITION_AND_RADIUS)
     createEffect(getAllPlayers()
-        .filter(lambda localPlayer: localPlayer.spectating[0] and localPlayer.spectating[4] and localPlayer.cpData[5] != null and not localPlayer.spectating[1].runCurrentCp == len(cps) - 1), 
-        Effect.RING, Color.ORANGE, cps[localPlayer.spectating[3]][5], cps[localPlayer.spectating[3]][6], EffectReeval.VISIBILITY_POSITION_AND_RADIUS)
+        .filter(lambda localPlayer: localPlayer.spectating[0] and localPlayer.spectating[3] and cps[localPlayer.spectating[4]][5] != null and not localPlayer.spectating[4] == len(cps) - 1), 
+        Effect.RING, Color.ORANGE, cps[localPlayer.spectating[4]][5], cps[localPlayer.spectating[4]][6], EffectReeval.VISIBILITY_POSITION_AND_RADIUS)
     createIcon(getAllPlayers()
-        .filter(lambda localPlayer: localPlayer.spectating[0] and localPlayer.spectating[4] and localPlayer.cpData[5] != null and not localPlayer.spectating[1].runCurrentCp == len(cps) - 1), 
-        cps[localPlayer.spectating[3]][5], Icon.ARROW_UP, IconReeval.VISIBILITY_AND_POSITION, Color.YELLOW, false)
+        .filter(lambda localPlayer: localPlayer.spectating[0] and localPlayer.spectating[3] and cps[localPlayer.spectating[4]][5] != null and not localPlayer.spectating[4] == len(cps) - 1),
+        cps[localPlayer.spectating[4]][5], Icon.ARROW_UP, IconReeval.VISIBILITY_AND_POSITION, Color.YELLOW, false)
     createEffect(getAllPlayers()
-        .filter(lambda localPlayer: localPlayer.spectating[0] and localPlayer.spectating[4] and not localPlayer.spectating[1].runCurrentCp == len(cps) - 1), 
-        Effect.RING, Color.AQUA, cps[localPlayer.spectating[3]][7], cps[localPlayer.spectating[3]][8], EffectReeval.VISIBILITY_POSITION_AND_RADIUS)
+        .filter(lambda localPlayer: localPlayer.spectating[0] and localPlayer.spectating[3] and not localPlayer.spectating[4] == len(cps) - 1), 
+        Effect.RING, Color.AQUA, cps[localPlayer.spectating[4]][7], cps[localPlayer.spectating[4]][8], EffectReeval.VISIBILITY_POSITION_AND_RADIUS)
     createIcon(getAllPlayers()
-        .filter(lambda localPlayer: localPlayer.spectating[0] and localPlayer.spectating[4] and not localPlayer.spectating[1].runCurrentCp == len(cps) - 1), 
-        cps[localPlayer.spectating[3]][7] - vect(0, 0.5, 0), Icon.FLAG, IconReeval.VISIBILITY_AND_POSITION, Color.GREEN)
+        .filter(lambda localPlayer: localPlayer.spectating[0] and localPlayer.spectating[3] and not localPlayer.spectating[4]== len(cps) - 1), 
+        cps[localPlayer.spectating[4]][7] - vect(0, 0.5, 0), Icon.FLAG, IconReeval.VISIBILITY_AND_POSITION, Color.GREEN)
     createEffect(getAllPlayers()
-        .filter(lambda localPlayer: localPlayer.spectating[0] and localPlayer.spectating[4] and not localPlayer.spectating[1].runCurrentCp == len(cps) - 1), 
-        Effect.LIGHT_SHAFT, Color.GRAY, cps[localPlayer.spectating[3]][7], cps[localPlayer.spectating[3]][8], EffectReeval.VISIBILITY_POSITION_AND_RADIUS)
+        .filter(lambda localPlayer: localPlayer.spectating[0] and localPlayer.spectating[3] and not localPlayer.spectating[4] == len(cps) - 1), 
+        Effect.LIGHT_SHAFT, Color.GRAY, cps[localPlayer.spectating[4]][7], cps[localPlayer.spectating[4]][8], EffectReeval.VISIBILITY_POSITION_AND_RADIUS)
 
 
 rule "14.1: Start/Resume Run":
@@ -715,7 +724,7 @@ def cpResetPlayer():
     if not eventPlayer.spectating[0]:
         eventPlayer.teleport(eventPlayer.cpData[0])
     else:
-        eventPlayer.teleport(cps[eventPlayer.spectating[3]][0])
+        eventPlayer.teleport(cps[eventPlayer.spectating[4]][0])
     eventPlayer.applyImpulse(eventPlayer.getVelocity() * -0.001, 0.001, Relativity.TO_WORLD, Impulse.CANCEL_CONTRARY_MOTION)
     eventPlayer.setStatusEffect(null, Status.ROOTED, 0.3)
     if eventPlayer.runCurrentCp < len(cps) - 1:
@@ -758,6 +767,13 @@ rule "20: Checkpoint Completed (No Skipping)":
     smallMessage(eventPlayer, "Time: {}".format(eventPlayer.cpTimeFormatted))
     eventPlayer.isLoading = true
     eventPlayer.runCurrentCp++
+    for eventPlayer.index in range(len(getAllPlayers())):
+        if (
+            getAllPlayers()[eventPlayer.index].spectating[1] == eventPlayer and
+            getAllPlayers()[eventPlayer.index].spectating[3] == false
+        ):
+            getAllPlayers()[eventPlayer.index].spectating[4]++
+            smallMessage(getAllPlayers()[eventPlayer.index], "Time: {}".format(eventPlayer.cpTimeFormatted))
     eventPlayer.nameplate = "{} | {}".format(eventPlayer, eventPlayer.runCurrentCp)
     loadCpData()
     setCpAbilities()
@@ -874,7 +890,7 @@ def updateStats():
 rule "22.1.1: Controls HUD Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
-    @Condition eventPlayer.spectating[6] == false
+    @Condition eventPlayer.spectating[5] == false
     @Condition eventPlayer.isInLobby == false
     
     eventPlayer.isViewingCtrlsHud = true
@@ -884,69 +900,135 @@ rule "22.1.1: Controls HUD Input":
     eventPlayer.disallowButton(Button.ABILITY_2)
     waitUntil(not eventPlayer.isHoldingButton(Button.ULTIMATE) or eventPlayer.isInLobby, Math.INFINITY)
     eventPlayer.isViewingCtrlsHud = false
-    eventPlayer.allowButton(Button.PRIMARY_FIRE)
-    eventPlayer.allowButton(Button.SECONDARY_FIRE)
-    eventPlayer.allowButton(Button.ABILITY_1)
-    eventPlayer.allowButton(Button.ABILITY_2)
+    if not eventPlayer.spectating[0] or eventPlayer.spectating[2]:
+        eventPlayer.allowButton(Button.PRIMARY_FIRE)
+        eventPlayer.allowButton(Button.SECONDARY_FIRE)
+    if not eventPlayer.spectating[0]:
+        eventPlayer.allowButton(Button.ABILITY_1)
+        eventPlayer.allowButton(Button.ABILITY_2)
 
 
 rule "22.1.2: Load Controls HUD":
-    hudSubheader(getAllPlayers()
-        .filter(lambda localPlayer: localPlayer.isViewingCtrlsHud and localPlayer.runCurrentCp != 0), 
-        ("Prev CP:                             {} + {}").format(inputBindingString(Button.ULTIMATE), inputBindingString(Button.SECONDARY_FIRE)), HudPosition.LEFT, 1, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING)
-    hudSubheader(getAllPlayers()
-        .filter(lambda localPlayer: localPlayer.isViewingCtrlsHud and localPlayer.runCurrentCp < len(cps) - 1), 
-            (
-                "Next CP:                            {} + {}\n"
-                "Reset CP:                         {} (Hold)"
-            ).format(
-                inputBindingString(Button.ULTIMATE), inputBindingString(Button.SECONDARY_FIRE),
-                inputBindingString(Button.RELOAD)
-            ), HudPosition.LEFT, 2, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING)
-    hudSubheader(getAllPlayers()
-        .filter(lambda localPlayer: localPlayer.isViewingCtrlsHud), 
-        ("New Run:               {} + {} (Hold)").format(inputBindingString(Button.ULTIMATE), inputBindingString(Button.RELOAD)), HudPosition.LEFT, 3, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING)
-    hudSubheader(getAllPlayers()
-        .filter(lambda localPlayer: localPlayer.isViewingCtrlsHud and localPlayer.runCurrentCp < len(cps) - 1 and not localPlayer.spectating[0]), 
-        ("Freemode:                          {} + {}").format(inputBindingString(Button.ULTIMATE), inputBindingString(Button.INTERACT)), HudPosition.LEFT, 4, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING)
-    hudSubheader(getAllPlayers()
-        .filter(lambda localPlayer: localPlayer.isViewingCtrlsHud), 
-            (
-                "Spectate:                     {} + {}\n"
-                "Lobby/Pause:                      {} + {}"
-            ).format(
-                inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_1),
-                inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_2)
-            ), HudPosition.LEFT, 5, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING)
-    hudSubheader(getAllPlayers()
-        .filter(lambda localPlayer: localPlayer.isViewingCtrlsHud and localPlayer.spectating[0]),
+    hudSubheader(
+        getAllPlayers().filter(
+            lambda localPlayer: localPlayer.isViewingCtrlsHud and (
+                (not localPlayer.spectating[0] and localPlayer.runCurrentCp != 0) or 
+                (localPlayer.spectating[3] and localPlayer.spectating[4] > 0)
+            )
+        ), 
+        ("Prev CP:                               <fg00E092FF>{} + {}</fg>")
+            .format(inputBindingString(Button.ULTIMATE), inputBindingString(Button.SECONDARY_FIRE)),
+        HudPosition.LEFT, 1, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING
+    )
+    hudSubheader(
+        getAllPlayers()
+            .filter(
+                lambda localPlayer: localPlayer.isViewingCtrlsHud and (
+                    (not localPlayer.spectating[0] and localPlayer.runCurrentCp != len(cps) - 1) or 
+                    (localPlayer.spectating[3] and localPlayer.spectating[4] < len(cps) - 1)
+                )
+            ), 
         (
-            "<fgEC9900FF>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</fg>\n"
-            "<fgEC9900FF>            Spectator Controls</fg>\n"
-            "Disable:                        {} + {}"
+            "Next CP:                              <fg00E092FF>{} + {}</fg>\n"
+            "Reset CP:                           <fg00E092FF>{} (Hold)</fg>"
         ).format(
-            inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_1)
-        ), HudPosition.LEFT, 6, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING)
-    hudSubheader(getAllPlayers()
-        .filter(lambda localPlayer: localPlayer.isViewingCtrlsHud and localPlayer.spectating[0] and localPlayer.spectating[8]),
+            inputBindingString(Button.ULTIMATE), inputBindingString(Button.SECONDARY_FIRE),
+            inputBindingString(Button.RELOAD)
+        ), HudPosition.LEFT, 2, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING)
+    hudSubheader(
+        getAllPlayers()
+            .filter(lambda localPlayer: localPlayer.isViewingCtrlsHud), 
+        ("New Run:                 <fg00E092FF>{} + {} (Hold)</fg>")
+            .format(
+                inputBindingString(Button.ULTIMATE), inputBindingString(Button.RELOAD)
+            ), 
+        HudPosition.LEFT, 3, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING
+    )
+    hudSubheader(
+        getAllPlayers()
+            .filter(lambda localPlayer: localPlayer.isViewingCtrlsHud and localPlayer.runCurrentCp < len(cps) - 1 and not localPlayer.spectating[0]), 
+        ("Freemode:                            <fg00E092FF>{} + {}</fg>")
+            .format(
+                inputBindingString(Button.ULTIMATE), inputBindingString(Button.INTERACT)
+            ), 
+        HudPosition.LEFT, 4, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING
+    )
+    hudSubheader(
+        getAllPlayers()
+            .filter(lambda localPlayer: localPlayer.isViewingCtrlsHud and not localPlayer.spectating[0]), 
+        ("Spectate:                       <fg00E092FF>{} + {}</fg>" )
+            .format(
+                inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_1)
+            ), 
+        HudPosition.LEFT, 5, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING
+    )
+    hudSubheader(
+        getAllPlayers()
+            .filter(lambda localPlayer: localPlayer.isViewingCtrlsHud and not localPlayer.spectating[0]), 
+        ("Lobby/Pause:               <fg00E092FF>{} + {}</fg>")
+            .format(
+                inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_2)
+            ), 
+        HudPosition.LEFT, 6, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING
+    )
+    hudSubheader(
+        getAllPlayers()
+            .filter(lambda localPlayer: localPlayer.isViewingCtrlsHud and localPlayer.spectating[0]), 
+        ("Lobby:                            <fg00E092FF>{} + {}</fg>")
+            .format(
+                inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_1)
+            ), 
+        HudPosition.LEFT, 6, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING
+    )
+    hudSubheader(
+        getAllPlayers()
+            .filter(lambda localPlayer: localPlayer.isViewingCtrlsHud and localPlayer.spectating[0]),
         (
-            "Prev Player:             {} + {}\n"
-            "Next Player:             {} + {}\n"
-            "X-Hair Player:    {} + {}"
+                "<fg808080FF>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</fg>\n"
+                "<fgEC9900FF>        Spectator Controls</fg>\n"
+                "Disable:                        <fg00E092FF>{} + {}</fg>"
+            ).format(
+                inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_1)
+            ), 
+        HudPosition.LEFT, 6, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING
+    )
+    hudSubheader(
+        getAllPlayers()
+            .filter(lambda localPlayer: localPlayer.isViewingCtrlsHud and localPlayer.spectating[0] and localPlayer.spectating[1] != null and localPlayer.spectating[2]),
+        ("Reattach:                      <fg00E092FF>{} + {}</fg>")
+            .format(
+                inputBindingString(Button.ABILITY_1), 
+                inputBindingString(Button.RELOAD)
+            ), 
+        HudPosition.LEFT, 7, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING
+    )
+    hudSubheader(
+        getAllPlayers()
+            .filter(lambda localPlayer: localPlayer.isViewingCtrlsHud and localPlayer.spectating[0] and localPlayer.spectating[1] != null),
+        (
+            "First Person:               <fg00E092FF>{} + {}</fg>"
+        ).format(inputBindingString(Button.ABILITY_1), inputBindingString(Button.INTERACT)), HudPosition.LEFT, 8, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING)
+    hudSubheader(getAllPlayers()
+        .filter(lambda localPlayer: localPlayer.isViewingCtrlsHud and localPlayer.spectating[0] and localPlayer.spectating[7]),
+        (
+            "Prev. Player:              <fg00E092FF>{} + {}</fg>\n"
+            "Next. Player:              <fg00E092FF>{} + {}</fg>"
         ).format(
             inputBindingString(Button.ABILITY_1), inputBindingString(Button.PRIMARY_FIRE),
-            inputBindingString(Button.ABILITY_1), inputBindingString(Button.SECONDARY_FIRE),
+            inputBindingString(Button.ABILITY_1), inputBindingString(Button.SECONDARY_FIRE)
+        ), HudPosition.LEFT, 9, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING)
+    hudSubheader(getAllPlayers()
+        .filter(lambda localPlayer: localPlayer.isViewingCtrlsHud and localPlayer.spectating[0] and localPlayer.spectating[2] and localPlayer.spectating[7]),
+        (
+            "X-Hair Player:     <fg00E092FF>{} + {}</fg>"
+        ).format(
             inputBindingString(Button.ABILITY_1), inputBindingString(Button.JUMP)
-        ), HudPosition.LEFT, 7, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING)
+        ), HudPosition.LEFT, 10, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING)
     hudSubheader(getAllPlayers()
         .filter(lambda localPlayer: localPlayer.isViewingCtrlsHud and localPlayer.spectating[0] and not localPlayer.spectating[2]),
         (
-            "First Person:              {} + {}\n"
-            "Freecam:                             Move"
-        ).format(inputBindingString(Button.ABILITY_1), inputBindingString(Button.INTERACT)), HudPosition.LEFT, 8, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING)
-    hudSubheader(getAllPlayers()
-        .filter(lambda localPlayer: localPlayer.isViewingCtrlsHud and localPlayer.spectating[0] and localPlayer.spectating[1] != null and localPlayer.spectating[2]),
-        ("Reattach:                     {} + {}").format(inputBindingString(Button.ABILITY_1), inputBindingString(Button.RELOAD)), HudPosition.LEFT, 9, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING)
+            "Freecam:                             <fg00E092FF>Move</fg>"
+        ), HudPosition.LEFT, 11, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING)
 
 
 rule "22.2: Prev. Checkpoint Input":
@@ -960,8 +1042,8 @@ rule "22.2: Prev. Checkpoint Input":
     @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
-    @Condition eventPlayer.spectating[6] == false
-    @Condition ((eventPlayer.runCurrentCp > 0 and not eventPlayer.spectating[0]) or (eventPlayer.spectating[3] > 0 and eventPlayer.spectating[0])) == true
+    @Condition eventPlayer.spectating[5] == false
+    @Condition ((eventPlayer.runCurrentCp > 0 and not eventPlayer.spectating[0]) or (eventPlayer.spectating[4] > 0 and eventPlayer.spectating[0])) == true
     @Condition eventPlayer.isInLobby == false
     @Condition (eventPlayer.hasSpawned() and not eventPlayer.isLoading) == true
     
@@ -974,38 +1056,48 @@ rule "22.2: Prev. Checkpoint Input":
             eventPlayer.runMistakes++
     if not eventPlayer.spectating[0]:
         eventPlayer.runCurrentCp--
+        for eventPlayer.index in range(len(getAllPlayers())):
+            if (
+                getAllPlayers()[eventPlayer.index].spectating[1] == eventPlayer 
+                and getAllPlayers()[eventPlayer.index].spectating[3] == false
+            ):
+                getAllPlayers()[eventPlayer.index].spectating[4]--
         eventPlayer.nameplate = "{} | {}".format(eventPlayer, eventPlayer.runCurrentCp)
     else:
-        eventPlayer.spectating[3]--
+        if not eventPlayer.spectating[2]:
+            enableFreecam()
+        eventPlayer.spectating[3] = true
+        eventPlayer.spectating[4]--
     loadCpData()
     cpResetPlayer()
     setCpAbilities()
     if not eventPlayer.spectating[0]:
         eventPlayer.setFacing(directionTowards(eventPlayer.getEyePosition(), eventPlayer.cpData[7]), Relativity.TO_WORLD)
     else:
-        eventPlayer.setFacing(directionTowards(eventPlayer.getEyePosition(), cps[eventPlayer.spectating[3]][7]), Relativity.TO_WORLD)
-    eventPlayer.isLoading = false
+        eventPlayer.setFacing(directionTowards(eventPlayer.getEyePosition(), cps[eventPlayer.spectating[4]][7]), Relativity.TO_WORLD)
     waitUntil(not eventPlayer.isHoldingButton(Button.ULTIMATE) or not eventPlayer.isHoldingButton(Button.PRIMARY_FIRE), 0.25)
-    if eventPlayer.isHoldingButton(Button.ULTIMATE) and eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) and ((eventPlayer.runCurrentCp > 0 and not eventPlayer.spectating[0]) or (eventPlayer.spectating[3] > 0 and eventPlayer.spectating[0])):
-        eventPlayer.isLoading = true
-        while eventPlayer.isHoldingButton(Button.ULTIMATE) and eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) and ((eventPlayer.runCurrentCp > 0 and not eventPlayer.spectating[0]) or (eventPlayer.spectating[3] > 0 and eventPlayer.spectating[0])):
+    if eventPlayer.isHoldingButton(Button.ULTIMATE) and eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) and ((eventPlayer.runCurrentCp > 0 and not eventPlayer.spectating[0]) or (eventPlayer.spectating[4] > 0 and eventPlayer.spectating[0])):
+        while eventPlayer.isHoldingButton(Button.ULTIMATE) and eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) and ((eventPlayer.runCurrentCp > 0 and not eventPlayer.spectating[0]) or (eventPlayer.spectating[4] > 0 and eventPlayer.spectating[0])):
             if not eventPlayer.spectating[0]:
                 eventPlayer.runCurrentCp--
+                for eventPlayer.index in range(len(getAllPlayers())):
+                    if (
+                        getAllPlayers()[eventPlayer.index].spectating[1] == eventPlayer 
+                        and getAllPlayers()[eventPlayer.index].spectating[3] == false
+                    ):
+                        getAllPlayers()[eventPlayer.index].spectating[4]--
                 eventPlayer.teleport(cps[eventPlayer.runCurrentCp][0])
                 eventPlayer.nameplate = "{} | {}".format(eventPlayer, eventPlayer.runCurrentCp)
             else:
-                eventPlayer.spectating[3]--
-                eventPlayer.teleport(cps[eventPlayer.spectating[3]][0])
+                eventPlayer.spectating[4]--
+                eventPlayer.teleport(cps[eventPlayer.spectating[4]][0])
             wait(0.02)
         loadCpData()
         cpResetPlayer()
         if not eventPlayer.spectating[0]:
             eventPlayer.setFacing(directionTowards(eventPlayer.getEyePosition(), eventPlayer.cpData[7]), Relativity.TO_WORLD)
         else:
-            eventPlayer.setFacing(directionTowards(eventPlayer.getEyePosition(), cps[eventPlayer.spectating[3]][7]), Relativity.TO_WORLD)
-    if eventPlayer.spectating[0]:
-        eventPlayer.spectating[2] = true
-        eventPlayer.spectating[4] = true
+            eventPlayer.setFacing(directionTowards(eventPlayer.getEyePosition(), cps[eventPlayer.spectating[4]][7]), Relativity.TO_WORLD)
     eventPlayer.setPrimaryFireEnabled(true)
     eventPlayer.isLoading = false
 
@@ -1020,13 +1112,13 @@ rule "22.3: Next Checkpoint Input":
     @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
-    @Condition eventPlayer.spectating[6] == false
-    @Condition ((eventPlayer.runCurrentCp < len(cps) - 1 and not eventPlayer.spectating[0]) or (eventPlayer.spectating[3] < len(cps) - 1 and eventPlayer.spectating[0])) == true
+    @Condition eventPlayer.spectating[5] == false
+    @Condition ((eventPlayer.runCurrentCp < len(cps) - 1 and not eventPlayer.spectating[0]) or (eventPlayer.spectating[4] < len(cps) - 1 and eventPlayer.spectating[0])) == true
     @Condition eventPlayer.isInLobby == false
     @Condition (eventPlayer.hasSpawned() and not eventPlayer.isLoading) == true
     
     eventPlayer.setSecondaryFireEnabled(false)
-    eventPlayer.isLoading = true    
+    eventPlayer.isLoading = true
     if not eventPlayer.isRunPaused:
         stopChasingVariable(eventPlayer.runTime)
         eventPlayer.isRunPaused = true
@@ -1035,38 +1127,48 @@ rule "22.3: Next Checkpoint Input":
     if not eventPlayer.spectating[0]:
         eventPlayer.isRunLegit = false
         eventPlayer.runCurrentCp++
+        for eventPlayer.index in range(len(getAllPlayers())):
+            if (
+                getAllPlayers()[eventPlayer.index].spectating[1] == eventPlayer 
+                and getAllPlayers()[eventPlayer.index].spectating[3] == false
+            ):
+                getAllPlayers()[eventPlayer.index].spectating[4]++
         eventPlayer.nameplate = "{} | {}".format(eventPlayer, eventPlayer.runCurrentCp)
     else:
-        eventPlayer.spectating[3]++
+        if not eventPlayer.spectating[2]:
+            enableFreecam()
+        eventPlayer.spectating[3] = true
+        eventPlayer.spectating[4]++
     loadCpData()
     cpResetPlayer()
     setCpAbilities()
     if not eventPlayer.spectating[0]:
         eventPlayer.setFacing(directionTowards(eventPlayer.getEyePosition(), eventPlayer.cpData[7]), Relativity.TO_WORLD)
     else:
-        eventPlayer.setFacing(directionTowards(eventPlayer.getEyePosition(), cps[eventPlayer.spectating[3]][7]), Relativity.TO_WORLD)
-    eventPlayer.isLoading = false
+        eventPlayer.setFacing(directionTowards(eventPlayer.getEyePosition(), cps[eventPlayer.spectating[4]][7]), Relativity.TO_WORLD)
     waitUntil(not eventPlayer.isHoldingButton(Button.ULTIMATE) or not eventPlayer.isHoldingButton(Button.SECONDARY_FIRE), 0.25)
-    if eventPlayer.isHoldingButton(Button.ULTIMATE) and eventPlayer.isHoldingButton(Button.SECONDARY_FIRE) and ((eventPlayer.runCurrentCp < len(cps) - 1 and not eventPlayer.spectating[0]) or (eventPlayer.spectating[3] < len(cps) - 1 and eventPlayer.spectating[0])):
-        eventPlayer.isLoading = true
-        while eventPlayer.isHoldingButton(Button.ULTIMATE) and eventPlayer.isHoldingButton(Button.SECONDARY_FIRE) and ((eventPlayer.runCurrentCp < len(cps) - 1 and not eventPlayer.spectating[0]) or (eventPlayer.spectating[3] < len(cps) - 1 and eventPlayer.spectating[0])):
+    if eventPlayer.isHoldingButton(Button.ULTIMATE) and eventPlayer.isHoldingButton(Button.SECONDARY_FIRE) and ((eventPlayer.runCurrentCp < len(cps) - 1 and not eventPlayer.spectating[0]) or (eventPlayer.spectating[4] < len(cps) - 1 and eventPlayer.spectating[0])):
+        while eventPlayer.isHoldingButton(Button.ULTIMATE) and eventPlayer.isHoldingButton(Button.SECONDARY_FIRE) and ((eventPlayer.runCurrentCp < len(cps) - 1 and not eventPlayer.spectating[0]) or (eventPlayer.spectating[4] < len(cps) - 1 and eventPlayer.spectating[0])):
             if not eventPlayer.spectating[0]:
                 eventPlayer.runCurrentCp++
                 eventPlayer.teleport(cps[eventPlayer.runCurrentCp][0])
                 eventPlayer.nameplate = "{} | {}".format(eventPlayer, eventPlayer.runCurrentCp)
             else:
-                eventPlayer.spectating[3]++
-                eventPlayer.teleport(cps[eventPlayer.spectating[3]][0])
+                eventPlayer.spectating[4]++
+                eventPlayer.teleport(cps[eventPlayer.spectating[4]][0])
+            for eventPlayer.index in range(len(getAllPlayers())):
+                if (
+                    getAllPlayers()[eventPlayer.index].spectating[1] == eventPlayer 
+                    and getAllPlayers()[eventPlayer.index].spectating[3] == false
+                ):
+                    getAllPlayers()[eventPlayer.index].spectating[4]++ 
             wait(0.02)
         loadCpData()
         cpResetPlayer()
         if not eventPlayer.spectating[0]:
             eventPlayer.setFacing(directionTowards(eventPlayer.getEyePosition(), eventPlayer.cpData[7]), Relativity.TO_WORLD)
         else:
-            eventPlayer.setFacing(directionTowards(eventPlayer.getEyePosition(), cps[eventPlayer.spectating[3]][7]), Relativity.TO_WORLD)
-    if eventPlayer.spectating[0]:
-        eventPlayer.spectating[2] = true
-        eventPlayer.spectating[4] = true
+            eventPlayer.setFacing(directionTowards(eventPlayer.getEyePosition(), cps[eventPlayer.spectating[4]][7]), Relativity.TO_WORLD)
     eventPlayer.isLoading = false
 
 
@@ -1075,7 +1177,7 @@ rule "22.4: Reset Checkpoint Input":
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
     @Condition eventPlayer.isHoldingButton(Button.RELOAD) == true
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
-    @Condition eventPlayer.spectating[6] == false
+    @Condition eventPlayer.spectating[5] == false
     @Condition eventPlayer.runCurrentCp < len(cps) - 1
     @Condition eventPlayer.isInLobby == false
     @Condition (eventPlayer.hasSpawned() and not eventPlayer.isLoading) == true
@@ -1126,7 +1228,7 @@ rule "22.6.1: Freemode Input":
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
     @Condition eventPlayer.spectating[0] == false
-    @Condition eventPlayer.spectating[6] == false
+    @Condition eventPlayer.spectating[5] == false
     @Condition eventPlayer.isInLobby == false
     @Condition eventPlayer.runCurrentCp < len(cps) - 1
     
@@ -1161,7 +1263,7 @@ rule "22.6.1: Freemode Input":
 
 rule "22.6.2: Load Freemode HUD":
     hudSubtext(getAllPlayers().filter(lambda localPlayer: localPlayer.isInFreemode and not localPlayer.spectating[0]), 
-    ("\n\n\nFreemode On"), HudPosition.LEFT, 10, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING)
+    ("\n\n\nFreemode On"), HudPosition.LEFT, 12, rgb(255, 255, 0), HudReeval.VISIBILITY_AND_STRING)
 
 
 rule "22.7.1.1: Spectator Mode Input":
@@ -1175,81 +1277,67 @@ rule "22.7.1.1: Spectator Mode Input":
     @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == true
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
-    @Condition eventPlayer.spectating[6] == false
+    @Condition eventPlayer.spectating[5] == false
     @Condition eventPlayer.isInLobby == false
 
-    # spectating[i]: [0]isSpectating [1]whoPlayerIsSpectating [2]isInFreecam [3]freecamCp [4]isInDetachedFreecam [5]playerPosition [6]isInFirstPersonSpectate [7]hasSpectatingTarget [8]hasSpectatableTargets [9]xhairTarget [10]spectators
+    # spectating[i]: [0]isSpectating [1]whoPlayerIsSpectating [2]isInFreecam [3]isInDisconnectedFreecam [4]disconnectedFreecamCp [5]isFirstPersonSpectating [6]isTransitioningIntoFirstPerson [7]hasSpectatableTargets [8]crosshairTarget [9]crosshairTargetDelay [10]spectatorAmnt
     if not eventPlayer.spectating[0]:
-        eventPlayer.spectating[0] = true
+        enableSpectator()
     else:
-        disableSpectatorMode()
+        disableSpectator()
         
 
 rule "22.7.1.2: Load Spectator HUD":
-    # Spectator HUD
     hudSubtext(getAllPlayers()
-        .filter(lambda localPlayer: not localPlayer.isInLobby and localPlayer.spectating[0] and not localPlayer.spectating[4]),
+        .filter(lambda localPlayer: not localPlayer.isInLobby and localPlayer.spectating[0] and not localPlayer.spectating[3]),
         ("{}/{}").format(localPlayer.spectating[1].runCurrentCp, len(cps) - 1), HudPosition.TOP, 1, rgb(230, 151, 0), HudReeval.VISIBILITY_AND_STRING
     )
     if not settings_[0]:
         hudSubtext(getAllPlayers()
-            .filter(lambda localPlayer: not localPlayer.isInLobby and localPlayer.spectating[0] and not localPlayer.spectating[4]), 
+            .filter(lambda localPlayer: not localPlayer.isInLobby and localPlayer.spectating[0] and not localPlayer.spectating[3]), 
             ("\n\n\n\n{} {}\n").format(iconString(Icon.BOLT), localPlayer.spectating[1].runTimeFormatted), HudPosition.RIGHT, 1, rgb(230, 151, 0), HudReeval.VISIBILITY_AND_STRING)
     else:
         hudSubtext(getAllPlayers()
-            .filter(lambda localPlayer: not localPlayer.isInLobby and localPlayer.spectating[0] and not localPlayer.spectating[4]), 
+            .filter(lambda localPlayer: not localPlayer.isInLobby and localPlayer.spectating[0] and not localPlayer.spectating[3]), 
             ("\n\n\n\n{} {}\n").format(iconString(Icon.BOLT), localPlayer.spectating[1].runTime), HudPosition.RIGHT, 1, rgb(230, 151, 0), HudReeval.VISIBILITY_AND_STRING)
     hudSubtext(getAllPlayers()
-        .filter(lambda localPlayer: not localPlayer.isInLobby and localPlayer.spectating[0] and not localPlayer.spectating[4]), 
+        .filter(lambda localPlayer: not localPlayer.isInLobby and localPlayer.spectating[0] and not localPlayer.spectating[3]), 
         ("{} {}").format(iconString(Icon.SKULL), localPlayer.spectating[1].runMistakes), HudPosition.RIGHT, 2, rgb(230, 151, 0), HudReeval.VISIBILITY_AND_STRING)
-    # Spectator HUD — Freecam Detached
     hudSubtext(getAllPlayers()
-        .filter(lambda localPlayer: not localPlayer.isInLobby and localPlayer.spectating[0] and localPlayer.spectating[4]), 
-        ("{}/{}").format(localPlayer.spectating[3], len(cps) - 1), HudPosition.TOP, 1, rgb(230, 151, 0), HudReeval.VISIBILITY_AND_STRING)
+        .filter(lambda localPlayer: not localPlayer.isInLobby and localPlayer.spectating[0] and localPlayer.spectating[3]), 
+        ("{}/{}").format(localPlayer.spectating[4], len(cps) - 1), HudPosition.TOP, 1, rgb(230, 151, 0), HudReeval.VISIBILITY_AND_STRING)
     hudSubtext(getAllPlayers()
-        .filter(lambda localPlayer: localPlayer.spectating[0] and localPlayer.spectating[1] != null and not localPlayer.spectating[4]), 
-        ("\n\nSpectating {}").format(localPlayer.spectating[1]), HudPosition.LEFT, 10, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING)
+        .filter(lambda localPlayer: localPlayer.spectating[0] and localPlayer.spectating[1] == null), 
+        ("\n\n\nSpectating"), HudPosition.LEFT, 12, rgb(255, 255, 0), HudReeval.VISIBILITY_AND_STRING)
     hudSubtext(getAllPlayers()
-        .filter(lambda localPlayer: localPlayer.spectating[4]), 
-        ("\n\nFreecam On").format(localPlayer.spectating[1]), HudPosition.LEFT, 11, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING)
+        .filter(lambda localPlayer: localPlayer.spectating[0] and localPlayer.spectating[1] != null), 
+        ("\n\n\nSpectating {}").format(localPlayer.spectating[1]), HudPosition.LEFT, 12, rgb(255, 255, 0), HudReeval.VISIBILITY_AND_STRING)
+    hudSubtext(getAllPlayers()
+        .filter(lambda localPlayer: localPlayer.spectating[0] and localPlayer.spectating[2]), 
+        ("\nFreecam On").format(localPlayer.spectating[1]), HudPosition.LEFT, 13, rgb(0, 204, 133), HudReeval.VISIBILITY_AND_STRING)
     hudSubheader(getAllPlayers()
-        .filter(lambda localPlayer: localPlayer.spectating[2] and not localPlayer.spectating[4]), 
-        ("Freecam On").format(localPlayer.spectating[1]), HudPosition.LEFT, 11, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING)
-    hudSubheader(getAllPlayers()
-        .filter(lambda localPlayer: localPlayer.spectating[4]), 
-        ("(Detached)").format(localPlayer.spectating[1]), HudPosition.LEFT, 12, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING)
+        .filter(lambda localPlayer: localPlayer.spectating[0] and localPlayer.spectating[3]), 
+        ("(Disconnected)").format(localPlayer.spectating[1]), HudPosition.LEFT, 14, rgb(0, 204, 133), HudReeval.VISIBILITY_AND_STRING)
     # Spectated Player's HUD
     hudSubtext(getAllPlayers()
         .filter(lambda localPlayer: localPlayer.spectating[10] > 0),
-        ("\n\nSpectators: {}").format(localPlayer.spectating[10]), HudPosition.LEFT, 10, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING)
+        ("\n\nSpectators: {}").format(localPlayer.spectating[10]), HudPosition.LEFT, 12, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING)
 
 
-
-rule "22.7.2.1: Enable Spectator Mode":
-    @Event eachPlayer
-    @Condition eventPlayer.spectating[0] == true
+def enableSpectator():
+    @Name "22.7.2.1: Enable Spectator Mode"
     
     eventPlayer.isViewingRunCompletionText = false
-    eventPlayer.spectating[5] = eventPlayer.getPosition()
     stopChasingVariable(eventPlayer.runTime)
     eventPlayer.isRunPaused = true
     if distance(eventPlayer.getPosition(), eventPlayer.cpData[0]) > eventPlayer.cpData[1]:
         eventPlayer.runMistakes++
-    if (len(getAllPlayers())) == 1:
-        eventPlayer.spectating[4] = true
-        eventPlayer.nameplate = "{} | FREECAM".format(eventPlayer)
-        return
-    if len(getAllPlayers().filter(lambda p: p != eventPlayer and p == eventPlayer.spectating[1])) == 0:
-        eventPlayer.spectating[1] = getAllPlayers()[(getAllPlayers().index(eventPlayer) - 1 + len(getAllPlayers())) % len(getAllPlayers())]
-    eventPlayer.startCamera(eventPlayer.spectating[1].getEyePosition() - eventPlayer.spectating[1].getFacingDirection() * 2 + vect(0, 0.5, 0), eventPlayer.spectating[1].getEyePosition() + eventPlayer.spectating[1].getFacingDirection(), 500)
-    eventPlayer.setInvisibility(Invis.ALL)
-    eventPlayer.setStatusEffect(null, Status.ROOTED, Math.INFINITY)
-    eventPlayer.setPrimaryFireEnabled(false)
-    eventPlayer.disallowButton(Button.CROUCH)
-    eventPlayer.nameplate = ""
-    enableFreecamForAffectedSpecs()
-    eventPlayer.spectating[1].spectating[10]++
-    eventPlayer.spectating[7] = true
+    eventPlayer.spectating[0] = true
+    eventPlayer.spectating[1] = null
+    eventPlayer.spectating[3] = true
+    eventPlayer.spectating[4] = eventPlayer.runCurrentCp
+    enableFreecam()
+    enableFreecamForSpectators()
 
 
 rule "22.7.2.3: Spectating Camera Loop":
@@ -1257,50 +1345,58 @@ rule "22.7.2.3: Spectating Camera Loop":
     @Event eachPlayer
     @Condition eventPlayer.spectating[0] == true
     @Condition eventPlayer.spectating[2] == false
-    @Condition eventPlayer.spectating[1] != null
-    @Condition eventPlayer.spectating[6] == false
+    @Condition eventPlayer.spectating[5] == false
 
-    while eventPlayer.spectating[0] and not eventPlayer.spectating[2] and eventPlayer.spectating[1] != null and not eventPlayer.spectating[6]:
+    while eventPlayer.spectating[0] and not eventPlayer.spectating[2] and not eventPlayer.spectating[5]:
         eventPlayer.startCamera(eventPlayer.spectating[1].getEyePosition() - eventPlayer.spectating[1].getFacingDirection() * 2 + vect(0, 0.5, 0), eventPlayer.spectating[1].getEyePosition() + eventPlayer.spectating[1].getFacingDirection(), 500)
         wait()
 
 
-def disableSpectatorMode():
+def disableSpectator():
     @Name "22.7.2.2: Disable Spectator Mode"
 
     eventPlayer.isLoading = true
-    eventPlayer.spectating[0] = false
-    eventPlayer.spectating[1].spectating[10]--
-    eventPlayer.spectating[2] = false
-    eventPlayer.spectating[4] = false
     eventPlayer.enableEnvironmentCollision()
+    eventPlayer.setGravity(100)
     eventPlayer.setMoveSpeed(100)
-    eventPlayer.clearStatusEffect(Status.ROOTED)
+    eventPlayer.stopForcingPosition()
     eventPlayer.stopCamera()
     eventPlayer.setInvisibility(Invis.NONE)
     eventPlayer.startForcingHero(Hero.WRECKING_BALL)
     eventPlayer.allowButton(Button.PRIMARY_FIRE)
+    eventPlayer.setPrimaryFireEnabled(true) #?
     eventPlayer.allowButton(Button.SECONDARY_FIRE)
+    eventPlayer.setSecondaryFireEnabled(true) #?
     eventPlayer.allowButton(Button.CROUCH)
     eventPlayer.allowButton(Button.ABILITY_1)
     eventPlayer.setAbility1Enabled(true)
     eventPlayer.allowButton(Button.ABILITY_2)
-    if distance(eventPlayer.getPosition(), eventPlayer.cpData[0]) > eventPlayer.cpData[1]:
-        if not eventPlayer.isInFreemode:
-            cpResetPlayer()
-            eventPlayer.nameplate = "{} | {}".format(eventPlayer, eventPlayer.runCurrentCp)
-        else:
-            eventPlayer.teleport(eventPlayer.spectating[5])
-            eventPlayer.nameplate = "{} | FREEMODE".format(eventPlayer)
+    eventPlayer.setAbility2Enabled(true) #?
+    eventPlayer.spectating[0] = false
+    eventPlayer.spectating[1].spectating[10]--
+    eventPlayer.spectating[1] = null
+    eventPlayer.spectating[2] = false
+    if eventPlayer.spectating[3]:
+        if eventPlayer.spectating[4] > eventPlayer.runCurrentCp:
+            eventPlayer.isRunLegit = false
+        eventPlayer.runCurrentCp = eventPlayer.spectating[4]
+        eventPlayer.spectating[3] = false
+    if eventPlayer.isInFreemode:
+        eventPlayer.nameplate = "{} | FREEMODE".format(eventPlayer)
+    else:
+        loadCpData()
+        setCpAbilities()
+        cpResetPlayer()
+        eventPlayer.nameplate = "{} | {}".format(eventPlayer, eventPlayer.runCurrentCp)
     eventPlayer.isLoading = false
     
 
 rule "22.7.3: Track If Anyone Is Spectatable":
     @Event eachPlayer
     @Condition eventPlayer.spectating[0] == true
-    @Condition eventPlayer.spectating[8] != (len(getAllPlayers().filter(lambda p: p != eventPlayer and not p.spectating[0])) > 0)
+    @Condition eventPlayer.spectating[7] != (len(getAllPlayers().filter(lambda p: p != eventPlayer and not p.spectating[0])) > 0)
 
-    eventPlayer.spectating[8] = not eventPlayer.spectating[8]
+    eventPlayer.spectating[7] = not eventPlayer.spectating[7]
 
 
 rule "22.7.4: Spectate Prev. Player Input":
@@ -1315,27 +1411,37 @@ rule "22.7.4: Spectate Prev. Player Input":
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == true
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
     @Condition eventPlayer.spectating[0] == true
-    @Condition eventPlayer.spectating[6] == false
-    @Condition len(getAllPlayers().filter(lambda p: p != eventPlayer and (not p.spectating[0] or p == eventPlayer.spectating[1]))) > 0
+    @Condition eventPlayer.spectating[5] == false
+    @Condition len(getAllPlayers().filter(lambda p: p != eventPlayer and not p.spectating[0])) > 0
 
     if eventPlayer.spectating[2]:
-        eventPlayer.setInvisibility(Invis.ALL)
-        eventPlayer.startForcingHero(Hero.WRECKING_BALL)
-        eventPlayer.setStatusEffect(null, Status.ROOTED, Math.INFINITY)
-        eventPlayer.disallowButton(Button.PRIMARY_FIRE)
-        eventPlayer.disallowButton(Button.SECONDARY_FIRE)
-        eventPlayer.disallowButton(Button.CROUCH)
-        eventPlayer.disallowButton(Button.ABILITY_1)
-        eventPlayer.disallowButton(Button.ABILITY_2)
         eventPlayer.spectating[2] = false
-        eventPlayer.spectating[4] = false
-    eventPlayer.spectating[1].spectating[10]--
-    eventPlayer.spectating[1] = getAllPlayers().filter(lambda p: p != eventPlayer)[
-        (getAllPlayers().filter(lambda p: p != eventPlayer).index(eventPlayer.spectating[1])
-            + 1)
-        % len(getAllPlayers().filter(lambda p: p != eventPlayer))]
-    eventPlayer.startCamera(eventPlayer.spectating[1].getEyePosition() - eventPlayer.spectating[1].getFacingDirection() * 2 + vect(0, 0.5, 0), eventPlayer.spectating[1].getEyePosition() + eventPlayer.spectating[1].getFacingDirection(), 200)
+        if eventPlayer.spectating[3]:
+            eventPlayer.spectating[3] = false
+        else:
+            eventPlayer.spectating[1].spectating[10]--
+    else:
+        eventPlayer.spectating[1].spectating[10]--
+    if len(getAllPlayers().filter(lambda p: p != eventPlayer and p == eventPlayer.spectating[1])) == 0:
+        eventPlayer.spectating[1] = getAllPlayers().filter(lambda p: p != eventPlayer and not p.spectating[0])[0]
+    else:
+        eventPlayer.spectating[1] = getAllPlayers().filter(lambda p: p != eventPlayer and not p.spectating[0])[
+            (getAllPlayers().filter(lambda p: p != eventPlayer and not p.spectating[0]).index(eventPlayer.spectating[1])
+                + 1)
+            % len(getAllPlayers().filter(lambda p: p != eventPlayer and not p.spectating[0]))]
+    eventPlayer.setInvisibility(Invis.ALL)
+    eventPlayer.startForcingPosition(eventPlayer.spectating[1].getEyePosition() - eventPlayer.spectating[1].getFacingDirection() * 2 + vect(0, 0.5, 0) - (eventPlayer.getEyePosition() - eventPlayer.getPosition()))
+    eventPlayer.startCamera(eventPlayer.spectating[1].getEyePosition() - eventPlayer.spectating[1].getFacingDirection() * 2 + vect(0, 0.5, 0), eventPlayer.spectating[1].getEyePosition() + eventPlayer.spectating[1].getFacingDirection(), 500)
+    eventPlayer.disallowButton(Button.PRIMARY_FIRE)
+    eventPlayer.disallowButton(Button.SECONDARY_FIRE)
+    eventPlayer.disallowButton(Button.CROUCH)
+    eventPlayer.disallowButton(Button.ABILITY_1)
+    eventPlayer.setAbility1Enabled(false)
+    eventPlayer.disallowButton(Button.ABILITY_2)
+    eventPlayer.setAbility2Enabled(false)
+    eventPlayer.nameplate = ""
     eventPlayer.spectating[1].spectating[10]++
+    eventPlayer.spectating[4] = eventPlayer.spectating[1].runCurrentCp
 
 
 rule "22.7.5: Spectate Next Player Input":
@@ -1350,30 +1456,40 @@ rule "22.7.5: Spectate Next Player Input":
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == true
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
     @Condition eventPlayer.spectating[0] == true
-    @Condition eventPlayer.spectating[6] == false
-    @Condition len(getAllPlayers().filter(lambda p: p != eventPlayer and (not p.spectating[0] or p == eventPlayer.spectating[1]))) > 0
+    @Condition eventPlayer.spectating[5] == false
+    @Condition len(getAllPlayers().filter(lambda p: p != eventPlayer and not p.spectating[0])) > 0
 
     if eventPlayer.spectating[2]:
-        eventPlayer.setInvisibility(Invis.ALL)
-        eventPlayer.startForcingHero(Hero.WRECKING_BALL)
-        eventPlayer.setStatusEffect(null, Status.ROOTED, Math.INFINITY)
-        eventPlayer.disallowButton(Button.PRIMARY_FIRE)
-        eventPlayer.disallowButton(Button.SECONDARY_FIRE)
-        eventPlayer.disallowButton(Button.CROUCH)
-        eventPlayer.disallowButton(Button.ABILITY_1)
-        eventPlayer.disallowButton(Button.ABILITY_2)
         eventPlayer.spectating[2] = false
-        eventPlayer.spectating[4] = false
-    eventPlayer.spectating[1].spectating[10]--
-    eventPlayer.spectating[1] = getAllPlayers().filter(lambda p: p != eventPlayer)[
-        (getAllPlayers().filter(lambda p: p != eventPlayer).index(eventPlayer.spectating[1])
-            + len(getAllPlayers().filter(lambda p: p != eventPlayer)) - 1)
-        % len(getAllPlayers().filter(lambda p: p != eventPlayer))]
-    eventPlayer.startCamera(eventPlayer.spectating[1].getEyePosition() - eventPlayer.spectating[1].getFacingDirection() * 2 + vect(0, 0.5, 0), eventPlayer.spectating[1].getEyePosition() + eventPlayer.spectating[1].getFacingDirection(), 200)
+        if eventPlayer.spectating[3]:
+            eventPlayer.spectating[3] = false
+        else:
+            eventPlayer.spectating[1].spectating[10]--
+    else:
+        eventPlayer.spectating[1].spectating[10]--
+    if len(getAllPlayers().filter(lambda p: p != eventPlayer and p == eventPlayer.spectating[1])) == 0:
+        eventPlayer.spectating[1] = getAllPlayers().filter(lambda p: p != eventPlayer and not p.spectating[0])[0]
+    else:
+        eventPlayer.spectating[1] = getAllPlayers().filter(lambda p: p != eventPlayer and not p.spectating[0])[
+            (getAllPlayers().filter(lambda p: p != eventPlayer and not p.spectating[0]).index(eventPlayer.spectating[1])
+                + len(getAllPlayers().filter(lambda p: p != eventPlayer and not p.spectating[0])) - 1)
+            % len(getAllPlayers().filter(lambda p: p != eventPlayer and not p.spectating[0]))]
+    eventPlayer.setInvisibility(Invis.ALL)
+    eventPlayer.startForcingPosition(eventPlayer.spectating[1].getEyePosition() - eventPlayer.spectating[1].getFacingDirection() * 2 + vect(0, 0.5, 0) - (eventPlayer.getEyePosition() - eventPlayer.getPosition()))
+    eventPlayer.startCamera(eventPlayer.spectating[1].getEyePosition() - eventPlayer.spectating[1].getFacingDirection() * 2 + vect(0, 0.5, 0), eventPlayer.spectating[1].getEyePosition() + eventPlayer.spectating[1].getFacingDirection(), 500)
+    eventPlayer.disallowButton(Button.PRIMARY_FIRE)
+    eventPlayer.disallowButton(Button.SECONDARY_FIRE)
+    eventPlayer.disallowButton(Button.CROUCH)
+    eventPlayer.disallowButton(Button.ABILITY_1)
+    eventPlayer.setAbility1Enabled(false)
+    eventPlayer.disallowButton(Button.ABILITY_2)
+    eventPlayer.setAbility2Enabled(false)
+    eventPlayer.nameplate = ""
     eventPlayer.spectating[1].spectating[10]++
+    eventPlayer.spectating[4] = eventPlayer.spectating[1].runCurrentCp
 
 
-rule "22.7.6: Spectate Crosshair (X-Hair) Player Input":
+rule "22.7.6: Spectate Crosshair Player Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
@@ -1385,66 +1501,76 @@ rule "22.7.6: Spectate Crosshair (X-Hair) Player Input":
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == true
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
     @Condition eventPlayer.spectating[0] == true
-    @Condition eventPlayer.spectating[6] == false
-    @Condition len(getAllPlayers().filter(lambda p: p != eventPlayer and (not p.spectating[0] or p == eventPlayer.spectating[1]))) > 0
+    @Condition eventPlayer.spectating[2] == true
+    @Condition eventPlayer.spectating[5] == false
+    @Condition len(getAllPlayers().filter(lambda p: p != eventPlayer and not p.spectating[0])) > 0
     
-    eventPlayer.startCamera(eventPlayer.spectating[1].getEyePosition() - eventPlayer.spectating[1].getFacingDirection() * 2 + vect(0, 0.5, 0), eventPlayer.spectating[1].getEyePosition() + eventPlayer.spectating[1].getFacingDirection(), 200)
-    if eventPlayer.spectating[2]:
-        eventPlayer.spectating[9] = getAllPlayers().filter(lambda p: p != eventPlayer and not p.spectating[0] and angleBetweenVectors(eventPlayer.getFacingDirection(), directionTowards(eventPlayer.getEyePosition(), p.getEyePosition())) < 20)[0]
-        if eventPlayer.spectating[9] == null:
-            return
-        eventPlayer.spectating[1].spectating[10]--
-        eventPlayer.spectating[1] = eventPlayer.spectating[9]
-        eventPlayer.setInvisibility(Invis.ALL)
-        eventPlayer.startForcingHero(Hero.WRECKING_BALL)
-        eventPlayer.setStatusEffect(null, Status.ROOTED, Math.INFINITY)
-        eventPlayer.disallowButton(Button.PRIMARY_FIRE)
-        eventPlayer.disallowButton(Button.SECONDARY_FIRE)
-        eventPlayer.disallowButton(Button.CROUCH)
-        eventPlayer.disallowButton(Button.ABILITY_1)
-        eventPlayer.disallowButton(Button.ABILITY_2)
-        eventPlayer.spectating[2] = false
-        eventPlayer.spectating[4] = false
-        eventPlayer.spectating[1].spectating[10]++
+    eventPlayer.spectating[8] = getAllPlayers().filter(lambda p: p != eventPlayer and not p.spectating[0] and angleBetweenVectors(eventPlayer.getFacingDirection(), directionTowards(eventPlayer.getEyePosition(), p.getEyePosition())) < 20)[0]
+    if eventPlayer.spectating[8] == null:
+        return
+    eventPlayer.isLoading = true
+    eventPlayer.spectating[1].spectating[10]--
+    eventPlayer.spectating[1] = eventPlayer.spectating[8]
+    eventPlayer.spectating[2] = false
+    eventPlayer.spectating[3] = false
+    eventPlayer.spectating[4] = eventPlayer.spectating[1].runCurrentCp
+    eventPlayer.setInvisibility(Invis.ALL)
+    eventPlayer.startForcingPosition(eventPlayer.spectating[1].getEyePosition() - eventPlayer.spectating[1].getFacingDirection() * 2 + vect(0, 0.5, 0) - (eventPlayer.getEyePosition() - eventPlayer.getPosition()))
+    eventPlayer.startCamera(eventPlayer.spectating[1].getEyePosition() - eventPlayer.spectating[1].getFacingDirection() * 2 + vect(0, 0.5, 0), eventPlayer.spectating[1].getEyePosition() + eventPlayer.spectating[1].getFacingDirection(), 500)
+    eventPlayer.disallowButton(Button.PRIMARY_FIRE)
+    eventPlayer.disallowButton(Button.SECONDARY_FIRE)
+    eventPlayer.disallowButton(Button.CROUCH)
+    eventPlayer.disallowButton(Button.ABILITY_1)
+    eventPlayer.disallowButton(Button.ABILITY_2)
+    eventPlayer.nameplate = ""
+    eventPlayer.spectating[1].spectating[10]++
+    eventPlayer.isLoading = false
+    eventPlayer.spectating[9] = true
+    wait(0.2)
+    eventPlayer.spectating[9] = false
     
 
-rule "22.7.7.1: Freecam Input":
+rule "22.7.7.1: Enable Freecam Input":
     @Event eachPlayer
     @Condition eventPlayer.spectating[0] == true
     @Condition eventPlayer.spectating[2] == false
-    @Condition (magnitude(eventPlayer.getThrottle()) > 0 or eventPlayer.isHoldingButton(Button.JUMP))
-    @Condition eventPlayer.spectating[6] == false
+    @Condition (magnitude(eventPlayer.getThrottle()) > 0 or (eventPlayer.isHoldingButton(Button.JUMP) and not eventPlayer.spectating[9]))
+    @Condition (not eventPlayer.isHoldingButton(Button.ULTIMATE) and not eventPlayer.isHoldingButton(Button.SECONDARY_FIRE)) == true
+    @Condition eventPlayer.spectating[5] == false
+    @Condition eventPlayer.isLoading == false
 
-    eventPlayer.spectating[2] = true
-
-
-rule "22.7.7.2: Freecam Enabled":
-    @Event eachPlayer
-    @Condition eventPlayer.spectating[2] == true
-
-    eventPlayer.stopCamera()
-    eventPlayer.clearStatusEffect(Status.ROOTED)
-    eventPlayer.startForcingHero(Hero.JETPACK_CAT)
-    eventPlayer.setInvisibility(Invis.NONE)
-    eventPlayer.disableEnvironmentCollision(true)
-    eventPlayer.allowButton(Button.PRIMARY_FIRE)
-    eventPlayer.allowButton(Button.SECONDARY_FIRE)
-    eventPlayer.allowButton(Button.CROUCH)
-    eventPlayer.disallowButton(Button.ABILITY_1)
-    eventPlayer.setAbility1Enabled(false)
-    eventPlayer.disallowButton(Button.ABILITY_2)
-    eventPlayer.setAbility2Enabled(false)
-    eventPlayer.nameplate = "{} | FREECAM".format(eventPlayer)
+    enableFreecam()
 
 
-rule "22.7.7.3: Freecam Detached Input":
-    @Event eachPlayer
-    @Condition eventPlayer.spectating[4] == true
+def enableFreecam():
+    @Name "22.7.7.2: Enable Freecam"
 
-    eventPlayer.spectating[2] = true
-    eventPlayer.spectating[1].spectating[10]--
+    if playerToEnableFreecam == null:
+        playerToEnableFreecam = eventPlayer
+    playerToEnableFreecam.disableEnvironmentCollision(true)
+    playerToEnableFreecam.stopCamera()
+    playerToEnableFreecam.stopForcingPosition()
+    playerToEnableFreecam.startForcingHero(Hero.JETPACK_CAT)
+    if playerToEnableFreecam.spectating[1] != null:
+        playerToEnableFreecam.setFacing(directionTowards(playerToEnableFreecam.getEyePosition(), playerToEnableFreecam.spectating[1].getEyePosition() + playerToEnableFreecam.spectating[1].getFacingDirection()), Relativity.TO_WORLD)    
+    playerToEnableFreecam.setGravity(0)
+    playerToEnableFreecam.setStatusEffect(null, Status.ROOTED, 0.1)
+    playerToEnableFreecam.setInvisibility(Invis.NONE)
+    playerToEnableFreecam.allowButton(Button.PRIMARY_FIRE)
+    playerToEnableFreecam.setPrimaryFireEnabled(true)
+    playerToEnableFreecam.allowButton(Button.SECONDARY_FIRE)
+    playerToEnableFreecam.setSecondaryFireEnabled(true)
+    playerToEnableFreecam.allowButton(Button.CROUCH)
+    playerToEnableFreecam.disallowButton(Button.ABILITY_1)
+    playerToEnableFreecam.setAbility1Enabled(false)
+    playerToEnableFreecam.disallowButton(Button.ABILITY_2)
+    playerToEnableFreecam.setAbility2Enabled(false)
+    playerToEnableFreecam.nameplate = "{} | FREECAM".format(playerToEnableFreecam)
+    playerToEnableFreecam.spectating[2] = true
+    playerToEnableFreecam = null
 
-rule "22.7.7.4: Freecam Speed Boost":
+
+rule "22.7.7.3: Freecam Speed Boost":
     @Event eachPlayer
     @Condition eventPlayer.spectating[2] == true
     @Condition eventPlayer.spectating[0] == true
@@ -1453,7 +1579,7 @@ rule "22.7.7.4: Freecam Speed Boost":
     eventPlayer.setMoveSpeed(300)
 
 
-rule "22.7.7.5: Freecam Boost Input":
+rule "22.7.7.4: Freecam Boost Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
@@ -1471,30 +1597,34 @@ rule "22.7.7.5: Freecam Boost Input":
     eventPlayer.setMoveSpeed(300)
 
 
-rule "22.7.7.6: Freecam Environment Death":
+rule "22.7.7.5: Freecam Environment Death":
     @Event playerDied
     @Condition eventPlayer.getHero() == Hero.JETPACK_CAT
-    
+    @Condition eventPlayer.spectating[6] == false
     
     eventPlayer.resurrect()
     eventPlayer.teleport(nearestWalkablePosition(eventPlayer.getPosition()))
-    if not eventPlayer.spectating[4]:
+    if not eventPlayer.spectating[3]:
         reattachToSpectatingTarget()
 
 
-def enableFreecamForAffectedSpecs():
-    @Name "22.7.7.7: Enable Freecam for Players Spectating a Leaver or Someone Who Enables Spectator Mode"
+def enableFreecamForSpectators():
+    @Name "22.7.7.6: Enable freecam for players who are spectating someone who enables spectator mode or leaves"
 
     for index in range(len(getAllPlayers())):
-        if getAllPlayers()[index].spectating[1] == eventPlayer:
-            if getAllPlayers()[index].spectating[0] == true:
-                getAllPlayers()[index].stopCamera()
-                getAllPlayers()[index].stopForcingPosition()
-                getAllPlayers()[index].spectating[4] = true
-                if not getAllPlayers()[index].spectating[2]:
-                    eventPlayer.spectating[10]--
-            getAllPlayers()[index].spectating[1] = null
-            getAllPlayers()[index].spectating[7] = false
+        if getAllPlayers()[index].spectating[0] == true:
+            if getAllPlayers()[index].spectating[1] == eventPlayer:
+                if getAllPlayers()[index].spectating[5] == true:
+                    getAllPlayers()[index].resurrect()
+                    getAllPlayers()[index].spectating[5] = false
+                if getAllPlayers()[index].spectating[2] == false:
+                    getAllPlayers()[index].stopCamera()
+                    getAllPlayers()[index].stopForcingPosition()
+                    playerToEnableFreecam = getAllPlayers()[index]
+                    enableFreecam()
+                getAllPlayers()[index].spectating[1] = null
+                getAllPlayers()[index].spectating[3] = true
+                eventPlayer.spectating[10]--
 
 
 rule "22.7.8.1: Reattach Input":
@@ -1508,10 +1638,9 @@ rule "22.7.8.1: Reattach Input":
     @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == true
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
-    @Condition eventPlayer.spectating[2] == true
-    @Condition eventPlayer.spectating[6] == false
     @Condition eventPlayer.spectating[1] != null
-    @Condition eventPlayer.spectating[7] == true
+    @Condition eventPlayer.spectating[2] == true
+    @Condition eventPlayer.spectating[5] == false
 
     reattachToSpectatingTarget()
 
@@ -1519,11 +1648,10 @@ rule "22.7.8.1: Reattach Input":
 def reattachToSpectatingTarget():
     @Name "22.7.8.2: Reattach"
     
-    eventPlayer.startCamera(eventPlayer.spectating[1].getEyePosition() - eventPlayer.spectating[1].getFacingDirection() * 2 + vect(0, 0.5, 0), eventPlayer.spectating[1].getEyePosition() + eventPlayer.spectating[1].getFacingDirection(), 200)
-    eventPlayer.setInvisibility(Invis.ALL)
-    eventPlayer.startForcingHero(Hero.WRECKING_BALL)
-    eventPlayer.setStatusEffect(null, Status.ROOTED, Math.INFINITY)
     eventPlayer.applyImpulse(eventPlayer.getVelocity() * -0.001, 0.001, Relativity.TO_WORLD, Impulse.CANCEL_CONTRARY_MOTION)
+    eventPlayer.setInvisibility(Invis.ALL)
+    eventPlayer.startForcingPosition(eventPlayer.spectating[1].getEyePosition() - eventPlayer.spectating[1].getFacingDirection() * 2 + vect(0, 0.5, 0) - (eventPlayer.getEyePosition() - eventPlayer.getPosition()))
+    eventPlayer.startCamera(eventPlayer.spectating[1].getEyePosition() - eventPlayer.spectating[1].getFacingDirection() * 2 + vect(0, 0.5, 0), eventPlayer.spectating[1].getEyePosition() + eventPlayer.spectating[1].getFacingDirection(), 500)
     eventPlayer.disallowButton(Button.PRIMARY_FIRE)
     eventPlayer.disallowButton(Button.SECONDARY_FIRE)
     eventPlayer.disallowButton(Button.CROUCH)
@@ -1531,12 +1659,12 @@ def reattachToSpectatingTarget():
     eventPlayer.setAbility1Enabled(false)
     eventPlayer.disallowButton(Button.ABILITY_2)
     eventPlayer.setAbility2Enabled(false)
+    eventPlayer.nameplate = ""
     eventPlayer.spectating[2] = false
-    eventPlayer.spectating[4] = false
-    eventPlayer.spectating[1].spectating[10]++
+    eventPlayer.spectating[3] = false
 
 
-rule "22.7.9.1: First Person Spectate Input":
+rule "22.7.9.1: Enable First Person Spectator Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
@@ -1547,73 +1675,64 @@ rule "22.7.9.1: First Person Spectate Input":
     @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == true
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
-    @Condition eventPlayer.spectating[2] == false
     @Condition eventPlayer.spectating[0] == true
+    @Condition eventPlayer.spectating[1] != null
+    @Condition eventPlayer.spectating[5] == false
 
-    eventPlayer.spectating[6] = not eventPlayer.spectating[6]
+    waitUntil(not eventPlayer.isHoldingButton(Button.INTERACT) and not eventPlayer.isHoldingButton(Button.ABILITY_1), Math.INFINITY)
+    enableFirstPersonSpectator()
 
-rule "22.7.9.2: Enable First Person Spectate":
-    @Event eachPlayer
-    @Condition eventPlayer.spectating[6] == true
 
-    bigMessage(
-        eventPlayer,
-        (
-            "!!HEADS UP!!\n"
-            "Hold a non-movement button to exit!\n"
-            "- - - - - - - - - - - - - - - - - - - - -\n"
-            "Press Space to change perspective"
-        )
-    )
+def enableFirstPersonSpectator():
+    @Name "22.7.9.1: Enable First Person Spectator"
+    @SuppressWarnings w_chase_9999
+
     eventPlayer.setRespawnTime(Math.INFINITY)
+    eventPlayer.spectating[6] = true
     kill(eventPlayer)
+    eventPlayer.firstPersonSpectatingTime = 0
+    chaseAtRate(eventPlayer.firstPersonSpectatingTime, 9999, 1) 
+    wait()
+    eventPlayer.spectating[6] = false
+    eventPlayer.spectating[5] = true
     eventPlayer.enableDeathSpectateTargetHud()
-    eventPlayer.startCamera(eventPlayer.spectating[1].getEyePosition() - eventPlayer.spectating[1].getFacingDirection() * 2 + vect(0, 0.5, 0), eventPlayer.spectating[1].getEyePosition() + eventPlayer.spectating[1].getFacingDirection(), 200)
+    eventPlayer.startCamera(eventPlayer.spectating[1].getEyePosition() - eventPlayer.spectating[1].getFacingDirection() * 2 + vect(0, 0.5, 0), eventPlayer.spectating[1].getEyePosition() + eventPlayer.spectating[1].getFacingDirection(), 500)
     eventPlayer.spectating[2] = false
-    eventPlayer.spectating[4] = false
-    waitUntil(
-        not eventPlayer.isHoldingButton(Button.ULTIMATE) and
-        not eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) and
-        not eventPlayer.isHoldingButton(Button.SECONDARY_FIRE) and
-        not eventPlayer.isHoldingButton(Button.RELOAD) and
-        not eventPlayer.isHoldingButton(Button.INTERACT) and
-        not eventPlayer.isHoldingButton(Button.CROUCH) and
-        not eventPlayer.isHoldingButton(Button.ABILITY_1) and
-        not eventPlayer.isHoldingButton(Button.ABILITY_2) and
-        not eventPlayer.isCommunicatingAnything(),
-        1
-    )
-    wait(3, Wait.RESTART_WHEN_TRUE)
-    if eventPlayer.spectating[6] == false:
-        return
-    bigMessage(
-        eventPlayer,
-        (
-            "!!HEADS UP!!\n"
-            "Hold a non-movement button to exit!\n"
-            "- - - - - - - - - - - - - - - - -\n"
-            "Press Space to change perspective"
+    eventPlayer.spectating[3] = false
+    waitUntil(not eventPlayer.isHoldingButton(Button.INTERACT) and not eventPlayer.isHoldingButton(Button.ABILITY_1), 1)
+    for eventPlayer.index in range(1, 4):
+        bigMessage(
+            eventPlayer,
+            (
+                "{0}<fgE62400FF>HEADS UP</fg>{0}\n"
+                "<fgFFD700FF>Hold {1} to exit!</fg>\n"
+                "<fgFFFFFFFF>- - - - - - - - - - - - - - - - -</fg>\n"
+                "<fgE69700FF>Press {2} to change perspective</fg>"
+            ).format(
+                iconString(Icon.WARNING), 
+                inputBindingString(Button.ULTIMATE), 
+                inputBindingString(Button.JUMP)
+            )
         )
-    )
-    wait(3, Wait.RESTART_WHEN_TRUE)
-    if eventPlayer.spectating[6] == false:
-        return
-    bigMessage(
-        eventPlayer,
-        (
-            "!!HEADS UP!!\n"
-            "Hold a non-movement button to exit!\n"
-            "- - - - - - - - - - - - - - - - -\n"
-            "Press Space to change perspective"
-        )
-    )
-    if eventPlayer.spectating[6] == false:
-        return
-    wait(4, Wait.RESTART_WHEN_TRUE)
-    eventPlayer.stopCamera()
+        wait(3, Wait.RESTART_WHEN_TRUE)
+        if eventPlayer.spectating[5] == false:
+            return
 
 
-rule "22.7.10: Exit First Person Spectate Input":
+rule "22.7.9.2: First Person Spectator Mode Expires":
+    @Event eachPlayer
+    @Condition eventPlayer.firstPersonSpectatingTime == 9999
+    @Condition eventPlayer.spectating[5] == true
+    @SuppressWarnings w_ow2_rule_condition_chase
+    
+
+    eventPlayer.resurrect()
+    eventPlayer.startForcingPosition(eventPlayer.spectating[1].getEyePosition() - eventPlayer.spectating[1].getFacingDirection() * 2 + vect(0, 0.5, 0) - (eventPlayer.getEyePosition() - eventPlayer.getPosition()))
+    eventPlayer.startCamera(eventPlayer.spectating[1].getEyePosition() - eventPlayer.spectating[1].getFacingDirection() * 2 + vect(0, 0.5, 0), eventPlayer.spectating[1].getEyePosition() + eventPlayer.spectating[1].getFacingDirection(), 500)
+    enableFirstPersonSpectator()
+
+
+rule "22.7.10: Disable First Person Spectator Input":
     @Event eachPlayer
     @Condition (
         eventPlayer.isHoldingButton(Button.ULTIMATE) or 
@@ -1626,7 +1745,7 @@ rule "22.7.10: Exit First Person Spectate Input":
         eventPlayer.isHoldingButton(Button.ABILITY_2) or 
         eventPlayer.isCommunicatingAnything()
     ) == true
-    @Condition eventPlayer.spectating[6] == true
+    @Condition eventPlayer.spectating[5] == true
     @Condition eventPlayer.spectating[0] == true
 
     waitUntil(
@@ -1652,10 +1771,11 @@ rule "22.7.10: Exit First Person Spectate Input":
         eventPlayer.isHoldingButton(Button.ABILITY_2) or 
         eventPlayer.isCommunicatingAnything()
     ) == true:
-        eventPlayer.resurrect()
         eventPlayer.disableDeathSpectateTargetHud()
-        eventPlayer.startCamera(eventPlayer.spectating[1].getEyePosition() - eventPlayer.spectating[1].getFacingDirection() * 2 + vect(0, 0.5, 0), eventPlayer.spectating[1].getEyePosition() + eventPlayer.spectating[1].getFacingDirection(), 200)
-        eventPlayer.spectating[6] = false
+        eventPlayer.resurrect()
+        eventPlayer.startForcingPosition(eventPlayer.spectating[1].getEyePosition() - eventPlayer.spectating[1].getFacingDirection() * 2 + vect(0, 0.5, 0) - (eventPlayer.getEyePosition() - eventPlayer.getPosition()))
+        eventPlayer.startCamera(eventPlayer.spectating[1].getEyePosition() - eventPlayer.spectating[1].getFacingDirection() * 2 + vect(0, 0.5, 0), eventPlayer.spectating[1].getEyePosition() + eventPlayer.spectating[1].getFacingDirection(), 500)
+        eventPlayer.spectating[5] = false
 
 
 rule "22.8: Lobby Input":
@@ -1669,12 +1789,12 @@ rule "22.8: Lobby Input":
     @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == true
-    @Condition eventPlayer.spectating[6] == false
+    @Condition eventPlayer.spectating[5] == false
     @Condition eventPlayer.isInLobby == false
     
     eventPlayer.isLoading = true
     if eventPlayer.spectating[0]:
-        disableSpectatorMode()
+        disableSpectator()
     eventPlayer.setAbility2Enabled(false)
     if not eventPlayer.isRunPaused:
         stopChasingVariable(eventPlayer.runTime)
