@@ -294,7 +294,7 @@ rule "5: Lobby Boundary":
         eventPlayer.setSecondaryFireEnabled(false)
         eventPlayer.setSecondaryFireEnabled(true)
         eventPlayer.setAbilityCooldown(Button.SECONDARY_FIRE, 0.5)
-    eventPlayer.applyImpulse(directionTowards(eventPlayer.getPosition(), lobbyData[0]), 10, Relativity.TO_WORLD, Impulse.CANCEL_CONTRARY_MOTION)
+    eventPlayer.applyImpulse(directionTowards(eventPlayer.getPosition(), lobbyData[0]), 10, Relativity.TO_WORLD, Impulse.CANCEL_CONTRARY_MOTION_XYZ)
 
 
 #!include "ballkour.opy"

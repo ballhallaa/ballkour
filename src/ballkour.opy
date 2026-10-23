@@ -149,7 +149,7 @@ def loadLobby():
     @Name "8.1: Load Lobby"
     
     eventPlayer.teleport(lobbyData[0])
-    eventPlayer.applyImpulse(eventPlayer.getVelocity() * -0.001, 0.001, Relativity.TO_WORLD, Impulse.CANCEL_CONTRARY_MOTION)
+    eventPlayer.applyImpulse(eventPlayer.getVelocity() * -0.001, 0.001, Relativity.TO_WORLD, Impulse.CANCEL_CONTRARY_MOTION_XYZ)
     eventPlayer.setStatusEffect(null, Status.ROOTED, 0.3)
     eventPlayer.isInLobby = true
     eventPlayer.setFacing(directionTowards(eventPlayer.getEyePosition(), lobbyData[1]), Relativity.TO_WORLD)
@@ -563,7 +563,7 @@ rule "16.3: Shield Bounce Use":
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
     @Condition ((eventPlayer.isInLobby or eventPlayer.isInFreemode) or (eventPlayer.cpData[3] and not eventPlayer.cpData[14])) == true
 
-    eventPlayer.applyImpulse(Vector.UP, (10 - 1.25 * max(0, eventPlayer.getSpeed() - 10)) if eventPlayer.getSpeed() < 18 else 0, Relativity.TO_WORLD, Impulse.CANCEL_CONTRARY_MOTION)
+    eventPlayer.applyImpulse(Vector.UP, (10 - 1.25 * max(0, eventPlayer.getSpeed() - 10)) if eventPlayer.getSpeed() < 18 else 0, Relativity.TO_WORLD, Impulse.CANCEL_CONTRARY_MOTION_XYZ)
     eventPlayer.applyImpulse(normalize(vect(eventPlayer.getVelocity().x, 0, eventPlayer.getVelocity().z)), min(distance(vect(0,0,0), vect(eventPlayer.getVelocity().x, 0, eventPlayer.getVelocity().z)), 10) * 0.5 + max(0, min(distance(vect(0,0,0), vect(eventPlayer.getVelocity().x, 0, eventPlayer.getVelocity().z)), 20) - 10) * 0.2, Relativity.TO_WORLD, Impulse.INCORPORATE_CONTRARY_MOTION)
     eventPlayer.setHealth(575)
     eventPlayer.setAbilityCooldown(Button.ABILITY_2, 0)
@@ -735,7 +735,7 @@ def cpResetPlayer():
         eventPlayer.teleport(eventPlayer.cpData[0])
     else:
         eventPlayer.teleport(cps[eventPlayer.spectating[4]][0])
-    eventPlayer.applyImpulse(eventPlayer.getVelocity() * -0.001, 0.001, Relativity.TO_WORLD, Impulse.CANCEL_CONTRARY_MOTION)
+    eventPlayer.applyImpulse(eventPlayer.getVelocity() * -0.001, 0.001, Relativity.TO_WORLD, Impulse.CANCEL_CONTRARY_MOTION_XYZ)
     eventPlayer.setStatusEffect(null, Status.ROOTED, 0.3)
     if eventPlayer.runCurrentCp < len(cps) - 1:
         if eventPlayer.cpData[5] != null:
@@ -791,7 +791,7 @@ rule "20: Checkpoint Completed (No Skipping)":
         if distance(eventPlayer.getPosition(), eventPlayer.cpData[0]) > eventPlayer.cpData[1]:
             eventPlayer.isLoading = true
             eventPlayer.teleport(eventPlayer.cpData[0])
-            eventPlayer.applyImpulse(eventPlayer.getVelocity() * -0.001, 0.001, Relativity.TO_WORLD, Impulse.CANCEL_CONTRARY_MOTION)
+            eventPlayer.applyImpulse(eventPlayer.getVelocity() * -0.001, 0.001, Relativity.TO_WORLD, Impulse.CANCEL_CONTRARY_MOTION_XYZ)
             eventPlayer.isLoading = false
         playEffect(eventPlayer, DynamicEffect.RING_EXPLOSION_SOUND, null, eventPlayer, 100)
     eventPlayer.isLoading = false
@@ -1658,7 +1658,7 @@ rule "22.7.8.1: Reattach Input":
 def reattachToSpectatingTarget():
     @Name "22.7.8.2: Reattach"
     
-    eventPlayer.applyImpulse(eventPlayer.getVelocity() * -0.001, 0.001, Relativity.TO_WORLD, Impulse.CANCEL_CONTRARY_MOTION)
+    eventPlayer.applyImpulse(eventPlayer.getVelocity() * -0.001, 0.001, Relativity.TO_WORLD, Impulse.CANCEL_CONTRARY_MOTION_XYZ)
     eventPlayer.setInvisibility(Invis.ALL)
     eventPlayer.startForcingPosition(eventPlayer.spectating[1].getEyePosition() - eventPlayer.spectating[1].getFacingDirection() * 2 + vect(0, 0.5, 0) - (eventPlayer.getEyePosition() - eventPlayer.getPosition()))
     eventPlayer.startCamera(eventPlayer.spectating[1].getEyePosition() - eventPlayer.spectating[1].getFacingDirection() * 2 + vect(0, 0.5, 0), eventPlayer.spectating[1].getEyePosition() + eventPlayer.spectating[1].getFacingDirection(), 500)
