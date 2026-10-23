@@ -1901,7 +1901,7 @@ rule "23.1.2: Load Controls HUD":
             )
         ),
         (
-            "Next CP:                              <fg00E092FF>{} + {}</fg>"
+            "Next CP:                               <fg00E092FF>{} + {}</fg>"
         ).format(
             inputBindingString(Button.ULTIMATE),
             inputBindingString(Button.SECONDARY_FIRE)
