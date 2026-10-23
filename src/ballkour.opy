@@ -50,6 +50,7 @@ rule "6.1: Initialize Match":
             ["0","1","2","3","4","5","6","7","8","9"].index(lbObjFormatted[1].substring(0, 1))
         ) * 10
     )
+    nameplateObjs = []
 
 
 rule "6.3: Start Elapsed Timer":
@@ -124,7 +125,10 @@ rule "7.1: Player Joins":
     eventPlayer.setDamageDealt(false)
     eventPlayer.disableNameplatesFor(getAllPlayers())
     getAllPlayers().disableNameplatesFor(eventPlayer)
+    if nameplateObjs[eventPlayer.getSlot()] != null:
+        destroyInWorldText(nameplateObjs[eventPlayer.getSlot()])
     createInWorldText(getAllPlayers().filter(lambda localPlayer: localPlayer != eventPlayer), eventPlayer.nameplate, eventPlayer, 1, Clip.SURFACES, WorldTextReeval.VISIBILITY_POSITION_AND_STRING)
+    nameplateObjs[eventPlayer.getSlot()] = getLastCreatedText()
     wait()
     loadLobby()
     while angleBetweenVectors(eventPlayer.getFacingDirection(), directionTowards(eventPlayer.getEyePosition(), lobbyData[1])) > 1:
