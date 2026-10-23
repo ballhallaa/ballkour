@@ -2048,7 +2048,7 @@ rule "23.1.2: Load Controls HUD":
         ),
         (
             "Prev. Player:              <fg00E092FF>{} + {}</fg>\n"
-            "Next. Player:              <fg00E092FF>{} + {}</fg>"
+            "Next Player:               <fg00E092FF>{} + {}</fg>"
         ).format(
             inputBindingString(Button.ABILITY_1),
             inputBindingString(Button.PRIMARY_FIRE),
@@ -2675,7 +2675,12 @@ rule "23.7.3: Track If Anyone Is Spectatable":
     @Event eachPlayer
     @Condition eventPlayer.spectating[0] == true
     @Condition eventPlayer.spectating[7] != (
-        len(getAllPlayers().filter(lambda p: p != eventPlayer and not p.spectating[0]))
+        len(getAllPlayers().filter(
+            lambda p: p != eventPlayer 
+            and p.hasSpawned() 
+            and not p.spectating[0]
+            )
+        ) 
         > 0
     )
 
@@ -2696,7 +2701,12 @@ rule "23.7.4: Spectate Prev. Player Input":
     @Condition eventPlayer.spectating[0] == true
     @Condition eventPlayer.spectating[5] == false
     @Condition (
-        len(getAllPlayers().filter(lambda p: p != eventPlayer and not p.spectating[0]))
+        len(getAllPlayers().filter(
+            lambda p: p != eventPlayer 
+            and p.hasSpawned() 
+            and not p.spectating[0]
+            )
+        )
         > 0
     )
 
@@ -2711,27 +2721,39 @@ rule "23.7.4: Spectate Prev. Player Input":
     if (
         len(
             getAllPlayers().filter(
-                lambda p: p != eventPlayer and p == eventPlayer.spectating[1]
+                lambda p: p != eventPlayer 
+                and p.hasSpawned()
+                and p == eventPlayer.spectating[1]
             )
         )
         == 0
     ):
         eventPlayer.spectating[1] = getAllPlayers().filter(
-            lambda p: p != eventPlayer and not p.spectating[0]
+            lambda p: p != eventPlayer 
+            and p.hasSpawned()
+            and not p.spectating[0]
         )[0]
     else:
         eventPlayer.spectating[1] = getAllPlayers().filter(
-            lambda p: p != eventPlayer and not p.spectating[0]
+            lambda p: p != eventPlayer 
+            and p.hasSpawned()
+            and not p.spectating[0]
         )[
             (
                 getAllPlayers()
-                .filter(lambda p: p != eventPlayer and not p.spectating[0])
+                .filter(
+                    lambda p: p != eventPlayer 
+                    and p.hasSpawned()
+                    and not p.spectating[0]
+                )
                 .index(eventPlayer.spectating[1])
                 + 1
             )
             % len(
                 getAllPlayers().filter(
-                    lambda p: p != eventPlayer and not p.spectating[0]
+                    lambda p: p != eventPlayer 
+                    and p.hasSpawned()
+                    and not p.spectating[0]
                 )
             )
         ]
@@ -2776,7 +2798,7 @@ rule "23.7.5: Spectate Next Player Input":
     @Condition eventPlayer.spectating[0] == true
     @Condition eventPlayer.spectating[5] == false
     @Condition (
-        len(getAllPlayers().filter(lambda p: p != eventPlayer and not p.spectating[0]))
+        len(getAllPlayers().filter(lambda p: p != eventPlayer and p.hasSpawned() and not p.spectating[0]))
         > 0
     )
 
@@ -2791,32 +2813,46 @@ rule "23.7.5: Spectate Next Player Input":
     if (
         len(
             getAllPlayers().filter(
-                lambda p: p != eventPlayer and p == eventPlayer.spectating[1]
+                lambda p: p != eventPlayer 
+                and p.hasSpawned()
+                and p == eventPlayer.spectating[1]
             )
         )
         == 0
     ):
         eventPlayer.spectating[1] = getAllPlayers().filter(
-            lambda p: p != eventPlayer and not p.spectating[0]
+            lambda p: p != eventPlayer 
+            and p.hasSpawned()
+            and not p.spectating[0]
         )[0]
     else:
         eventPlayer.spectating[1] = getAllPlayers().filter(
-            lambda p: p != eventPlayer and not p.spectating[0]
+            lambda p: p != eventPlayer 
+            and p.hasSpawned()
+            and not p.spectating[0]
         )[
             (
                 getAllPlayers()
-                .filter(lambda p: p != eventPlayer and not p.spectating[0])
+                .filter(
+                    lambda p: p != eventPlayer 
+                    and p.hasSpawned()
+                    and not p.spectating[0]
+                )
                 .index(eventPlayer.spectating[1])
                 + len(
                     getAllPlayers().filter(
-                        lambda p: p != eventPlayer and not p.spectating[0]
+                        lambda p: p != eventPlayer 
+                        and p.hasSpawned()
+                        and not p.spectating[0]
                     )
                 )
                 - 1
             )
             % len(
                 getAllPlayers().filter(
-                    lambda p: p != eventPlayer and not p.spectating[0]
+                    lambda p: p != eventPlayer 
+                    and p.hasSpawned()
+                    and not p.spectating[0]
                 )
             )
         ]
@@ -2862,12 +2898,13 @@ rule "23.7.6: Spectate Crosshair Player Input":
     @Condition eventPlayer.spectating[2] == true
     @Condition eventPlayer.spectating[5] == false
     @Condition (
-        len(getAllPlayers().filter(lambda p: p != eventPlayer and not p.spectating[0]))
+        len(getAllPlayers().filter(lambda p: p != eventPlayer and p.hasSpawned() and not p.spectating[0]))
         > 0
     )
 
     eventPlayer.spectating[8] = getAllPlayers().filter(
         lambda p: p != eventPlayer
+        and p.hasSpawned()
         and not p.spectating[0]
         and angleBetweenVectors(
             eventPlayer.getFacingDirection(),
