@@ -1950,7 +1950,7 @@ rule "23.1.2: Load Controls HUD":
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and localPlayer.spectating[0]
         ),
-        ("Lobby:                            <fg00E092FF>{} + {}</fg>").format(
+        ("Lobby:                                    <fg00E092FF>{} + {}</fg>").format(
             inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_2)
         ),
         HudPosition.LEFT,
