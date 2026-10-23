@@ -1906,7 +1906,7 @@ rule "22.1.2: Load Controls HUD":
             and localPlayer.spectating[0]
         ),
         ("Lobby:                            <fg00E092FF>{} + {}</fg>").format(
-            inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_1)
+            inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_2)
         ),
         HudPosition.LEFT,
         6,
