@@ -15,6 +15,7 @@ globalvar lbPos 13
 globalvar lbObj 14
 globalvar lbObjFormatted 15
 globalvar playersUnpaused 16
+globalvar playerToEnableFreecam 17
 globalvar index 127
 
 playervar isLoading 0
@@ -45,6 +46,7 @@ playervar statFormatted 24
 playervar isInFreemode 25
 playervar isViewingCtrlsHud 26
 playervar spectating 27
+playervar firstPersonSpectatingTime 28
 playervar index 127
 
 subroutine loadLobby 0
@@ -55,6 +57,9 @@ subroutine unloadCpObjects 4
 subroutine setCpAbilities 5
 subroutine cpResetPlayer 6
 subroutine updateStats 7
-subroutine disableSpectatorMode 8
-subroutine reattachToSpectatingTarget 9
-subroutine enableFreecamForAffectedSpecs 10
+subroutine enableSpectator 8
+subroutine disableSpectator 9
+subroutine enableFreecam 10
+subroutine reattachToSpectatingTarget 11
+subroutine enableFreecamForSpectators 12
+subroutine enableFirstPersonSpectator 13
