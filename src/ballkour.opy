@@ -1824,10 +1824,10 @@ rule "22: Turn Inactive Players Tiny":
     eventPlayer.startScalingSize(0.1, false)
     waitUntil(
         eventPlayer.getSpeed() > 0 
-        or eventPlayer.isFiringPrimaryFire(true)
-        or eventPlayer.isFiringSecondaryFire(true)
-        or eventPlayer.isUsingAbility1(true)
-        or eventPlayer.isUsingAbility2(true)
+        or eventPlayer.isFiringPrimaryFire()
+        or eventPlayer.isFiringSecondaryFire()
+        or eventPlayer.isUsingAbility1()
+        or eventPlayer.isUsingAbility2()
         or eventPlayer.spectating[0] 
         or eventPlayer.isInLobby, 
         Math.INFINITY)
