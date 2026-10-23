@@ -921,8 +921,8 @@ rule "22.1.2: Load Controls HUD":
                 (localPlayer.spectating[3] and localPlayer.spectating[4] > 0)
             )
         ), 
-        ("Prev CP:                               <fg00E092FF>{} + {}</fg>")
-            .format(inputBindingString(Button.ULTIMATE), inputBindingString(Button.SECONDARY_FIRE)),
+        ("Prev. CP:                               <fg00E092FF>{} + {}</fg>")
+            .format(inputBindingString(Button.ULTIMATE), inputBindingString(Button.PRIMARY_FIRE)),
         HudPosition.LEFT, 1, Color.TURQUOISE, HudReeval.VISIBILITY_AND_STRING
     )
     hudSubheader(
