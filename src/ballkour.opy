@@ -524,8 +524,12 @@ rule "8.6: Load Lobby Stats":
         lobbyData[14],
         lobbyData[15],
         Clip.SURFACES,
-        WorldTextReeval.VISIBILITY,
-        rgb(230, 151, 0)
+        WorldTextReeval.VISIBILITY_AND_COLOR,
+        rgb(
+            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15),
+            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15 + 120),
+            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15 + 240)
+        )
     )
     createInWorldText(
         getAllPlayers().filter(
