@@ -16,6 +16,7 @@ globalvar lbPos 14
 globalvar lbObj 15
 globalvar lbObjFormatted 16
 globalvar playerToEnableFreecam 17
+globalvar tinyNameplateObjs 18
 globalvar index 127
 
 playervar isLoading 0
@@ -38,9 +39,10 @@ playervar runFinalTimeFormatted 16
 playervar runFinalMistakes 17
 playervar isViewingRunCompletionText 18
 playervar isInFreemode 19
-playervar isViewingCtrlsHud 20
-playervar spectating 21
-playervar firstPersonSpectatingTime 22
+playervar isTiny 20
+playervar isViewingCtrlsHud 21
+playervar spectating 22
+playervar firstPersonSpectatingTime 23
 playervar index 127
 
 subroutine loadLobby 0
