@@ -1747,7 +1747,7 @@ rule "21.2.2: Run Completion Text":
 
 
 def updateStats():
-    @Name "21.2: Update Lobby Stats With New Run"
+    @Name "21.3: Update Lobby Stats With New Run"
 
     lobbyStats[2]++
     lobbyStats[3] += eventPlayer.runTime
