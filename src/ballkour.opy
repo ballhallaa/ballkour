@@ -1812,7 +1812,7 @@ def updateStats():
     lobbyStats[8] = lobbyStats[5] / lobbyStats[2]
 
 
-rule "22: Turn AFK Players Tiny":
+rule "22: Turn Inactive Players Tiny":
     @Event eachPlayer
     @Condition eventPlayer.getSpeed() == 0
     @Condition eventPlayer.isInLobby == false
@@ -1822,7 +1822,15 @@ rule "22: Turn AFK Players Tiny":
     wait(15, Wait.ABORT_WHEN_FALSE)
     eventPlayer.isTiny = true
     eventPlayer.startScalingSize(0.1, false)
-    waitUntil(eventPlayer.getSpeed() > 0 or eventPlayer.spectating[0] or eventPlayer.isInLobby, Math.INFINITY)
+    waitUntil(
+        eventPlayer.getSpeed() > 0 
+        or eventPlayer.isFiringPrimaryFire(true)
+        or eventPlayer.isFiringSecondaryFire(true)
+        or eventPlayer.isUsingAbility1(true)
+        or eventPlayer.isUsingAbility2(true)
+        or eventPlayer.spectating[0] 
+        or eventPlayer.isInLobby, 
+        Math.INFINITY)
     eventPlayer.isTiny = false
     eventPlayer.stopScalingSize()
 
