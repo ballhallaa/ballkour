@@ -271,8 +271,12 @@ rule "8.2: Load Welcome Area":
         lobbyData[2],
         lobbyData[4],
         Clip.SURFACES,
-        WorldTextReeval.VISIBILITY,
-        rgb(230, 151, 0)
+        WorldTextReeval.VISIBILITY_AND_COLOR,
+        rgb(
+            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15),
+            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15 + 120),
+            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15 + 240)
+        )
     )
     createInWorldText(
         getAllPlayers().filter(lambda localPlayer: localPlayer.isInLobby),
@@ -280,8 +284,12 @@ rule "8.2: Load Welcome Area":
         lobbyData[3],
         lobbyData[4],
         Clip.SURFACES,
-        WorldTextReeval.VISIBILITY,
-        rgb(230, 151, 0)
+        WorldTextReeval.VISIBILITY_AND_COLOR,
+        rgb(
+            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15),
+            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15 + 120),
+            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15 + 240)
+        )
     )
 
 
@@ -292,8 +300,12 @@ rule "8.3: Load Leaderboard Area":
         lobbyData[11],
         lobbyData[12],
         Clip.SURFACES,
-        WorldTextReeval.VISIBILITY,
-        rgb(230, 151, 0)
+        WorldTextReeval.VISIBILITY_AND_COLOR,
+        rgb(
+            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15),
+            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15 + 120),
+            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15 + 240)
+        )
     )
     # 1st-9th Position Placeholder"
     lb[11] = "---, -:--.--, -, '                                               '"
@@ -628,8 +640,12 @@ rule "10: Load Run HUD":
         "ballkour.com",
         HudPosition.TOP,
         0,
-        rgb(230, 36, 0),
-        HudReeval.VISIBILITY
+        rgb(
+            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15),
+            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15 + 120),
+            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15 + 240)
+        ),
+        HudReeval.VISIBILITY_AND_COLOR
     )
     hudSubtext(
         getAllPlayers().filter(lambda localPlayer: not localPlayer.isInLobby),
@@ -2345,7 +2361,7 @@ rule "22.6.2: Load Freemode HUD":
         ("\n\n\nFreemode On"),
         HudPosition.LEFT,
         12,
-        rgb(255, 255, 0),
+        rgb(163, 0, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
 
@@ -2446,7 +2462,7 @@ rule "22.7.1.2: Load Spectator HUD":
         ("\n\n\nSpectating"),
         HudPosition.LEFT,
         12,
-        rgb(255, 255, 0),
+        rgb(163, 0, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
     hudSubtext(
@@ -2457,7 +2473,7 @@ rule "22.7.1.2: Load Spectator HUD":
         ("\n\n\nSpectating {}").format(localPlayer.spectating[1]),
         HudPosition.LEFT,
         12,
-        rgb(255, 255, 0),
+        rgb(163, 0, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
     hudSubtext(
