@@ -287,12 +287,8 @@ rule "8.2: Load Welcome Area":
         lobbyData[2],
         lobbyData[4],
         Clip.SURFACES,
-        WorldTextReeval.VISIBILITY_AND_COLOR,
-        rgb(
-            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15),
-            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15 + 120),
-            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15 + 240)
-        )
+        WorldTextReeval.VISIBILITY,
+        rgb(230, 151, 0)
     )
     createInWorldText(
         getAllPlayers().filter(lambda localPlayer: localPlayer.isInLobby),
@@ -300,12 +296,8 @@ rule "8.2: Load Welcome Area":
         lobbyData[3],
         lobbyData[4],
         Clip.SURFACES,
-        WorldTextReeval.VISIBILITY_AND_COLOR,
-        rgb(
-            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15),
-            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15 + 120),
-            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15 + 240)
-        )
+        WorldTextReeval.VISIBILITY,
+        rgb(230, 151, 0)
     )
 
 
