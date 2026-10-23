@@ -196,8 +196,8 @@ rule "3.1: Checkpoints (CPs)":
     cps[110] = [(cps[len(cps) - 2])[7], (cps[len(cps) - 2])[8]]
 
 
-rule "3.2: Break Disruptive Environment":
-    # bots[0]: team; bots[i > 0]: [0]spawnLocation [1]facingDirection
+rule "3.2: Disrupter Destructors":
+    # ddbots[0]: team; ddbots[i > 0]: [0]spawnLocation [1]facingDirection
     ddBots = []
     ddBots[0] = Team.2
     # Checkpoint 39
