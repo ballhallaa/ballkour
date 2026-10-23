@@ -227,7 +227,7 @@ rule "8.5.2: Resume Run Circle Entry":
     @Condition eventPlayer.isInLobby == true
     @Condition eventPlayer.isRunLoaded == true
     @Condition eventPlayer.isRunFinished == false
-    @Condition distance(eventPlayer.getPosition(), lobbyData[10]) <= 2
+    @Condition distance(eventPlayer.getPosition(), lobbyData[8]) <= 2
     
     eventPlayer.isLoading = true
     eventPlayer.isInLobby = false
