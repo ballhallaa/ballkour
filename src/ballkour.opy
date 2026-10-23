@@ -24,11 +24,13 @@ rule "6.1: Initialize Match":
     lbObjFormatted = lbObj[len(lbObj) - 1].split(".")
     timeToBeatInMs = (
         (
-            (["0","1","2","3","4","5","6","7","8","9"].index(lbObj[0].substring(0, 1)) * 10
-             + ["0","1","2","3","4","5","6","7","8","9"].index(lbObj[0].substring(1, 1)))
-            if ["0","1","2","3","4","5","6","7","8","9"].index(lbObj[0].substring(1, 1)) >= 0 else
-            ["0","1","2","3","4","5","6","7","8","9"].index(lbObj[0].substring(0, 1))
-        ) * 3600000 if len(lbObj) >= 3 else 0
+            (
+                (["0","1","2","3","4","5","6","7","8","9"].index(lbObj[0].substring(0, 1)) * 10
+                 + ["0","1","2","3","4","5","6","7","8","9"].index(lbObj[0].substring(1, 1)))
+                if ["0","1","2","3","4","5","6","7","8","9"].index(lbObj[0].substring(1, 1)) >= 0 else
+                ["0","1","2","3","4","5","6","7","8","9"].index(lbObj[0].substring(0, 1))
+            ) * 3600000 if len(lbObj) >= 3 else 0
+        )
         + (
             (["0","1","2","3","4","5","6","7","8","9"].index(lbObj[len(lbObj) - 2].substring(0, 1)) * 10
              + ["0","1","2","3","4","5","6","7","8","9"].index(lbObj[len(lbObj) - 2].substring(1, 1)))
