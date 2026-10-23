@@ -975,7 +975,7 @@ rule "22.1.2: Load Controls HUD":
     hudSubheader(
         getAllPlayers()
             .filter(lambda localPlayer: localPlayer.isViewingCtrlsHud and not localPlayer.spectating[0]), 
-        ("Lobby/Pause:               <fg00E092FF>{} + {}</fg>")
+        ("Lobby/Pause:                       <fg00E092FF>{} + {}</fg>")
             .format(
                 inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_2)
             ), 
