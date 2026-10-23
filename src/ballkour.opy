@@ -105,6 +105,7 @@ rule "6.1: Initialize Match":
         * 10
     )
     nameplateObjs = []
+    tinyNameplateObjs = []
 
 
 rule "6.3: Start Elapsed Timer":
@@ -202,8 +203,12 @@ rule "7.1: Player Joins":
     getAllPlayers().disableNameplatesFor(eventPlayer)
     if nameplateObjs[eventPlayer.getSlot()] != null:
         destroyInWorldText(nameplateObjs[eventPlayer.getSlot()])
+    if tinyNameplateObjs[eventPlayer.getSlot()] != null:
+        destroyInWorldText(tinyNameplateObjs[eventPlayer.getSlot()])
     createInWorldText(
-        getAllPlayers().filter(lambda localPlayer: localPlayer != eventPlayer),
+        getAllPlayers().filter(
+            lambda localPlayer: localPlayer != eventPlayer and not eventPlayer.isTiny
+        ),
         eventPlayer.nameplate,
         eventPlayer,
         1,
@@ -211,6 +216,17 @@ rule "7.1: Player Joins":
         WorldTextReeval.VISIBILITY_POSITION_AND_STRING
     )
     nameplateObjs[eventPlayer.getSlot()] = getLastCreatedText()
+    createInWorldText(
+        getAllPlayers().filter(
+            lambda localPlayer: localPlayer != eventPlayer and eventPlayer.isTiny
+        ),
+        eventPlayer.nameplate,
+        eventPlayer,
+        0.5,
+        Clip.SURFACES,
+        WorldTextReeval.VISIBILITY_POSITION_AND_STRING
+    )
+    tinyNameplateObjs[eventPlayer.getSlot()] = getLastCreatedText()
     wait()
     loadLobby()
     while (
@@ -1792,7 +1808,22 @@ def updateStats():
     lobbyStats[8] = lobbyStats[5] / lobbyStats[2]
 
 
-rule "22.1.1: Controls HUD Input":
+rule "22: Turn AFK Players Tiny":
+    @Event eachPlayer
+    @Condition eventPlayer.getSpeed() == 0
+    @Condition eventPlayer.isInLobby == false
+    @Condition eventPlayer.spectating[0] == false
+    @Condition eventPlayer.isDummy() == false
+
+    wait(15, Wait.ABORT_WHEN_FALSE)
+    eventPlayer.isTiny = true
+    eventPlayer.startScalingSize(0.1, false)
+    waitUntil(eventPlayer.getSpeed() > 0 or eventPlayer.spectating[0] or eventPlayer.isInLobby, Math.INFINITY)
+    eventPlayer.isTiny = false
+    eventPlayer.stopScalingSize()
+
+
+rule "23.1.1: Controls HUD Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
     @Condition eventPlayer.spectating[5] == false
@@ -1816,7 +1847,7 @@ rule "22.1.1: Controls HUD Input":
         eventPlayer.allowButton(Button.ABILITY_2)
 
 
-rule "22.1.2: Load Controls HUD":
+rule "23.1.2: Load Controls HUD":
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
@@ -2018,7 +2049,7 @@ rule "22.1.2: Load Controls HUD":
     )
 
 
-rule "22.2: Prev. Checkpoint Input":
+rule "23.2: Prev. Checkpoint Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == true
@@ -2132,7 +2163,7 @@ rule "22.2: Prev. Checkpoint Input":
     eventPlayer.isLoading = false
 
 
-rule "22.3: Next Checkpoint Input":
+rule "23.3: Next Checkpoint Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
@@ -2253,7 +2284,7 @@ rule "22.3: Next Checkpoint Input":
     eventPlayer.isLoading = false
 
 
-rule "22.4: Reset Checkpoint Input":
+rule "23.4: Reset Checkpoint Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
     @Condition eventPlayer.isHoldingButton(Button.RELOAD) == true
@@ -2280,7 +2311,7 @@ rule "22.4: Reset Checkpoint Input":
     eventPlayer.isLoading = false
 
 
-rule "22.5: New Run Input":
+rule "23.5: New Run Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
@@ -2315,7 +2346,7 @@ rule "22.5: New Run Input":
     eventPlayer.isLoading = false
 
 
-rule "22.6.1: Freemode Input":
+rule "23.6.1: Freemode Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
@@ -2366,7 +2397,7 @@ rule "22.6.1: Freemode Input":
     eventPlayer.allowButton(Button.MELEE)
 
 
-rule "22.6.2: Load Freemode HUD":
+rule "23.6.2: Load Freemode HUD":
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isInFreemode
@@ -2380,7 +2411,7 @@ rule "22.6.2: Load Freemode HUD":
     )
 
 
-rule "22.7.1.1: Spectator Mode Input":
+rule "23.7.1.1: Spectator Mode Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
@@ -2401,7 +2432,7 @@ rule "22.7.1.1: Spectator Mode Input":
         disableSpectator()
 
 
-rule "22.7.1.2: Load Spectator HUD":
+rule "23.7.1.2: Load Spectator HUD":
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: not localPlayer.isInLobby
@@ -2540,7 +2571,7 @@ def enableSpectator():
     enableFreecamForSpectators()
 
 
-rule "22.7.2.3: Spectating Camera Loop":
+rule "23.7.2.3: Spectating Camera Loop":
     @Disabled
     @Event eachPlayer
     @Condition eventPlayer.spectating[0] == true
@@ -2601,7 +2632,7 @@ def disableSpectator():
     eventPlayer.isLoading = false
 
 
-rule "22.7.3: Track If Anyone Is Spectatable":
+rule "23.7.3: Track If Anyone Is Spectatable":
     @Event eachPlayer
     @Condition eventPlayer.spectating[0] == true
     @Condition eventPlayer.spectating[7] != (
@@ -2612,7 +2643,7 @@ rule "22.7.3: Track If Anyone Is Spectatable":
     eventPlayer.spectating[7] = not eventPlayer.spectating[7]
 
 
-rule "22.7.4: Spectate Prev. Player Input":
+rule "23.7.4: Spectate Prev. Player Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == true
@@ -2692,7 +2723,7 @@ rule "22.7.4: Spectate Prev. Player Input":
     eventPlayer.spectating[4] = eventPlayer.spectating[1].runCurrentCp
 
 
-rule "22.7.5: Spectate Next Player Input":
+rule "23.7.5: Spectate Next Player Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
@@ -2777,7 +2808,7 @@ rule "22.7.5: Spectate Next Player Input":
     eventPlayer.spectating[4] = eventPlayer.spectating[1].runCurrentCp
 
 
-rule "22.7.6: Spectate Crosshair Player Input":
+rule "23.7.6: Spectate Crosshair Player Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
@@ -2841,7 +2872,7 @@ rule "22.7.6: Spectate Crosshair Player Input":
     eventPlayer.spectating[9] = false
 
 
-rule "22.7.7.1: Enable Freecam Input":
+rule "23.7.7.1: Enable Freecam Input":
     @Event eachPlayer
     @Condition eventPlayer.spectating[0] == true
     @Condition eventPlayer.spectating[2] == false
@@ -2893,7 +2924,7 @@ def enableFreecam():
     playerToEnableFreecam = null
 
 
-rule "22.7.7.3: Freecam Speed Boost":
+rule "23.7.7.3: Freecam Speed Boost":
     @Event eachPlayer
     @Condition eventPlayer.spectating[2] == true
     @Condition eventPlayer.spectating[0] == true
@@ -2902,7 +2933,7 @@ rule "22.7.7.3: Freecam Speed Boost":
     eventPlayer.setMoveSpeed(300)
 
 
-rule "22.7.7.4: Freecam Boost Input":
+rule "23.7.7.4: Freecam Boost Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
@@ -2920,7 +2951,7 @@ rule "22.7.7.4: Freecam Boost Input":
     eventPlayer.setMoveSpeed(300)
 
 
-rule "22.7.7.5: Freecam Environment Death":
+rule "23.7.7.5: Freecam Environment Death":
     @Event playerDied
     @Condition eventPlayer.getHero() == Hero.JETPACK_CAT
     @Condition eventPlayer.spectating[6] == false
@@ -2950,7 +2981,7 @@ def enableFreecamForSpectators():
                 eventPlayer.spectating[10]--
 
 
-rule "22.7.8.1: Reattach Input":
+rule "23.7.8.1: Reattach Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
@@ -3004,7 +3035,7 @@ def reattachToSpectatingTarget():
     eventPlayer.spectating[3] = false
 
 
-rule "22.7.9.1: Enable First Person Spectator Input":
+rule "23.7.9.1: Enable First Person Spectator Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
@@ -3074,7 +3105,7 @@ def enableFirstPersonSpectator():
             return
 
 
-rule "22.7.9.2: First Person Spectator Mode Expires":
+rule "23.7.9.2: First Person Spectator Mode Expires":
     @Event eachPlayer
     @Condition eventPlayer.firstPersonSpectatingTime == 9999
     @Condition eventPlayer.spectating[5] == true
@@ -3098,7 +3129,7 @@ rule "22.7.9.2: First Person Spectator Mode Expires":
     enableFirstPersonSpectator()
 
 
-rule "22.7.10: Disable First Person Spectator Input":
+rule "23.7.10: Disable First Person Spectator Input":
     @Event eachPlayer
     @Condition (
         eventPlayer.isHoldingButton(Button.ULTIMATE)
@@ -3156,7 +3187,7 @@ rule "22.7.10: Disable First Person Spectator Input":
         eventPlayer.spectating[5] = false
 
 
-rule "22.8: Lobby Input":
+rule "23.8: Lobby Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
@@ -3187,7 +3218,7 @@ rule "22.8: Lobby Input":
     eventPlayer.isLoading = false
 
 
-rule "23: Auto-Restart Server":
+rule "24: Auto-Restart Server":
     @SuppressWarnings w_ow2_rule_condition_chase
     # 3hr29min in
     @Condition elapsedTime >= 12540
