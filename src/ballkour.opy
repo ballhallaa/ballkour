@@ -2561,7 +2561,6 @@ def disableSpectator():
     eventPlayer.setInvisibility(Invis.NONE)
     eventPlayer.startForcingHero(Hero.WRECKING_BALL)
     eventPlayer.allowButton(Button.PRIMARY_FIRE)
-    eventPlayer.setPrimaryFireEnabled(true)  # ?
     eventPlayer.allowButton(Button.SECONDARY_FIRE)
     eventPlayer.setSecondaryFireEnabled(true)  # ?
     eventPlayer.allowButton(Button.CROUCH)
