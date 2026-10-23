@@ -55,8 +55,12 @@ settings {
 
 rule "0: Contact & Course Info":
     logToInspector("Hello! Welcome to Ballkour's Paraíso course!")
-    logToInspector("Original course (3700E) created by Spiz. Recreated by ballmybeloved.")
-    logToInspector("This route was slightly adjusted for quality purposes. Shield bounce has been reworked for better implementation in routes.")
+    logToInspector(
+        "Original course (3700E) created by Spiz. Recreated by ballmybeloved."
+    )
+    logToInspector(
+        "This route was slightly adjusted for quality purposes. Shield bounce has been reworked for better implementation in routes."
+    )
     logToInspector("Discord: ballkour.com/discord")
     logToInspector("Set a top-10 time? Submit a video with your run in our Discord!")
     logToInspector("Course playthrough: ballkour.com/paraiso")
@@ -288,12 +292,17 @@ rule "5: Lobby Boundary":
     @Condition (eventPlayer.hasSpawned() and not eventPlayer.isLoading) == true
     @Condition eventPlayer.isInLobby == true
     @Condition distance(eventPlayer.getPosition(), lobbyData[0]) > 18
-    
+
     if eventPlayer.isFiringSecondaryFire():
         eventPlayer.setSecondaryFireEnabled(false)
         eventPlayer.setSecondaryFireEnabled(true)
         eventPlayer.setAbilityCooldown(Button.SECONDARY_FIRE, 0.5)
-    eventPlayer.applyImpulse(directionTowards(eventPlayer.getPosition(), lobbyData[0]), 10, Relativity.TO_WORLD, Impulse.CANCEL_CONTRARY_MOTION_XYZ)
+    eventPlayer.applyImpulse(
+        directionTowards(eventPlayer.getPosition(), lobbyData[0]),
+        10,
+        Relativity.TO_WORLD,
+        Impulse.CANCEL_CONTRARY_MOTION_XYZ
+    )
 
 
 #!include "ballkour.opy"

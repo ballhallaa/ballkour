@@ -245,13 +245,27 @@ rule "4: Lobby":
     lobbyData[15] = 1.2
     lobbyData[16] = 0.7
     lobbyData[17] = lobbyData[14] + vect(0, -0.65, 0)
-    lobbyData[18] = lobbyData[17] + (((vect(0, lbPos[10].y - lobbyData[17].y, 0)) / 7) * 1)
-    lobbyData[19] = lobbyData[17] + (((vect(0, lbPos[10].y - lobbyData[17].y, 0)) / 7) * 2)
-    lobbyData[20] = lobbyData[17] + (((vect(0, lbPos[10].y - lobbyData[17].y, 0)) / 7) * 3)
-    lobbyData[21] = lobbyData[17] + (((vect(0, lbPos[10].y - lobbyData[17].y, 0)) / 7) * 4)
-    lobbyData[22] = lobbyData[17] + (((vect(0, lbPos[10].y - lobbyData[17].y, 0)) / 7) * 5)
-    lobbyData[23] = lobbyData[17] + (((vect(0, lbPos[10].y - lobbyData[17].y, 0)) / 7) * 6)
-    lobbyData[24] = lobbyData[17] + (((vect(0, lbPos[10].y - lobbyData[17].y, 0)) / 7) * 7)
+    lobbyData[18] = lobbyData[17] + (
+        ((vect(0, lbPos[10].y - lobbyData[17].y, 0)) / 7) * 1
+    )
+    lobbyData[19] = lobbyData[17] + (
+        ((vect(0, lbPos[10].y - lobbyData[17].y, 0)) / 7) * 2
+    )
+    lobbyData[20] = lobbyData[17] + (
+        ((vect(0, lbPos[10].y - lobbyData[17].y, 0)) / 7) * 3
+    )
+    lobbyData[21] = lobbyData[17] + (
+        ((vect(0, lbPos[10].y - lobbyData[17].y, 0)) / 7) * 4
+    )
+    lobbyData[22] = lobbyData[17] + (
+        ((vect(0, lbPos[10].y - lobbyData[17].y, 0)) / 7) * 5
+    )
+    lobbyData[23] = lobbyData[17] + (
+        ((vect(0, lbPos[10].y - lobbyData[17].y, 0)) / 7) * 6
+    )
+    lobbyData[24] = lobbyData[17] + (
+        ((vect(0, lbPos[10].y - lobbyData[17].y, 0)) / 7) * 7
+    )
 
 
 rule "5: Lobby Boundary":
@@ -259,12 +273,17 @@ rule "5: Lobby Boundary":
     @Condition (eventPlayer.hasSpawned() and not eventPlayer.isLoading) == true
     @Condition eventPlayer.isInLobby == true
     @Condition distance(eventPlayer.getPosition(), lobbyData[0]) > 20
-    
+
     if eventPlayer.isFiringSecondaryFire():
         eventPlayer.setSecondaryFireEnabled(false)
         eventPlayer.setSecondaryFireEnabled(true)
         eventPlayer.setAbilityCooldown(Button.SECONDARY_FIRE, 0.5)
-    eventPlayer.applyImpulse(directionTowards(eventPlayer.getPosition(), lobbyData[0]), 10, Relativity.TO_WORLD, Impulse.CANCEL_CONTRARY_MOTION_XYZ)
+    eventPlayer.applyImpulse(
+        directionTowards(eventPlayer.getPosition(), lobbyData[0]),
+        10,
+        Relativity.TO_WORLD,
+        Impulse.CANCEL_CONTRARY_MOTION_XYZ
+    )
 
 
 #!include "ballkour.opy"
