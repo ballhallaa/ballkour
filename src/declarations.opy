@@ -28,7 +28,7 @@ playervar runTime 5
 playervar runTimeFormatted 6
 playervar runMistakes 7
 playervar cpData 8
-playervar isCpTimerActive 9
+playervar cpStartTime 9
 playervar cpTime 10
 playervar cpTimeFormatted 11
 playervar isRunLegit 12
