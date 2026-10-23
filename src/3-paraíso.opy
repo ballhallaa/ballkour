@@ -87,7 +87,7 @@ rule "3: Checkpoints (CPs)":
     # cps[i]: [0]cpLocation [1]cpSize [2]isGrappleAllowed [3]isShieldBounceAllowed [4]isPiledriverAllowed [5]bounceLocation [6]bounceSize [7]nextCpLocation [8]nextCpSize
     cps = []
     cps[0] = [vect(9.18, 4.99, -91.19), cpDefaults[0], false, false, true, null, null, vect(17.75, 5.00, -93.00), cpDefaults[2]]
-    cps[1] = [(cps[len(cps) - 2])[7], (cps[len(cps) - 2])[8], true, false, true, null, null, vect(34.19, 5.00, -106.95), (cps[len(cps) - 2])[8]]
+    cps[1] = [(cps[len(cps) - 2])[7], (cps[len(cps) - 2])[8], true, false, true, null, null, vect(34.19, 5.00, -106.95), cpDefaults[2]]
     cps[2] = [(cps[len(cps) - 2])[7], (cps[len(cps) - 2])[8], false, true, true, null, null, vect(14.04, 4.88, -107.30), cpDefaults[2]]
     cps[3] = [(cps[len(cps) - 2])[7], (cps[len(cps) - 2])[8], true, true, true, null, null, vect(-1.69, 11.00, -84.34), cpDefaults[2]]
     cps[4] = [(cps[len(cps) - 2])[7], (cps[len(cps) - 2])[8], false, true, true, null, null, vect(24.98, 2.00, -78.46), cpDefaults[2]]
