@@ -72,29 +72,34 @@ rule "6.3: Start Elapsed Timer":
             )
 
 
-rule "6.4: Destroy Disruptive Environment":
-    wait(1)
-    # dd[i]: [0]nextDdInNewBatch [1]batchSize [2]currentDd [3]ddEntity
-    dd = [1, 0, 0, 0]
+rule "6.4: Spawn Disrupter Destructors":
+    waitUntil(hostPlayer.hasSpawned(), Math.INFINITY)
+    # dd[i]: [0]nextDdInNewBatch [1]batchSize [2]currentDd [3]ddEntity [4]slot
+    dd = [1, 0, 0, 0, 0]
     while dd[0] < len(ddBots):
-        dd[1] = min(12 - len(getAllPlayers()), len(ddBots) - dd[0])
+        dd[1] = min(getNumberOfSlots(ddBots[0]) - len(getPlayers(ddBots[0])), len(ddBots) - dd[0])
         if dd[1] <= 0:
-            wait(5)
+            wait(1)
         else:
             dd[2] = 0
-            while dd[2] < dd[1]:
-                createDummy(Hero.LUCIO, ddBots[0], -1, ddBots[dd[0] + dd[2]][0], directionTowards(ddBots[dd[0] + dd[2]][0], ddBots[dd[0] + dd[2]][1]))
-                dd[3] = getLastCreatedEntity()
-                dd[3].startForcingName("Disrupter Destructor {}".format(dd[0] + dd[2]))
-                dd[2] = dd[2] + 1
+            dd[4] = getNumberOfSlots(ddBots[0]) - 1
+            while dd[2] < dd[1] and dd[4] >= 0:
+                if getPlayersInSlot(dd[4], ddBots[0]) == null:
+                    createDummy(Hero.LUCIO, ddBots[0], dd[4], ddBots[dd[0] + dd[2]][0], directionTowards(ddBots[dd[0] + dd[2]][0], ddBots[dd[0] + dd[2]][1]))
+                    dd[3] = getLastCreatedEntity()
+                    dd[3].startForcingName("Disrupter Destructor {}".format(dd[0] + dd[2]))
+                    dd[2] = dd[2] + 1
+                dd[4] = dd[4] - 1
             dd[2] = 0
             while dd[2] < dd[1]:
                 waitUntil(getAllPlayers().filter(lambda p: p.isDummy())[dd[2]].hasSpawned(), 5)
                 getAllPlayers().filter(lambda p: p.isDummy())[dd[2]].forceButtonPress(Button.SECONDARY_FIRE)
                 dd[2] = dd[2] + 1
             wait()
-            #destroyAllDummies()
-            dd[0] = dd[0] + dd[1]
+            if len(getAllPlayers().filter(lambda p: p.isDummy())) >= dd[1]:
+                dd[0] = dd[0] + dd[1]
+            destroyAllDummies()
+            waitUntil(len(getAllPlayers().filter(lambda p: p.isDummy())) == 0, 1)
 
 
 rule "7.1: Player Joins":
