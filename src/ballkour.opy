@@ -2355,7 +2355,7 @@ rule "24.1.2: Load Controls HUD":
             (
                 "Disable Hints:                "
                 if localPlayer.isHintOn
-                else "Enable Hints:                  "
+                else "Enable Hints:                 "
             ),
             inputBindingString(Button.ULTIMATE),
             inputBindingString(Button.MELEE)
