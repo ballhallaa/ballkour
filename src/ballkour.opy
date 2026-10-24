@@ -3105,14 +3105,15 @@ def disableSpectator():
     eventPlayer.allowButton(Button.ABILITY_2)
     eventPlayer.setAbility2Enabled(true)
     eventPlayer.spectating[0] = false
+    if not eventPlayer.spectating[3] and eventPlayer.spectating[1] != null:
+        eventPlayer.spectating[4] = eventPlayer.spectating[1].runCurrentCp
+    if eventPlayer.spectating[4] > eventPlayer.runCurrentCp:
+        eventPlayer.isRunLegit = false
+    eventPlayer.runCurrentCp = eventPlayer.spectating[4]
     eventPlayer.spectating[1].spectating[10]--
     eventPlayer.spectating[1] = null
     eventPlayer.spectating[2] = false
-    if eventPlayer.spectating[3]:
-        if eventPlayer.spectating[4] > eventPlayer.runCurrentCp:
-            eventPlayer.isRunLegit = false
-        eventPlayer.runCurrentCp = eventPlayer.spectating[4]
-        eventPlayer.spectating[3] = false
+    eventPlayer.spectating[3] = false
     loadCpData()
     if eventPlayer.isInFreemode:
         eventPlayer.nameplate = "{} | FREEMODE".format(eventPlayer)
