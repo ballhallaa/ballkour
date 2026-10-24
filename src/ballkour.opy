@@ -769,6 +769,7 @@ def loadCpData():
     eventPlayer.cpData[14] = false
     eventPlayer.cpData[16] = false
     eventPlayer.cpStartTime = eventPlayer.runTime
+    eventPlayer.cpTime = 0
 
 
 def setCpAbilities():
@@ -1049,26 +1050,76 @@ rule "14.2: Update Run Timer Format":
     eventPlayer.isTimerActive = true
     while not eventPlayer.isRunPaused:
         wait(0.016 + getServerLoad() * 0.001)
-        eventPlayer.runTimeFormatted = (
-            "{}:{}:{}".format(
-                floor(eventPlayer.runTime / 3600),
-                (eventPlayer.runTime % 3600 / 60 + 100).substring(1, 2),
-                (eventPlayer.runTime % 60 + 100).substring(1, 9999)
+        eventPlayer.timeToFormat = eventPlayer.runTime
+        formatTime()
+        eventPlayer.runTimeFormatted = eventPlayer.timeFormatted
+    eventPlayer.isTimerActive = false
+
+
+def formatTime():
+    @Name "14.3: Format Time"
+
+    eventPlayer.timeFormatted = (
+        "{}:{}:{}".format(
+            floor(eventPlayer.timeToFormat / 3600),
+            (eventPlayer.timeToFormat % 3600 / 60 + 100).substring(1, 2),
+            (eventPlayer.timeToFormat % 60 + 100).substring(1, 9999)
+        )
+        if eventPlayer.timeToFormat >= 3600
+        else (
+            "{}:{}".format(
+                floor(eventPlayer.timeToFormat / 60),
+                (eventPlayer.timeToFormat % 60 + 100).substring(1, 9999)
             )
-            if eventPlayer.runTime >= 3600
-            else (
-                "{}:{}".format(
-                    floor(eventPlayer.runTime / 60),
-                    (eventPlayer.runTime % 60 + 100).substring(1, 9999)
-                )
-                if eventPlayer.runTime >= 60
-                else "{}.{}".format(
-                    floor(eventPlayer.runTime),
-                    (round(eventPlayer.runTime % 1 * 100) + 100).substring(1, 2)
-                )
+            if eventPlayer.timeToFormat >= 60
+            else "{}.{}".format(
+                floor(eventPlayer.timeToFormat),
+                (round(eventPlayer.timeToFormat % 1 * 100) + 100).substring(1, 2)
             )
         )
-    eventPlayer.isTimerActive = false
+    )
+
+
+rule "15.1: Start Checkpoint Time Timer":
+    @Event eachPlayer
+    @Condition (
+        eventPlayer.hasSpawned()
+        and not eventPlayer.isLoading
+        and not eventPlayer.hasStatus(Status.ROOTED)
+    ) == true
+    @Condition eventPlayer.isInLobby == false
+    @Condition eventPlayer.isInFreemode == false
+    @Condition eventPlayer.runCurrentCp < len(cps) - 1
+    @Condition eventPlayer.spectating[0] == false
+    @Condition (
+        distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
+        > eventPlayer.cpData[1]
+    )
+
+    eventPlayer.isCpTimerActive = true
+    chaseAtRate(eventPlayer.cpTime, Math.INFINITY, 1)
+
+
+rule "15.2: Restart Checkpoint Time Timer":
+    @Event eachPlayer
+    @Condition (
+        eventPlayer.hasSpawned()
+        and not eventPlayer.isLoading
+        and not eventPlayer.hasStatus(Status.ROOTED)
+    ) == true
+    @Condition eventPlayer.isCpTimerActive == true
+    @Condition eventPlayer.isInLobby == false
+    @Condition eventPlayer.isInFreemode == false
+    @Condition eventPlayer.runCurrentCp < len(cps) - 1
+    @Condition eventPlayer.spectating[0] == false
+    @Condition (
+        distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
+        <= eventPlayer.cpData[1]
+    )
+
+    eventPlayer.isCpTimerActive = false
+    stopChasingVariable(eventPlayer.cpTime)
+    eventPlayer.cpTime = 0
 
 
 rule "16.1.1: Jumping":
@@ -1491,6 +1542,8 @@ rule "18.4: Bounce Checkpoint Mistake: Improperly Airborne":
 def cpResetPlayer():
     @Name "19: Checkpoint Reset Player"
 
+    stopChasingVariable(eventPlayer.cpTime)
+    eventPlayer.cpTime = 0
     if not eventPlayer.spectating[0]:
         eventPlayer.teleport(eventPlayer.cpData[0])
     else:
@@ -1536,27 +1589,19 @@ rule "20: Checkpoint Completed (No Skipping)":
         <= eventPlayer.cpData[8]
     )
 
-    eventPlayer.cpTime = eventPlayer.runTime - eventPlayer.cpStartTime
-    eventPlayer.cpTimeFormatted = (
-        "{}:{}:{}".format(
-            floor(eventPlayer.cpTime / 3600),
-            (eventPlayer.cpTime % 3600 / 60 + 100).substring(1, 2),
-            (eventPlayer.cpTime % 60 + 100).substring(1, 9999)
-        )
-        if eventPlayer.cpTime >= 3600
-        else (
-            "{}:{}".format(
-                floor(eventPlayer.cpTime / 60),
-                (eventPlayer.cpTime % 60 + 100).substring(1, 9999)
-            )
-            if eventPlayer.cpTime >= 60
-            else "{}.{}".format(
-                floor(eventPlayer.cpTime),
-                (round(eventPlayer.cpTime % 1 * 100) + 100).substring(1, 2)
-            )
+    stopChasingVariable(eventPlayer.cpTime)
+    eventPlayer.timeToFormat = eventPlayer.cpTime
+    formatTime()
+    eventPlayer.cpTimeFormatted = eventPlayer.timeFormatted
+    eventPlayer.timeToFormat = eventPlayer.runTime - eventPlayer.cpStartTime
+    formatTime()
+    eventPlayer.cpTotalTimeFormatted = eventPlayer.timeFormatted
+    smallMessage(
+        eventPlayer,
+        "Time: {} | Total: {}".format(
+            eventPlayer.cpTimeFormatted, eventPlayer.cpTotalTimeFormatted
         )
     )
-    smallMessage(eventPlayer, "Time: {}".format(eventPlayer.cpTimeFormatted))
     eventPlayer.isLoading = true
     eventPlayer.runCurrentCp++
     for eventPlayer.index in range(len(getAllPlayers())):
@@ -1567,7 +1612,9 @@ rule "20: Checkpoint Completed (No Skipping)":
             getAllPlayers()[eventPlayer.index].spectating[4]++
             smallMessage(
                 getAllPlayers()[eventPlayer.index],
-                "Time: {}".format(eventPlayer.cpTimeFormatted)
+                "Time: {} | Total: {}".format(
+                    eventPlayer.cpTimeFormatted, eventPlayer.cpTotalTimeFormatted
+                )
             )
     eventPlayer.nameplate = "{} | {}".format(eventPlayer, eventPlayer.runCurrentCp)
     loadCpData()
