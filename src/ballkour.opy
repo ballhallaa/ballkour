@@ -1087,19 +1087,71 @@ rule "14.3: Hint Playback":
     eventPlayer.isHintPlaying = true
     wait(0.5, Wait.ABORT_WHEN_FALSE)
     eventPlayer.hintTime = 0
+    eventPlayer.hintStep = 0
     chaseAtRate(eventPlayer.hintTime, Math.INFINITY, 1)
-    while eventPlayer.hintIndex < len(hintRoutes[eventPlayer.hintCp]) - 1:
-        eventPlayer.hintIndex++
+    # Steps along a cubic Hermite spline through the keyframes, each keyframe's velocity
+    # taken from its neighbours. tools/hints.py fits the keyframes to this same curve
+    while eventPlayer.hintStep < hintTimes[eventPlayer.hintCp].last():
+        if eventPlayer.hintStep >= hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex]:
+            eventPlayer.hintIndex++
+            # hintSpline: [0]start [1]end [2]startVelocity [3]endVelocity, velocities scaled by the segment's duration
+            eventPlayer.hintSpline = [
+                hintRoutes[eventPlayer.hintCp][eventPlayer.hintIndex - 1],
+                hintRoutes[eventPlayer.hintCp][eventPlayer.hintIndex],
+                (
+                    hintRoutes[eventPlayer.hintCp][eventPlayer.hintIndex]
+                    - hintRoutes[eventPlayer.hintCp][max(eventPlayer.hintIndex - 2, 0)]
+                )
+                * (
+                    (
+                        hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex]
+                        - hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex - 1]
+                    )
+                    / (
+                        hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex]
+                        - hintTimes[eventPlayer.hintCp][max(eventPlayer.hintIndex - 2, 0)]
+                    )
+                ),
+                (
+                    hintRoutes[eventPlayer.hintCp][
+                        min(eventPlayer.hintIndex + 1, len(hintRoutes[eventPlayer.hintCp]) - 1)
+                    ]
+                    - hintRoutes[eventPlayer.hintCp][eventPlayer.hintIndex - 1]
+                )
+                * (
+                    (
+                        hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex]
+                        - hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex - 1]
+                    )
+                    / (
+                        hintTimes[eventPlayer.hintCp][
+                            min(eventPlayer.hintIndex + 1, len(hintRoutes[eventPlayer.hintCp]) - 1)
+                        ]
+                        - hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex - 1]
+                    )
+                )
+            ]
+        eventPlayer.hintStep = min(
+            eventPlayer.hintStep + 0.1,
+            hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex]
+        )
+        eventPlayer.hintS = (
+            eventPlayer.hintStep - hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex - 1]
+        ) / (
+            hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex]
+            - hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex - 1]
+        )
         chaseOverTime(
             eventPlayer.hintPos,
-            hintRoutes[eventPlayer.hintCp][eventPlayer.hintIndex],
-            hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex] - eventPlayer.hintTime,
+            eventPlayer.hintSpline[0] * (2 * eventPlayer.hintS ** 3 - 3 * eventPlayer.hintS ** 2 + 1)
+            + eventPlayer.hintSpline[1] * (3 * eventPlayer.hintS ** 2 - 2 * eventPlayer.hintS ** 3)
+            + eventPlayer.hintSpline[2]
+            * (eventPlayer.hintS ** 3 - 2 * eventPlayer.hintS ** 2 + eventPlayer.hintS)
+            + eventPlayer.hintSpline[3] * (eventPlayer.hintS ** 3 - eventPlayer.hintS ** 2),
+            eventPlayer.hintStep - eventPlayer.hintTime,
             ChaseTimeReeval.NONE
         )
-        wait(
-            hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex] - eventPlayer.hintTime,
-            Wait.ABORT_WHEN_FALSE
-        )
+        wait(eventPlayer.hintStep - eventPlayer.hintTime, Wait.ABORT_WHEN_FALSE)
     stopChasingVariable(eventPlayer.hintTime)
     eventPlayer.hintTime = -1
     eventPlayer.hintIndex = 0
