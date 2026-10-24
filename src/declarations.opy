@@ -72,6 +72,7 @@ playervar isTiny 44
 playervar isViewingCtrlsHud 45
 playervar spectating 46
 playervar firstPersonSpectatingTime 47
+playervar hintPlayCp 48
 playervar index 127
 
 subroutine loadLobby 0
