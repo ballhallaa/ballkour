@@ -1083,13 +1083,17 @@ rule "14.3: Hint Playback":
     stopChasingVariable(eventPlayer.hintTime)
     eventPlayer.hintTime = -1
     eventPlayer.hintIndex = 0
+    eventPlayer.hintPlayCp = eventPlayer.hintCp
     eventPlayer.hintPos = hintRoutes[eventPlayer.hintCp][0]
     eventPlayer.isHintPlaying = true
     wait(0.5, Wait.ABORT_WHEN_FALSE)
     eventPlayer.hintTime = 0
     eventPlayer.hintStep = 0
     chaseAtRate(eventPlayer.hintTime, Math.INFINITY, 1)
-    while eventPlayer.hintStep < hintTimes[eventPlayer.hintCp].last():
+    while (
+        eventPlayer.hintStep < hintTimes[eventPlayer.hintCp].last()
+        and eventPlayer.hintPlayCp == eventPlayer.hintCp
+    ):
         if eventPlayer.hintStep >= hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex]:
             eventPlayer.hintIndex++
             # hintSpline: [0]start [1]end [2]startVelocity [3]endVelocity
@@ -1153,7 +1157,8 @@ rule "14.3: Hint Playback":
     stopChasingVariable(eventPlayer.hintTime)
     eventPlayer.hintTime = -1
     eventPlayer.hintIndex = 0
-    wait(1, Wait.ABORT_WHEN_FALSE)
+    if eventPlayer.hintPlayCp == eventPlayer.hintCp:
+        wait(1, Wait.ABORT_WHEN_FALSE)
     if RULE_CONDITION: loop()
 
 
