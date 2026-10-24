@@ -1748,6 +1748,22 @@ rule "21.2.2: Run Completion Text":
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
+            and localPlayer.runTime * 1000 > timeToBeatInMs
+            and timeToBeatInMs > 0
+        ),
+        "<fgA52A2AFF>Submit a Video of Your Run\n"
+        "                        @\n"
+        "              ballkour.com</fg>\n\n"
+        "       <fg00E697FF>Thanks for Playing!</fg>",
+        HudPosition.TOP,
+        6,
+        Color.WHITE,
+        HudReeval.VISIBILITY
+    )
+    hudSubheader(
+        getAllPlayers().filter(
+            lambda localPlayer: localPlayer.isViewingRunCompletionText
+            and (timeToBeatInMs == 0 or localPlayer.runTime * 1000 <= timeToBeatInMs)
         ),
         "                Top-10 Time!</fg>\n"
         "<fgEC2300FF>Submit a Video of Your Run\n"
