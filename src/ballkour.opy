@@ -2149,6 +2149,7 @@ rule "22.2.2: Run Completion Text":
             lambda localPlayer: localPlayer.isViewingRunCompletionText
             and localPlayer.runTime * 1000 > timeToBeatInMs
             and timeToBeatInMs > 0
+            and localPlayer.isRunLegit
         ),
         "<fgA52A2AFF>Submit a Video of Your Run\n"
         "                        @\n"
@@ -2163,6 +2164,7 @@ rule "22.2.2: Run Completion Text":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
             and (timeToBeatInMs == 0 or localPlayer.runTime * 1000 <= timeToBeatInMs)
+            and localPlayer.isRunLegit
         ),
         "                Top-10 Time!</fg>\n"
         "<fgEC2300FF>Submit a Video of Your Run\n"
@@ -2172,6 +2174,19 @@ rule "22.2.2: Run Completion Text":
         HudPosition.TOP,
         6,
         rgb(230, 151, 0),
+        HudReeval.VISIBILITY
+    )
+    hudSubheader(
+        getAllPlayers().filter(
+            lambda localPlayer: localPlayer.isViewingRunCompletionText
+            and not localPlayer.isRunLegit
+        ),
+        "             <fgA52A2AFF>Run Not Counted\n"
+        "Skipped CPs or Used Freemode</fg>\n\n"
+        "         <fg00E697FF>Thanks for Playing!</fg>",
+        HudPosition.TOP,
+        6,
+        Color.WHITE,
         HudReeval.VISIBILITY
     )
 
