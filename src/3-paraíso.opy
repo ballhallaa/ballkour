@@ -63,7 +63,6 @@ rule "0: Contact & Course Info":
     )
     logToInspector("Discord: ballkour.com/discord")
     logToInspector("Set a top-10 time? Submit a video with your run in our Discord!")
-    logToInspector("Course playthrough: ballkour.com/paraiso")
 
 
 rule "1: Settings":
