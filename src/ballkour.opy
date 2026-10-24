@@ -1038,13 +1038,19 @@ macro hintColor(player):
             hintActions[player.hintCp].filter(
                 lambda span: span.x <= player.hintTime and player.hintTime < span.y
             ),
-            lambda span: -span.z
+            lambda span: -(span.z % 4)
         )[0].z
     ]
 
 
 rule "14.1: Load Hint Objects":
-    hintColors = [Color.VIOLET, rgb(255, 210, 0), rgb(255, 70, 70), rgb(0, 190, 255)]
+    hintColors = [
+        Color.VIOLET,
+        rgb(255, 210, 0),
+        rgb(255, 70, 70),
+        rgb(0, 190, 255),
+        Color.WHITE
+    ]
     createEffect(
         getAllPlayers().filter(lambda localPlayer: localPlayer.isHintPlaying),
         Effect.ORB,
@@ -1305,8 +1311,20 @@ rule "14.6.4: Record Hint Shield Bounce":
     eventPlayer.hintRecordAnchors.append(0)
 
 
+rule "14.6.5: Record Hint Jump":
+    @Event eachPlayer
+    @Condition settings_[2] == true
+    @Condition eventPlayer == hostPlayer
+    @Condition eventPlayer.isJumping() == true
+
+    eventPlayer.hintRecordActions.append(
+        vect(getTotalTimeElapsed(), getTotalTimeElapsed() + 0.4, 4)
+    )
+    eventPlayer.hintRecordAnchors.append(0)
+
+
 def saveHintRoute():
-    @Name "14.6.5: Save Hint Route"
+    @Name "14.6.6: Save Hint Route"
 
     if (
         len(eventPlayer.hintRecording) == 0
@@ -1362,7 +1380,7 @@ def saveHintRoute():
     logToInspector("hint {} end".format(eventPlayer.runCurrentCp))
 
 
-rule "14.6.6: Load Hint Recorder HUD":
+rule "14.6.7: Load Hint Recorder HUD":
     @Condition settings_[2] == true
 
     hudSubtext(
@@ -3674,6 +3692,7 @@ rule "24.9.2: Load Hints HUD":
                     inputBindingString(Button.INTERACT),
                     (
                         "\n   <fgA078FFFF>Movement</fg>"
+                        "\n   <fgFFFFFFFF>Jump</fg>"
                         "\n   <fgFFD200FF>Grapple</fg>"
                         "\n   <fgFF4646FF>Piledrive</fg>"
                         "\n   <fg00BEFFFF>Shield Bounce</fg>"
