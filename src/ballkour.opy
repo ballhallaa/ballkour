@@ -3061,7 +3061,6 @@ def enableSpectator():
     enableFreecamForSpectators()
 
 
-# 5m behind and 1m above the target's eyes, stopping just short of walls (raycast 10% further, then scale back)
 macro spectatorCamPos(target):
     (
         target.getEyePosition()
