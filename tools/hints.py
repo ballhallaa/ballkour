@@ -21,7 +21,9 @@ actions", and import that from a file (or - for stdin):
        python3 tools/hints.py import gibraltar export.txt
 
 Routes already in the hints file are kept unless the import has a different route
-for that CP, so a course can be recorded across several sessions.
+for that CP, so a course can be recorded across several sessions. To record a course
+from scratch and only see the new routes in-game, clear it and recompile first:
+       python3 tools/hints.py clear gibraltar
 """
 
 import argparse
@@ -220,33 +222,57 @@ class ExportParser:
         sys.exit(f"Couldn't read the export: expected {expected} at '{snippet}'")
 
 
-def within(points, times, a, b, tolerance):
-    """Whether every point between keyframes a and b is within tolerance meters of where
-    playback puts the orb at that point's time."""
-    span = times[b] - times[a]
-    if span <= 0:
-        return False
-    for k in range(a + 1, b):
-        t = (times[k] - times[a]) / span
-        lerp = [pa + (pb - pa) * t for pa, pb in zip(points[a], points[b])]
-        if math.dist(points[k], lerp) > tolerance:
-            return False
-    return True
+def spline_point(points, times, i, t):
+    """Where the game puts the orb at time t between keyframes i and i + 1: a cubic Hermite
+    spline whose velocity at each keyframe comes from its neighbours."""
+    last = len(points) - 1
+    h = times[i + 1] - times[i]
+    s = (t - times[i]) / h
+
+    def velocity(k):
+        a, b = max(k - 1, 0), min(k + 1, last)
+        return [(pb - pa) * h / (times[b] - times[a]) for pa, pb in zip(points[a], points[b])]
+
+    weights = (2 * s**3 - 3 * s**2 + 1, 3 * s**2 - 2 * s**3, s**3 - 2 * s**2 + s, s**3 - s**2)
+    terms = (points[i], points[i + 1], velocity(i), velocity(i + 1))
+    return [sum(w * term[c] for w, term in zip(weights, terms)) for c in range(3)]
+
+
+def worst_miss(points, times, kept):
+    """How far the spline through the kept keyframes strays from the recording, and where."""
+    keys, key_times = [points[k] for k in kept], [times[k] for k in kept]
+    worst, worst_k, segment = 0, None, 0
+    for k in range(len(points)):
+        while segment < len(kept) - 2 and times[k] > key_times[segment + 1]:
+            segment += 1
+        miss = math.dist(points[k], spline_point(keys, key_times, segment, times[k]))
+        if miss > worst:
+            worst, worst_k = miss, k
+    return worst, worst_k
 
 
 def simplify(points, times, tolerance, max_gap):
-    """Greedily keeps as few keyframes as stay within tolerance. Returns (points, times)."""
-    kept, a = [0], 0
-    while a < len(points) - 1:
-        b = a + 1
-        while (
-            b + 1 < len(points)
-            and times[b + 1] - times[a] <= max_gap
-            and within(points, times, a, b + 1, tolerance)
-        ):
-            b += 1
-        kept.append(b)
-        a = b
+    """Adds the sample the spline misses most until every sample is within tolerance, then
+    drops the keyframes it can do without. Returns (points, times)."""
+    kept = [0]
+    for k in range(1, len(points)):
+        if times[k] - times[kept[-1]] > max_gap and k - 1 > kept[-1]:
+            kept.append(k - 1)
+    if kept[-1] != len(points) - 1:
+        kept.append(len(points) - 1)
+    while (miss := worst_miss(points, times, kept))[0] > tolerance:
+        kept = sorted(kept + [miss[1]])
+    dropped = True
+    while dropped:
+        dropped = False
+        for k in kept[1:-1]:
+            i = kept.index(k)
+            trial = kept[:i] + kept[i + 1 :]
+            if (
+                times[trial[i]] - times[trial[i - 1]] <= max_gap
+                and worst_miss(points, times, trial)[0] <= tolerance
+            ):
+                kept, dropped = trial, True
     return round_vects(points[k] for k in kept), [round(times[k], 2) for k in kept]
 
 
@@ -332,18 +358,29 @@ def print_status(course):
         print(f"  workshop elements: {elements}/{ELEMENT_LIMIT}{warning}")
 
 
-def newest_log():
-    logs = [
-        log
-        for folder in WORKSHOP_LOG_DIRS
-        for log in Path(folder).expanduser().glob("*.txt")
-    ]
-    if not logs:
-        sys.exit(
-            "No Workshop Inspector log files found. Turn on Options > Gameplay > General >"
-            ' "Enable Workshop Inspector Log File", record, then leave the lobby.'
-        )
-    return max(logs, key=lambda log: log.stat().st_mtime)
+def is_other_course(text, course):
+    welcome = WELCOME_RE.search(text)
+    return welcome and not all(
+        word in welcome[1].lower() for word in course.stem.split("-")[1:]
+    )
+
+
+def newest_log(course):
+    """The newest Inspector log with recorded routes for the course."""
+    logs = sorted(
+        (log for folder in WORKSHOP_LOG_DIRS for log in Path(folder).expanduser().glob("*.txt")),
+        key=lambda log: log.stat().st_mtime,
+        reverse=True,
+    )
+    for log in logs:
+        text = read_text(log)
+        if not is_other_course(text, course) and re.search(r"\bhint \d+ end\b", text):
+            return log, text
+    sys.exit(
+        f"No Workshop Inspector log has recorded routes for {course.stem}. Turn on Options >"
+        ' Gameplay > General > "Enable Workshop Inspector Log File", record, then leave'
+        " the lobby."
+    )
 
 
 def read_text(path):
@@ -413,12 +450,11 @@ def import_recordings(args):
     elif args.file:
         source, text = args.file, read_text(Path(args.file))
     else:
-        log = newest_log()
-        source, text = log.name, read_text(log)
-    if welcome := WELCOME_RE.search(text):
-        if not all(word in welcome[1].lower() for word in course.stem.split("-")[1:]):
-            sys.exit(f"{source} is a {welcome[1]} log, not {course.stem}")
-    is_log = welcome or LOG_LINE_RE.search(text)
+        log, text = newest_log(course)
+        source = log.name
+    if is_other_course(text, course):
+        sys.exit(f"{source} is a {WELCOME_RE.search(text)[1]} log, not {course.stem}")
+    is_log = WELCOME_RE.search(text) or LOG_LINE_RE.search(text)
     recordings = list((recordings_from_log if is_log else recordings_from_export)(text))
     print(f"Importing {len(recordings)} recorded routes from {source}")
     path = hints_path(course)
@@ -451,6 +487,14 @@ def remove(args):
         if hints.pop(cp, None) is None:
             print(f"CP {cp}: no hint to remove")
     write_hints(path, name, hints)
+    print_status(course)
+
+
+def clear(args):
+    course = find_course(args.course)
+    path = hints_path(course)
+    name, _ = read_hints(path)
+    write_hints(path, name, {})
     print_status(course)
 
 
@@ -496,6 +540,10 @@ def main():
     remove_parser.add_argument("course", help="course file or part of its name")
     remove_parser.add_argument("cps", nargs="+", type=int, metavar="cp")
     remove_parser.set_defaults(run=remove)
+
+    clear_parser = commands.add_parser("clear", help="delete every hint for a course")
+    clear_parser.add_argument("course", help="course file or part of its name")
+    clear_parser.set_defaults(run=clear)
 
     status_parser = commands.add_parser(
         "status", help="show hint coverage and element usage"

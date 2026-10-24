@@ -69,6 +69,9 @@ playervar hintAnchor 41
 playervar hintRecordCp 42
 playervar hintRecordLast 43
 playervar hintRecordTimes 44
+playervar hintStep 45
+playervar hintS 46
+playervar hintSpline 47
 playervar index 127
 
 subroutine loadLobby 0
