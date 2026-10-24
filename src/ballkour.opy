@@ -3113,10 +3113,10 @@ def disableSpectator():
             eventPlayer.isRunLegit = false
         eventPlayer.runCurrentCp = eventPlayer.spectating[4]
         eventPlayer.spectating[3] = false
+    loadCpData()
     if eventPlayer.isInFreemode:
         eventPlayer.nameplate = "{} | FREEMODE".format(eventPlayer)
     else:
-        loadCpData()
         setCpAbilities()
         cpResetPlayer()
         eventPlayer.nameplate = "{} | {}".format(eventPlayer, eventPlayer.runCurrentCp)
