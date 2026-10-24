@@ -4,26 +4,31 @@
 Recording workflow:
   1. Once: in Options > Gameplay > General, turn on "Enable Workshop Inspector Log
      File". Overwatch then writes each match's Inspector log to
-     Documents/Overwatch/Workshop (inside the Proton prefix on Linux).
-  2. In the course's Workshop Settings, turn on "Hint Recorder" and host the lobby.
+     C:/Documents/Overwatch/Workshop on Windows, or ~/.steam/steam/steamapps/compatdata/2357570/pfx/drive_c/users/steamuser/Documents/Overwatch/Workshop/ 
+     on Linux.
+  2. In the course's Workshop Settings, turn on "Hint Recorder", then host the lobby.
   3. Play checkpoints normally. Completing a checkpoint saves the path you took as
-     its hint, starting from where you were last at rest in the CP ring (or from
+     its hint, starting from where you were last at rest in the checkpoint ring (or from
      arriving, if you carry momentum in), so setups like walljumps are included.
-     Toggle hints (Ult + Melee) and go back a CP to preview a route; complete the CP
-     again to replace it. Use Next CP to skip CPs you're happy with.
-  4. Import the newest Inspector log, then recompile the course:
-       python3 tools/hints.py import gibraltar
+     Go back a checkpoint to preview a route; complete the checkpoint
+     again to replace it. Press Next CP to skip checkpoints you're happy with.
+  4. Import the newest Inspector log:
+       python3 tools/hints.py import <map>
+     View all valid arguments for maps:
+       python3 tools/hints.py status
+     Then recompile the course (OverPy: Compile).
      If routes are missing, leave the lobby first so Overwatch finishes the log.
 
 Alternatively, in the Workshop Inspector set the variable target to Global, click
 "Copy to clipboard current variables for current variable target as Workshop
 actions", and import that from a file (or - for stdin):
-       python3 tools/hints.py import gibraltar export.txt
+       python3 tools/hints.py import <map> export.txt
 
 Routes already in the hints file are kept unless the import has a different route
-for that CP, so a course can be recorded across several sessions. To record a course
-from scratch and only see the new routes in-game, clear it and recompile first:
-       python3 tools/hints.py clear gibraltar
+for that checkpoint, so a course can be recorded across several sessions. To record a 
+course from scratch and only see the new routes in-game, clear it first:
+       python3 tools/hints.py clear <map>
+Then recompile the course (OverPy: Compile).
 """
 
 import argparse
