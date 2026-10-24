@@ -1089,12 +1089,10 @@ rule "14.3: Hint Playback":
     eventPlayer.hintTime = 0
     eventPlayer.hintStep = 0
     chaseAtRate(eventPlayer.hintTime, Math.INFINITY, 1)
-    # Steps along a cubic Hermite spline through the keyframes, each keyframe's velocity
-    # taken from its neighbours. tools/hints.py fits the keyframes to this same curve
     while eventPlayer.hintStep < hintTimes[eventPlayer.hintCp].last():
         if eventPlayer.hintStep >= hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex]:
             eventPlayer.hintIndex++
-            # hintSpline: [0]start [1]end [2]startVelocity [3]endVelocity, velocities scaled by the segment's duration
+            # hintSpline: [0]start [1]end [2]startVelocity [3]endVelocity
             eventPlayer.hintSpline = [
                 hintRoutes[eventPlayer.hintCp][eventPlayer.hintIndex - 1],
                 hintRoutes[eventPlayer.hintCp][eventPlayer.hintIndex],
@@ -3733,7 +3731,6 @@ rule "24.9.2: Load Hints HUD":
             lambda localPlayer: localPlayer.isHintOn
             and not localPlayer.isInLobby
             and localPlayer.hintCp < len(cps) - 1
-            # Courses without recorded hints don't show them at all
             and len(hintRoutes) > 0
         ),
         ("{}{}").format(

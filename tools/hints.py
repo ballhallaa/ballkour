@@ -42,7 +42,6 @@ ENGINE_FILES = ("ballkour.opy", "declarations.opy")
 ELEMENT_LIMIT = 32768
 ELEMENTS_PER_POINT = 7
 ELEMENTS_PER_TIME = 2
-# Overwatch rejected Gibraltar's routes as one 8k-element rule ("Custom game settings too large")
 CPS_PER_RULE = 10
 
 ASSIGN_RE = re.compile(r"^\s*(hint\w+)\[(\d+)\] = \[(.*)\]\s*$")
