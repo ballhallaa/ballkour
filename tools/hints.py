@@ -1,0 +1,511 @@
+#!/usr/bin/env python3
+"""Manage the hint routes compiled into each course (src/hints/<course>.opy).
+
+Recording workflow:
+  1. Once: in Options > Gameplay > General, turn on "Enable Workshop Inspector Log
+     File". Overwatch then writes each match's Inspector log to
+     Documents/Overwatch/Workshop (inside the Proton prefix on Linux).
+  2. In the course's Workshop Settings, turn on "Hint Recorder" and host the lobby.
+  3. Play checkpoints normally. Completing a checkpoint saves the path you took as
+     its hint, starting from where you were last at rest in the CP ring (or from
+     arriving, if you carry momentum in), so setups like walljumps are included.
+     Toggle hints (Ult + Melee) and go back a CP to preview a route; complete the CP
+     again to replace it. Use Next CP to skip CPs you're happy with.
+  4. Import the newest Inspector log, then recompile the course:
+       python3 tools/hints.py import gibraltar
+     If routes are missing, leave the lobby first so Overwatch finishes the log.
+
+Alternatively, in the Workshop Inspector set the variable target to Global, click
+"Copy to clipboard current variables for current variable target as Workshop
+actions", and import that from a file (or - for stdin):
+       python3 tools/hints.py import gibraltar export.txt
+
+Routes already in the hints file are kept unless the import has a different route
+for that CP, so a course can be recorded across several sessions.
+"""
+
+import argparse
+import glob
+import math
+import os
+import re
+import shutil
+import subprocess
+import sys
+from pathlib import Path
+
+SRC = Path(__file__).resolve().parent.parent / "src"
+ENGINE_FILES = ("ballkour.opy", "declarations.opy")
+ELEMENT_LIMIT = 32768
+ELEMENTS_PER_POINT = 7
+ELEMENTS_PER_TIME = 2
+# Overwatch rejected Gibraltar's routes as one 8k-element rule ("Custom game settings too large")
+CPS_PER_RULE = 10
+
+ASSIGN_RE = re.compile(r"^\s*(hint\w+)\[(\d+)\] = \[(.*)\]\s*$")
+VECT_RE = re.compile(r"vect\(([^,]+),([^,]+),([^)]+)\)")
+VECT_OR_NULL_RE = re.compile(r"vect\(([^,]+),([^,]+),([^)]+)\)|null")
+RULE_RE = re.compile(r'^rule "(.*?)(?: \(CPs \d+-\d+\))?":\s*$')
+CP_RE = re.compile(r"^\s*cps\[(\d+)\] =", re.M)
+NUMBER_RE = re.compile(r"-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?")
+WORD_RE = re.compile(r"[A-Za-z][A-Za-z ]*")
+LOG_LINE_RE = re.compile(r"\bhint (\d+) (start|point|action|end)\b(.*)")
+WELCOME_RE = re.compile(r"Welcome to Ballkour's (.+?) course")
+WORKSHOP_LOG_DIRS = [
+    "~/.local/share/Steam/steamapps/compatdata/2357570/pfx/drive_c/users/steamuser/Documents/Overwatch/Workshop",
+    "~/.steam/steam/steamapps/compatdata/2357570/pfx/drive_c/users/steamuser/Documents/Overwatch/Workshop",
+    "~/Documents/Overwatch/Workshop",
+]
+
+
+def find_course(name):
+    path = Path(name)
+    if path.is_file():
+        return path.resolve()
+    courses = [p for p in SRC.glob("*.opy") if p.name not in ENGINE_FILES]
+    matches = [p for p in courses if name.lower() in p.stem.lower()]
+    if len(matches) != 1:
+        names = ", ".join(sorted(p.stem for p in courses))
+        sys.exit(f"'{name}' should match exactly one course: {names}")
+    return matches[0]
+
+
+def hints_path(course):
+    return SRC / "hints" / course.name
+
+
+def parse_vects(text):
+    return [tuple(float(c) for c in v) for v in VECT_RE.findall(text)]
+
+
+def read_hints(path):
+    """Returns the rules' name and {cp: (points, times, actions, anchors)}, where
+    anchors[j] is where actions[j] grappled to, or None."""
+    name = "Hint Routes"
+    entries = {array: {} for array in ("hintRoutes", "hintTimes", "hintActions", "hintAnchors")}
+    if path.exists():
+        for line in path.read_text().splitlines():
+            if m := RULE_RE.match(line):
+                name = m[1]
+            elif m := ASSIGN_RE.match(line):
+                entries.setdefault(m[1], {})[int(m[2])] = m[3]
+    hints = {}
+    for cp, text in entries["hintRoutes"].items():
+        points = parse_vects(text)
+        if not points:
+            continue
+        times = [float(n) for n in NUMBER_RE.findall(entries["hintTimes"].get(cp, ""))]
+        actions = parse_vects(entries["hintActions"].get(cp, ""))
+        anchors = [
+            tuple(float(c) for c in v.groups()) if v[1] else None
+            for v in VECT_OR_NULL_RE.finditer(entries["hintAnchors"].get(cp, ""))
+        ] or [None] * len(actions)
+        if len(times) != len(points) or len(anchors) != len(actions):
+            sys.exit(
+                f"{path}: CP {cp} needs a hintTimes entry per hintRoutes keyframe, and a"
+                " hintAnchors entry per hintActions entry (or none)"
+            )
+        hints[cp] = points, times, actions, anchors
+    return name, hints
+
+
+def fmt(number, places):
+    text = f"{number:.{places}f}".rstrip("0").rstrip(".")
+    return "0" if text == "-0" else text
+
+
+def vects(values):
+    return ", ".join(
+        "null" if v is None else f"vect({', '.join(fmt(c, 2) for c in v)})"
+        for v in values
+    )
+
+
+def write_hints(path, name, hints):
+    comments = [
+        "    # Generated by tools/hints.py: record routes in-game and import them instead of editing by hand.",
+        "    # For the route from cps[i] to cps[i + 1]:",
+        "    # hintRoutes[i]: keyframe positions, interpolated in time during playback",
+        "    # hintTimes[i]: seconds into the route of each keyframe",
+        "    # hintActions[i]: vect(startTime, endTime, action) in seconds into the route; action indexes hintColors",
+        "    # hintAnchors[i][j]: where hintActions[i][j] grappled to, or null if it isn't a grapple",
+    ]
+    lines = []
+    for first in range(0, max(hints, default=0) + 1, CPS_PER_RULE):
+        chunk = [cp for cp in sorted(hints) if first <= cp < first + CPS_PER_RULE]
+        if not chunk:
+            continue
+        if lines:
+            lines += ["", ""]
+        lines.append(f'rule "{name} (CPs {first}-{first + CPS_PER_RULE - 1})":')
+        if len(lines) == 1:
+            lines += comments
+        for cp in chunk:
+            points, times, actions, anchors = hints[cp]
+            lines.append(f"    hintRoutes[{cp}] = [{vects(points)}]")
+            lines.append(f"    hintTimes[{cp}] = [{', '.join(fmt(t, 2) for t in times)}]")
+            if actions:
+                lines.append(f"    hintActions[{cp}] = [{vects(actions)}]")
+            if any(anchors):
+                lines.append(f"    hintAnchors[{cp}] = [{vects(anchors)}]")
+    if not lines:
+        lines = [f'rule "{name}":', *comments, "    hintRoutes = []"]
+    path.parent.mkdir(exist_ok=True)
+    path.write_text("\n".join(lines) + "\n")
+
+
+class ExportParser:
+    """Reads values from the Inspector's "copy as Workshop actions" text."""
+
+    def __init__(self, text):
+        self.text = text
+
+    def array(self, name, required=True):
+        m = re.search(rf"\b{name}\b\s*[=,]\s*", self.text, re.I)
+        if not m:
+            if not required:
+                return []
+            sys.exit(
+                f"No '{name}' in the export. In the Workshop Inspector, set the variable"
+                " target to Global and copy the current variables as Workshop actions."
+            )
+        self.pos = m.end()
+        value = self.value()
+        return value if isinstance(value, list) else []
+
+    def value(self):
+        self.skip_space()
+        if self.take("Empty Array"):
+            return []
+        if self.take("Array("):
+            return self.arguments()
+        if self.take("Vector("):
+            vector = tuple(self.arguments())
+            if len(vector) != 3 or None in vector:
+                self.fail("a vector of three numbers")
+            return vector
+        if m := NUMBER_RE.match(self.text, self.pos):
+            self.pos = m.end()
+            return float(m[0])
+        if m := WORD_RE.match(self.text, self.pos):
+            self.pos = m.end()
+            return None
+        self.fail("a value")
+
+    def arguments(self):
+        items = []
+        self.skip_space()
+        if self.take(")"):
+            return items
+        while True:
+            items.append(self.value())
+            self.skip_space()
+            if self.take(")"):
+                return items
+            if not self.take(","):
+                self.fail("',' or ')'")
+
+    def skip_space(self):
+        while self.pos < len(self.text) and self.text[self.pos].isspace():
+            self.pos += 1
+
+    def take(self, token):
+        if self.text.startswith(token, self.pos):
+            self.pos += len(token)
+            return True
+        return False
+
+    def fail(self, expected):
+        snippet = self.text[self.pos : self.pos + 40]
+        sys.exit(f"Couldn't read the export: expected {expected} at '{snippet}'")
+
+
+def within(points, times, a, b, tolerance):
+    """Whether every point between keyframes a and b is within tolerance meters of where
+    playback puts the orb at that point's time."""
+    span = times[b] - times[a]
+    if span <= 0:
+        return False
+    for k in range(a + 1, b):
+        t = (times[k] - times[a]) / span
+        lerp = [pa + (pb - pa) * t for pa, pb in zip(points[a], points[b])]
+        if math.dist(points[k], lerp) > tolerance:
+            return False
+    return True
+
+
+def simplify(points, times, tolerance, max_gap):
+    """Greedily keeps as few keyframes as stay within tolerance. Returns (points, times)."""
+    kept, a = [0], 0
+    while a < len(points) - 1:
+        b = a + 1
+        while (
+            b + 1 < len(points)
+            and times[b + 1] - times[a] <= max_gap
+            and within(points, times, a, b + 1, tolerance)
+        ):
+            b += 1
+        kept.append(b)
+        a = b
+    return round_vects(points[k] for k in kept), [round(times[k], 2) for k in kept]
+
+
+def round_vects(values):
+    return [None if v is None else tuple(round(c, 2) for c in v) for v in values]
+
+
+def cp_entry(values, cp):
+    """An exported per-CP array, or [] for CPs never set (which export as 0)."""
+    value = values[cp] if cp < len(values) else []
+    return value if isinstance(value, list) else []
+
+
+def same_route(a, b):
+    return len(a) == len(b) and all(
+        abs(ca - cb) <= 0.011 for pa, pb in zip(a, b) for ca, cb in zip(pa, pb)
+    )
+
+
+def cp_count(course):
+    return max(int(i) for i in CP_RE.findall(course.read_text())) + 1
+
+
+def format_ranges(numbers):
+    ranges, start = [], None
+    for i, n in enumerate(numbers):
+        start = n if start is None else start
+        if i + 1 == len(numbers) or numbers[i + 1] != n + 1:
+            ranges.append(str(n) if start == n else f"{start}-{n}")
+            start = None
+    return ", ".join(ranges)
+
+
+def compile_elements(course):
+    """Compiles the course with the installed OverPy extension, if there is one."""
+    overpy = glob.glob(
+        os.path.expanduser("~/.vscode*/extensions/zezombye.overpy-*/npm/overpy.js")
+    )
+    if not overpy or not shutil.which("node"):
+        return None
+    script = """
+const [overpyPath, file] = process.argv.slice(1);
+const overpy = require(overpyPath), fs = require("fs"), path = require("path");
+overpy.readyPromise
+    .then(() => overpy.compile(fs.readFileSync(file, "utf8"), "en-US", path.dirname(file) + "/", path.basename(file)))
+    .then((result) => console.log(result.nbElements))
+    .catch((error) => { console.error(error.message ?? error); process.exit(1); });
+"""
+    result = subprocess.run(
+        ["node", "-e", script, max(overpy, key=os.path.getmtime), str(course)],
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode:
+        print(f"  OverPy compile failed: {result.stderr.strip()}")
+        return None
+    return int(result.stdout)
+
+
+def print_status(course):
+    _, hints = read_hints(hints_path(course))
+    needed = cp_count(course) - 1
+    missing = [cp for cp in range(needed) if cp not in hints]
+    points = sum(len(route) for route, _, _, _ in hints.values())
+    actions = sum(len(spans) for _, _, spans, _ in hints.values())
+    anchors = sum(
+        a is not None for _, _, _, cp_anchors in hints.values() for a in cp_anchors
+    )
+    estimate = (
+        points * (ELEMENTS_PER_POINT + ELEMENTS_PER_TIME)
+        + (actions + anchors) * ELEMENTS_PER_POINT
+    )
+    print(
+        f"{course.stem}: {needed - len(missing)}/{needed} CPs have hints,"
+        f" {points} keyframes + {actions} actions + {anchors} grapple anchors"
+        f" (~{estimate} elements)"
+    )
+    if missing:
+        print(f"  missing: {format_ranges(missing)}")
+    elements = compile_elements(course)
+    if elements is not None:
+        warning = "  <-- over the Workshop limit!" if elements > ELEMENT_LIMIT else ""
+        print(f"  workshop elements: {elements}/{ELEMENT_LIMIT}{warning}")
+
+
+def newest_log():
+    logs = [
+        log
+        for folder in WORKSHOP_LOG_DIRS
+        for log in Path(folder).expanduser().glob("*.txt")
+    ]
+    if not logs:
+        sys.exit(
+            "No Workshop Inspector log files found. Turn on Options > Gameplay > General >"
+            ' "Enable Workshop Inspector Log File", record, then leave the lobby.'
+        )
+    return max(logs, key=lambda log: log.stat().st_mtime)
+
+
+def read_text(path):
+    data = path.read_bytes()
+    if data[:2] in (b"\xff\xfe", b"\xfe\xff"):
+        return data.decode("utf-16")
+    return data.decode("utf-8-sig", errors="replace")
+
+
+def recordings_from_log(text):
+    """Yields (cp, points, times, actions, anchors) for the last complete recording of
+    each CP in an Inspector log file."""
+    recordings, current = {}, {}
+    for line in text.splitlines():
+        if not (m := LOG_LINE_RE.search(line)):
+            continue
+        cp, kind = int(m[1]), m[2]
+        numbers = [float(n) for n in NUMBER_RE.findall(m[3])]
+        if kind == "start":
+            current[cp] = int(numbers[0]), [], [], [], []
+        elif cp not in current:
+            continue
+        elif kind == "point":
+            if len(numbers) != 4:
+                del current[cp]
+                continue
+            current[cp][1].append(numbers[0])
+            current[cp][2].append(tuple(numbers[1:]))
+        elif kind == "action":
+            current[cp][3].append(tuple(numbers[:3]))
+            current[cp][4].append(tuple(numbers[3:6]) if len(numbers) >= 6 else None)
+        else:
+            count, times, points, actions, anchors = current.pop(cp)
+            if len(points) == count >= 2:
+                recordings[cp] = points, times, actions, anchors
+    for cp, recording in sorted(recordings.items()):
+        yield cp, *recording
+
+
+def recordings_from_export(text):
+    """Yields (cp, points, times, actions, anchors) from an Inspector "copy as Workshop
+    actions" export."""
+    parser = ExportParser(text)
+    routes = parser.array("hintRoutes")
+    all_times = parser.array("hintTimes")
+    all_actions = parser.array("hintActions", required=False)
+    all_anchors = parser.array("hintAnchors", required=False)
+    for cp, route in enumerate(routes):
+        if not isinstance(route, list) or len(route) < 2:
+            continue
+        times = cp_entry(all_times, cp)
+        if len(times) != len(route):
+            continue
+        actions = cp_entry(all_actions, cp)
+        anchors = cp_entry(all_anchors, cp)
+        anchors = [
+            anchors[j] if j < len(anchors) and isinstance(anchors[j], tuple) else None
+            for j in range(len(actions))
+        ]
+        yield cp, route, times, actions, anchors
+
+
+def import_recordings(args):
+    course = find_course(args.course)
+    if args.file == "-":
+        source, text = "stdin", sys.stdin.read()
+    elif args.file:
+        source, text = args.file, read_text(Path(args.file))
+    else:
+        log = newest_log()
+        source, text = log.name, read_text(log)
+    if welcome := WELCOME_RE.search(text):
+        if not all(word in welcome[1].lower() for word in course.stem.split("-")[1:]):
+            sys.exit(f"{source} is a {welcome[1]} log, not {course.stem}")
+    is_log = welcome or LOG_LINE_RE.search(text)
+    recordings = list((recordings_from_log if is_log else recordings_from_export)(text))
+    print(f"Importing {len(recordings)} recorded routes from {source}")
+    path = hints_path(course)
+    name, hints = read_hints(path)
+    needed = cp_count(course) - 1
+    for cp, route, times, actions, anchors in recordings:
+        if cp >= needed:
+            print(f"CP {cp}: skipped, {course.stem} only has CPs 0-{needed - 1}")
+            continue
+        if not is_log and cp in hints and same_route(hints[cp][0], route):
+            continue
+        points, times = simplify(route, times, args.tolerance, args.max_gap)
+        hint = points, times, round_vects(actions), round_vects(anchors)
+        if hints.get(cp) == hint:
+            continue
+        hints[cp] = hint
+        print(
+            f"CP {cp}: {len(route)} -> {len(points)} keyframes over {times[-1]}s,"
+            f" {len(actions)} actions"
+        )
+    write_hints(path, name, hints)
+    print_status(course)
+
+
+def remove(args):
+    course = find_course(args.course)
+    path = hints_path(course)
+    name, hints = read_hints(path)
+    for cp in args.cps:
+        if hints.pop(cp, None) is None:
+            print(f"CP {cp}: no hint to remove")
+    write_hints(path, name, hints)
+    print_status(course)
+
+
+def status(args):
+    courses = [find_course(c) for c in args.courses] or sorted(
+        p for p in SRC.glob("*.opy") if p.name not in ENGINE_FILES
+    )
+    for course in courses:
+        print_status(course)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+    commands = parser.add_subparsers(required=True)
+
+    import_parser = commands.add_parser(
+        "import", help="merge routes from a Workshop Inspector log or export"
+    )
+    import_parser.add_argument("course", help="course file or part of its name")
+    import_parser.add_argument(
+        "file",
+        nargs="?",
+        help="Inspector log file or clipboard export, or - for stdin (default: the"
+        " newest Inspector log file)",
+    )
+    import_parser.add_argument(
+        "--tolerance",
+        type=float,
+        default=0.5,
+        help="max distance in meters a simplified route may stray (default: 0.5)",
+    )
+    import_parser.add_argument(
+        "--max-gap",
+        type=float,
+        default=1.0,
+        help="max seconds between keyframes (default: 1.0)",
+    )
+    import_parser.set_defaults(run=import_recordings)
+
+    remove_parser = commands.add_parser("remove", help="delete hints for CPs")
+    remove_parser.add_argument("course", help="course file or part of its name")
+    remove_parser.add_argument("cps", nargs="+", type=int, metavar="cp")
+    remove_parser.set_defaults(run=remove)
+
+    status_parser = commands.add_parser(
+        "status", help="show hint coverage and element usage"
+    )
+    status_parser.add_argument("courses", nargs="*", metavar="course")
+    status_parser.set_defaults(run=status)
+
+    args = parser.parse_args()
+    args.run(args)
+
+
+if __name__ == "__main__":
+    main()

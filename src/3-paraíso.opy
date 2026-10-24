@@ -70,6 +70,7 @@ rule "1: Settings":
     settings_ = []
     settings_[0] = createWorkshopSettingBool("Settings", "Debug", false, 1)
     settings_[1] = createWorkshopSettingBool("Settings", "Lobby Stats", false, 0)
+    settings_[2] = createWorkshopSettingBool("Settings", "Hint Recorder", false, 2)
 
 
 rule "2: Leaderboard (LB)":
@@ -244,6 +245,9 @@ rule "3.2: Disrupter Destructors":
     # Checkpoint 90
     ddBots[29] = [vect(-10.91, 5.75, 26.76), vect(19.48, 6.95, 8.30)]
     ddBots[30] = [vect(-13.97, 5.75, 24.67), vect(13.76, 0.00, 13.56)]
+
+
+#!include "hints/3-paraíso.opy"
 
 
 rule "4: Lobby":

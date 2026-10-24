@@ -5,7 +5,7 @@ rule "6.1: Initialize Match":
     disableAnnouncer()
     disableGamemodeCompletion()
     setMatchTime(0)
-    if not settings_[0]:
+    if not settings_[0] and not settings_[2]:
         disableInspector()
     if settings_[1]:
         players = []
@@ -186,6 +186,7 @@ rule "7.1: Player Joins":
     @Condition eventPlayer.isDummy() == false
 
     eventPlayer.isLoading = true
+    eventPlayer.isHintOn = true
     if not "{}".format(eventPlayer) in players:
         if eventPlayer == hostPlayer:
             hostPlayerName = "{}".format(eventPlayer)
@@ -1019,7 +1020,330 @@ rule "13: Load Checkpoint Objects":
     )
 
 
-rule "14.1: Start/Resume Run":
+macro hintViewCp(player):
+    (
+        (
+            player.spectating[4]
+            if player.spectating[3]
+            else player.spectating[1].runCurrentCp
+        )
+        if player.spectating[0]
+        else player.runCurrentCp
+    )
+
+
+macro hintColor(player):
+    hintColors[
+        sorted(
+            hintActions[player.hintCp].filter(
+                lambda span: span.x <= player.hintTime and player.hintTime < span.y
+            ),
+            lambda span: -span.z
+        )[0].z
+    ]
+
+
+rule "14.1: Load Hint Objects":
+    hintColors = [Color.VIOLET, rgb(255, 210, 0), rgb(255, 70, 70), rgb(0, 190, 255)]
+    createEffect(
+        getAllPlayers().filter(lambda localPlayer: localPlayer.isHintPlaying),
+        Effect.ORB,
+        hintColor(localPlayer),
+        localPlayer.hintPos + vect(0, 1, 0),
+        0.5,
+        EffectReeval.VISIBILITY_POSITION_RADIUS_AND_COLOR
+    )
+    createBeam(
+        getAllPlayers().filter(
+            lambda localPlayer: localPlayer.isHintPlaying and localPlayer.hintAnchor
+        ),
+        Beam.GRAPPLE,
+        localPlayer.hintPos + vect(0, 1, 0),
+        localPlayer.hintAnchor,
+        hintColors[1],
+        EffectReeval.VISIBILITY_POSITION_AND_RADIUS
+    )
+
+
+rule "14.2: Sync Hint Checkpoint":
+    @Event eachPlayer
+    @Condition eventPlayer.hintCp != hintViewCp(eventPlayer)
+
+    eventPlayer.hintCp = hintViewCp(eventPlayer)
+
+
+rule "14.3: Hint Playback":
+    @Event eachPlayer
+    @Condition eventPlayer.isHintOn == true
+    @Condition eventPlayer.isInLobby == false
+    @Condition eventPlayer.hintCp == hintViewCp(eventPlayer)
+    @Condition len(hintRoutes[eventPlayer.hintCp]) > 1
+
+    stopChasingVariable(eventPlayer.hintPos)
+    stopChasingVariable(eventPlayer.hintTime)
+    eventPlayer.hintTime = -1
+    eventPlayer.hintIndex = 0
+    eventPlayer.hintPos = hintRoutes[eventPlayer.hintCp][0]
+    eventPlayer.isHintPlaying = true
+    wait(0.5, Wait.ABORT_WHEN_FALSE)
+    eventPlayer.hintTime = 0
+    chaseAtRate(eventPlayer.hintTime, Math.INFINITY, 1)
+    while eventPlayer.hintIndex < len(hintRoutes[eventPlayer.hintCp]) - 1:
+        eventPlayer.hintIndex++
+        chaseOverTime(
+            eventPlayer.hintPos,
+            hintRoutes[eventPlayer.hintCp][eventPlayer.hintIndex],
+            hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex] - eventPlayer.hintTime,
+            ChaseTimeReeval.NONE
+        )
+        wait(
+            hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex] - eventPlayer.hintTime,
+            Wait.ABORT_WHEN_FALSE
+        )
+    stopChasingVariable(eventPlayer.hintTime)
+    eventPlayer.hintTime = -1
+    eventPlayer.hintIndex = 0
+    wait(1, Wait.ABORT_WHEN_FALSE)
+    if RULE_CONDITION: loop()
+
+
+rule "14.4: Stop Hint Playback":
+    @Event eachPlayer
+    @Condition eventPlayer.isHintPlaying == true
+    @Condition (
+        not eventPlayer.isHintOn
+        or eventPlayer.isInLobby
+        or len(hintRoutes[eventPlayer.hintCp]) <= 1
+    ) == true
+
+    eventPlayer.isHintPlaying = false
+    stopChasingVariable(eventPlayer.hintPos)
+    stopChasingVariable(eventPlayer.hintTime)
+
+
+rule "14.5.1: Hint Trail":
+    @Event eachPlayer
+    @Condition eventPlayer.isHintPlaying == true
+    @Condition eventPlayer.hintIndex > 0
+
+    playEffect(
+        eventPlayer,
+        DynamicEffect.GOOD_EXPLOSION,
+        hintColor(eventPlayer),
+        eventPlayer.hintPos + vect(0, 1, 0),
+        0.3
+    )
+    wait(0.1, Wait.ABORT_WHEN_FALSE)
+    if RULE_CONDITION: loop()
+
+
+rule "14.5.2: Hint Grapple":
+    @Event eachPlayer
+    @Condition eventPlayer.isHintPlaying == true
+    @Condition len(hintAnchors[eventPlayer.hintCp]) > 0
+
+    eventPlayer.hintAnchor = hintAnchors[eventPlayer.hintCp][
+        hintActions[eventPlayer.hintCp].index(
+            hintActions[eventPlayer.hintCp].filter(
+                lambda span: span.z == 1
+                and span.x <= eventPlayer.hintTime
+                and eventPlayer.hintTime < span.y
+            )[0]
+        )
+    ]
+    wait()
+    if RULE_CONDITION: loop()
+    eventPlayer.hintAnchor = null
+
+
+rule "14.6.1: Record Hint Route":
+    @Event eachPlayer
+    @Condition settings_[2] == true
+    @Condition eventPlayer == hostPlayer
+    @Condition (
+        eventPlayer.hasSpawned()
+        and not eventPlayer.isLoading
+        and not eventPlayer.isInLobby
+    ) == true
+    @Condition eventPlayer.isInFreemode == false
+    @Condition eventPlayer.spectating[0] == false
+    @Condition eventPlayer.runCurrentCp < len(cps) - 1
+
+    if (
+        eventPlayer.hintRecordCp != eventPlayer.runCurrentCp
+        or getTotalTimeElapsed() - eventPlayer.hintRecordLast > 0.3
+        or (
+            distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
+            <= eventPlayer.cpData[1]
+            and (
+                (eventPlayer.isOnGround() and eventPlayer.getSpeed() < 1)
+                or eventPlayer.hasStatus(Status.ROOTED)
+                or distance(eventPlayer.hintRecording.last(), eventPlayer.cpData[0])
+                > eventPlayer.cpData[1]
+            )
+        )
+    ):
+        eventPlayer.hintRecordCp = eventPlayer.runCurrentCp
+        eventPlayer.hintRecording = [eventPlayer.getPosition()]
+        eventPlayer.hintRecordTimes = [0]
+        eventPlayer.hintRecordStart = getTotalTimeElapsed()
+        eventPlayer.hintRecordActions = []
+        eventPlayer.hintRecordAnchors = []
+    elif len(eventPlayer.hintRecording) < 999:
+        eventPlayer.hintRecording.append(eventPlayer.getPosition())
+        eventPlayer.hintRecordTimes.append(
+            getTotalTimeElapsed() - eventPlayer.hintRecordStart
+        )
+    eventPlayer.hintRecordLast = getTotalTimeElapsed()
+    wait(0.1)
+    if RULE_CONDITION: loop()
+
+
+rule "14.6.2: Record Hint Grapple":
+    @Event eachPlayer
+    @Condition settings_[2] == true
+    @Condition eventPlayer == hostPlayer
+    @Condition eventPlayer.isFiringSecondaryFire() == true
+
+    eventPlayer.hintActionStarts[1] = getTotalTimeElapsed()
+    eventPlayer.hintGrappleAnchor = raycast(
+        eventPlayer.getEyePosition(),
+        eventPlayer.getEyePosition() + eventPlayer.getFacingDirection() * 20,
+        null,
+        getAllPlayers(),
+        false
+    ).getHitPosition()
+    waitUntil(not eventPlayer.isFiringSecondaryFire(), Math.INFINITY)
+    if eventPlayer.hintActionStarts[1]:
+        eventPlayer.hintRecordActions.append(
+            vect(eventPlayer.hintActionStarts[1], getTotalTimeElapsed(), 1)
+        )
+        eventPlayer.hintRecordAnchors.append(eventPlayer.hintGrappleAnchor)
+        eventPlayer.hintActionStarts[1] = 0
+
+
+rule "14.6.3: Record Hint Piledrive":
+    @Event eachPlayer
+    @Condition settings_[2] == true
+    @Condition eventPlayer == hostPlayer
+    @Condition eventPlayer.cpData[15] == true
+
+    eventPlayer.hintActionStarts[2] = getTotalTimeElapsed()
+    waitUntil(not eventPlayer.cpData[15], Math.INFINITY)
+    if eventPlayer.hintActionStarts[2]:
+        eventPlayer.hintRecordActions.append(
+            vect(eventPlayer.hintActionStarts[2], getTotalTimeElapsed(), 2)
+        )
+        eventPlayer.hintRecordAnchors.append(0)
+        eventPlayer.hintActionStarts[2] = 0
+
+
+rule "14.6.4: Record Hint Shield Bounce":
+    @Event eachPlayer
+    @Condition settings_[2] == true
+    @Condition eventPlayer == hostPlayer
+    @Condition eventPlayer.cpData[14] == true
+
+    eventPlayer.hintRecordActions.append(
+        vect(getTotalTimeElapsed(), getTotalTimeElapsed() + 0.4, 3)
+    )
+    eventPlayer.hintRecordAnchors.append(0)
+
+
+def saveHintRoute():
+    @Name "14.6.5: Save Hint Route"
+
+    if (
+        len(eventPlayer.hintRecording) == 0
+        or distance(eventPlayer.hintRecording[0], eventPlayer.cpData[0])
+        > eventPlayer.cpData[1]
+    ):
+        return
+    eventPlayer.hintRecording.append(eventPlayer.getPosition())
+    eventPlayer.hintRecordTimes.append(getTotalTimeElapsed() - eventPlayer.hintRecordStart)
+    if eventPlayer.hintActionStarts[1]:
+        eventPlayer.hintRecordActions.append(
+            vect(eventPlayer.hintActionStarts[1], getTotalTimeElapsed(), 1)
+        )
+        eventPlayer.hintRecordAnchors.append(eventPlayer.hintGrappleAnchor)
+        eventPlayer.hintActionStarts[1] = 0
+    if eventPlayer.hintActionStarts[2]:
+        eventPlayer.hintRecordActions.append(
+            vect(eventPlayer.hintActionStarts[2], getTotalTimeElapsed(), 2)
+        )
+        eventPlayer.hintRecordAnchors.append(0)
+        eventPlayer.hintActionStarts[2] = 0
+    hintRoutes[eventPlayer.runCurrentCp] = eventPlayer.hintRecording
+    hintTimes[eventPlayer.runCurrentCp] = eventPlayer.hintRecordTimes
+    hintActions[eventPlayer.runCurrentCp] = eventPlayer.hintRecordActions.map(
+        lambda span: vect(
+            max(0, span.x - eventPlayer.hintRecordStart),
+            span.y - eventPlayer.hintRecordStart,
+            span.z
+        )
+    )
+    hintAnchors[eventPlayer.runCurrentCp] = eventPlayer.hintRecordAnchors
+    logToInspector(
+        "hint {} start {}".format(
+            eventPlayer.runCurrentCp, len(eventPlayer.hintRecording)
+        )
+    )
+    for eventPlayer.index in range(len(eventPlayer.hintRecording)):
+        logToInspector(
+            "hint {} point {} {}".format(
+                eventPlayer.runCurrentCp,
+                eventPlayer.hintRecordTimes[eventPlayer.index],
+                eventPlayer.hintRecording[eventPlayer.index]
+            )
+        )
+    for eventPlayer.index in range(len(eventPlayer.hintRecordActions)):
+        logToInspector(
+            "hint {} action {} {}".format(
+                eventPlayer.runCurrentCp,
+                hintActions[eventPlayer.runCurrentCp][eventPlayer.index],
+                eventPlayer.hintRecordAnchors[eventPlayer.index]
+            )
+        )
+    logToInspector("hint {} end".format(eventPlayer.runCurrentCp))
+
+
+rule "14.6.6: Load Hint Recorder HUD":
+    @Condition settings_[2] == true
+
+    hudSubtext(
+        getAllPlayers().filter(
+            lambda localPlayer: localPlayer == hostPlayer
+            and not localPlayer.isInLobby
+            and not localPlayer.spectating[0]
+            and localPlayer.runCurrentCp < len(cps) - 1
+        ),
+        ("Hint Recorder | {}/{} CPs | This CP: {} | {}").format(
+            len(hintRoutes.filter(lambda route: len(route) > 1)),
+            len(cps) - 1,
+            (
+                "Recorded"
+                if len(hintRoutes[localPlayer.runCurrentCp]) > 1
+                else "Missing"
+            ),
+            (
+                "Paused"
+                if localPlayer.isInFreemode
+                else (
+                    "<fgFF4646FF>Recording...</fg>"
+                    if len(localPlayer.hintRecording) > 1
+                    else "Ready"
+                )
+            )
+        ),
+        HudPosition.TOP,
+        3,
+        Color.LIGHT_VIOLET,
+        HudReeval.VISIBILITY_AND_STRING
+    )
+
+
+
+rule "15.1: Start/Resume Run":
     @Event eachPlayer
     @Condition (
         eventPlayer.hasSpawned()
@@ -1040,7 +1364,7 @@ rule "14.1: Start/Resume Run":
     chaseAtRate(eventPlayer.runTime, Math.INFINITY, 1)
 
 
-rule "14.2: Update Run Timer Format":
+rule "15.2: Update Run Timer Format":
     @Event eachPlayer
     @Condition eventPlayer.isTimerActive == false
     @Condition eventPlayer.isRunPaused == false
@@ -1057,7 +1381,7 @@ rule "14.2: Update Run Timer Format":
 
 
 def formatTime():
-    @Name "14.3: Format Time"
+    @Name "15.3: Format Time"
 
     eventPlayer.timeFormatted = (
         "{}:{}:{}".format(
@@ -1080,7 +1404,7 @@ def formatTime():
     )
 
 
-rule "15.1: Start Checkpoint Time Timer":
+rule "16.1: Start Checkpoint Time Timer":
     @Event eachPlayer
     @Condition (
         eventPlayer.hasSpawned()
@@ -1100,7 +1424,7 @@ rule "15.1: Start Checkpoint Time Timer":
     chaseAtRate(eventPlayer.cpTime, Math.INFINITY, 1)
 
 
-rule "15.2: Restart Checkpoint Time Timer":
+rule "16.2: Restart Checkpoint Time Timer":
     @Event eachPlayer
     @Condition (
         eventPlayer.hasSpawned()
@@ -1122,7 +1446,7 @@ rule "15.2: Restart Checkpoint Time Timer":
     eventPlayer.cpTime = 0
 
 
-rule "16.1.1: Jumping":
+rule "17.1.1: Jumping":
     @Event eachPlayer
     @Condition (
         eventPlayer.hasSpawned()
@@ -1140,7 +1464,7 @@ rule "16.1.1: Jumping":
     eventPlayer.cpData[9] = false
 
 
-rule "16.1.2: Bhopping":
+rule "17.1.2: Bhopping":
     @Event eachPlayer
     @Condition (
         eventPlayer.hasSpawned()
@@ -1168,7 +1492,7 @@ rule "16.1.2: Bhopping":
             eventPlayer.cpData[11] = true
 
 
-rule "16.2: Grapple Use":
+rule "17.2: Grapple Use":
     @Event eachPlayer
     @Condition eventPlayer.isFiringSecondaryFire() == true
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
@@ -1216,7 +1540,7 @@ rule "16.2: Grapple Use":
         eventPlayer.setAbilityCooldown(Button.SECONDARY_FIRE, 0)
 
 
-rule "16.3: Shield Bounce Use":
+rule "17.3: Shield Bounce Use":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == true
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
@@ -1269,7 +1593,7 @@ rule "16.3: Shield Bounce Use":
         eventPlayer.setAbility2Enabled(false)
 
 
-rule "16.4: Piledriving":
+rule "17.4: Piledriving":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.CROUCH) == true
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
@@ -1280,7 +1604,7 @@ rule "16.4: Piledriving":
     eventPlayer.cpData[15] = false
 
 
-rule "16.5: Reset Useless Jump/Grapple/Shield Bounce/Bhop":
+rule "17.5: Reset Useless Jump/Grapple/Shield Bounce/Bhop":
     @Event eachPlayer
     @Condition (
         eventPlayer.hasSpawned()
@@ -1315,7 +1639,7 @@ rule "16.5: Reset Useless Jump/Grapple/Shield Bounce/Bhop":
         eventPlayer.setAbilityCooldown(Button.ABILITY_2, 0)
 
 
-rule "17.1: Checkpoint Mistake: Missed Checkpoint":
+rule "18.1: Checkpoint Mistake: Missed Checkpoint":
     @Event eachPlayer
     @Condition eventPlayer.isInFreemode == false
     @Condition (
@@ -1363,7 +1687,7 @@ rule "17.1: Checkpoint Mistake: Missed Checkpoint":
     eventPlayer.isLoading = false
 
 
-rule "17.2: Checkpoint Mistake: Already Bhopped":
+rule "18.2: Checkpoint Mistake: Already Bhopped":
     @Event eachPlayer
     @Condition (
         eventPlayer.hasSpawned()
@@ -1391,7 +1715,7 @@ rule "17.2: Checkpoint Mistake: Already Bhopped":
     eventPlayer.isLoading = false
 
 
-rule "17.3: Checkpoint Mistake: Environment Death":
+rule "18.3: Checkpoint Mistake: Environment Death":
     @Event playerDied
     @Condition (
         eventPlayer.isHoldingButton(Button.ULTIMATE)
@@ -1413,7 +1737,7 @@ rule "17.3: Checkpoint Mistake: Environment Death":
     eventPlayer.isLoading = false
 
 
-rule "18.1: Bounce Checkpoint Mistake: No Grapple":
+rule "19.1: Bounce Checkpoint Mistake: No Grapple":
     @Event eachPlayer
     @Condition (
         eventPlayer.hasSpawned()
@@ -1437,7 +1761,7 @@ rule "18.1: Bounce Checkpoint Mistake: No Grapple":
     eventPlayer.isLoading = false
 
 
-rule "18.2: Bounce Checkpoint Mistake: Too Slow":
+rule "19.2: Bounce Checkpoint Mistake: Too Slow":
     @Event eachPlayer
     @Condition (
         eventPlayer.hasSpawned()
@@ -1477,7 +1801,7 @@ rule "18.2: Bounce Checkpoint Mistake: Too Slow":
     eventPlayer.isLoading = false
 
 
-rule "18.3: Bounce Checkpoint: Bounce Used Properly":
+rule "19.3: Bounce Checkpoint: Bounce Used Properly":
     @Event eachPlayer
     @Condition (
         eventPlayer.hasSpawned()
@@ -1504,7 +1828,7 @@ rule "18.3: Bounce Checkpoint: Bounce Used Properly":
     eventPlayer.cpData[16] = true
 
 
-rule "18.4: Bounce Checkpoint Mistake: Improperly Airborne":
+rule "19.4: Bounce Checkpoint Mistake: Improperly Airborne":
     @Event eachPlayer
     @Condition (
         eventPlayer.hasSpawned()
@@ -1540,7 +1864,7 @@ rule "18.4: Bounce Checkpoint Mistake: Improperly Airborne":
 
 
 def cpResetPlayer():
-    @Name "19: Checkpoint Reset Player"
+    @Name "20: Checkpoint Reset Player"
 
     stopChasingVariable(eventPlayer.cpTime)
     eventPlayer.cpTime = 0
@@ -1566,7 +1890,7 @@ def cpResetPlayer():
         eventPlayer.setAbility2Enabled(eventPlayer.cpData[3])
 
 
-rule "20: Checkpoint Completed (No Skipping)":
+rule "21: Checkpoint Completed (No Skipping)":
     @Event eachPlayer
     @Condition (
         eventPlayer.hasSpawned()
@@ -1602,6 +1926,8 @@ rule "20: Checkpoint Completed (No Skipping)":
             eventPlayer.cpTimeFormatted, eventPlayer.cpTotalTimeFormatted
         )
     )
+    if settings_[2] and eventPlayer == hostPlayer:
+        saveHintRoute()
     eventPlayer.isLoading = true
     eventPlayer.runCurrentCp++
     for eventPlayer.index in range(len(getAllPlayers())):
@@ -1639,7 +1965,7 @@ rule "20: Checkpoint Completed (No Skipping)":
     eventPlayer.isLoading = false
 
 
-rule "21.1: Final Checkpoint Reached":
+rule "22.1: Final Checkpoint Reached":
     @Event eachPlayer
     @Condition eventPlayer.runCurrentCp == len(cps) - 1
 
@@ -1674,7 +2000,7 @@ rule "21.1: Final Checkpoint Reached":
     eventPlayer.nameplate = "{} | FREEMODE".format(eventPlayer)
 
 
-rule "21.2.1: Load Run Completion Text":
+rule "22.2.1: Load Run Completion Text":
     @Event eachPlayer
     @Condition eventPlayer.isViewingRunCompletionText == true
 
@@ -1682,7 +2008,7 @@ rule "21.2.1: Load Run Completion Text":
     eventPlayer.isViewingRunCompletionText = false
 
 
-rule "21.2.2: Run Completion Text":
+rule "22.2.2: Run Completion Text":
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
@@ -1778,7 +2104,7 @@ rule "21.2.2: Run Completion Text":
 
 
 def updateStats():
-    @Name "21.3: Update Lobby Stats With New Run"
+    @Name "22.3: Update Lobby Stats With New Run"
 
     lobbyStats[2]++
     lobbyStats[3] += eventPlayer.runTime
@@ -1823,7 +2149,7 @@ def updateStats():
     lobbyStats[8] = lobbyStats[5] / lobbyStats[2]
 
 
-rule "22: Turn Inactive Players Tiny":
+rule "23: Turn Inactive Players Tiny":
     @Event eachPlayer
     @Condition eventPlayer.getSpeed() == 0
     @Condition eventPlayer.isInLobby == false
@@ -1847,7 +2173,7 @@ rule "22: Turn Inactive Players Tiny":
     if RULE_CONDITION: loop()
 
 
-rule "23.1.1: Controls HUD Input":
+rule "24.1.1: Controls HUD Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
     @Condition eventPlayer.spectating[5] == false
@@ -1858,11 +2184,13 @@ rule "23.1.1: Controls HUD Input":
     eventPlayer.disallowButton(Button.SECONDARY_FIRE)
     eventPlayer.disallowButton(Button.ABILITY_1)
     eventPlayer.disallowButton(Button.ABILITY_2)
+    eventPlayer.disallowButton(Button.MELEE)
     waitUntil(
         not eventPlayer.isHoldingButton(Button.ULTIMATE) or eventPlayer.isInLobby,
         Math.INFINITY
     )
     eventPlayer.isViewingCtrlsHud = false
+    eventPlayer.allowButton(Button.MELEE)
     if not eventPlayer.spectating[0] or eventPlayer.spectating[2]:
         eventPlayer.allowButton(Button.PRIMARY_FIRE)
         eventPlayer.allowButton(Button.SECONDARY_FIRE)
@@ -1871,7 +2199,7 @@ rule "23.1.1: Controls HUD Input":
         eventPlayer.allowButton(Button.ABILITY_2)
 
 
-rule "23.1.2: Load Controls HUD":
+rule "24.1.2: Load Controls HUD":
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
@@ -1961,6 +2289,20 @@ rule "23.1.2: Load Controls HUD":
         ),
         ("Freemode:                            <fg00E092FF>{} + {}</fg>").format(
             inputBindingString(Button.ULTIMATE), inputBindingString(Button.INTERACT)
+        ),
+        HudPosition.LEFT,
+        5,
+        Color.TURQUOISE,
+        HudReeval.VISIBILITY_AND_STRING
+    )
+    hudSubheader(
+        getAllPlayers().filter(
+            lambda localPlayer: localPlayer.isViewingCtrlsHud
+            and localPlayer.hintCp < len(cps) - 1
+            and len(hintRoutes) > 0
+        ),
+        ("Hints:                               <fg00E092FF>{} + {}</fg>").format(
+            inputBindingString(Button.ULTIMATE), inputBindingString(Button.MELEE)
         ),
         HudPosition.LEFT,
         5,
@@ -2101,7 +2443,7 @@ rule "23.1.2: Load Controls HUD":
     )
 
 
-rule "23.2: Prev. Checkpoint Input":
+rule "24.2: Prev. Checkpoint Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == true
@@ -2215,7 +2557,7 @@ rule "23.2: Prev. Checkpoint Input":
     eventPlayer.isLoading = false
 
 
-rule "23.3: Next Checkpoint Input":
+rule "24.3: Next Checkpoint Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
@@ -2336,7 +2678,7 @@ rule "23.3: Next Checkpoint Input":
     eventPlayer.isLoading = false
 
 
-rule "23.4: Reset Checkpoint Input":
+rule "24.4: Reset Checkpoint Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
     @Condition eventPlayer.isHoldingButton(Button.RELOAD) == true
@@ -2364,7 +2706,7 @@ rule "23.4: Reset Checkpoint Input":
     eventPlayer.isLoading = false
 
 
-rule "23.5: New Run Input":
+rule "24.5: New Run Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
@@ -2399,7 +2741,7 @@ rule "23.5: New Run Input":
     eventPlayer.isLoading = false
 
 
-rule "23.6.1: Freemode Input":
+rule "24.6.1: Freemode Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
@@ -2451,7 +2793,7 @@ rule "23.6.1: Freemode Input":
     eventPlayer.allowButton(Button.MELEE)
 
 
-rule "23.6.2: Load Freemode HUD":
+rule "24.6.2: Load Freemode HUD":
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isInFreemode
@@ -2465,7 +2807,7 @@ rule "23.6.2: Load Freemode HUD":
     )
 
 
-rule "23.7.1.1: Spectator Mode Input":
+rule "24.7.1.1: Spectator Mode Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
@@ -2486,7 +2828,7 @@ rule "23.7.1.1: Spectator Mode Input":
         disableSpectator()
 
 
-rule "23.7.1.2: Load Spectator HUD":
+rule "24.7.1.2: Load Spectator HUD":
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: not localPlayer.isInLobby
@@ -2607,7 +2949,7 @@ rule "23.7.1.2: Load Spectator HUD":
 
 
 def enableSpectator():
-    @Name "22.7.2.1: Enable Spectator Mode"
+    @Name "24.7.2.1: Enable Spectator Mode"
 
     eventPlayer.isViewingRunCompletionText = false
     stopChasingVariable(eventPlayer.runTime)
@@ -2625,7 +2967,7 @@ def enableSpectator():
     enableFreecamForSpectators()
 
 
-rule "23.7.2.3: Spectating Camera Loop":
+rule "24.7.2.2: Spectating Camera Loop":
     @Event eachPlayer
     @Condition eventPlayer.spectating[0] == true
     @Condition eventPlayer.spectating[2] == false
@@ -2648,7 +2990,7 @@ rule "23.7.2.3: Spectating Camera Loop":
 
 
 def disableSpectator():
-    @Name "22.7.2.2: Disable Spectator Mode"
+    @Name "24.7.2.3: Disable Spectator Mode"
 
     eventPlayer.isLoading = true
     eventPlayer.enableEnvironmentCollision()
@@ -2685,7 +3027,7 @@ def disableSpectator():
     eventPlayer.isLoading = false
 
 
-rule "23.7.3: Track If Anyone Is Spectatable":
+rule "24.7.2.4: Track If Anyone Is Spectatable":
     @Event eachPlayer
     @Condition eventPlayer.spectating[0] == true
     @Condition eventPlayer.spectating[7] != (
@@ -2701,7 +3043,7 @@ rule "23.7.3: Track If Anyone Is Spectatable":
     eventPlayer.spectating[7] = not eventPlayer.spectating[7]
 
 
-rule "23.7.4: Spectate Prev. Player Input":
+rule "24.7.3: Spectate Prev. Player Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == true
@@ -2798,7 +3140,7 @@ rule "23.7.4: Spectate Prev. Player Input":
     eventPlayer.spectating[4] = eventPlayer.spectating[1].runCurrentCp
 
 
-rule "23.7.5: Spectate Next Player Input":
+rule "24.7.4: Spectate Next Player Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
@@ -2897,7 +3239,7 @@ rule "23.7.5: Spectate Next Player Input":
     eventPlayer.spectating[4] = eventPlayer.spectating[1].runCurrentCp
 
 
-rule "23.7.6: Spectate Crosshair Player Input":
+rule "24.7.5: Spectate Crosshair Player Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
@@ -2962,7 +3304,7 @@ rule "23.7.6: Spectate Crosshair Player Input":
     eventPlayer.spectating[9] = false
 
 
-rule "23.7.7.1: Enable Freecam Input":
+rule "24.7.6.1: Enable Freecam Input":
     @Event eachPlayer
     @Condition eventPlayer.spectating[0] == true
     @Condition eventPlayer.spectating[2] == false
@@ -2980,7 +3322,7 @@ rule "23.7.7.1: Enable Freecam Input":
 
 
 def enableFreecam():
-    @Name "22.7.7.2: Enable Freecam"
+    @Name "24.7.6.2: Enable Freecam"
 
     if playerToEnableFreecam == null:
         playerToEnableFreecam = eventPlayer
@@ -3014,7 +3356,7 @@ def enableFreecam():
     playerToEnableFreecam = null
 
 
-rule "23.7.7.3: Freecam Speed Boost":
+rule "24.7.6.3: Freecam Speed Boost":
     @Event eachPlayer
     @Condition eventPlayer.spectating[2] == true
     @Condition eventPlayer.spectating[0] == true
@@ -3023,7 +3365,7 @@ rule "23.7.7.3: Freecam Speed Boost":
     eventPlayer.setMoveSpeed(300)
 
 
-rule "23.7.7.4: Freecam Boost Input":
+rule "24.7.6.4: Freecam Boost Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
@@ -3041,7 +3383,7 @@ rule "23.7.7.4: Freecam Boost Input":
     eventPlayer.setMoveSpeed(300)
 
 
-rule "23.7.7.5: Freecam Environment Death":
+rule "24.7.6.5: Freecam Environment Death":
     @Event playerDied
     @Condition eventPlayer.getHero() == Hero.JETPACK_CAT
     @Condition eventPlayer.spectating[6] == false
@@ -3053,7 +3395,7 @@ rule "23.7.7.5: Freecam Environment Death":
 
 
 def enableFreecamForSpectators():
-    @Name "22.7.7.6: Enable freecam for players who are spectating someone who enables spectator mode or leaves"
+    @Name "24.7.6.6: Enable freecam for players who are spectating someone who enables spectator mode or leaves"
 
     for index in range(len(getAllPlayers())):
         if getAllPlayers()[index].spectating[0] == true:
@@ -3071,7 +3413,7 @@ def enableFreecamForSpectators():
                 eventPlayer.spectating[10]--
 
 
-rule "23.7.8.1: Reattach Input":
+rule "24.7.7.1: Reattach Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
@@ -3090,7 +3432,7 @@ rule "23.7.8.1: Reattach Input":
 
 
 def reattachToSpectatingTarget():
-    @Name "22.7.8.2: Reattach"
+    @Name "24.7.7.2: Reattach"
 
     eventPlayer.applyImpulse(
         eventPlayer.getVelocity() * -0.001,
@@ -3125,7 +3467,7 @@ def reattachToSpectatingTarget():
     eventPlayer.spectating[3] = false
 
 
-rule "23.7.9.1: Enable First Person Spectator Input":
+rule "24.7.8.1: Enable First Person Spectator Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
@@ -3149,7 +3491,7 @@ rule "23.7.9.1: Enable First Person Spectator Input":
 
 
 def enableFirstPersonSpectator():
-    @Name "22.7.9.1: Enable First Person Spectator"
+    @Name "24.7.8.2: Enable First Person Spectator"
     @SuppressWarnings w_chase_9999
 
     eventPlayer.setRespawnTime(Math.INFINITY)
@@ -3195,7 +3537,7 @@ def enableFirstPersonSpectator():
             return
 
 
-rule "23.7.9.2: First Person Spectator Mode Expires":
+rule "23.7.8.3: First Person Spectator Mode Expires":
     @Event eachPlayer
     @Condition eventPlayer.firstPersonSpectatingTime == 9999
     @Condition eventPlayer.spectating[5] == true
@@ -3219,7 +3561,7 @@ rule "23.7.9.2: First Person Spectator Mode Expires":
     enableFirstPersonSpectator()
 
 
-rule "23.7.10: Disable First Person Spectator Input":
+rule "23.7.8.4: Disable First Person Spectator Input":
     @Event eachPlayer
     @Condition (
         eventPlayer.isHoldingButton(Button.ULTIMATE)
@@ -3277,7 +3619,7 @@ rule "23.7.10: Disable First Person Spectator Input":
         eventPlayer.spectating[5] = false
 
 
-rule "23.8: Lobby Input":
+rule "24.8: Lobby Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
@@ -3308,7 +3650,88 @@ rule "23.8: Lobby Input":
     eventPlayer.isLoading = false
 
 
-rule "24: Auto-Restart Server":
+rule "24.9.1: Hints Input":
+    @Event eachPlayer
+    @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
+    @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
+    @Condition eventPlayer.isHoldingButton(Button.SECONDARY_FIRE) == false
+    @Condition eventPlayer.isHoldingButton(Button.JUMP) == false
+    @Condition eventPlayer.isHoldingButton(Button.RELOAD) == false
+    @Condition eventPlayer.isHoldingButton(Button.INTERACT) == false
+    @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
+    @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
+    @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
+    @Condition eventPlayer.isHoldingButton(Button.MELEE) == true
+    @Condition eventPlayer.spectating[5] == false
+    @Condition eventPlayer.isInLobby == false
+    @Condition eventPlayer.hintCp < len(cps) - 1
+
+    eventPlayer.isHintOn = not eventPlayer.isHintOn
+
+
+rule "24.9.2: Load Hints HUD":
+    hudSubtext(
+        getAllPlayers().filter(
+            lambda localPlayer: localPlayer.isHintOn
+            and not localPlayer.isInLobby
+            and localPlayer.hintCp < len(cps) - 1
+            # Courses without recorded hints don't show them at all
+            and len(hintRoutes) > 0
+        ),
+        ("{}{}").format(
+            (
+                "\n"
+                if localPlayer.isInFreemode
+                or localPlayer.spectating[0]
+                or localPlayer.spectating[10] > 0
+                else "\n\n\n"
+            ),
+            (
+                ("Hints On\nInfo: <fg00E092FF>{}</fg>{}").format(
+                    inputBindingString(Button.INTERACT),
+                    (
+                        "\n   <fgFFD200FF>Grapple</fg>"
+                        "\n   <fgFF4646FF>Piledrive</fg>"
+                        "\n   <fg00BEFFFF>Shield Bounce</fg>"
+                    )
+                    if localPlayer.isViewingHintInfo
+                    else ""
+                )
+                if len(hintRoutes[localPlayer.hintCp]) > 1
+                else "No Hint For This CP"
+            )
+        ),
+        HudPosition.LEFT,
+        15,
+        Color.LIGHT_VIOLET,
+        HudReeval.VISIBILITY_AND_STRING
+    )
+
+
+rule "24.9.3: Hint Info Input":
+    @Event eachPlayer
+    @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
+    @Condition eventPlayer.isHoldingButton(Button.INTERACT) == true
+    @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
+    @Condition eventPlayer.isHintOn == true
+    @Condition len(hintRoutes[eventPlayer.hintCp]) > 1
+    @Condition eventPlayer.spectating[5] == false
+    @Condition eventPlayer.isInLobby == false
+
+    waitUntil(
+        not eventPlayer.isHoldingButton(Button.INTERACT)
+        or eventPlayer.isHoldingButton(Button.ULTIMATE)
+        or eventPlayer.isHoldingButton(Button.ABILITY_1),
+        Math.INFINITY
+    )
+    if eventPlayer.isHoldingButton(Button.ULTIMATE) or eventPlayer.isHoldingButton(
+        Button.ABILITY_1
+    ):
+        return
+    eventPlayer.isViewingHintInfo = not eventPlayer.isViewingHintInfo
+
+
+rule "25: Auto-Restart Server":
     @SuppressWarnings w_ow2_rule_condition_chase
     # 3hr29min in
     @Condition elapsedTime >= 12540

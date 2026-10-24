@@ -72,6 +72,7 @@ rule "1: Settings":
     settings_ = []
     settings_[0] = createWorkshopSettingBool("Settings", "Debug", false, 1)
     settings_[1] = createWorkshopSettingBool("Settings", "Lobby Stats", false, 0)
+    settings_[2] = createWorkshopSettingBool("Settings", "Hint Recorder", false, 2)
 
 
 rule "2: Leaderboard (LB)":
@@ -198,6 +199,9 @@ rule "3: Checkpoints (CPs)":
     cps[98] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(90.713, -3.045, -5.413), cpDefaults[2]]
     cps[99] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, false, true, vect(85.5, -3.15, -1.5), cpDefaults[1], vect(83.375, 6, 0.473), cpDefaults[2]]
     cps[100] = [(cps[len(cps) - 2])[7], cpDefaults[0]]
+
+
+#!include "hints/1-watchpoint-gibraltar.opy"
 
 
 rule "4: Lobby":
