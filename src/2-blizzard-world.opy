@@ -66,6 +66,7 @@ rule "1: Settings":
     settings_ = []
     settings_[0] = createWorkshopSettingBool("Settings", "Debug", false, 1)
     settings_[1] = createWorkshopSettingBool("Settings", "Lobby Stats", false, 0)
+    settings_[2] = createWorkshopSettingBool("Settings", "Hint Recorder", false, 2)
 
 
 rule "2: Leaderboard (LB)":
@@ -211,6 +212,9 @@ rule "3.2: Disrupter Destructors":
     # Checkpoint 46
     ddBots[8] = [vect(-109.511, -4.25, 121.231), vect(-97.74, -2.56, 114.55)]
     ddBots[9] = [vect(-97.917, -1.253, 116.947), vect(-112.85, 0.12, 112.92)]
+
+
+#!include "hints/2-blizzard-world.opy"
 
 
 rule "4: Lobby":

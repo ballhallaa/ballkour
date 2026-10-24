@@ -17,6 +17,11 @@ globalvar lbObj 15
 globalvar lbObjFormatted 16
 globalvar playerToEnableFreecam 17
 globalvar tinyNameplateObjs 18
+globalvar hintRoutes 19
+globalvar hintTimes 20
+globalvar hintActions 21
+globalvar hintColors 22
+globalvar hintAnchors 23
 globalvar index 127
 
 playervar isLoading 0
@@ -47,6 +52,23 @@ playervar isTiny 24
 playervar isViewingCtrlsHud 25
 playervar spectating 26
 playervar firstPersonSpectatingTime 27
+playervar isHintOn 28
+playervar isHintPlaying 29
+playervar hintCp 30
+playervar hintIndex 31
+playervar hintPos 32
+playervar hintRecording 33
+playervar hintRecordStart 34
+playervar hintTime 35
+playervar hintRecordActions 36
+playervar hintActionStarts 37
+playervar isViewingHintInfo 38
+playervar hintRecordAnchors 39
+playervar hintGrappleAnchor 40
+playervar hintAnchor 41
+playervar hintRecordCp 42
+playervar hintRecordLast 43
+playervar hintRecordTimes 44
 playervar index 127
 
 subroutine loadLobby 0
@@ -63,3 +85,4 @@ subroutine enableFreecam 10
 subroutine reattachToSpectatingTarget 11
 subroutine enableFreecamForSpectators 12
 subroutine enableFirstPersonSpectator 13
+subroutine saveHintRoute 14
