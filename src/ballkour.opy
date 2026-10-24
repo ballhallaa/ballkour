@@ -3023,6 +3023,25 @@ def enableSpectator():
     enableFreecamForSpectators()
 
 
+# 5m behind and 1m above the target's eyes, stopping just short of walls (raycast 10% further, then scale back)
+macro spectatorCamPos(target):
+    (
+        target.getEyePosition()
+        + (
+            raycast(
+                target.getEyePosition(),
+                target.getEyePosition()
+                + (vect(0, 1, 0) - target.getFacingDirection() * 5) * 1.1,
+                null,
+                getAllPlayers(),
+                false
+            ).getHitPosition()
+            - target.getEyePosition()
+        )
+        / 1.1
+    )
+
+
 rule "24.7.2.2: Spectating Camera Loop":
     @Event eachPlayer
     @Condition eventPlayer.spectating[0] == true
@@ -3035,12 +3054,10 @@ rule "24.7.2.2: Spectating Camera Loop":
         and not eventPlayer.spectating[5]
     ):
         eventPlayer.startCamera(
-            eventPlayer.spectating[1].getEyePosition()
-            - eventPlayer.spectating[1].getFacingDirection() * 2
-            + vect(0, 0.5, 0),
+            spectatorCamPos(eventPlayer.spectating[1]),
             eventPlayer.spectating[1].getEyePosition()
             + eventPlayer.spectating[1].getFacingDirection(),
-            500
+            250
         )
         wait()
 
@@ -3169,29 +3186,7 @@ rule "24.7.3: Spectate Prev. Player Input":
                 )
             )
         ]
-    eventPlayer.setInvisibility(Invis.ALL)
-    eventPlayer.startForcingPosition(
-        eventPlayer.spectating[1].getEyePosition()
-        - eventPlayer.spectating[1].getFacingDirection() * 2
-        + vect(0, 0.5, 0)
-        - (eventPlayer.getEyePosition() - eventPlayer.getPosition())
-    )
-    eventPlayer.startCamera(
-        eventPlayer.spectating[1].getEyePosition()
-        - eventPlayer.spectating[1].getFacingDirection() * 2
-        + vect(0, 0.5, 0),
-        eventPlayer.spectating[1].getEyePosition()
-        + eventPlayer.spectating[1].getFacingDirection(),
-        500
-    )
-    eventPlayer.disallowButton(Button.PRIMARY_FIRE)
-    eventPlayer.disallowButton(Button.SECONDARY_FIRE)
-    eventPlayer.disallowButton(Button.CROUCH)
-    eventPlayer.disallowButton(Button.ABILITY_1)
-    eventPlayer.setAbility1Enabled(false)
-    eventPlayer.disallowButton(Button.ABILITY_2)
-    eventPlayer.setAbility2Enabled(false)
-    eventPlayer.nameplate = ""
+    reattachToSpectatingTarget()
     eventPlayer.spectating[1].spectating[10]++
     eventPlayer.spectating[4] = eventPlayer.spectating[1].runCurrentCp
 
@@ -3268,29 +3263,7 @@ rule "24.7.4: Spectate Next Player Input":
                 )
             )
         ]
-    eventPlayer.setInvisibility(Invis.ALL)
-    eventPlayer.startForcingPosition(
-        eventPlayer.spectating[1].getEyePosition()
-        - eventPlayer.spectating[1].getFacingDirection() * 2
-        + vect(0, 0.5, 0)
-        - (eventPlayer.getEyePosition() - eventPlayer.getPosition())
-    )
-    eventPlayer.startCamera(
-        eventPlayer.spectating[1].getEyePosition()
-        - eventPlayer.spectating[1].getFacingDirection() * 2
-        + vect(0, 0.5, 0),
-        eventPlayer.spectating[1].getEyePosition()
-        + eventPlayer.spectating[1].getFacingDirection(),
-        500
-    )
-    eventPlayer.disallowButton(Button.PRIMARY_FIRE)
-    eventPlayer.disallowButton(Button.SECONDARY_FIRE)
-    eventPlayer.disallowButton(Button.CROUCH)
-    eventPlayer.disallowButton(Button.ABILITY_1)
-    eventPlayer.setAbility1Enabled(false)
-    eventPlayer.disallowButton(Button.ABILITY_2)
-    eventPlayer.setAbility2Enabled(false)
-    eventPlayer.nameplate = ""
+    reattachToSpectatingTarget()
     eventPlayer.spectating[1].spectating[10]++
     eventPlayer.spectating[4] = eventPlayer.spectating[1].runCurrentCp
 
@@ -3332,27 +3305,7 @@ rule "24.7.5: Spectate Crosshair Player Input":
     eventPlayer.spectating[2] = false
     eventPlayer.spectating[3] = false
     eventPlayer.spectating[4] = eventPlayer.spectating[1].runCurrentCp
-    eventPlayer.setInvisibility(Invis.ALL)
-    eventPlayer.startForcingPosition(
-        eventPlayer.spectating[1].getEyePosition()
-        - eventPlayer.spectating[1].getFacingDirection() * 2
-        + vect(0, 0.5, 0)
-        - (eventPlayer.getEyePosition() - eventPlayer.getPosition())
-    )
-    eventPlayer.startCamera(
-        eventPlayer.spectating[1].getEyePosition()
-        - eventPlayer.spectating[1].getFacingDirection() * 2
-        + vect(0, 0.5, 0),
-        eventPlayer.spectating[1].getEyePosition()
-        + eventPlayer.spectating[1].getFacingDirection(),
-        500
-    )
-    eventPlayer.disallowButton(Button.PRIMARY_FIRE)
-    eventPlayer.disallowButton(Button.SECONDARY_FIRE)
-    eventPlayer.disallowButton(Button.CROUCH)
-    eventPlayer.disallowButton(Button.ABILITY_1)
-    eventPlayer.disallowButton(Button.ABILITY_2)
-    eventPlayer.nameplate = ""
+    reattachToSpectatingTarget()
     eventPlayer.spectating[1].spectating[10]++
     eventPlayer.isLoading = false
     eventPlayer.spectating[9] = true
@@ -3386,10 +3339,14 @@ def enableFreecam():
     playerToEnableFreecam.stopCamera()
     playerToEnableFreecam.stopForcingPosition()
     playerToEnableFreecam.startForcingHero(Hero.JETPACK_CAT)
-    if playerToEnableFreecam.spectating[1] != null:
+    if entityExists(playerToEnableFreecam.spectating[1]):
+        playerToEnableFreecam.teleport(
+            spectatorCamPos(playerToEnableFreecam.spectating[1])
+            - (playerToEnableFreecam.getEyePosition() - playerToEnableFreecam.getPosition())
+        )
         playerToEnableFreecam.setFacing(
             directionTowards(
-                playerToEnableFreecam.getEyePosition(),
+                spectatorCamPos(playerToEnableFreecam.spectating[1]),
                 playerToEnableFreecam.spectating[1].getEyePosition()
                 + playerToEnableFreecam.spectating[1].getFacingDirection()
             ),
@@ -3439,9 +3396,9 @@ rule "24.7.6.4: Freecam Boost Input":
     eventPlayer.setMoveSpeed(300)
 
 
-rule "24.7.6.5: Freecam Environment Death":
+rule "24.7.6.5: Spectator Environment Death":
     @Event playerDied
-    @Condition eventPlayer.getHero() == Hero.JETPACK_CAT
+    @Condition eventPlayer.spectating[0] == true
     @Condition eventPlayer.spectating[6] == false
 
     eventPlayer.resurrect()
@@ -3496,17 +3453,11 @@ def reattachToSpectatingTarget():
         Relativity.TO_WORLD,
         Impulse.CANCEL_CONTRARY_MOTION_XYZ
     )
+    eventPlayer.startForcingHero(Hero.WRECKING_BALL)
     eventPlayer.setInvisibility(Invis.ALL)
-    eventPlayer.startForcingPosition(
-        eventPlayer.spectating[1].getEyePosition()
-        - eventPlayer.spectating[1].getFacingDirection() * 2
-        + vect(0, 0.5, 0)
-        - (eventPlayer.getEyePosition() - eventPlayer.getPosition())
-    )
+    eventPlayer.startForcingPosition(eventPlayer.spectating[1].getPosition())
     eventPlayer.startCamera(
-        eventPlayer.spectating[1].getEyePosition()
-        - eventPlayer.spectating[1].getFacingDirection() * 2
-        + vect(0, 0.5, 0),
+        spectatorCamPos(eventPlayer.spectating[1]),
         eventPlayer.spectating[1].getEyePosition()
         + eventPlayer.spectating[1].getFacingDirection(),
         500
@@ -3560,9 +3511,7 @@ def enableFirstPersonSpectator():
     eventPlayer.spectating[5] = true
     eventPlayer.enableDeathSpectateTargetHud()
     eventPlayer.startCamera(
-        eventPlayer.spectating[1].getEyePosition()
-        - eventPlayer.spectating[1].getFacingDirection() * 2
-        + vect(0, 0.5, 0),
+        spectatorCamPos(eventPlayer.spectating[1]),
         eventPlayer.spectating[1].getEyePosition()
         + eventPlayer.spectating[1].getFacingDirection(),
         500
@@ -3600,20 +3549,7 @@ rule "23.7.8.3: First Person Spectator Mode Expires":
     @SuppressWarnings w_ow2_rule_condition_chase
 
     eventPlayer.resurrect()
-    eventPlayer.startForcingPosition(
-        eventPlayer.spectating[1].getEyePosition()
-        - eventPlayer.spectating[1].getFacingDirection() * 2
-        + vect(0, 0.5, 0)
-        - (eventPlayer.getEyePosition() - eventPlayer.getPosition())
-    )
-    eventPlayer.startCamera(
-        eventPlayer.spectating[1].getEyePosition()
-        - eventPlayer.spectating[1].getFacingDirection() * 2
-        + vect(0, 0.5, 0),
-        eventPlayer.spectating[1].getEyePosition()
-        + eventPlayer.spectating[1].getFacingDirection(),
-        500
-    )
+    reattachToSpectatingTarget()
     enableFirstPersonSpectator()
 
 
@@ -3658,20 +3594,7 @@ rule "23.7.8.4: Disable First Person Spectator Input":
     ) == true:
         eventPlayer.disableDeathSpectateTargetHud()
         eventPlayer.resurrect()
-        eventPlayer.startForcingPosition(
-            eventPlayer.spectating[1].getEyePosition()
-            - eventPlayer.spectating[1].getFacingDirection() * 2
-            + vect(0, 0.5, 0)
-            - (eventPlayer.getEyePosition() - eventPlayer.getPosition())
-        )
-        eventPlayer.startCamera(
-            eventPlayer.spectating[1].getEyePosition()
-            - eventPlayer.spectating[1].getFacingDirection() * 2
-            + vect(0, 0.5, 0),
-            eventPlayer.spectating[1].getEyePosition()
-            + eventPlayer.spectating[1].getFacingDirection(),
-            500
-        )
+        reattachToSpectatingTarget()
         eventPlayer.spectating[5] = false
 
 
