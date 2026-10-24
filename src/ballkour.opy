@@ -2353,8 +2353,14 @@ rule "24.1.2: Load Controls HUD":
             and localPlayer.hintCp < len(cps) - 1
             and len(hintRoutes) > 0
         ),
-        ("Hints:                               <fg00E092FF>{} + {}</fg>").format(
-            inputBindingString(Button.ULTIMATE), inputBindingString(Button.MELEE)
+        ("{}<fg00E092FF>{} + {}</fg>").format(
+            (
+                "Disable Hints:                "
+                if localPlayer.isHintOn
+                else "Enable Hints:                  "
+            ),
+            inputBindingString(Button.ULTIMATE),
+            inputBindingString(Button.MELEE)
         ),
         HudPosition.LEFT,
         5,
@@ -3745,6 +3751,10 @@ rule "24.9.2: Load Hints HUD":
                         "\n   <fgFFD200FF>Grapple</fg>"
                         "\n   <fgFF4646FF>Piledrive</fg>"
                         "\n   <fg00BEFFFF>Shield Bounce</fg>"
+                        "\nDisable: <fg00E092FF>{} + {}</fg>"
+                    ).format(
+                        inputBindingString(Button.ULTIMATE),
+                        inputBindingString(Button.MELEE)
                     )
                     if localPlayer.isViewingHintInfo
                     else ""
