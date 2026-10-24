@@ -34,6 +34,7 @@ import re
 import shutil
 import subprocess
 import sys
+import unicodedata
 from pathlib import Path
 
 SRC = Path(__file__).resolve().parent.parent / "src"
@@ -60,12 +61,18 @@ WORKSHOP_LOG_DIRS = [
 ]
 
 
+def fold(text):
+    """Lowercase without accents, so "paraiso" matches "Paraíso"."""
+    decomposed = unicodedata.normalize("NFKD", text.lower())
+    return "".join(c for c in decomposed if not unicodedata.combining(c))
+
+
 def find_course(name):
     path = Path(name)
     if path.is_file():
         return path.resolve()
     courses = [p for p in SRC.glob("*.opy") if p.name not in ENGINE_FILES]
-    matches = [p for p in courses if name.lower() in p.stem.lower()]
+    matches = [p for p in courses if fold(name) in fold(p.stem)]
     if len(matches) != 1:
         names = ", ".join(sorted(p.stem for p in courses))
         sys.exit(f"'{name}' should match exactly one course: {names}")
@@ -361,7 +368,7 @@ def print_status(course):
 def is_other_course(text, course):
     welcome = WELCOME_RE.search(text)
     return welcome and not all(
-        word in welcome[1].lower() for word in course.stem.split("-")[1:]
+        word in fold(welcome[1]) for word in fold(course.stem).split("-")[1:]
     )
 
 
