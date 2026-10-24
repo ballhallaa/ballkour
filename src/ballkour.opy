@@ -1819,15 +1819,16 @@ rule "22: Turn Inactive Players Tiny":
     eventPlayer.startScalingSize(0.1, false)
     waitUntil(
         eventPlayer.getSpeed() > 0 
-        or eventPlayer.isFiringPrimaryFire()
-        or eventPlayer.isFiringSecondaryFire()
-        or eventPlayer.isUsingAbility1()
-        or eventPlayer.isUsingAbility2()
-        or eventPlayer.spectating[0] 
+        or eventPlayer.isHoldingButton(Button.PRIMARY_FIRE)
+        or eventPlayer.isHoldingButton(Button.SECONDARY_FIRE)
+        or eventPlayer.isHoldingButton(Button.ABILITY_1)
+        or eventPlayer.isHoldingButton(Button.ABILITY_2)
+        or eventPlayer.spectating[0]
         or eventPlayer.isInLobby, 
         Math.INFINITY)
     eventPlayer.isTiny = false
     eventPlayer.stopScalingSize()
+    if RULE_CONDITION: loop()
 
 
 rule "23.1.1: Controls HUD Input":
