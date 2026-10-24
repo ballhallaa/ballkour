@@ -3748,6 +3748,7 @@ rule "24.9.2: Load Hints HUD":
                 ("Hints On\nInfo: <fg00E092FF>{}</fg>{}").format(
                     inputBindingString(Button.INTERACT),
                     (
+                        "\n   <fgA078FFFF>Movement</fg>"
                         "\n   <fgFFD200FF>Grapple</fg>"
                         "\n   <fgFF4646FF>Piledrive</fg>"
                         "\n   <fg00BEFFFF>Shield Bounce</fg>"
