@@ -98,7 +98,9 @@ def recordSplit():
     # A split runs from entering the CP to clearing it, so resets and mistakes count toward it
     # splitDelta: [0]cp [1]deltaFormatted [2]color [3]prevStatsFormatted [4]hideTime
     # Rounded to the hundredths shown, so a new best has to be at least 0.01 faster
-    eventPlayer.splitTime = round((eventPlayer.runTime - eventPlayer.splitStart) * 100) / 100
+    eventPlayer.splitTime = (
+        round((eventPlayer.runTime - eventPlayer.splitStart) * 100) / 100
+    )
     eventPlayer.splitDelta = [
         eventPlayer.runCurrentCp,
         "",
@@ -111,7 +113,9 @@ def recordSplit():
     if not eventPlayer.splitClears[eventPlayer.runCurrentCp]:
         eventPlayer.splitBests[eventPlayer.runCurrentCp] = eventPlayer.splitTime
     else:
-        eventPlayer.splitDelta[3] = eventPlayer.splitStatsFormatted[eventPlayer.runCurrentCp]
+        eventPlayer.splitDelta[3] = eventPlayer.splitStatsFormatted[
+            eventPlayer.runCurrentCp
+        ]
         # A new best is compared to the old best, and anything else to the average
         if eventPlayer.splitTime < eventPlayer.splitBests[eventPlayer.runCurrentCp]:
             eventPlayer.timeToFormat -= eventPlayer.splitBests[eventPlayer.runCurrentCp]
@@ -126,7 +130,11 @@ def recordSplit():
             eventPlayer.splitDelta[2] = (
                 Color.GREEN
                 if eventPlayer.timeToFormat < 0
-                else (rgb(255, 70, 70) if eventPlayer.timeToFormat > 0 else rgb(230, 151, 0))
+                else (
+                    rgb(255, 70, 70)
+                    if eventPlayer.timeToFormat > 0
+                    else rgb(230, 151, 0)
+                )
             )
         eventPlayer.splitDelta[1] = "-" if eventPlayer.timeToFormat < 0 else "+"
         eventPlayer.timeToFormat = abs(eventPlayer.timeToFormat)
@@ -138,12 +146,17 @@ def recordSplit():
     eventPlayer.splitClears[eventPlayer.runCurrentCp]++
     eventPlayer.timeToFormat = eventPlayer.splitBests[eventPlayer.runCurrentCp]
     formatTime()
-    eventPlayer.splitStatsFormatted[eventPlayer.runCurrentCp] = eventPlayer.timeFormatted
+    eventPlayer.splitStatsFormatted[eventPlayer.runCurrentCp] = (
+        eventPlayer.timeFormatted
+    )
     eventPlayer.timeToFormat = (
         eventPlayer.splitTotals[eventPlayer.runCurrentCp]
         / eventPlayer.splitClears[eventPlayer.runCurrentCp]
     )
     formatTime()
-    eventPlayer.splitStatsFormatted[eventPlayer.runCurrentCp] = "Best   {}\nAvg   {}".format(
-        eventPlayer.splitStatsFormatted[eventPlayer.runCurrentCp], eventPlayer.timeFormatted
+    eventPlayer.splitStatsFormatted[eventPlayer.runCurrentCp] = (
+        "Best   {}\nAvg   {}".format(
+            eventPlayer.splitStatsFormatted[eventPlayer.runCurrentCp],
+            eventPlayer.timeFormatted
+        )
     )

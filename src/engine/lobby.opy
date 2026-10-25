@@ -77,7 +77,9 @@ rule "Load Leaderboard Area":
         lbObj = lbObj.split(",")
         lbObj[3] = lbObj[3].replace("'", "")
         # Gold, silver and bronze, then the rest
-        lbObj[4] = ["<fgFFFF00FF>", "<fgC0C0C0FF>", "<fgCD7F32FF>", "<fg00E697FF>"][min(index, 4) - 1]
+        lbObj[4] = ["<fgFFFF00FF>", "<fgC0C0C0FF>", "<fgCD7F32FF>", "<fg00E697FF>"][
+            min(index, 4) - 1
+        ]
         lbObjFormatted = "{}. {}{}</fg>{}({}{}{}, {}{}</fg>)".format(
             index,
             lbObj[4],

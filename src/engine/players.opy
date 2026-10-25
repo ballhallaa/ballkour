@@ -96,14 +96,16 @@ rule "Turn Inactive Players Tiny":
     eventPlayer.isTiny = true
     eventPlayer.startScalingSize(0.1, false)
     waitUntil(
-        eventPlayer.getSpeed() > 0 
+        eventPlayer.getSpeed() > 0
         or eventPlayer.isHoldingButton(Button.PRIMARY_FIRE)
         or eventPlayer.isHoldingButton(Button.SECONDARY_FIRE)
         or eventPlayer.isHoldingButton(Button.ABILITY_1)
         or eventPlayer.isHoldingButton(Button.ABILITY_2)
         or eventPlayer.spectating[0]
-        or eventPlayer.isInLobby, 
-        Math.INFINITY)
+        or eventPlayer.isInLobby,
+        Math.INFINITY
+    )
     eventPlayer.isTiny = false
     eventPlayer.stopScalingSize()
-    if RULE_CONDITION: loop()
+    if RULE_CONDITION:
+        loop()

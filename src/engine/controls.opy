@@ -43,11 +43,10 @@ rule "Load HUD":
     )
     hudSubheader(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.isViewingCtrlsHud and localPlayer.viewCp < lastCp
+            lambda localPlayer: localPlayer.isViewingCtrlsHud
+            and localPlayer.viewCp < lastCp
         ),
-        (
-            "Next CP:                               <fg00E092FF>{} + {}</fg>"
-        ).format(
+        ("Next CP:                               <fg00E092FF>{} + {}</fg>").format(
             inputBindingString(Button.ULTIMATE),
             inputBindingString(Button.SECONDARY_FIRE)
         ),
@@ -59,16 +58,9 @@ rule "Load HUD":
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
-            and (
-                (
-                    not localPlayer.spectating[0]
-                    and localPlayer.runCurrentCp < lastCp
-                )
-            )
+            and ((not localPlayer.spectating[0] and localPlayer.runCurrentCp < lastCp))
         ),
-        (
-            "Reset CP:                           <fg00E092FF>{} (Hold)</fg>"
-        ).format(
+        ("Reset CP:                           <fg00E092FF>{} (Hold)</fg>").format(
             inputBindingString(Button.RELOAD)
         ),
         HudPosition.LEFT,
@@ -379,14 +371,8 @@ rule "Next Checkpoint Input":
             eventPlayer.isHoldingButton(Button.ULTIMATE)
             and eventPlayer.isHoldingButton(Button.SECONDARY_FIRE)
             and (
-                (
-                    eventPlayer.runCurrentCp < lastCp
-                    and not eventPlayer.spectating[0]
-                )
-                or (
-                    eventPlayer.spectating[4] < lastCp
-                    and eventPlayer.spectating[0]
-                )
+                (eventPlayer.runCurrentCp < lastCp and not eventPlayer.spectating[0])
+                or (eventPlayer.spectating[4] < lastCp and eventPlayer.spectating[0])
             )
         ):
             if not eventPlayer.spectating[0]:
@@ -599,18 +585,20 @@ rule "Load Hints HUD":
                 ("Hints On\nInfo: <fg00E092FF>{}</fg>{}").format(
                     inputBindingString(Button.INTERACT),
                     (
-                        "\n   <fgCB87FFFF>Movement</fg>"
-                        "\n   <fgFFFFFFFF>Jump</fg>"
-                        "\n   <fgFFD200FF>Grapple</fg>"
-                        "\n   <fgFF4646FF>Piledrive</fg>"
-                        "\n   <fg00BEFFFF>Shield Bounce</fg>"
-                        "\nDisable: <fg00E092FF>{} + {}</fg>"
-                    ).format(
-                        inputBindingString(Button.ULTIMATE),
-                        inputBindingString(Button.MELEE)
+                        (
+                            "\n   <fgCB87FFFF>Movement</fg>"
+                            "\n   <fgFFFFFFFF>Jump</fg>"
+                            "\n   <fgFFD200FF>Grapple</fg>"
+                            "\n   <fgFF4646FF>Piledrive</fg>"
+                            "\n   <fg00BEFFFF>Shield Bounce</fg>"
+                            "\nDisable: <fg00E092FF>{} + {}</fg>"
+                        ).format(
+                            inputBindingString(Button.ULTIMATE),
+                            inputBindingString(Button.MELEE)
+                        )
+                        if localPlayer.isViewingHintInfo
+                        else ""
                     )
-                    if localPlayer.isViewingHintInfo
-                    else ""
                 )
                 if len(hintRoutes[localPlayer.viewCp]) > 1
                 else "No Hint For This CP"
