@@ -11,6 +11,7 @@
 #!include "engine/hints.opy"
 #!include "engine/hint-recorder.opy"
 #!include "engine/timers.opy"
+#!include "engine/splits.opy"
 #!include "engine/movement.opy"
 #!include "engine/mistakes.opy"
 #!include "engine/bounce-checkpoints.opy"

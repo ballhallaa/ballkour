@@ -36,6 +36,9 @@ rule "Update Run Format":
         eventPlayer.timeToFormat = eventPlayer.runTime
         formatTime()
         eventPlayer.runTimeFormatted = eventPlayer.timeFormatted
+        eventPlayer.timeToFormat = eventPlayer.runTime - eventPlayer.splitStart
+        formatTime()
+        eventPlayer.splitTimeFormatted = eventPlayer.timeFormatted
     eventPlayer.isTimerActive = false
 
 

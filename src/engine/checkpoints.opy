@@ -30,6 +30,9 @@ def loadCpData():
     eventPlayer.cpData = cps[eventPlayer.runCurrentCp]
     eventPlayer.cpStartTime = eventPlayer.runTime
     eventPlayer.cpTime = 0
+    eventPlayer.splitStart = eventPlayer.runTime
+    # The run can be paused here (after a go-back or skip), which stops the formatting loop
+    eventPlayer.splitTimeFormatted = "0.00"
 
 
 def setCpAbilities():

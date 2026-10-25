@@ -8,6 +8,13 @@ macro viewedRunner(player):
     (player.spectating[1] if player.spectating[0] else player)
 
 
+rule "Sync Viewed Runner":
+    @Event eachPlayer
+    @Condition eventPlayer.viewRunner != viewedRunner(eventPlayer)
+
+    eventPlayer.viewRunner = viewedRunner(eventPlayer)
+
+
 rule "Load HUD":
     hudSubtext(
         getAllPlayers(),
@@ -45,9 +52,9 @@ rule "Load HUD":
         ),
         ("\n\n\n\n{} {}\n").format(
             iconString(Icon.BOLT),
-            viewedRunner(localPlayer).runTime
+            localPlayer.viewRunner.runTime
             if settings_[0]
-            else viewedRunner(localPlayer).runTimeFormatted
+            else localPlayer.viewRunner.runTimeFormatted
         ),
         HudPosition.RIGHT,
         1,
@@ -59,7 +66,7 @@ rule "Load HUD":
             lambda localPlayer: not localPlayer.isInLobby
             and not localPlayer.spectating[3]
         ),
-        ("{} {}").format(iconString(Icon.SKULL), viewedRunner(localPlayer).runMistakes),
+        ("{} {}").format(iconString(Icon.SKULL), localPlayer.viewRunner.runMistakes),
         HudPosition.RIGHT,
         2,
         rgb(230, 151, 0),
