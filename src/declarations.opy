@@ -68,6 +68,7 @@ playervar runMistakes
 playervar runFinalTimeFormatted
 playervar runFinalMistakes
 playervar isViewingRunCompletionText
+playervar viewRunner
 
 # Checkpoints
 playervar cpData
@@ -77,6 +78,16 @@ playervar cpTime
 playervar cpTimeFormatted
 playervar cpTotalTimeFormatted
 playervar viewCp
+
+# Splits
+playervar splitStart
+playervar splitTime
+playervar splitTimeFormatted
+playervar splitBests
+playervar splitTotals
+playervar splitClears
+playervar splitStatsFormatted
+playervar splitDelta
 
 # Hint Playback
 playervar isHintOn
@@ -135,6 +146,9 @@ subroutine loadCpData
 subroutine setCpAbilities
 subroutine cpResetPlayer
 subroutine faceNextCp
+
+# Splits
+subroutine recordSplit
 
 # Hints
 subroutine saveHintRoute

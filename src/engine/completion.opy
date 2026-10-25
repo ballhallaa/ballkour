@@ -42,6 +42,7 @@ rule "Checkpoint (No Skipping)":
             eventPlayer.cpTimeFormatted, eventPlayer.cpTotalTimeFormatted
         )
     )
+    recordSplit()
     if isHintRecorderOn and eventPlayer == hostPlayer:
         saveHintRoute()
     eventPlayer.isLoading = true
