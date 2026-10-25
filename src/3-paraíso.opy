@@ -138,7 +138,7 @@ rule "Checkpoints (CPs)":
     cps[47] = [vect(-48.29, 5.28, -132.41), true, true, true]
     cps[48] = [vect(-22.57, 4.32, -124.03), true, true, true]
     cps[49] = [vect(-10.97, 6.99, -104.05), true, true, true]
-    cps[50] = [vect(-17.98, 5.00, -79.11), false, false, true]
+    cps[50] = [vect(-18.15, 5.01, -80.34), false, false, true]
     cps[51] = [vect(-14.90, 9.74, -76.17), true, true, true]
     cps[52] = [vect(20.10, 11.01, -83.23), true, true, true]
     cps[53] = [vect(8.45, 10.81, -49.45), true, true, true]
