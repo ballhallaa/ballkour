@@ -38,7 +38,7 @@ rule "Load HUD":
         ),
         HudPosition.LEFT,
         1,
-        Color.TURQUOISE,
+        rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
     hudSubheader(
@@ -53,7 +53,7 @@ rule "Load HUD":
         ),
         HudPosition.LEFT,
         2,
-        Color.TURQUOISE,
+        rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
     hudSubheader(
@@ -73,7 +73,7 @@ rule "Load HUD":
         ),
         HudPosition.LEFT,
         3,
-        Color.TURQUOISE,
+        rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
     hudSubheader(
@@ -83,7 +83,7 @@ rule "Load HUD":
         ),
         HudPosition.LEFT,
         4,
-        Color.TURQUOISE,
+        rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
     hudSubheader(
@@ -97,7 +97,7 @@ rule "Load HUD":
         ),
         HudPosition.LEFT,
         5,
-        Color.TURQUOISE,
+        rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
     hudSubheader(
@@ -117,7 +117,7 @@ rule "Load HUD":
         ),
         HudPosition.LEFT,
         5,
-        Color.TURQUOISE,
+        rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
     hudSubheader(
@@ -130,7 +130,7 @@ rule "Load HUD":
         ),
         HudPosition.LEFT,
         6,
-        Color.TURQUOISE,
+        rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
     hudSubheader(
@@ -143,7 +143,7 @@ rule "Load HUD":
         ),
         HudPosition.LEFT,
         7,
-        Color.TURQUOISE,
+        rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
     hudSubheader(
@@ -156,7 +156,7 @@ rule "Load HUD":
         ),
         HudPosition.LEFT,
         7,
-        Color.TURQUOISE,
+        rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
     hudSubheader(
@@ -173,7 +173,7 @@ rule "Load HUD":
         ),
         HudPosition.LEFT,
         7,
-        Color.TURQUOISE,
+        rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
     hudSubheader(
@@ -188,7 +188,7 @@ rule "Load HUD":
         ),
         HudPosition.LEFT,
         8,
-        Color.TURQUOISE,
+        rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
     hudSubheader(
@@ -202,7 +202,7 @@ rule "Load HUD":
         ),
         HudPosition.LEFT,
         9,
-        Color.TURQUOISE,
+        rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
     hudSubheader(
@@ -222,7 +222,7 @@ rule "Load HUD":
         ),
         HudPosition.LEFT,
         10,
-        Color.TURQUOISE,
+        rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
     hudSubheader(
@@ -237,7 +237,7 @@ rule "Load HUD":
         ),
         HudPosition.LEFT,
         11,
-        Color.TURQUOISE,
+        rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
     hudSubheader(
@@ -249,7 +249,7 @@ rule "Load HUD":
         ("Freecam:                             <fg00E092FF>Move</fg>"),
         HudPosition.LEFT,
         12,
-        Color.TURQUOISE,
+        rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
 
@@ -580,8 +580,6 @@ rule "Hints Input":
 
 
 rule "Load Hints HUD":
-    @SuppressWarnings w_dark_color
-
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isHintOn
@@ -620,7 +618,7 @@ rule "Load Hints HUD":
         ),
         HudPosition.LEFT,
         15,
-        Color.VIOLET,
+        rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
 

@@ -30,7 +30,7 @@ rule "Load HUD":
     )
     hudSubtext(
         getAllPlayers().filter(lambda localPlayer: not localPlayer.isInLobby),
-        ("\n\n\n\nControls: {}").format(inputBindingString(Button.ULTIMATE)),
+        ("\n\n\n\nControls: <fg00E092FF>{}</fg>").format(inputBindingString(Button.ULTIMATE)),
         HudPosition.LEFT,
         0,
         rgb(230, 151, 0),
