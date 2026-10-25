@@ -55,9 +55,10 @@ settings {
 #!include "declarations.opy"
 
 #!optimizeStrict
+#!rulePrefix "Course"
 
 
-rule "0: Contact & Course Info":
+rule "Contact & Info":
     logToInspector("Hello! Welcome to Ballkour's Watchpoint: Gibraltar course!")
     logToInspector("Original course (W1RWY) created by Spiz. Recreated by ballhallaa.")
     logToInspector(
@@ -68,14 +69,14 @@ rule "0: Contact & Course Info":
     logToInspector("Course playthrough: ballkour.com/gibraltar")
 
 
-rule "1: Settings":
+rule "Settings":
     settings_ = []
     settings_[0] = createWorkshopSettingBool("Settings", "Debug", false, 1)
     settings_[1] = createWorkshopSettingBool("Settings", "Lobby Stats", false, 0)
     settings_[2] = createWorkshopSettingBool("Settings", "Hint Recorder", false, 2)
 
 
-rule "2: Leaderboard (LB)":
+rule "Leaderboard (LB)":
     # lb[i]: [0]name [1]time [2]mistakes [3]alignmentSeparator
     lb = []
     lb[1] = "BALLMYBLOVED, 3:54.23, 5, '           '"
@@ -90,7 +91,7 @@ rule "2: Leaderboard (LB)":
     lb[10] = "VANESSA, 6:59.56, 58, '                 '"
 
 
-rule "3: Checkpoints (CPs)":
+rule "Checkpoints (CPs)":
     # cpDefaults[i]: [0]cpSize [1]bounceSize [2]nextCpSize
     cpDefaults = []
     cpDefaults[0] = 2.5
@@ -204,7 +205,7 @@ rule "3: Checkpoints (CPs)":
 #!include "hints/1-watchpoint-gibraltar.opy"
 
 
-rule "4: Lobby":
+rule "Lobby":
     # lobbyData[i]: [0]spawnpoint [1]facing [2]welcomeSignTop [3]welcomeSignBottom [4]welcomeSignSize [5]newRunRing [6]newRunIcon [7]newRunSign [8]resumeRunRing [9]resumeRunIcon [10]resumeRunSign [11]lbSign [12]lbSignTextSize [13]lbPosTextSize [14]statsSign [15]elapsedTime [16]newPlayers [17]rejoins [18]legitRuns [19]totalRunTime [20]totalMistakes [21]avgRunTime [22]avgMistakes
     lobbyData = []
     lobbyData[0] = vect(112.24, -2, 65.57)
@@ -259,7 +260,7 @@ rule "4: Lobby":
     )
 
 
-rule "5: Lobby Boundary":
+rule "Lobby Boundary":
     @Event eachPlayer
     @Condition (eventPlayer.hasSpawned() and not eventPlayer.isLoading) == true
     @Condition eventPlayer.isInLobby == true

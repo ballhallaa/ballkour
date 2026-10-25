@@ -51,9 +51,10 @@ settings {
 #!include "declarations.opy"
 
 #!optimizeStrict
+#!rulePrefix "Course"
 
 
-rule "0: Contact & Course Info":
+rule "Contact & Info":
     logToInspector("Hello! Welcome to Ballkour's Paraíso course!")
     logToInspector(
         "Original course (3700E) created by Spiz. Recreated by ballmybeloved."
@@ -65,20 +66,20 @@ rule "0: Contact & Course Info":
     logToInspector("Set a top-10 time? Submit a video with your run in our Discord!")
 
 
-rule "1: Settings":
+rule "Settings":
     settings_ = []
     settings_[0] = createWorkshopSettingBool("Settings", "Debug", false, 1)
     settings_[1] = createWorkshopSettingBool("Settings", "Lobby Stats", false, 0)
     settings_[2] = createWorkshopSettingBool("Settings", "Hint Recorder", false, 2)
 
 
-rule "2: Leaderboard (LB)":
+rule "Leaderboard (LB)":
     # lb[i]: [0]name [1]time [2]mistakes [3]alignmentSeparator
     lb = []
     timeToBeatInMs = 0
 
 
-rule "3: Checkpoints (CPs)":
+rule "Checkpoints (CPs)":
     # cpDefaults[i]: [0]cpSize [1]bounceSize [2]nextCpSize
     cpDefaults = []
     cpDefaults[0] = 2.5
@@ -189,7 +190,7 @@ rule "3: Checkpoints (CPs)":
     cps[100] = [(cps[len(cps) - 2])[7], cpDefaults[0]]
 
 
-rule "3.2: Disrupter Destructors":
+rule "Disrupter Destructors":
     # ddbots[0]: team; ddbots[i > 0]: [0]spawnLocation [1]facingDirection
     ddBots = []
     ddBots[0] = Team.1
@@ -251,7 +252,7 @@ rule "3.2: Disrupter Destructors":
 #!include "hints/3-paraíso.opy"
 
 
-rule "4: Lobby":
+rule "Lobby":
     # lobbyData[i]: [0]spawnpoint [1]facing [2]welcomeSignTop [3]welcomeSignBottom [4]welcomeSignSize [5]startRunRing [6]startRunIcon [7]startRunSign [8]resumeRunRing [9]resumeRunIcon [10]resumeRunSign [11]lbSign [12]lbSignTextSize [13]lbPosTextSize [14]statsSign [15]statsSignSize [16]statsSize [17]elapsedTime [18]newPlayers [19]rejoins [20]legitRuns [21]totalRunTime [22]totalMistakes [23]avgRunTime [24]avgMistakes
     lobbyData = []
     lobbyData[0] = vect(-38.33, 6.01, -96.34)
@@ -292,7 +293,7 @@ rule "4: Lobby":
     lobbyData[24] = lobbyData[17] + vect(0, -0.45, 0) * 7
 
 
-rule "5: Lobby Boundary":
+rule "Lobby Boundary":
     @Event eachPlayer
     @Condition (eventPlayer.hasSpawned() and not eventPlayer.isLoading) == true
     @Condition eventPlayer.isInLobby == true
