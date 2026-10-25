@@ -26,72 +26,6 @@ rule "Mode Input":
 rule "Load HUD":
     hudSubtext(
         getAllPlayers().filter(
-            lambda localPlayer: not localPlayer.isInLobby
-            and localPlayer.spectating[0]
-            and not localPlayer.spectating[3]
-        ),
-        ("{}/{}").format(localPlayer.spectating[1].runCurrentCp, len(cps) - 1),
-        HudPosition.TOP,
-        1,
-        rgb(230, 151, 0),
-        HudReeval.VISIBILITY_AND_STRING
-    )
-    if not settings_[0]:
-        hudSubtext(
-            getAllPlayers().filter(
-                lambda localPlayer: not localPlayer.isInLobby
-                and localPlayer.spectating[0]
-                and not localPlayer.spectating[3]
-            ),
-            ("\n\n\n\n{} {}\n").format(
-                iconString(Icon.BOLT), localPlayer.spectating[1].runTimeFormatted
-            ),
-            HudPosition.RIGHT,
-            1,
-            rgb(230, 151, 0),
-            HudReeval.VISIBILITY_AND_STRING
-        )
-    else:
-        hudSubtext(
-            getAllPlayers().filter(
-                lambda localPlayer: not localPlayer.isInLobby
-                and localPlayer.spectating[0]
-                and not localPlayer.spectating[3]
-            ),
-            ("\n\n\n\n{} {}\n").format(
-                iconString(Icon.BOLT), localPlayer.spectating[1].runTime
-            ),
-            HudPosition.RIGHT,
-            1,
-            rgb(230, 151, 0),
-            HudReeval.VISIBILITY_AND_STRING
-        )
-    hudSubtext(
-        getAllPlayers().filter(
-            lambda localPlayer: not localPlayer.isInLobby
-            and localPlayer.spectating[0]
-            and not localPlayer.spectating[3]
-        ),
-        ("{} {}").format(iconString(Icon.SKULL), localPlayer.spectating[1].runMistakes),
-        HudPosition.RIGHT,
-        2,
-        rgb(230, 151, 0),
-        HudReeval.VISIBILITY_AND_STRING
-    )
-    hudSubtext(
-        getAllPlayers().filter(
-            lambda localPlayer: not localPlayer.isInLobby
-            and localPlayer.spectating[0]
-            and localPlayer.spectating[3]
-        ),
-        ("{}/{}").format(localPlayer.spectating[4], len(cps) - 1),
-        HudPosition.TOP,
-        1,
-        rgb(230, 151, 0),
-        HudReeval.VISIBILITY_AND_STRING
-    )
-    hudSubtext(
-        getAllPlayers().filter(
             lambda localPlayer: localPlayer.spectating[0]
             and localPlayer.spectating[1] == null
         ),
@@ -235,22 +169,20 @@ def disableSpectator():
     else:
         setCpAbilities()
         cpResetPlayer()
-        eventPlayer.nameplate = "{} | {}".format(eventPlayer, eventPlayer.runCurrentCp)
+        showCpNameplate()
     eventPlayer.isLoading = false
+
+
+macro spectatablePlayers(player):
+    getAllPlayers().filter(
+        lambda p: p != player and p.hasSpawned() and not p.spectating[0]
+    )
 
 
 rule "Track If Anyone Is Spectatable":
     @Event eachPlayer
     @Condition eventPlayer.spectating[0] == true
-    @Condition eventPlayer.spectating[7] != (
-        len(getAllPlayers().filter(
-            lambda p: p != eventPlayer 
-            and p.hasSpawned() 
-            and not p.spectating[0]
-            )
-        ) 
-        > 0
-    )
+    @Condition eventPlayer.spectating[7] != (len(spectatablePlayers(eventPlayer)) > 0)
 
     eventPlayer.spectating[7] = not eventPlayer.spectating[7]
 
@@ -268,63 +200,16 @@ rule "Prev. Player Input":
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
     @Condition eventPlayer.spectating[0] == true
     @Condition eventPlayer.spectating[5] == false
-    @Condition (
-        len(getAllPlayers().filter(
-            lambda p: p != eventPlayer 
-            and p.hasSpawned() 
-            and not p.spectating[0]
-            )
-        )
-        > 0
-    )
+    @Condition len(spectatablePlayers(eventPlayer)) > 0
 
-    if eventPlayer.spectating[2]:
-        eventPlayer.spectating[2] = false
-        if eventPlayer.spectating[3]:
-            eventPlayer.spectating[3] = false
-        else:
-            eventPlayer.spectating[1].spectating[10]--
-    else:
+    if not (eventPlayer.spectating[2] and eventPlayer.spectating[3]):
         eventPlayer.spectating[1].spectating[10]--
-    if (
-        len(
-            getAllPlayers().filter(
-                lambda p: p != eventPlayer 
-                and p.hasSpawned()
-                and p == eventPlayer.spectating[1]
-            )
-        )
-        == 0
-    ):
-        eventPlayer.spectating[1] = getAllPlayers().filter(
-            lambda p: p != eventPlayer 
-            and p.hasSpawned()
-            and not p.spectating[0]
-        )[0]
-    else:
-        eventPlayer.spectating[1] = getAllPlayers().filter(
-            lambda p: p != eventPlayer 
-            and p.hasSpawned()
-            and not p.spectating[0]
-        )[
-            (
-                getAllPlayers()
-                .filter(
-                    lambda p: p != eventPlayer 
-                    and p.hasSpawned()
-                    and not p.spectating[0]
-                )
-                .index(eventPlayer.spectating[1])
-                + 1
-            )
-            % len(
-                getAllPlayers().filter(
-                    lambda p: p != eventPlayer 
-                    and p.hasSpawned()
-                    and not p.spectating[0]
-                )
-            )
-        ]
+    eventPlayer.spectateTargets = spectatablePlayers(eventPlayer)
+    # index() is -1 if they aren't spectatable, which starts from the first player
+    eventPlayer.spectating[1] = eventPlayer.spectateTargets[
+        (eventPlayer.spectateTargets.index(eventPlayer.spectating[1]) + 1)
+        % len(eventPlayer.spectateTargets)
+    ]
     reattachToSpectatingTarget()
     eventPlayer.spectating[1].spectating[10]++
     eventPlayer.spectating[4] = eventPlayer.spectating[1].runCurrentCp
@@ -343,65 +228,22 @@ rule "Next Player Input":
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
     @Condition eventPlayer.spectating[0] == true
     @Condition eventPlayer.spectating[5] == false
-    @Condition (
-        len(getAllPlayers().filter(lambda p: p != eventPlayer and p.hasSpawned() and not p.spectating[0]))
-        > 0
-    )
+    @Condition len(spectatablePlayers(eventPlayer)) > 0
 
-    if eventPlayer.spectating[2]:
-        eventPlayer.spectating[2] = false
-        if eventPlayer.spectating[3]:
-            eventPlayer.spectating[3] = false
-        else:
-            eventPlayer.spectating[1].spectating[10]--
-    else:
+    if not (eventPlayer.spectating[2] and eventPlayer.spectating[3]):
         eventPlayer.spectating[1].spectating[10]--
-    if (
-        len(
-            getAllPlayers().filter(
-                lambda p: p != eventPlayer 
-                and p.hasSpawned()
-                and p == eventPlayer.spectating[1]
-            )
-        )
-        == 0
-    ):
-        eventPlayer.spectating[1] = getAllPlayers().filter(
-            lambda p: p != eventPlayer 
-            and p.hasSpawned()
-            and not p.spectating[0]
-        )[0]
-    else:
-        eventPlayer.spectating[1] = getAllPlayers().filter(
-            lambda p: p != eventPlayer 
-            and p.hasSpawned()
-            and not p.spectating[0]
-        )[
+    eventPlayer.spectateTargets = spectatablePlayers(eventPlayer)
+    if eventPlayer.spectating[1] in eventPlayer.spectateTargets:
+        eventPlayer.spectating[1] = eventPlayer.spectateTargets[
             (
-                getAllPlayers()
-                .filter(
-                    lambda p: p != eventPlayer 
-                    and p.hasSpawned()
-                    and not p.spectating[0]
-                )
-                .index(eventPlayer.spectating[1])
-                + len(
-                    getAllPlayers().filter(
-                        lambda p: p != eventPlayer 
-                        and p.hasSpawned()
-                        and not p.spectating[0]
-                    )
-                )
+                eventPlayer.spectateTargets.index(eventPlayer.spectating[1])
+                + len(eventPlayer.spectateTargets)
                 - 1
             )
-            % len(
-                getAllPlayers().filter(
-                    lambda p: p != eventPlayer 
-                    and p.hasSpawned()
-                    and not p.spectating[0]
-                )
-            )
+            % len(eventPlayer.spectateTargets)
         ]
+    else:
+        eventPlayer.spectating[1] = eventPlayer.spectateTargets[0]
     reattachToSpectatingTarget()
     eventPlayer.spectating[1].spectating[10]++
     eventPlayer.spectating[4] = eventPlayer.spectating[1].runCurrentCp
@@ -421,10 +263,7 @@ rule "Crosshair Player Input":
     @Condition eventPlayer.spectating[0] == true
     @Condition eventPlayer.spectating[2] == true
     @Condition eventPlayer.spectating[5] == false
-    @Condition (
-        len(getAllPlayers().filter(lambda p: p != eventPlayer and p.hasSpawned() and not p.spectating[0]))
-        > 0
-    )
+    @Condition len(spectatablePlayers(eventPlayer)) > 0
 
     eventPlayer.spectating[8] = getAllPlayers().filter(
         lambda p: p != eventPlayer
@@ -479,13 +318,15 @@ def enableFreecam():
     playerToEnableFreecam.stopForcingPosition()
     playerToEnableFreecam.startForcingHero(Hero.JETPACK_CAT)
     if entityExists(playerToEnableFreecam.spectating[1]):
+        # Starts the freecam where the spectator camera was
+        freecamStartPos = spectatorCamPos(playerToEnableFreecam.spectating[1])
         playerToEnableFreecam.teleport(
-            spectatorCamPos(playerToEnableFreecam.spectating[1])
+            freecamStartPos
             - (playerToEnableFreecam.getEyePosition() - playerToEnableFreecam.getPosition())
         )
         playerToEnableFreecam.setFacing(
             directionTowards(
-                spectatorCamPos(playerToEnableFreecam.spectating[1]),
+                freecamStartPos,
                 playerToEnableFreecam.spectating[1].getEyePosition()
                 + playerToEnableFreecam.spectating[1].getFacingDirection()
             ),
@@ -564,6 +405,15 @@ def enableFreecamForSpectators():
                 getAllPlayers()[index].spectating[1] = null
                 getAllPlayers()[index].spectating[3] = true
                 eventPlayer.spectating[10]--
+
+
+def syncSpectatorCps():
+    @Name "Sync Spectators' Checkpoint"
+
+    # For players spectating someone whose checkpoint changed
+    getAllPlayers().filter(
+        lambda p: p.spectating[1] == eventPlayer and not p.spectating[3]
+    ).spectating[4] = eventPlayer.runCurrentCp
 
 
 rule "Reattach Input":
@@ -709,30 +559,9 @@ rule "Disable First Person Input":
     @Condition eventPlayer.spectating[5] == true
     @Condition eventPlayer.spectating[0] == true
 
-    waitUntil(
-        not eventPlayer.isHoldingButton(Button.ULTIMATE)
-        and not eventPlayer.isHoldingButton(Button.PRIMARY_FIRE)
-        and not eventPlayer.isHoldingButton(Button.SECONDARY_FIRE)
-        and not eventPlayer.isHoldingButton(Button.RELOAD)
-        and not eventPlayer.isHoldingButton(Button.INTERACT)
-        and not eventPlayer.isHoldingButton(Button.CROUCH)
-        and not eventPlayer.isHoldingButton(Button.ABILITY_1)
-        and not eventPlayer.isHoldingButton(Button.ABILITY_2)
-        and not eventPlayer.isCommunicatingAnything(),
-        0.25
-    )
-    if (
-        eventPlayer.isHoldingButton(Button.ULTIMATE)
-        or eventPlayer.isHoldingButton(Button.PRIMARY_FIRE)
-        or eventPlayer.isHoldingButton(Button.SECONDARY_FIRE)
-        or eventPlayer.isHoldingButton(Button.RELOAD)
-        or eventPlayer.isHoldingButton(Button.INTERACT)
-        or eventPlayer.isHoldingButton(Button.CROUCH)
-        or eventPlayer.isHoldingButton(Button.ABILITY_1)
-        or eventPlayer.isHoldingButton(Button.ABILITY_2)
-        or eventPlayer.isCommunicatingAnything()
-    ) == true:
-        eventPlayer.disableDeathSpectateTargetHud()
-        eventPlayer.resurrect()
-        reattachToSpectatingTarget()
-        eventPlayer.spectating[5] = false
+    # Exits once something has been held for 0.25s
+    wait(0.25, Wait.ABORT_WHEN_FALSE)
+    eventPlayer.disableDeathSpectateTargetHud()
+    eventPlayer.resurrect()
+    reattachToSpectatingTarget()
+    eventPlayer.spectating[5] = false

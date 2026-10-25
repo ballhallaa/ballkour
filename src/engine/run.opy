@@ -2,6 +2,12 @@
 #!rulePrefix "Run"
 
 
+# The player whose run a player's HUD follows: the one they're spectating, or themselves.
+# Disconnected freecam (spectating[3]) doesn't follow anyone's run.
+macro viewedRunner(player):
+    (player.spectating[1] if player.spectating[0] else player)
+
+
 rule "Load HUD":
     hudSubtext(
         getAllPlayers(),
@@ -24,48 +30,36 @@ rule "Load HUD":
         HudReeval.VISIBILITY_AND_STRING
     )
     hudSubtext(
-        getAllPlayers().filter(
-            lambda localPlayer: not localPlayer.isInLobby
-            and not localPlayer.spectating[0]
-        ),
-        ("{}/{}").format(localPlayer.runCurrentCp, len(cps) - 1),
+        getAllPlayers().filter(lambda localPlayer: not localPlayer.isInLobby),
+        ("{}/{}").format(localPlayer.viewCp, lastCp),
         HudPosition.TOP,
         1,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    if not settings_[0]:
-        hudSubtext(
-            getAllPlayers().filter(
-                lambda localPlayer: not localPlayer.isInLobby
-                and not localPlayer.spectating[0]
-            ),
-            ("\n\n\n\n{} {}\n").format(
-                iconString(Icon.BOLT), localPlayer.runTimeFormatted
-            ),
-            HudPosition.RIGHT,
-            1,
-            rgb(230, 151, 0),
-            HudReeval.VISIBILITY_AND_STRING
-        )
-    else:
-        hudSubtext(
-            getAllPlayers().filter(
-                lambda localPlayer: not localPlayer.isInLobby
-                and not localPlayer.spectating[0]
-            ),
-            ("\n\n\n\n{} {}\n").format(iconString(Icon.BOLT), localPlayer.runTime),
-            HudPosition.RIGHT,
-            1,
-            rgb(230, 151, 0),
-            HudReeval.VISIBILITY_AND_STRING
-        )
+    # Debug mode turns off Update Run Format, so it shows the raw time
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: not localPlayer.isInLobby
-            and not localPlayer.spectating[0]
+            and not localPlayer.spectating[3]
         ),
-        ("{} {}").format(iconString(Icon.SKULL), localPlayer.runMistakes),
+        ("\n\n\n\n{} {}\n").format(
+            iconString(Icon.BOLT),
+            viewedRunner(localPlayer).runTime
+            if settings_[0]
+            else viewedRunner(localPlayer).runTimeFormatted
+        ),
+        HudPosition.RIGHT,
+        1,
+        rgb(230, 151, 0),
+        HudReeval.VISIBILITY_AND_STRING
+    )
+    hudSubtext(
+        getAllPlayers().filter(
+            lambda localPlayer: not localPlayer.isInLobby
+            and not localPlayer.spectating[3]
+        ),
+        ("{} {}").format(iconString(Icon.SKULL), viewedRunner(localPlayer).runMistakes),
         HudPosition.RIGHT,
         2,
         rgb(230, 151, 0),
@@ -89,17 +83,23 @@ def newRun():
     eventPlayer.runTime = 0
     eventPlayer.runTimeFormatted = "0.00"
     eventPlayer.runMistakes = 0
-    for eventPlayer.index in range(len(getAllPlayers())):
-        if (
-            getAllPlayers()[eventPlayer.index].spectating[1] == eventPlayer
-            and getAllPlayers()[eventPlayer.index].spectating[3] == false
-        ):
-            getAllPlayers()[eventPlayer.index].spectating[4] = 0
+    syncSpectatorCps()
     loadCpData()
     setCpAbilities()
     cpResetPlayer()
-    eventPlayer.setFacing(
-        directionTowards(eventPlayer.getEyePosition(), eventPlayer.cpData[7]),
-        Relativity.TO_WORLD
-    )
+    faceNextCp()
     eventPlayer.isLoading = false
+
+
+def pauseRun():
+    @Name "Pause"
+
+    # Pausing mid-attempt (outside the checkpoint ring) counts as a mistake
+    if not eventPlayer.isRunPaused:
+        stopChasingVariable(eventPlayer.runTime)
+        eventPlayer.isRunPaused = true
+        if (
+            distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
+            > eventPlayer.cpData[1]
+        ):
+            eventPlayer.runMistakes++

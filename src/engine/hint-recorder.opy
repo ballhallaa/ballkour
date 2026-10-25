@@ -4,7 +4,7 @@
 
 rule "Record Route":
     @Event eachPlayer
-    @Condition settings_[2] == true
+    @Condition isHintRecorderOn == true
     @Condition eventPlayer == hostPlayer
     @Condition (
         eventPlayer.hasSpawned()
@@ -13,7 +13,7 @@ rule "Record Route":
     ) == true
     @Condition eventPlayer.isInFreemode == false
     @Condition eventPlayer.spectating[0] == false
-    @Condition eventPlayer.runCurrentCp < len(cps) - 1
+    @Condition eventPlayer.runCurrentCp < lastCp
 
     if (
         eventPlayer.hintRecordCp != eventPlayer.runCurrentCp
@@ -47,7 +47,7 @@ rule "Record Route":
 
 rule "Record Grapple":
     @Event eachPlayer
-    @Condition settings_[2] == true
+    @Condition isHintRecorderOn == true
     @Condition eventPlayer == hostPlayer
     @Condition eventPlayer.isFiringSecondaryFire() == true
 
@@ -70,7 +70,7 @@ rule "Record Grapple":
 
 rule "Record Piledrive":
     @Event eachPlayer
-    @Condition settings_[2] == true
+    @Condition isHintRecorderOn == true
     @Condition eventPlayer == hostPlayer
     @Condition eventPlayer.cpData[15] == true
 
@@ -86,7 +86,7 @@ rule "Record Piledrive":
 
 rule "Record Shield Bounce":
     @Event eachPlayer
-    @Condition settings_[2] == true
+    @Condition isHintRecorderOn == true
     @Condition eventPlayer == hostPlayer
     @Condition eventPlayer.cpData[14] == true
 
@@ -98,7 +98,7 @@ rule "Record Shield Bounce":
 
 rule "Record Jump":
     @Event eachPlayer
-    @Condition settings_[2] == true
+    @Condition isHintRecorderOn == true
     @Condition eventPlayer == hostPlayer
     @Condition eventPlayer.isJumping() == true
 
@@ -111,73 +111,75 @@ rule "Record Jump":
 def saveHintRoute():
     @Name "Save Route"
 
-    if (
-        len(eventPlayer.hintRecording) == 0
-        or distance(eventPlayer.hintRecording[0], eventPlayer.cpData[0])
-        > eventPlayer.cpData[1]
-    ):
-        return
-    eventPlayer.hintRecording.append(eventPlayer.getPosition())
-    eventPlayer.hintRecordTimes.append(getTotalTimeElapsed() - eventPlayer.hintRecordStart)
-    if eventPlayer.hintActionStarts[1]:
-        eventPlayer.hintRecordActions.append(
-            vect(eventPlayer.hintActionStarts[1], getTotalTimeElapsed(), 1)
-        )
-        eventPlayer.hintRecordAnchors.append(eventPlayer.hintGrappleAnchor)
-        eventPlayer.hintActionStarts[1] = 0
-    if eventPlayer.hintActionStarts[2]:
-        eventPlayer.hintRecordActions.append(
-            vect(eventPlayer.hintActionStarts[2], getTotalTimeElapsed(), 2)
-        )
-        eventPlayer.hintRecordAnchors.append(0)
-        eventPlayer.hintActionStarts[2] = 0
-    hintRoutes[eventPlayer.runCurrentCp] = eventPlayer.hintRecording
-    hintTimes[eventPlayer.runCurrentCp] = eventPlayer.hintRecordTimes
-    hintActions[eventPlayer.runCurrentCp] = eventPlayer.hintRecordActions.map(
-        lambda span: vect(
-            max(0, span.x - eventPlayer.hintRecordStart),
-            span.y - eventPlayer.hintRecordStart,
-            span.z
-        )
-    )
-    hintAnchors[eventPlayer.runCurrentCp] = eventPlayer.hintRecordAnchors
-    logToInspector(
-        "hint {} start {}".format(
-            eventPlayer.runCurrentCp, len(eventPlayer.hintRecording)
-        )
-    )
-    for eventPlayer.index in range(len(eventPlayer.hintRecording)):
-        logToInspector(
-            "hint {} point {} {}".format(
-                eventPlayer.runCurrentCp,
-                eventPlayer.hintRecordTimes[eventPlayer.index],
-                eventPlayer.hintRecording[eventPlayer.index]
+    # Wrapped so release builds leave the subroutine out entirely
+    if HINT_RECORDER:
+        if (
+            len(eventPlayer.hintRecording) == 0
+            or distance(eventPlayer.hintRecording[0], eventPlayer.cpData[0])
+            > eventPlayer.cpData[1]
+        ):
+            return
+        eventPlayer.hintRecording.append(eventPlayer.getPosition())
+        eventPlayer.hintRecordTimes.append(getTotalTimeElapsed() - eventPlayer.hintRecordStart)
+        if eventPlayer.hintActionStarts[1]:
+            eventPlayer.hintRecordActions.append(
+                vect(eventPlayer.hintActionStarts[1], getTotalTimeElapsed(), 1)
+            )
+            eventPlayer.hintRecordAnchors.append(eventPlayer.hintGrappleAnchor)
+            eventPlayer.hintActionStarts[1] = 0
+        if eventPlayer.hintActionStarts[2]:
+            eventPlayer.hintRecordActions.append(
+                vect(eventPlayer.hintActionStarts[2], getTotalTimeElapsed(), 2)
+            )
+            eventPlayer.hintRecordAnchors.append(0)
+            eventPlayer.hintActionStarts[2] = 0
+        hintRoutes[eventPlayer.runCurrentCp] = eventPlayer.hintRecording
+        hintTimes[eventPlayer.runCurrentCp] = eventPlayer.hintRecordTimes
+        hintActions[eventPlayer.runCurrentCp] = eventPlayer.hintRecordActions.map(
+            lambda span: vect(
+                max(0, span.x - eventPlayer.hintRecordStart),
+                span.y - eventPlayer.hintRecordStart,
+                span.z
             )
         )
-    for eventPlayer.index in range(len(eventPlayer.hintRecordActions)):
+        hintAnchors[eventPlayer.runCurrentCp] = eventPlayer.hintRecordAnchors
         logToInspector(
-            "hint {} action {} {}".format(
-                eventPlayer.runCurrentCp,
-                hintActions[eventPlayer.runCurrentCp][eventPlayer.index],
-                eventPlayer.hintRecordAnchors[eventPlayer.index]
+            "hint {} start {}".format(
+                eventPlayer.runCurrentCp, len(eventPlayer.hintRecording)
             )
         )
-    logToInspector("hint {} end".format(eventPlayer.runCurrentCp))
+        for eventPlayer.index in range(len(eventPlayer.hintRecording)):
+            logToInspector(
+                "hint {} point {} {}".format(
+                    eventPlayer.runCurrentCp,
+                    eventPlayer.hintRecordTimes[eventPlayer.index],
+                    eventPlayer.hintRecording[eventPlayer.index]
+                )
+            )
+        for eventPlayer.index in range(len(eventPlayer.hintRecordActions)):
+            logToInspector(
+                "hint {} action {} {}".format(
+                    eventPlayer.runCurrentCp,
+                    hintActions[eventPlayer.runCurrentCp][eventPlayer.index],
+                    eventPlayer.hintRecordAnchors[eventPlayer.index]
+                )
+            )
+        logToInspector("hint {} end".format(eventPlayer.runCurrentCp))
 
 
 rule "Load HUD":
-    @Condition settings_[2] == true
+    @Condition isHintRecorderOn == true
 
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer == hostPlayer
             and not localPlayer.isInLobby
             and not localPlayer.spectating[0]
-            and localPlayer.runCurrentCp < len(cps) - 1
+            and localPlayer.runCurrentCp < lastCp
         ),
         ("Hint Recorder | {}/{} CPs | This CP: {} | {}").format(
             len(hintRoutes.filter(lambda route: len(route) > 1)),
-            len(cps) - 1,
+            lastCp,
             (
                 "Recorded"
                 if len(hintRoutes[localPlayer.runCurrentCp]) > 1

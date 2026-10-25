@@ -12,7 +12,7 @@ rule "Start/Resume Run":
     @Condition eventPlayer.isInLobby == false
     @Condition eventPlayer.isInFreemode == false
     @Condition eventPlayer.isRunPaused == true
-    @Condition eventPlayer.runCurrentCp < len(cps) - 1
+    @Condition eventPlayer.runCurrentCp < lastCp
     @Condition eventPlayer.spectating[0] == false
     @Condition (
         distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
@@ -72,7 +72,7 @@ rule "Start Checkpoint Timer":
     ) == true
     @Condition eventPlayer.isInLobby == false
     @Condition eventPlayer.isInFreemode == false
-    @Condition eventPlayer.runCurrentCp < len(cps) - 1
+    @Condition eventPlayer.runCurrentCp < lastCp
     @Condition eventPlayer.spectating[0] == false
     @Condition (
         distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
@@ -93,7 +93,7 @@ rule "Restart Checkpoint Timer":
     @Condition eventPlayer.isCpTimerActive == true
     @Condition eventPlayer.isInLobby == false
     @Condition eventPlayer.isInFreemode == false
-    @Condition eventPlayer.runCurrentCp < len(cps) - 1
+    @Condition eventPlayer.runCurrentCp < lastCp
     @Condition eventPlayer.spectating[0] == false
     @Condition (
         distance(eventPlayer.getPosition(), eventPlayer.cpData[0])

@@ -1,18 +1,26 @@
 # Settings
 globalvar settings_
+# The Hint Recorder only exists in dev builds (a VERSION ending in -dev), so release builds don't spend elements on it
+macro HINT_RECORDER = strContains(VERSION, "-dev")
+macro isHintRecorderOn = HINT_RECORDER and settings_[2]
 
 # Leaderboard
 globalvar lb
 globalvar lbPos
 globalvar lbObj
 globalvar lbObjFormatted
-globalvar timeToBeatInMs
+globalvar timeToBeat
+globalvar timeToBeatFormatted
 
 # Checkpoints
 globalvar cps
+# -1 until Checkpoint: Expand Data sets it, so nobody counts as being on the final checkpoint
+globalvar lastCp = -1
 globalvar cpDefaults
 
 # Hints
+globalvar hintData
+globalvar hintScratch
 globalvar hintRoutes
 globalvar hintTimes
 globalvar hintActions
@@ -37,6 +45,7 @@ globalvar tinyNameplateObjs
 
 # Spectating
 globalvar playerToEnableFreecam
+globalvar freecamStartPos
 
 globalvar index 127
 
@@ -67,13 +76,15 @@ playervar cpStartTime
 playervar cpTime
 playervar cpTimeFormatted
 playervar cpTotalTimeFormatted
+playervar viewCp
 
 # Hint Playback
 playervar isHintOn
 playervar isHintPlaying
 playervar isViewingHintInfo
-playervar hintCp
 playervar hintPlayCp
+playervar hintKeyframes
+playervar hintKeyframeTimes
 playervar hintIndex
 playervar hintStep
 playervar hintTime
@@ -104,8 +115,12 @@ playervar isInFreemode
 # Spectating
 playervar spectating
 playervar firstPersonSpectatingTime
+playervar spectateTargets
 
 playervar index 127
+
+# Player
+subroutine showCpNameplate
 
 # Lobby
 subroutine loadLobby
@@ -113,11 +128,13 @@ subroutine loadLobby
 # Run
 subroutine newRun
 subroutine updateStats
+subroutine pauseRun
 
 # Checkpoints
 subroutine loadCpData
 subroutine setCpAbilities
 subroutine cpResetPlayer
+subroutine faceNextCp
 
 # Hints
 subroutine saveHintRoute
@@ -130,5 +147,6 @@ subroutine enableSpectator
 subroutine disableSpectator
 subroutine enableFreecam
 subroutine enableFreecamForSpectators
+subroutine syncSpectatorCps
 subroutine reattachToSpectatingTarget
 subroutine enableFirstPersonSpectator

@@ -1,5 +1,6 @@
 #!mainFile "main.opy"
 #!setupTags
+#!useVariableForCompressionAlphabet
 #!rulePrefixTemplate f"{$prefix}: {$rule}" if $prefix and $rule else $rule
 
 #!include "engine/match.opy"

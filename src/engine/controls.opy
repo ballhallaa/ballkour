@@ -31,17 +31,7 @@ rule "HUD Input":
 rule "Load HUD":
     hudSubheader(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.isViewingCtrlsHud
-            and (
-                (
-                    not localPlayer.spectating[0] and localPlayer.runCurrentCp > 0
-                )
-                or (
-                    localPlayer.spectating[1] != null 
-                    and localPlayer.spectating[1].runCurrentCp > 0
-                )
-                or (localPlayer.spectating[3] and localPlayer.spectating[4] > 0)
-            )
+            lambda localPlayer: localPlayer.isViewingCtrlsHud and localPlayer.viewCp > 0
         ),
         ("Prev. CP:                               <fg00E092FF>{} + {}</fg>").format(
             inputBindingString(Button.ULTIMATE), inputBindingString(Button.PRIMARY_FIRE)
@@ -53,21 +43,7 @@ rule "Load HUD":
     )
     hudSubheader(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.isViewingCtrlsHud
-            and (
-                (
-                    not localPlayer.spectating[0]
-                    and localPlayer.runCurrentCp < len(cps) - 1
-                )
-                or (
-                    localPlayer.spectating[1] != null 
-                    and localPlayer.spectating[1].runCurrentCp < len(cps) - 1
-                )
-                or (
-                    localPlayer.spectating[3]
-                    and localPlayer.spectating[4] < len(cps) - 1
-                )
-            )
+            lambda localPlayer: localPlayer.isViewingCtrlsHud and localPlayer.viewCp < lastCp
         ),
         (
             "Next CP:                               <fg00E092FF>{} + {}</fg>"
@@ -86,7 +62,7 @@ rule "Load HUD":
             and (
                 (
                     not localPlayer.spectating[0]
-                    and localPlayer.runCurrentCp < len(cps) - 1
+                    and localPlayer.runCurrentCp < lastCp
                 )
             )
         ),
@@ -113,7 +89,7 @@ rule "Load HUD":
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
-            and localPlayer.runCurrentCp < len(cps) - 1
+            and localPlayer.runCurrentCp < lastCp
             and not localPlayer.spectating[0]
         ),
         ("Freemode:                            <fg00E092FF>{} + {}</fg>").format(
@@ -127,7 +103,7 @@ rule "Load HUD":
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
-            and localPlayer.hintCp < len(cps) - 1
+            and localPlayer.viewCp < lastCp
             and len(hintRoutes) > 0
         ),
         ("{}<fg00E092FF>{} + {}</fg>").format(
@@ -299,23 +275,11 @@ rule "Prev. Checkpoint Input":
 
     eventPlayer.isLoading = true
     eventPlayer.setPrimaryFireEnabled(false)
-    if not eventPlayer.isRunPaused:
-        stopChasingVariable(eventPlayer.runTime)
-        eventPlayer.isRunPaused = true
-        if (
-            distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
-            > eventPlayer.cpData[1]
-        ):
-            eventPlayer.runMistakes++
+    pauseRun()
     if not eventPlayer.spectating[0]:
         eventPlayer.runCurrentCp--
-        for eventPlayer.index in range(len(getAllPlayers())):
-            if (
-                getAllPlayers()[eventPlayer.index].spectating[1] == eventPlayer
-                and getAllPlayers()[eventPlayer.index].spectating[3] == false
-            ):
-                getAllPlayers()[eventPlayer.index].spectating[4]--
-        eventPlayer.nameplate = "{} | {}".format(eventPlayer, eventPlayer.runCurrentCp)
+        syncSpectatorCps()
+        showCpNameplate()
     else:
         if not eventPlayer.spectating[2]:
             enableFreecam()
@@ -324,18 +288,7 @@ rule "Prev. Checkpoint Input":
     loadCpData()
     cpResetPlayer()
     setCpAbilities()
-    if not eventPlayer.spectating[0]:
-        eventPlayer.setFacing(
-            directionTowards(eventPlayer.getEyePosition(), eventPlayer.cpData[7]),
-            Relativity.TO_WORLD
-        )
-    else:
-        eventPlayer.setFacing(
-            directionTowards(
-                eventPlayer.getEyePosition(), cps[eventPlayer.spectating[4]][7]
-            ),
-            Relativity.TO_WORLD
-        )
+    faceNextCp()
     waitUntil(
         not eventPlayer.isHoldingButton(Button.ULTIMATE)
         or not eventPlayer.isHoldingButton(Button.PRIMARY_FIRE),
@@ -359,16 +312,9 @@ rule "Prev. Checkpoint Input":
         ):
             if not eventPlayer.spectating[0]:
                 eventPlayer.runCurrentCp--
-                for eventPlayer.index in range(len(getAllPlayers())):
-                    if (
-                        getAllPlayers()[eventPlayer.index].spectating[1] == eventPlayer
-                        and getAllPlayers()[eventPlayer.index].spectating[3] == false
-                    ):
-                        getAllPlayers()[eventPlayer.index].spectating[4]--
+                syncSpectatorCps()
                 eventPlayer.teleport(cps[eventPlayer.runCurrentCp][0])
-                eventPlayer.nameplate = "{} | {}".format(
-                    eventPlayer, eventPlayer.runCurrentCp
-                )
+                showCpNameplate()
             else:
                 eventPlayer.spectating[4]--
                 eventPlayer.teleport(cps[eventPlayer.spectating[4]][0])
@@ -376,18 +322,7 @@ rule "Prev. Checkpoint Input":
         loadCpData()
         cpResetPlayer()
         setCpAbilities()
-        if not eventPlayer.spectating[0]:
-            eventPlayer.setFacing(
-                directionTowards(eventPlayer.getEyePosition(), eventPlayer.cpData[7]),
-                Relativity.TO_WORLD
-            )
-        else:
-            eventPlayer.setFacing(
-                directionTowards(
-                    eventPlayer.getEyePosition(), cps[eventPlayer.spectating[4]][7]
-                ),
-                Relativity.TO_WORLD
-            )
+        faceNextCp()
     eventPlayer.setPrimaryFireEnabled(true)
     eventPlayer.isLoading = false
 
@@ -404,32 +339,20 @@ rule "Next Checkpoint Input":
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
     @Condition eventPlayer.spectating[5] == false
     @Condition (
-        (eventPlayer.runCurrentCp < len(cps) - 1 and not eventPlayer.spectating[0])
-        or (eventPlayer.spectating[4] < len(cps) - 1 and eventPlayer.spectating[0])
+        (eventPlayer.runCurrentCp < lastCp and not eventPlayer.spectating[0])
+        or (eventPlayer.spectating[4] < lastCp and eventPlayer.spectating[0])
     ) == true
     @Condition eventPlayer.isInLobby == false
     @Condition (eventPlayer.hasSpawned() and not eventPlayer.isLoading) == true
 
     eventPlayer.setSecondaryFireEnabled(false)
     eventPlayer.isLoading = true
-    if not eventPlayer.isRunPaused:
-        stopChasingVariable(eventPlayer.runTime)
-        eventPlayer.isRunPaused = true
-        if (
-            distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
-            > eventPlayer.cpData[1]
-        ):
-            eventPlayer.runMistakes++
+    pauseRun()
     if not eventPlayer.spectating[0]:
         eventPlayer.isRunLegit = false
         eventPlayer.runCurrentCp++
-        for eventPlayer.index in range(len(getAllPlayers())):
-            if (
-                getAllPlayers()[eventPlayer.index].spectating[1] == eventPlayer
-                and getAllPlayers()[eventPlayer.index].spectating[3] == false
-            ):
-                getAllPlayers()[eventPlayer.index].spectating[4]++
-        eventPlayer.nameplate = "{} | {}".format(eventPlayer, eventPlayer.runCurrentCp)
+        syncSpectatorCps()
+        showCpNameplate()
     else:
         if not eventPlayer.spectating[2]:
             enableFreecam()
@@ -438,18 +361,7 @@ rule "Next Checkpoint Input":
     loadCpData()
     cpResetPlayer()
     setCpAbilities()
-    if not eventPlayer.spectating[0]:
-        eventPlayer.setFacing(
-            directionTowards(eventPlayer.getEyePosition(), eventPlayer.cpData[7]),
-            Relativity.TO_WORLD
-        )
-    else:
-        eventPlayer.setFacing(
-            directionTowards(
-                eventPlayer.getEyePosition(), cps[eventPlayer.spectating[4]][7]
-            ),
-            Relativity.TO_WORLD
-        )
+    faceNextCp()
     waitUntil(
         not eventPlayer.isHoldingButton(Button.ULTIMATE)
         or not eventPlayer.isHoldingButton(Button.SECONDARY_FIRE),
@@ -459,8 +371,8 @@ rule "Next Checkpoint Input":
         eventPlayer.isHoldingButton(Button.ULTIMATE)
         and eventPlayer.isHoldingButton(Button.SECONDARY_FIRE)
         and (
-            (eventPlayer.runCurrentCp < len(cps) - 1 and not eventPlayer.spectating[0])
-            or (eventPlayer.spectating[4] < len(cps) - 1 and eventPlayer.spectating[0])
+            (eventPlayer.runCurrentCp < lastCp and not eventPlayer.spectating[0])
+            or (eventPlayer.spectating[4] < lastCp and eventPlayer.spectating[0])
         )
     ):
         while (
@@ -468,11 +380,11 @@ rule "Next Checkpoint Input":
             and eventPlayer.isHoldingButton(Button.SECONDARY_FIRE)
             and (
                 (
-                    eventPlayer.runCurrentCp < len(cps) - 1
+                    eventPlayer.runCurrentCp < lastCp
                     and not eventPlayer.spectating[0]
                 )
                 or (
-                    eventPlayer.spectating[4] < len(cps) - 1
+                    eventPlayer.spectating[4] < lastCp
                     and eventPlayer.spectating[0]
                 )
             )
@@ -480,34 +392,16 @@ rule "Next Checkpoint Input":
             if not eventPlayer.spectating[0]:
                 eventPlayer.runCurrentCp++
                 eventPlayer.teleport(cps[eventPlayer.runCurrentCp][0])
-                eventPlayer.nameplate = "{} | {}".format(
-                    eventPlayer, eventPlayer.runCurrentCp
-                )
+                showCpNameplate()
             else:
                 eventPlayer.spectating[4]++
                 eventPlayer.teleport(cps[eventPlayer.spectating[4]][0])
-            for eventPlayer.index in range(len(getAllPlayers())):
-                if (
-                    getAllPlayers()[eventPlayer.index].spectating[1] == eventPlayer
-                    and getAllPlayers()[eventPlayer.index].spectating[3] == false
-                ):
-                    getAllPlayers()[eventPlayer.index].spectating[4]++
+            syncSpectatorCps()
             wait(0.02)
         loadCpData()
         cpResetPlayer()
         setCpAbilities()
-        if not eventPlayer.spectating[0]:
-            eventPlayer.setFacing(
-                directionTowards(eventPlayer.getEyePosition(), eventPlayer.cpData[7]),
-                Relativity.TO_WORLD
-            )
-        else:
-            eventPlayer.setFacing(
-                directionTowards(
-                    eventPlayer.getEyePosition(), cps[eventPlayer.spectating[4]][7]
-                ),
-                Relativity.TO_WORLD
-            )
+        faceNextCp()
     if eventPlayer.spectating[0]:
         eventPlayer.setSecondaryFireEnabled(true)
     eventPlayer.isLoading = false
@@ -519,14 +413,14 @@ rule "Reset Checkpoint Input":
     @Condition eventPlayer.isHoldingButton(Button.RELOAD) == true
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
     @Condition eventPlayer.spectating[5] == false
-    @Condition eventPlayer.runCurrentCp < len(cps) - 1
+    @Condition eventPlayer.runCurrentCp < lastCp
     @Condition eventPlayer.isInLobby == false
     @Condition (eventPlayer.hasSpawned() and not eventPlayer.isLoading) == true
 
     waitUntil(not eventPlayer.isHoldingButton(Button.RELOAD), 0.2)
     if (
         not eventPlayer.isHoldingButton(Button.RELOAD)
-        and eventPlayer.runCurrentCp < len(cps) - 1
+        and eventPlayer.runCurrentCp < lastCp
     ):
         return
     eventPlayer.isLoading = true
@@ -566,7 +460,7 @@ rule "New Run Input":
             eventPlayer.isHoldingButton(Button.ULTIMATE)
             and eventPlayer.isHoldingButton(Button.RELOAD)
         )
-        and eventPlayer.runCurrentCp < len(cps) - 1
+        and eventPlayer.runCurrentCp < lastCp
     ):
         return
     eventPlayer.isLoading = true
@@ -590,7 +484,7 @@ rule "Freemode Input":
     @Condition eventPlayer.spectating[0] == false
     @Condition eventPlayer.spectating[5] == false
     @Condition eventPlayer.isInLobby == false
-    @Condition eventPlayer.runCurrentCp < len(cps) - 1
+    @Condition eventPlayer.runCurrentCp < lastCp
 
     eventPlayer.disallowButton(Button.MELEE)
     if not eventPlayer.isInFreemode:
@@ -616,14 +510,9 @@ rule "Freemode Input":
             > eventPlayer.cpData[1]
         ):
             cpResetPlayer()
-        eventPlayer.setSecondaryFireEnabled(eventPlayer.cpData[2])
-        eventPlayer.setAbility2Enabled(eventPlayer.cpData[3])
-        if not eventPlayer.cpData[4]:
-            eventPlayer.disallowButton(Button.CROUCH)
-        else:
-            eventPlayer.allowButton(Button.CROUCH)
-        eventPlayer.nameplate = "{} | {}".format(eventPlayer, eventPlayer.runCurrentCp)
         eventPlayer.isInFreemode = false
+        setCpAbilities()
+        showCpNameplate()
         eventPlayer.isLoading = false
     eventPlayer.allowButton(Button.MELEE)
 
@@ -665,14 +554,7 @@ rule "Lobby Input":
     if eventPlayer.spectating[0]:
         disableSpectator()
     eventPlayer.setAbility2Enabled(false)
-    if not eventPlayer.isRunPaused:
-        stopChasingVariable(eventPlayer.runTime)
-        eventPlayer.isRunPaused = true
-        if (
-            distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
-            > eventPlayer.cpData[1]
-        ):
-            eventPlayer.runMistakes++
+    pauseRun()
     eventPlayer.isViewingRunCompletionText = false
     loadLobby()
     eventPlayer.isLoading = false
@@ -692,7 +574,7 @@ rule "Hints Input":
     @Condition eventPlayer.isHoldingButton(Button.MELEE) == true
     @Condition eventPlayer.spectating[5] == false
     @Condition eventPlayer.isInLobby == false
-    @Condition eventPlayer.hintCp < len(cps) - 1
+    @Condition eventPlayer.viewCp < lastCp
 
     eventPlayer.isHintOn = not eventPlayer.isHintOn
 
@@ -702,7 +584,7 @@ rule "Load Hints HUD":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isHintOn
             and not localPlayer.isInLobby
-            and localPlayer.hintCp < len(cps) - 1
+            and localPlayer.viewCp < lastCp
             and len(hintRoutes) > 0
         ),
         ("{}{}").format(
@@ -730,7 +612,7 @@ rule "Load Hints HUD":
                     if localPlayer.isViewingHintInfo
                     else ""
                 )
-                if len(hintRoutes[localPlayer.hintCp]) > 1
+                if len(hintRoutes[localPlayer.viewCp]) > 1
                 else "No Hint For This CP"
             )
         ),
@@ -747,7 +629,7 @@ rule "Hint Info Input":
     @Condition eventPlayer.isHoldingButton(Button.INTERACT) == true
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
     @Condition eventPlayer.isHintOn == true
-    @Condition len(hintRoutes[eventPlayer.hintCp]) > 1
+    @Condition len(hintRoutes[eventPlayer.viewCp]) > 1
     @Condition eventPlayer.spectating[5] == false
     @Condition eventPlayer.isInLobby == false
 

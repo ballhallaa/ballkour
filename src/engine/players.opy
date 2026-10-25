@@ -66,6 +66,12 @@ rule "Joins":
     eventPlayer.isLoading = false
 
 
+def showCpNameplate():
+    @Name "Show Checkpoint On Nameplate"
+
+    eventPlayer.nameplate = "{} | {}".format(eventPlayer, eventPlayer.runCurrentCp)
+
+
 rule "Leaves":
     @Event playerLeft
 
