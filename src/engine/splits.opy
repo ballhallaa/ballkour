@@ -75,6 +75,21 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
+    hudSubtext(
+        getAllPlayers().filter(
+            lambda localPlayer: not localPlayer.isInLobby
+            and not localPlayer.spectating[3]
+            and isShowingSplitDelta(localPlayer.viewRunner)
+        ),
+        ("Time: {} | Total: {}").format(
+            localPlayer.viewRunner.cpTimeFormatted,
+            localPlayer.viewRunner.cpTotalTimeFormatted
+        ),
+        HudPosition.RIGHT,
+        5,
+        rgb(230, 151, 0),
+        HudReeval.VISIBILITY_AND_STRING
+    )
 
 
 def recordSplit():
