@@ -42,7 +42,8 @@ rule "Record Route":
         )
     eventPlayer.hintRecordLast = getTotalTimeElapsed()
     wait(0.1)
-    if RULE_CONDITION: loop()
+    if RULE_CONDITION:
+        loop()
 
 
 rule "Record Grapple":
@@ -120,7 +121,9 @@ def saveHintRoute():
         ):
             return
         eventPlayer.hintRecording.append(eventPlayer.getPosition())
-        eventPlayer.hintRecordTimes.append(getTotalTimeElapsed() - eventPlayer.hintRecordStart)
+        eventPlayer.hintRecordTimes.append(
+            getTotalTimeElapsed() - eventPlayer.hintRecordStart
+        )
         if eventPlayer.hintActionStarts[1]:
             eventPlayer.hintRecordActions.append(
                 vect(eventPlayer.hintActionStarts[1], getTotalTimeElapsed(), 1)

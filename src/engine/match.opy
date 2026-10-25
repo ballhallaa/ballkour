@@ -25,7 +25,9 @@ rule "Initialize":
                 timeToBeat = (timeToBeat + lbObj) * 60
                 lbObj = 0
             elif timeToBeatFormatted.charAt(index) != ".":
-                lbObj = lbObj * 10 + "0123456789".strIndex(timeToBeatFormatted.charAt(index))
+                lbObj = lbObj * 10 + "0123456789".strIndex(
+                    timeToBeatFormatted.charAt(index)
+                )
         timeToBeat += lbObj / 100
     nameplateObjs = []
     tinyNameplateObjs = []
@@ -45,7 +47,8 @@ rule "Format Elapsed Time":
     eventPlayer.timeToFormat = elapsedTime
     formatTime()
     elapsedTimeFormatted = eventPlayer.timeFormatted
-    if RULE_CONDITION: loop()
+    if RULE_CONDITION:
+        loop()
 
 
 rule "Spawn Disrupter Destructors":

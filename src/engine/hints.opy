@@ -19,7 +19,9 @@ rule "Decompress Routes":
             hintActions[index] = hintScratch.slice(
                 len(hintScratch) - hintScratch[0].y - hintScratch[0].z, hintScratch[0].y
             )
-            hintAnchors[index] = hintScratch.slice(len(hintScratch) - hintScratch[0].z, hintScratch[0].z)
+            hintAnchors[index] = hintScratch.slice(
+                len(hintScratch) - hintScratch[0].z, hintScratch[0].z
+            )
     hintData = null
     hintScratch = null
 
@@ -105,12 +107,17 @@ rule "Playback":
                     )
                     / (
                         eventPlayer.hintKeyframeTimes[eventPlayer.hintIndex]
-                        - eventPlayer.hintKeyframeTimes[max(eventPlayer.hintIndex - 2, 0)]
+                        - eventPlayer.hintKeyframeTimes[
+                            max(eventPlayer.hintIndex - 2, 0)
+                        ]
                     )
                 ),
                 (
                     eventPlayer.hintKeyframes[
-                        min(eventPlayer.hintIndex + 1, len(eventPlayer.hintKeyframes) - 1)
+                        min(
+                            eventPlayer.hintIndex + 1,
+                            len(eventPlayer.hintKeyframes) - 1
+                        )
                     ]
                     - eventPlayer.hintKeyframes[eventPlayer.hintIndex - 1]
                 )
@@ -121,7 +128,10 @@ rule "Playback":
                     )
                     / (
                         eventPlayer.hintKeyframeTimes[
-                            min(eventPlayer.hintIndex + 1, len(eventPlayer.hintKeyframes) - 1)
+                            min(
+                                eventPlayer.hintIndex + 1,
+                                len(eventPlayer.hintKeyframes) - 1
+                            )
                         ]
                         - eventPlayer.hintKeyframeTimes[eventPlayer.hintIndex - 1]
                     )
@@ -132,18 +142,21 @@ rule "Playback":
             eventPlayer.hintKeyframeTimes[eventPlayer.hintIndex]
         )
         eventPlayer.hintS = (
-            eventPlayer.hintStep - eventPlayer.hintKeyframeTimes[eventPlayer.hintIndex - 1]
+            eventPlayer.hintStep
+            - eventPlayer.hintKeyframeTimes[eventPlayer.hintIndex - 1]
         ) / (
             eventPlayer.hintKeyframeTimes[eventPlayer.hintIndex]
             - eventPlayer.hintKeyframeTimes[eventPlayer.hintIndex - 1]
         )
         chaseOverTime(
             eventPlayer.hintPos,
-            eventPlayer.hintSpline[0] * (2 * eventPlayer.hintS ** 3 - 3 * eventPlayer.hintS ** 2 + 1)
-            + eventPlayer.hintSpline[1] * (3 * eventPlayer.hintS ** 2 - 2 * eventPlayer.hintS ** 3)
+            eventPlayer.hintSpline[0]
+            * (2 * eventPlayer.hintS**3 - 3 * eventPlayer.hintS**2 + 1)
+            + eventPlayer.hintSpline[1]
+            * (3 * eventPlayer.hintS**2 - 2 * eventPlayer.hintS**3)
             + eventPlayer.hintSpline[2]
-            * (eventPlayer.hintS ** 3 - 2 * eventPlayer.hintS ** 2 + eventPlayer.hintS)
-            + eventPlayer.hintSpline[3] * (eventPlayer.hintS ** 3 - eventPlayer.hintS ** 2),
+            * (eventPlayer.hintS**3 - 2 * eventPlayer.hintS**2 + eventPlayer.hintS)
+            + eventPlayer.hintSpline[3] * (eventPlayer.hintS**3 - eventPlayer.hintS**2),
             eventPlayer.hintStep - eventPlayer.hintTime,
             ChaseTimeReeval.NONE
         )
@@ -153,7 +166,8 @@ rule "Playback":
     eventPlayer.hintIndex = 0
     if eventPlayer.hintPlayCp == eventPlayer.viewCp:
         wait(1, Wait.ABORT_WHEN_FALSE)
-    if RULE_CONDITION: loop()
+    if RULE_CONDITION:
+        loop()
 
 
 rule "Stop Playback":
@@ -183,7 +197,8 @@ rule "Trail":
         0.3
     )
     wait(0.1, Wait.ABORT_WHEN_FALSE)
-    if RULE_CONDITION: loop()
+    if RULE_CONDITION:
+        loop()
 
 
 rule "Grapple":
@@ -201,5 +216,6 @@ rule "Grapple":
         )
     ]
     wait()
-    if RULE_CONDITION: loop()
+    if RULE_CONDITION:
+        loop()
     eventPlayer.hintAnchor = null

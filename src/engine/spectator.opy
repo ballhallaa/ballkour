@@ -322,7 +322,10 @@ def enableFreecam():
         freecamStartPos = spectatorCamPos(playerToEnableFreecam.spectating[1])
         playerToEnableFreecam.teleport(
             freecamStartPos
-            - (playerToEnableFreecam.getEyePosition() - playerToEnableFreecam.getPosition())
+            - (
+                playerToEnableFreecam.getEyePosition()
+                - playerToEnableFreecam.getPosition()
+            )
         )
         playerToEnableFreecam.setFacing(
             directionTowards(

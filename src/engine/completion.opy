@@ -67,19 +67,9 @@ rule "Final Checkpoint Reached":
     @Condition eventPlayer.runCurrentCp == lastCp
 
     playEffect(
-        eventPlayer, 
-        DynamicEffect.BAD_PICKUP_EFFECT, 
-        Color.GREEN, 
-        eventPlayer, 
-        200
+        eventPlayer, DynamicEffect.BAD_PICKUP_EFFECT, Color.GREEN, eventPlayer, 200
     )
-    playEffect(
-        eventPlayer, 
-        DynamicEffect.BUFF_IMPACT_SOUND,
-        null, 
-        eventPlayer, 
-        100
-    )
+    playEffect(eventPlayer, DynamicEffect.BUFF_IMPACT_SOUND, null, eventPlayer, 100)
     if eventPlayer.spectating[0]:
         return
     if not eventPlayer.isRunPaused:

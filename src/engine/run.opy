@@ -30,7 +30,9 @@ rule "Load HUD":
     )
     hudSubtext(
         getAllPlayers().filter(lambda localPlayer: not localPlayer.isInLobby),
-        ("\n\n\n\nControls: <fg00E092FF>{}</fg>").format(inputBindingString(Button.ULTIMATE)),
+        ("\n\n\n\nControls: <fg00E092FF>{}</fg>").format(
+            inputBindingString(Button.ULTIMATE)
+        ),
         HudPosition.LEFT,
         0,
         rgb(230, 151, 0),
@@ -52,9 +54,11 @@ rule "Load HUD":
         ),
         ("\n\n\n\n{} {}\n").format(
             iconString(Icon.BOLT),
-            localPlayer.viewRunner.runTime
-            if isDebugOn
-            else localPlayer.viewRunner.runTimeFormatted
+            (
+                localPlayer.viewRunner.runTime
+                if isDebugOn
+                else localPlayer.viewRunner.runTimeFormatted
+            )
         ),
         HudPosition.RIGHT,
         1,

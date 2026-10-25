@@ -34,18 +34,14 @@ Then recompile the course (OverPy: Compile).
 """
 
 import argparse
-import glob
 import math
-import os
 import re
-import shutil
-import subprocess
 import sys
 import unicodedata
 from pathlib import Path
 
-SRC = Path(__file__).resolve().parent.parent / "src"
-ENGINE_FILES = ("ballkour.opy", "declarations.opy")
+from overpy import SRC, compile_files, courses
+
 ELEMENT_LIMIT = 32768
 CPS_PER_RULE = 10
 # Stands in for the anchor of an action that isn't a grapple
@@ -76,10 +72,9 @@ def find_course(name):
     path = Path(name)
     if path.is_file():
         return path.resolve()
-    courses = [p for p in SRC.glob("*.opy") if p.name not in ENGINE_FILES]
-    matches = [p for p in courses if fold(name) in fold(p.stem)]
+    matches = [p for p in courses() if fold(name) in fold(p.stem)]
     if len(matches) != 1:
-        names = ", ".join(sorted(p.stem for p in courses))
+        names = ", ".join(p.stem for p in courses())
         sys.exit(f"'{name}' should match exactly one course: {names}")
     return matches[0]
 
@@ -316,28 +311,13 @@ def format_ranges(numbers):
 
 def compile_elements(course):
     """Compiles the course with the installed OverPy extension, if there is one."""
-    overpy = glob.glob(
-        os.path.expanduser("~/.vscode*/extensions/zezombye.overpy-*/npm/overpy.js")
-    )
-    if not overpy or not shutil.which("node"):
+    results = compile_files([course])
+    if results is None:
         return None
-    script = """
-const [overpyPath, file] = process.argv.slice(1);
-const overpy = require(overpyPath), fs = require("fs"), path = require("path");
-overpy.readyPromise
-    .then(() => overpy.compile(fs.readFileSync(file, "utf8"), "en-US", path.dirname(file) + "/", path.basename(file)))
-    .then((result) => console.log(result.nbElements))
-    .catch((error) => { console.error(error.message ?? error); process.exit(1); });
-"""
-    result = subprocess.run(
-        ["node", "-e", script, max(overpy, key=os.path.getmtime), str(course)],
-        capture_output=True,
-        text=True,
-    )
-    if result.returncode:
-        print(f"  OverPy compile failed: {result.stderr.strip()}")
+    if "error" in results[0]:
+        print(f"  OverPy compile failed: {results[0]['error']}")
         return None
-    return int(result.stdout)
+    return results[0]["nbElements"]
 
 
 def print_status(course):
@@ -502,10 +482,7 @@ def clear(args):
 
 
 def status(args):
-    courses = [find_course(c) for c in args.courses] or sorted(
-        p for p in SRC.glob("*.opy") if p.name not in ENGINE_FILES
-    )
-    for course in courses:
+    for course in [find_course(c) for c in args.courses] or courses():
         print_status(course)
 
 

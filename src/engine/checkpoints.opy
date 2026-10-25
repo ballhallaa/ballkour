@@ -138,9 +138,11 @@ def faceNextCp():
     eventPlayer.setFacing(
         directionTowards(
             eventPlayer.getEyePosition(),
-            cps[eventPlayer.spectating[4]][7]
-            if eventPlayer.spectating[0]
-            else eventPlayer.cpData[7]
+            (
+                cps[eventPlayer.spectating[4]][7]
+                if eventPlayer.spectating[0]
+                else eventPlayer.cpData[7]
+            )
         ),
         Relativity.TO_WORLD
     )
