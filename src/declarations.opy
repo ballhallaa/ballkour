@@ -1,92 +1,134 @@
-globalvar settings_ 0
-globalvar lb 1
-globalvar timeToBeatInMs 2
-globalvar cpDefaults 3
-globalvar cps 4
-globalvar ddBots 5
-globalvar nameplateObjs 6
-globalvar dd 7
-globalvar hostPlayerName 8
-globalvar elapsedTime 9
-globalvar elapsedTimeFormatted 10
-globalvar players 11
-globalvar lobbyStats 12
-globalvar lobbyData 13
-globalvar lbPos 14
-globalvar lbObj 15
-globalvar lbObjFormatted 16
-globalvar playerToEnableFreecam 17
-globalvar tinyNameplateObjs 18
-globalvar hintRoutes 19
-globalvar hintTimes 20
-globalvar hintActions 21
-globalvar hintColors 22
-globalvar hintAnchors 23
+# Settings
+globalvar settings_
+
+# Leaderboard
+globalvar lb
+globalvar lbPos
+globalvar lbObj
+globalvar lbObjFormatted
+globalvar timeToBeatInMs
+
+# Checkpoints
+globalvar cps
+globalvar cpDefaults
+
+# Hints
+globalvar hintRoutes
+globalvar hintTimes
+globalvar hintActions
+globalvar hintAnchors
+globalvar hintColors
+
+# Lobby
+globalvar lobbyData
+globalvar lobbyStats
+
+# Match
+globalvar elapsedTime
+globalvar elapsedTimeFormatted
+globalvar ddBots
+globalvar dd
+
+# Players
+globalvar players
+globalvar hostPlayerName
+globalvar nameplateObjs
+globalvar tinyNameplateObjs
+
+# Spectating
+globalvar playerToEnableFreecam
+
 globalvar index 127
 
-playervar isLoading 0
-playervar isInLobby 1
-playervar nameplate 2
-playervar isRunLoaded 3
-playervar runCurrentCp 4
-playervar runTime 5
-playervar runTimeFormatted 6
-playervar runMistakes 7
-playervar cpData 8
-playervar cpStartTime 9
-playervar cpTime 10
-playervar isHintOn 11
-playervar isHintPlaying 12
-playervar hintCp 13
-playervar hintIndex 14
-playervar hintPos 15
-playervar hintRecording 16
-playervar hintRecordStart 17
-playervar hintTime 18
-playervar hintRecordActions 19
-playervar hintActionStarts 20
-playervar isViewingHintInfo 21
-playervar hintRecordAnchors 22
-playervar hintGrappleAnchor 23
-playervar hintAnchor 24
-playervar hintRecordCp 25
-playervar hintRecordLast 26
-playervar hintRecordTimes 27
-playervar hintStep 28
-playervar hintS 29
-playervar hintSpline 30
-playervar timeToFormat 31
-playervar timeFormatted 32
-playervar cpTimeFormatted 33
-playervar cpTotalTimeFormatted 34
-playervar isRunLegit 35
-playervar isRunPaused 36
-playervar isTimerActive 37
-playervar isCpTimerActive 38
-playervar isRunFinished 39
-playervar runFinalTimeFormatted 40
-playervar runFinalMistakes 41
-playervar isViewingRunCompletionText 42
-playervar isInFreemode 43
-playervar isTiny 44
-playervar isViewingCtrlsHud 45
-playervar spectating 46
-playervar firstPersonSpectatingTime 47
-playervar hintPlayCp 48
+# Player
+playervar isLoading
+playervar isInLobby
+playervar nameplate
+playervar isTiny
+
+# Run
+playervar isRunLoaded
+playervar isRunLegit
+playervar isRunPaused
+playervar isRunFinished
+playervar isTimerActive
+playervar runCurrentCp
+playervar runTime
+playervar runTimeFormatted
+playervar runMistakes
+playervar runFinalTimeFormatted
+playervar runFinalMistakes
+playervar isViewingRunCompletionText
+
+# Checkpoints
+playervar cpData
+playervar isCpTimerActive
+playervar cpStartTime
+playervar cpTime
+playervar cpTimeFormatted
+playervar cpTotalTimeFormatted
+
+# Hint Playback
+playervar isHintOn
+playervar isHintPlaying
+playervar isViewingHintInfo
+playervar hintCp
+playervar hintPlayCp
+playervar hintIndex
+playervar hintStep
+playervar hintTime
+playervar hintPos
+playervar hintS
+playervar hintSpline
+playervar hintAnchor
+
+# Hint Recording
+playervar hintRecording
+playervar hintRecordCp
+playervar hintRecordStart
+playervar hintRecordLast
+playervar hintRecordTimes
+playervar hintRecordActions
+playervar hintActionStarts
+playervar hintRecordAnchors
+playervar hintGrappleAnchor
+
+# Time Formatting
+playervar timeToFormat
+playervar timeFormatted
+
+# Controls
+playervar isViewingCtrlsHud
+playervar isInFreemode
+
+# Spectating
+playervar spectating
+playervar firstPersonSpectatingTime
+
 playervar index 127
 
-subroutine loadLobby 0
-subroutine newRun 1
-subroutine loadCpData 2
-subroutine unloadCpObjects 3
-subroutine setCpAbilities 4
-subroutine cpResetPlayer 5
-subroutine saveHintRoute 6
-subroutine formatTime 7
-subroutine updateStats 8
-subroutine enableSpectator 9
-subroutine disableSpectator 10
-subroutine enableFreecam 11
-subroutine reattachToSpectatingTarget 12
-subroutine enableFreecamForSpectators 13
-subroutine enableFirstPersonSpectator 14
+# Lobby
+subroutine loadLobby
+
+# Run
+subroutine newRun
+subroutine updateStats
+
+# Checkpoints
+subroutine loadCpData
+subroutine setCpAbilities
+subroutine cpResetPlayer
+
+# Hints
+subroutine saveHintRoute
+
+# Time Formatting
+subroutine formatTime
+
+# Spectating
+subroutine enableSpectator
+subroutine disableSpectator
+subroutine enableFreecam
+subroutine enableFreecamForSpectators
+subroutine reattachToSpectatingTarget
+subroutine enableFirstPersonSpectator
