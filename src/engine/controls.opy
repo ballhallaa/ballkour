@@ -580,6 +580,8 @@ rule "Hints Input":
 
 
 rule "Load Hints HUD":
+    @SuppressWarnings w_dark_color
+
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isHintOn
@@ -599,7 +601,7 @@ rule "Load Hints HUD":
                 ("Hints On\nInfo: <fg00E092FF>{}</fg>{}").format(
                     inputBindingString(Button.INTERACT),
                     (
-                        "\n   <fgA078FFFF>Movement</fg>"
+                        "\n   <fgCB87FFFF>Movement</fg>"
                         "\n   <fgFFFFFFFF>Jump</fg>"
                         "\n   <fgFFD200FF>Grapple</fg>"
                         "\n   <fgFF4646FF>Piledrive</fg>"
@@ -618,7 +620,7 @@ rule "Load Hints HUD":
         ),
         HudPosition.LEFT,
         15,
-        Color.LIGHT_VIOLET,
+        Color.VIOLET,
         HudReeval.VISIBILITY_AND_STRING
     )
 

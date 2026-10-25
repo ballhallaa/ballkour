@@ -103,7 +103,7 @@ rule "Record Jump":
     @Condition eventPlayer.isJumping() == true
 
     eventPlayer.hintRecordActions.append(
-        vect(getTotalTimeElapsed(), getTotalTimeElapsed() + 0.4, 4)
+        vect(getTotalTimeElapsed(), getTotalTimeElapsed() + 0.2, 4)
     )
     eventPlayer.hintRecordAnchors.append(0)
 

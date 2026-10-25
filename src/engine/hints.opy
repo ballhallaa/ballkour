@@ -58,7 +58,7 @@ rule "Load Objects":
         Beam.GRAPPLE,
         localPlayer.hintPos + vect(0, 1, 0),
         localPlayer.hintAnchor,
-        hintColors[1],
+        null,
         EffectReeval.VISIBILITY_POSITION_AND_RADIUS
     )
 
