@@ -112,7 +112,7 @@ def saveHintRoute():
     @Name "Save Route"
 
     # Wrapped so release builds leave the subroutine out entirely
-    if HINT_RECORDER:
+    if DEV:
         if (
             len(eventPlayer.hintRecording) == 0
             or distance(eventPlayer.hintRecording[0], eventPlayer.cpData[0])

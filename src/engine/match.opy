@@ -6,9 +6,9 @@ rule "Initialize":
     disableAnnouncer()
     disableGamemodeCompletion()
     setMatchTime(0)
-    if not settings_[0] and not isHintRecorderOn:
+    if not isDebugOn and not isHintRecorderOn:
         disableInspector()
-    if settings_[1]:
+    if isLobbyStatsOn:
         players = []
         # lobbyStats[i]: [0]players [1]rejoins [2]legitRuns [3]totalRunTime [4]totalRunTimeFormatted [5]totalMistakes [6]avgRunTime [7]avgRunTimeFormatted [8]avgMistakes
         lobbyStats = [0, 0, 0, 0, "00:00.00", 0, 0, "00:00.00", 0]
@@ -37,8 +37,8 @@ rule "Start Elapsed Timer":
 
 rule "Format Elapsed Time":
     @Event eachPlayer
-    @Condition settings_[1] == true
-    @Condition settings_[0] == false
+    @Condition isLobbyStatsOn == true
+    @Condition isDebugOn == false
     @Condition eventPlayer == hostPlayer
 
     wait(0.1)

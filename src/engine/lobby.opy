@@ -227,7 +227,7 @@ rule "Resume Run Circle Entry":
 
 
 rule "Load Stats":
-    @Condition settings_[1] == true
+    @Condition isLobbyStatsOn == true
 
     createInWorldText(
         getAllPlayers().filter(
@@ -251,7 +251,7 @@ rule "Load Stats":
             and "{}".format(localPlayer) == hostPlayerName
         ),
         "Elapsed Time: {}".format(
-            elapsedTimeFormatted if not settings_[0] else elapsedTime
+            elapsedTimeFormatted if not isDebugOn else elapsedTime
         ),
         lobbyData[17],
         lobbyData[16],

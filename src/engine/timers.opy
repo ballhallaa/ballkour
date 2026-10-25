@@ -28,7 +28,7 @@ rule "Update Run Format":
     @Condition eventPlayer.isTimerActive == false
     @Condition eventPlayer.isRunPaused == false
     @Condition eventPlayer.isRunLoaded == true
-    @Condition settings_[0] == false
+    @Condition isDebugOn == false
 
     eventPlayer.isTimerActive = true
     while not eventPlayer.isRunPaused:

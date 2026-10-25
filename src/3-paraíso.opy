@@ -66,12 +66,7 @@ rule "Contact & Info":
     logToInspector("Set a top-10 time? Submit a video with your run in our Discord!")
 
 
-rule "Settings":
-    settings_ = []
-    settings_[0] = createWorkshopSettingBool("Settings", "Debug", false, 1)
-    settings_[1] = createWorkshopSettingBool("Settings", "Lobby Stats", false, 0)
-    if HINT_RECORDER:
-        settings_[2] = createWorkshopSettingBool("Settings", "Hint Recorder", false, 2)
+#!include "settings.opy"
 
 
 rule "Leaderboard (LB)":
@@ -274,12 +269,13 @@ rule "Lobby":
     lbPos[1] = lobbyData[11] + vect(0, -0.65, 0)
     for index in range(2, 11):
         lbPos[index] = lbPos[1] + vect(0, -0.5, 0) * (index - 1)
-    lobbyData[14] = vect(-30.34, lobbyData[11].y - 0.5, -101.15)
-    lobbyData[15] = 1.08
-    lobbyData[16] = 0.765
-    lobbyData[17] = lobbyData[14] + vect(0, -0.585, 0)
-    for index in range(18, 25):
-        lobbyData[index] = lobbyData[17] + vect(0, -0.45, 0) * (index - 17)
+    if isLobbyStatsOn:
+        lobbyData[14] = vect(-30.34, lobbyData[11].y - 0.5, -101.15)
+        lobbyData[15] = 1.08
+        lobbyData[16] = 0.765
+        lobbyData[17] = lobbyData[14] + vect(0, -0.585, 0)
+        for index in range(18, 25):
+            lobbyData[index] = lobbyData[17] + vect(0, -0.45, 0) * (index - 17)
 
 
 rule "Lobby Boundary":

@@ -31,7 +31,7 @@ rule "Load HUD":
                 if isShowingSplitDelta(localPlayer.viewRunner)
                 else (
                     localPlayer.viewRunner.runTime - localPlayer.viewRunner.splitStart
-                    if settings_[0]
+                    if isDebugOn
                     else localPlayer.viewRunner.splitTimeFormatted
                 )
             )

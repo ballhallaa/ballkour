@@ -53,7 +53,7 @@ rule "Load HUD":
         ("\n\n\n\n{} {}\n").format(
             iconString(Icon.BOLT),
             localPlayer.viewRunner.runTime
-            if settings_[0]
+            if isDebugOn
             else localPlayer.viewRunner.runTimeFormatted
         ),
         HudPosition.RIGHT,

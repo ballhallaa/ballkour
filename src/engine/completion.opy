@@ -86,7 +86,7 @@ rule "Final Checkpoint Reached":
         stopChasingVariable(eventPlayer.runTime)
         eventPlayer.isRunPaused = true
         if eventPlayer.isRunLegit:
-            if settings_[1]:
+            if isLobbyStatsOn:
                 updateStats()
     if not eventPlayer.isRunFinished:
         eventPlayer.isRunFinished = true
@@ -196,14 +196,16 @@ rule "Run Text":
 def updateStats():
     @Name "Update Lobby Stats"
 
-    lobbyStats[2]++
-    lobbyStats[3] += eventPlayer.runTime
-    eventPlayer.timeToFormat = lobbyStats[3]
-    formatTime()
-    lobbyStats[4] = eventPlayer.timeFormatted
-    lobbyStats[5] += eventPlayer.runMistakes
-    lobbyStats[6] = lobbyStats[3] / lobbyStats[2]
-    eventPlayer.timeToFormat = lobbyStats[6]
-    formatTime()
-    lobbyStats[7] = eventPlayer.timeFormatted
-    lobbyStats[8] = lobbyStats[5] / lobbyStats[2]
+    # Wrapped so release builds leave the subroutine out entirely
+    if DEV:
+        lobbyStats[2]++
+        lobbyStats[3] += eventPlayer.runTime
+        eventPlayer.timeToFormat = lobbyStats[3]
+        formatTime()
+        lobbyStats[4] = eventPlayer.timeFormatted
+        lobbyStats[5] += eventPlayer.runMistakes
+        lobbyStats[6] = lobbyStats[3] / lobbyStats[2]
+        eventPlayer.timeToFormat = lobbyStats[6]
+        formatTime()
+        lobbyStats[7] = eventPlayer.timeFormatted
+        lobbyStats[8] = lobbyStats[5] / lobbyStats[2]
