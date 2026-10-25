@@ -45,6 +45,7 @@ rule "Update Run Format":
 def formatTime():
     @Name "Format Time"
 
+    eventPlayer.timeToFormat = round(eventPlayer.timeToFormat * 100) / 100
     eventPlayer.timeFormatted = (
         "{}:{}:{}".format(
             floor(eventPlayer.timeToFormat / 3600),
