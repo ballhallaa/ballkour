@@ -73,7 +73,8 @@ rule "Settings":
     settings_ = []
     settings_[0] = createWorkshopSettingBool("Settings", "Debug", false, 1)
     settings_[1] = createWorkshopSettingBool("Settings", "Lobby Stats", false, 0)
-    settings_[2] = createWorkshopSettingBool("Settings", "Hint Recorder", false, 2)
+    if HINT_RECORDER:
+        settings_[2] = createWorkshopSettingBool("Settings", "Hint Recorder", false, 2)
 
 
 rule "Leaderboard (LB)":
@@ -97,109 +98,110 @@ rule "Checkpoints (CPs)":
     cpDefaults[0] = 2.5
     cpDefaults[1] = 2.5
     cpDefaults[2] = 2.5
-    # cps[i]: [0]cpLocation [1]cpSize [2]isGrappleAllowed [3]isShieldBounceAllowed [4]isPiledriverAllowed [5]bounceLocation [6]bounceSize [7]nextCpLocation [8]nextCpSize
+    # cps[i]: [0]cpLocation [1]isGrappleAllowed [2]isShieldBounceAllowed [3]isPiledriverAllowed [4]bounceLocation (if it has a bounce)
+    # The final checkpoint only has its location. Sizes come from cpDefaults.
     cps = []
-    cps[0] = [vect(30.354, 5, -151.022), cpDefaults[0], false, false, true, null, null, vect(36.24, 5.00, -145.78), cpDefaults[2]]
-    cps[1] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(42.536, 3.218, -140.939), cpDefaults[2]]
-    cps[2] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, false, true, null, null, vect(37.89, 4.03, -125.11), cpDefaults[2]]
-    cps[3] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, false, true, null, null, vect(19.895, 6, -130.757), cpDefaults[2]]
-    cps[4] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(46.563, 4.01, -129.999), cpDefaults[2]]
-    cps[5] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(32.38, 6.56, -108.87), cpDefaults[2]]
-    cps[6] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, false, true, null, null, vect(27.37, 4, -88.81), cpDefaults[2]]
-    cps[7] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, false, true, null, null, vect(16.181, 3.046, -67.936), cpDefaults[2]]
-    cps[8] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(27.89, 3.05, -70.12), cpDefaults[2]]
-    cps[9] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(28.072, 3.998, -105.3), cpDefaults[2]]
-    cps[10] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(60.854, 1, -113.372), cpDefaults[2]]
-    cps[11] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(44.855, 4.01, -131.473), cpDefaults[2]]
-    cps[12] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(39.7, 1, -144.094), cpDefaults[2]]
-    cps[13] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(44.91, 1, -138.61), cpDefaults[2]]
-    cps[14] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(44.35, 4.01, -130.82), cpDefaults[2]]
-    cps[15] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(33.83, 4, -90), cpDefaults[2]]
-    cps[16] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, false, true, null, null, vect(30.991, 3, -72.417), cpDefaults[2]]
-    cps[17] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, false, true, null, null, vect(39.055, -4.947, -75.702), cpDefaults[2]]
-    cps[18] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(45.022, -5, -69.766), cpDefaults[2]]
-    cps[19] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(47.22, 6, -67.5), cpDefaults[2]]
-    cps[20] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(45.4, 5.31, -51.18), cpDefaults[2]]
-    cps[21] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(36.368, -2.134, -56.973), cpDefaults[2]]
-    cps[22] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(45.662, 3, -36.151), cpDefaults[2]]
-    cps[23] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(67.50, 9.01, -42.18), cpDefaults[2]]
-    cps[24] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(41.77, 3, -73.61), cpDefaults[2]]
-    cps[25] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(36.668, -2.134, -57.072), cpDefaults[2]]
-    cps[26] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(53.683, 8.908, -36.387), cpDefaults[2]]
-    cps[27] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(81.77, 3, -33.09), cpDefaults[2]]
-    cps[28] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(86.119, 3.01, -29.821), cpDefaults[2]]
-    cps[29] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(77.563, 6, 6.752), cpDefaults[2]]
-    cps[30] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(101.21, -0.94, 40.44), cpDefaults[2]]
-    cps[31] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(91.745, 6, 9.719), cpDefaults[2]]
-    cps[32] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(83.1, 1, 56.16), cpDefaults[2]]
-    cps[33] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(81.151, 2.845, 28.89), cpDefaults[2]]
-    cps[34] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(71.21, 1, 18.59), cpDefaults[2]]
-    cps[35] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(77.622, 6.01, 6.08), cpDefaults[2]]
-    cps[36] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(75.526, 10, 7.506), cpDefaults[2]]
-    cps[37] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(69.811, 9.01, 12.958), cpDefaults[2]]
-    cps[38] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(66.62, 8.32, 26.39), cpDefaults[2]]
-    cps[39] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(98.874, 2.745, -16.184), cpDefaults[2]]
-    cps[40] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(68.47, -3.14, -13.22), cpDefaults[2]]
-    cps[41] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(64.54, -3, -17.9), cpDefaults[2]]
-    cps[42] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(64.75, 9.67, -32.17), cpDefaults[2]]
-    cps[43] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(53.419, 8.734, -38.662), cpDefaults[2]]
-    cps[44] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(36.26, -0.26, -47.19), cpDefaults[2]]
-    cps[45] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(45.993, 3, -36.446), cpDefaults[2]]
-    cps[46] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(57.496, 3, -54.121), cpDefaults[2]]
-    cps[47] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, false, true, null, null, vect(47.01, 6.00, -67.42), cpDefaults[2]]
-    cps[48] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(32.38, -5.15, -57.33), cpDefaults[2]]
-    cps[49] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(34.29, 1.19, -53.24), cpDefaults[2]]
-    cps[50] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(40.6, -5.01, -51.2), cpDefaults[2]]
-    cps[51] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(43.11, -0.51, -49.171), cpDefaults[2]]
-    cps[52] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(65.46, -3.14, -26.55), cpDefaults[2]]
-    cps[53] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(62.097, 2.028, -22.853), cpDefaults[2]]
-    cps[54] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(73.6, -3.14, -38.12), cpDefaults[2]]
-    cps[55] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(74.748, 2.107, -34.64), cpDefaults[2]]
-    cps[56] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(50.72, 8.72, -47.45), cpDefaults[2]]
-    cps[57] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(45.49, 3, -36.66), cpDefaults[2]]
-    cps[58] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(47.22, 6, -67.5), cpDefaults[2]]
-    cps[59] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(39.46, -5.02, -75.88), cpDefaults[2]]
-    cps[60] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(14.081, 3.045, -70.069), cpDefaults[2]]
-    cps[61] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(27.17, 0, -104.23), cpDefaults[2]]
-    cps[62] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(29.24, 4, -106.27), cpDefaults[2]]
-    cps[63] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(42.742, -6.137, -119.077), cpDefaults[2]]
-    cps[64] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(36.423, 0, -112.203), cpDefaults[2]]
-    cps[65] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(33.015, 6.561, -109.607), cpDefaults[2]]
-    cps[66] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(38.88, 0, -99.49), cpDefaults[2]]
-    cps[67] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(32.37, 4.00, -93.09), cpDefaults[2]]
-    cps[68] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(39.957, 3.998, -102.764), cpDefaults[2]]
-    cps[69] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, false, true, null, null, vect(33.417, 4.01, -86.09), cpDefaults[2]]
-    cps[70] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(44.14, 4.03, -131.19), cpDefaults[2]]
-    cps[71] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(35.776, 5, -144.535), cpDefaults[2]]
-    cps[72] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, false, true, null, null, vect(16.589, -2, -133.052), cpDefaults[2]]
-    cps[73] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, false, true, vect(21.742, -1.91, -129.95), cpDefaults[1], vect(37.649, 4.01, -124.211), cpDefaults[2]]
-    cps[74] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(61.452, -7.192, -141.705), cpDefaults[2]]
-    cps[75] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, false, true, vect(64.37, -6.31, -131.28), cpDefaults[1], vect(60.992, 1, -115.213), cpDefaults[2]]
-    cps[76] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, false, true, vect(36.918, 0.092, -95.332), cpDefaults[1], vect(27.284, 3.013, -84.642), cpDefaults[2]]
-    cps[77] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(16.503, -5, -70.262), cpDefaults[2]]
-    cps[78] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, false, true, vect(23.858, -5.068, -82.402), cpDefaults[1], vect(29.458, 6.938, -90.962), cpDefaults[2]]
-    cps[79] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(38.373, -5.02, -77.208), cpDefaults[2]]
-    cps[80] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, false, true, vect(44.188, -5.058, -60.366), cpDefaults[1], vect(56.069, 3, -52.942), cpDefaults[2]]
-    cps[81] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, false, true, null, null, vect(47.966, -5, -68.898), cpDefaults[2]]
-    cps[82] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, false, true, vect(41.762, -5.059, -62.347), cpDefaults[1], vect(36.26, -0.26, -47.19), cpDefaults[2]]
-    cps[83] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(62.694, -3.003, -16.511), cpDefaults[2]]
-    cps[84] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, false, true, vect(74.99, -2.09, -9.26), cpDefaults[1], vect(83.645, 6, 1.309), cpDefaults[2]]
-    cps[85] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(97.81, 1, 12.53), cpDefaults[2]]
-    cps[86] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(82.13, 10.36, 14.07), cpDefaults[2]]
-    cps[87] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(75.569, 9, 22.556), cpDefaults[2]]
-    cps[88] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(59.696, 8.354, 20.334), cpDefaults[2]]
-    cps[89] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(51.531, 9, 9.279), cpDefaults[2]]
-    cps[90] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(41.032, 3, 7.798), cpDefaults[2]]
-    cps[91] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(46.18, 9, 10.57), cpDefaults[2]]
-    cps[92] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(45.06, 3, 3.14), cpDefaults[2]]
-    cps[93] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(48.646, 9, 7.999), cpDefaults[2]]
-    cps[94] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(81.852, 1, 23.622), cpDefaults[2]]
-    cps[95] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(79.799, 9, 21.207), cpDefaults[2]]
-    cps[96] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, true, true, null, null, vect(86.008, -3.141, -1.915), cpDefaults[2]]
-    cps[97] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(83.375, 6, 0.473), cpDefaults[2]]
-    cps[98] = [(cps[len(cps) - 2])[7], cpDefaults[0], false, false, true, null, null, vect(90.713, -3.045, -5.413), cpDefaults[2]]
-    cps[99] = [(cps[len(cps) - 2])[7], cpDefaults[0], true, false, true, vect(85.5, -3.15, -1.5), cpDefaults[1], vect(83.375, 6, 0.473), cpDefaults[2]]
-    cps[100] = [(cps[len(cps) - 2])[7], cpDefaults[0]]
+    cps[0] = [vect(30.354, 5, -151.022), false, false, true]
+    cps[1] = [vect(36.24, 5.00, -145.78), false, false, true]
+    cps[2] = [vect(42.536, 3.218, -140.939), true, false, true]
+    cps[3] = [vect(37.89, 4.03, -125.11), true, false, true]
+    cps[4] = [vect(19.895, 6, -130.757), true, true, true]
+    cps[5] = [vect(46.563, 4.01, -129.999), true, true, true]
+    cps[6] = [vect(32.38, 6.56, -108.87), true, false, true]
+    cps[7] = [vect(27.37, 4, -88.81), true, false, true]
+    cps[8] = [vect(16.181, 3.046, -67.936), false, false, true]
+    cps[9] = [vect(27.89, 3.05, -70.12), true, true, true]
+    cps[10] = [vect(28.072, 3.998, -105.3), true, true, true]
+    cps[11] = [vect(60.854, 1, -113.372), true, true, true]
+    cps[12] = [vect(44.855, 4.01, -131.473), false, false, true]
+    cps[13] = [vect(39.7, 1, -144.094), false, false, true]
+    cps[14] = [vect(44.91, 1, -138.61), false, false, true]
+    cps[15] = [vect(44.35, 4.01, -130.82), true, true, true]
+    cps[16] = [vect(33.83, 4, -90), true, false, true]
+    cps[17] = [vect(30.991, 3, -72.417), true, false, true]
+    cps[18] = [vect(39.055, -4.947, -75.702), false, false, true]
+    cps[19] = [vect(45.022, -5, -69.766), true, true, true]
+    cps[20] = [vect(47.22, 6, -67.5), false, false, true]
+    cps[21] = [vect(45.4, 5.31, -51.18), false, false, true]
+    cps[22] = [vect(36.368, -2.134, -56.973), true, true, true]
+    cps[23] = [vect(45.662, 3, -36.151), true, true, true]
+    cps[24] = [vect(67.50, 9.01, -42.18), true, true, true]
+    cps[25] = [vect(41.77, 3, -73.61), false, false, true]
+    cps[26] = [vect(36.668, -2.134, -57.072), true, true, true]
+    cps[27] = [vect(53.683, 8.908, -36.387), true, true, true]
+    cps[28] = [vect(81.77, 3, -33.09), false, false, true]
+    cps[29] = [vect(86.119, 3.01, -29.821), true, true, true]
+    cps[30] = [vect(77.563, 6, 6.752), true, true, true]
+    cps[31] = [vect(101.21, -0.94, 40.44), true, true, true]
+    cps[32] = [vect(91.745, 6, 9.719), true, true, true]
+    cps[33] = [vect(83.1, 1, 56.16), true, true, true]
+    cps[34] = [vect(81.151, 2.845, 28.89), true, true, true]
+    cps[35] = [vect(71.21, 1, 18.59), true, true, true]
+    cps[36] = [vect(77.622, 6.01, 6.08), false, false, true]
+    cps[37] = [vect(75.526, 10, 7.506), false, false, true]
+    cps[38] = [vect(69.811, 9.01, 12.958), false, false, true]
+    cps[39] = [vect(66.62, 8.32, 26.39), true, true, true]
+    cps[40] = [vect(98.874, 2.745, -16.184), true, true, true]
+    cps[41] = [vect(68.47, -3.14, -13.22), false, false, true]
+    cps[42] = [vect(64.54, -3, -17.9), true, true, true]
+    cps[43] = [vect(64.75, 9.67, -32.17), false, false, true]
+    cps[44] = [vect(53.419, 8.734, -38.662), false, false, true]
+    cps[45] = [vect(36.26, -0.26, -47.19), false, false, true]
+    cps[46] = [vect(45.993, 3, -36.446), true, true, true]
+    cps[47] = [vect(57.496, 3, -54.121), true, false, true]
+    cps[48] = [vect(47.01, 6.00, -67.42), false, false, true]
+    cps[49] = [vect(32.38, -5.15, -57.33), false, false, true]
+    cps[50] = [vect(34.29, 1.19, -53.24), false, false, true]
+    cps[51] = [vect(40.6, -5.01, -51.2), false, false, true]
+    cps[52] = [vect(43.11, -0.51, -49.171), true, true, true]
+    cps[53] = [vect(65.46, -3.14, -26.55), false, false, true]
+    cps[54] = [vect(62.097, 2.028, -22.853), true, true, true]
+    cps[55] = [vect(73.6, -3.14, -38.12), false, false, true]
+    cps[56] = [vect(74.748, 2.107, -34.64), true, true, true]
+    cps[57] = [vect(50.72, 8.72, -47.45), false, false, true]
+    cps[58] = [vect(45.49, 3, -36.66), true, true, true]
+    cps[59] = [vect(47.22, 6, -67.5), true, true, true]
+    cps[60] = [vect(39.46, -5.02, -75.88), true, true, true]
+    cps[61] = [vect(14.081, 3.045, -70.069), true, true, true]
+    cps[62] = [vect(27.17, 0, -104.23), false, false, true]
+    cps[63] = [vect(29.24, 4, -106.27), false, false, true]
+    cps[64] = [vect(42.742, -6.137, -119.077), false, false, true]
+    cps[65] = [vect(36.423, 0, -112.203), false, false, true]
+    cps[66] = [vect(33.015, 6.561, -109.607), false, false, true]
+    cps[67] = [vect(38.88, 0, -99.49), false, false, true]
+    cps[68] = [vect(32.37, 4.00, -93.09), false, false, true]
+    cps[69] = [vect(39.957, 3.998, -102.764), true, false, true]
+    cps[70] = [vect(33.417, 4.01, -86.09), true, true, true]
+    cps[71] = [vect(44.14, 4.03, -131.19), false, false, true]
+    cps[72] = [vect(35.776, 5, -144.535), true, false, true]
+    cps[73] = [vect(16.589, -2, -133.052), true, false, true, vect(21.742, -1.91, -129.95)]
+    cps[74] = [vect(37.649, 4.01, -124.211), true, true, true]
+    cps[75] = [vect(61.452, -7.192, -141.705), true, false, true, vect(64.37, -6.31, -131.28)]
+    cps[76] = [vect(60.992, 1, -115.213), true, false, true, vect(36.918, 0.092, -95.332)]
+    cps[77] = [vect(27.284, 3.013, -84.642), false, false, true]
+    cps[78] = [vect(16.503, -5, -70.262), true, false, true, vect(23.858, -5.068, -82.402)]
+    cps[79] = [vect(29.458, 6.938, -90.962), true, true, true]
+    cps[80] = [vect(38.373, -5.02, -77.208), true, false, true, vect(44.188, -5.058, -60.366)]
+    cps[81] = [vect(56.069, 3, -52.942), true, false, true]
+    cps[82] = [vect(47.966, -5, -68.898), true, false, true, vect(41.762, -5.059, -62.347)]
+    cps[83] = [vect(36.26, -0.26, -47.19), true, true, true]
+    cps[84] = [vect(62.694, -3.003, -16.511), true, false, true, vect(74.99, -2.09, -9.26)]
+    cps[85] = [vect(83.645, 6, 1.309), false, false, true]
+    cps[86] = [vect(97.81, 1, 12.53), true, true, true]
+    cps[87] = [vect(82.13, 10.36, 14.07), false, false, true]
+    cps[88] = [vect(75.569, 9, 22.556), false, false, true]
+    cps[89] = [vect(59.696, 8.354, 20.334), false, false, true]
+    cps[90] = [vect(51.531, 9, 9.279), false, false, true]
+    cps[91] = [vect(41.032, 3, 7.798), false, false, true]
+    cps[92] = [vect(46.18, 9, 10.57), false, false, true]
+    cps[93] = [vect(45.06, 3, 3.14), false, false, true]
+    cps[94] = [vect(48.646, 9, 7.999), true, true, true]
+    cps[95] = [vect(81.852, 1, 23.622), false, false, true]
+    cps[96] = [vect(79.799, 9, 21.207), true, true, true]
+    cps[97] = [vect(86.008, -3.141, -1.915), false, false, true]
+    cps[98] = [vect(83.375, 6, 0.473), false, false, true]
+    cps[99] = [vect(90.713, -3.045, -5.413), true, false, true, vect(85.5, -3.15, -1.5)]
+    cps[100] = [vect(83.375, 6, 0.473)]
 
 
 #!include "hints/1-watchpoint-gibraltar.opy"
@@ -224,40 +226,17 @@ rule "Lobby":
     lobbyData[13] = 0.85
     lbPos = []
     lbPos[1] = lobbyData[11] + vect(0, -0.65, 0)
-    lbPos[2] = lbPos[1] + vect(0, -0.5, 0) * 1
-    lbPos[3] = lbPos[1] + vect(0, -0.5, 0) * 2
-    lbPos[4] = lbPos[1] + vect(0, -0.5, 0) * 3
-    lbPos[5] = lbPos[1] + vect(0, -0.5, 0) * 4
-    lbPos[6] = lbPos[1] + vect(0, -0.5, 0) * 5
-    lbPos[7] = lbPos[1] + vect(0, -0.5, 0) * 6
-    lbPos[8] = lbPos[1] + vect(0, -0.5, 0) * 7
-    lbPos[9] = lbPos[1] + vect(0, -0.5, 0) * 8
-    lbPos[10] = lbPos[1] + vect(0, -0.5, 0) * 9
+    for index in range(2, 11):
+        lbPos[index] = lbPos[1] + vect(0, -0.5, 0) * (index - 1)
     lobbyData[14] = vect(101.52, lobbyData[11].y, 62.81)
     lobbyData[15] = 1.2
     lobbyData[16] = 0.85
     lobbyData[17] = lobbyData[14] + vect(0, -0.65, 0)
-    lobbyData[18] = lobbyData[17] + (
-        ((vect(0, lbPos[10].y - lobbyData[17].y, 0)) / 7) * 1
-    )
-    lobbyData[19] = lobbyData[17] + (
-        ((vect(0, lbPos[10].y - lobbyData[17].y, 0)) / 7) * 2
-    )
-    lobbyData[20] = lobbyData[17] + (
-        ((vect(0, lbPos[10].y - lobbyData[17].y, 0)) / 7) * 3
-    )
-    lobbyData[21] = lobbyData[17] + (
-        ((vect(0, lbPos[10].y - lobbyData[17].y, 0)) / 7) * 4
-    )
-    lobbyData[22] = lobbyData[17] + (
-        ((vect(0, lbPos[10].y - lobbyData[17].y, 0)) / 7) * 5
-    )
-    lobbyData[23] = lobbyData[17] + (
-        ((vect(0, lbPos[10].y - lobbyData[17].y, 0)) / 7) * 6
-    )
-    lobbyData[24] = lobbyData[17] + (
-        ((vect(0, lbPos[10].y - lobbyData[17].y, 0)) / 7) * 7
-    )
+    # The stats rows spread evenly down to the leaderboard's last row
+    for index in range(18, 25):
+        lobbyData[index] = lobbyData[17] + (
+            ((vect(0, lbPos[10].y - lobbyData[17].y, 0)) / 7) * (index - 17)
+        )
 
 
 rule "Lobby Boundary":

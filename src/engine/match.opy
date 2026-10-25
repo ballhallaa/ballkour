@@ -6,133 +6,46 @@ rule "Initialize":
     disableAnnouncer()
     disableGamemodeCompletion()
     setMatchTime(0)
-    if not settings_[0] and not settings_[2]:
+    if not settings_[0] and not isHintRecorderOn:
         disableInspector()
     if settings_[1]:
         players = []
         # lobbyStats[i]: [0]players [1]rejoins [2]legitRuns [3]totalRunTime [4]totalRunTimeFormatted [5]totalMistakes [6]avgRunTime [7]avgRunTimeFormatted [8]avgMistakes
-        lobbyStats = []
-        lobbyStats[0] = 0
-        lobbyStats[1] = 0
-        lobbyStats[2] = 0
-        lobbyStats[3] = 0
-        lobbyStats[4] = "00:00.00"
-        lobbyStats[5] = 0
-        lobbyStats[6] = 0
-        lobbyStats[7] = "00:00.00"
-        lobbyStats[8] = 0
-    lbObj = lb[10].split(",")[1].replace(" ", "").split(":")
-    lbObjFormatted = lbObj[len(lbObj) - 1].split(".")
-    timeToBeatInMs = (
-        (
-            (
-                (
-                    ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].index(
-                        lbObj[0].substring(0, 1)
-                    )
-                    * 10
-                    + ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].index(
-                        lbObj[0].substring(1, 1)
-                    )
-                )
-                if ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].index(
-                    lbObj[0].substring(1, 1)
-                )
-                >= 0
-                else ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].index(
-                    lbObj[0].substring(0, 1)
-                )
-            )
-            * 3600000
-            if len(lbObj) >= 3
-            else 0
-        )
-        + (
-            (
-                ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].index(
-                    lbObj[len(lbObj) - 2].substring(0, 1)
-                )
-                * 10
-                + ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].index(
-                    lbObj[len(lbObj) - 2].substring(1, 1)
-                )
-            )
-            if ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].index(
-                lbObj[len(lbObj) - 2].substring(1, 1)
-            )
-            >= 0
-            else ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].index(
-                lbObj[len(lbObj) - 2].substring(0, 1)
-            )
-        )
-        * 60000
-        + (
-            (
-                ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].index(
-                    lbObjFormatted[0].substring(0, 1)
-                )
-                * 10
-                + ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].index(
-                    lbObjFormatted[0].substring(1, 1)
-                )
-            )
-            if ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].index(
-                lbObjFormatted[0].substring(1, 1)
-            )
-            >= 0
-            else ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].index(
-                lbObjFormatted[0].substring(0, 1)
-            )
-        )
-        * 1000
-        + (
-            (
-                ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].index(
-                    lbObjFormatted[1].substring(0, 1)
-                )
-                * 10
-                + ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].index(
-                    lbObjFormatted[1].substring(1, 1)
-                )
-            )
-            if ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].index(
-                lbObjFormatted[1].substring(1, 1)
-            )
-            >= 0
-            else ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"].index(
-                lbObjFormatted[1].substring(0, 1)
-            )
-        )
-        * 10
-    )
+        lobbyStats = [0, 0, 0, 0, "00:00.00", 0, 0, "00:00.00", 0]
+    # timeToBeat: the 10th place's time in seconds, or 0 while the leaderboard has fewer than 10 runs
+    timeToBeat = 0
+    timeToBeatFormatted = "00:00.00"
+    if lb[10] != null:
+        timeToBeatFormatted = lb[10].split(",")[1].replace(" ", "")
+        # Reads [H:]M:SS.cc left to right: each ":" carries the units read so far into the next one,
+        # which leaves the seconds and hundredths in lbObj as one number (SScc)
+        lbObj = 0
+        for index in range(strLen(timeToBeatFormatted)):
+            if timeToBeatFormatted.charAt(index) == ":":
+                timeToBeat = (timeToBeat + lbObj) * 60
+                lbObj = 0
+            elif timeToBeatFormatted.charAt(index) != ".":
+                lbObj = lbObj * 10 + "0123456789".strIndex(timeToBeatFormatted.charAt(index))
+        timeToBeat += lbObj / 100
     nameplateObjs = []
     tinyNameplateObjs = []
 
 
 rule "Start Elapsed Timer":
     chaseAtRate(elapsedTime, 14340, 1)
-    if settings_[1] and not settings_[0]:
-        while true:
-            wait(0.1)
-            elapsedTimeFormatted = (
-                "{}:{}:{}".format(
-                    floor(elapsedTime / 3600),
-                    (elapsedTime % 3600 / 60 + 100).substring(1, 2),
-                    (elapsedTime % 60 + 100).substring(1, 9999)
-                )
-                if elapsedTime >= 3600
-                else (
-                    "{}:{}".format(
-                        floor(elapsedTime / 60),
-                        (elapsedTime % 60 + 100).substring(1, 9999)
-                    )
-                    if elapsedTime >= 60
-                    else "{}.{}".format(
-                        floor(elapsedTime),
-                        (round(elapsedTime % 1 * 100) + 100).substring(1, 2)
-                    )
-                )
-            )
+
+
+rule "Format Elapsed Time":
+    @Event eachPlayer
+    @Condition settings_[1] == true
+    @Condition settings_[0] == false
+    @Condition eventPlayer == hostPlayer
+
+    wait(0.1)
+    eventPlayer.timeToFormat = elapsedTime
+    formatTime()
+    elapsedTimeFormatted = eventPlayer.timeFormatted
+    if RULE_CONDITION: loop()
 
 
 rule "Spawn Disrupter Destructors":

@@ -32,32 +32,25 @@ rule "Checkpoint (No Skipping)":
     eventPlayer.timeToFormat = eventPlayer.runTime - eventPlayer.cpStartTime
     formatTime()
     eventPlayer.cpTotalTimeFormatted = eventPlayer.timeFormatted
+    # Shown to the player and everyone spectating them
     smallMessage(
-        eventPlayer,
+        getAllPlayers().filter(
+            lambda p: p == eventPlayer
+            or (p.spectating[1] == eventPlayer and not p.spectating[3])
+        ),
         "Time: {} | Total: {}".format(
             eventPlayer.cpTimeFormatted, eventPlayer.cpTotalTimeFormatted
         )
     )
-    if settings_[2] and eventPlayer == hostPlayer:
+    if isHintRecorderOn and eventPlayer == hostPlayer:
         saveHintRoute()
     eventPlayer.isLoading = true
     eventPlayer.runCurrentCp++
-    for eventPlayer.index in range(len(getAllPlayers())):
-        if (
-            getAllPlayers()[eventPlayer.index].spectating[1] == eventPlayer
-            and getAllPlayers()[eventPlayer.index].spectating[3] == false
-        ):
-            getAllPlayers()[eventPlayer.index].spectating[4]++
-            smallMessage(
-                getAllPlayers()[eventPlayer.index],
-                "Time: {} | Total: {}".format(
-                    eventPlayer.cpTimeFormatted, eventPlayer.cpTotalTimeFormatted
-                )
-            )
-    eventPlayer.nameplate = "{} | {}".format(eventPlayer, eventPlayer.runCurrentCp)
+    syncSpectatorCps()
+    showCpNameplate()
     loadCpData()
     setCpAbilities()
-    if eventPlayer.runCurrentCp < len(cps) - 1:
+    if eventPlayer.runCurrentCp < lastCp:
         if (
             distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
             > eventPlayer.cpData[1]
@@ -79,7 +72,7 @@ rule "Checkpoint (No Skipping)":
 
 rule "Final Checkpoint Reached":
     @Event eachPlayer
-    @Condition eventPlayer.runCurrentCp == len(cps) - 1
+    @Condition eventPlayer.runCurrentCp == lastCp
 
     playEffect(
         eventPlayer, 
@@ -145,29 +138,7 @@ rule "Run Text":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
         ),
-        "Time to Beat: {}".format(
-            "00:00.00"
-            if timeToBeatInMs == 0
-            else (
-                "{}:{}:{}".format(
-                    floor(timeToBeatInMs / 3600000),
-                    (timeToBeatInMs % 3600000 / 60000 + 100).substring(1, 2),
-                    (timeToBeatInMs % 60000 / 1000 + 100).substring(1, 9999)
-                )
-                if timeToBeatInMs >= 3600000
-                else (
-                    "{}:{}".format(
-                        floor(timeToBeatInMs / 60000),
-                        (timeToBeatInMs % 60000 / 1000 + 100).substring(1, 9999)
-                    )
-                    if timeToBeatInMs >= 60000
-                    else "{}.{}".format(
-                        floor(timeToBeatInMs / 1000),
-                        (timeToBeatInMs % 1000 / 10 + 100).substring(1, 2)
-                    )
-                )
-            )
-        ),
+        "Time to Beat: {}".format(timeToBeatFormatted),
         HudPosition.TOP,
         4,
         rgb(230, 151, 0),
@@ -186,8 +157,8 @@ rule "Run Text":
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
-            and localPlayer.runTime * 1000 > timeToBeatInMs
-            and timeToBeatInMs > 0
+            and localPlayer.runTime > timeToBeat
+            and timeToBeat > 0
             and localPlayer.isRunLegit
         ),
         "<fgA52A2AFF>Submit a Video of Your Run\n"
@@ -202,7 +173,7 @@ rule "Run Text":
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
-            and (timeToBeatInMs == 0 or localPlayer.runTime * 1000 <= timeToBeatInMs)
+            and (timeToBeat == 0 or localPlayer.runTime <= timeToBeat)
             and localPlayer.isRunLegit
         ),
         "                Top-10 Time!</fg>\n"
@@ -235,42 +206,12 @@ def updateStats():
 
     lobbyStats[2]++
     lobbyStats[3] += eventPlayer.runTime
-    lobbyStats[4] = (
-        "{}:{}:{}".format(
-            floor(lobbyStats[3] / 3600),
-            (lobbyStats[3] % 3600 / 60 + 100).substring(1, 2),
-            (lobbyStats[3] % 60 + 100).substring(1, 9999)
-        )
-        if lobbyStats[3] >= 3600
-        else (
-            "{}:{}".format(
-                floor(lobbyStats[3] / 60), (lobbyStats[3] % 60 + 100).substring(1, 9999)
-            )
-            if lobbyStats[3] >= 60
-            else "{}.{}".format(
-                floor(lobbyStats[3]),
-                (round(lobbyStats[3] % 1 * 100) + 100).substring(1, 2)
-            )
-        )
-    )
+    eventPlayer.timeToFormat = lobbyStats[3]
+    formatTime()
+    lobbyStats[4] = eventPlayer.timeFormatted
     lobbyStats[5] += eventPlayer.runMistakes
     lobbyStats[6] = lobbyStats[3] / lobbyStats[2]
-    lobbyStats[7] = (
-        "{}:{}:{}".format(
-            floor(lobbyStats[6] / 3600),
-            (lobbyStats[6] % 3600 / 60 + 100).substring(1, 2),
-            (lobbyStats[6] % 60 + 100).substring(1, 9999)
-        )
-        if lobbyStats[6] >= 3600
-        else (
-            "{}:{}".format(
-                floor(lobbyStats[6] / 60), (lobbyStats[6] % 60 + 100).substring(1, 9999)
-            )
-            if lobbyStats[6] >= 60
-            else "{}.{}".format(
-                floor(lobbyStats[6]),
-                (round(lobbyStats[6] % 1 * 100) + 100).substring(1, 2)
-            )
-        )
-    )
+    eventPlayer.timeToFormat = lobbyStats[6]
+    formatTime()
+    lobbyStats[7] = eventPlayer.timeFormatted
     lobbyStats[8] = lobbyStats[5] / lobbyStats[2]

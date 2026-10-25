@@ -2,22 +2,32 @@
 #!rulePrefix "Hints"
 
 
-macro hintViewCp(player):
-    (
-        (
-            player.spectating[4]
-            if player.spectating[3]
-            else player.spectating[1].runCurrentCp
-        )
-        if player.spectating[0]
-        else player.runCurrentCp
-    )
+rule "Decompress Routes":
+    # Each course stores hintData[i] as one compressed vector array: vect(keyframe count, action count, anchor count),
+    # then hintRoutes[i], hintTimes[i] three to a vector, hintActions[i] and hintAnchors[i] (one per action, or none)
+    for index in range(len(hintData)):
+        if hintData[index] != null:
+            hintScratch = decompressVectors(hintData[index])
+            hintRoutes[index] = hintScratch.slice(1, hintScratch[0].x)
+            # Time i is the x, y or z of its vector, which a dot product with Left, Up or Forward picks out
+            hintTimes[index] = hintRoutes[index].map(
+                lambda keyframe, i: dotProduct(
+                    hintScratch[1 + hintScratch[0].x + floor(i / 3)],
+                    [Vector.LEFT, Vector.UP, Vector.FORWARD][i % 3]
+                )
+            )
+            hintActions[index] = hintScratch.slice(
+                len(hintScratch) - hintScratch[0].y - hintScratch[0].z, hintScratch[0].y
+            )
+            hintAnchors[index] = hintScratch.slice(len(hintScratch) - hintScratch[0].z, hintScratch[0].z)
+    hintData = null
+    hintScratch = null
 
 
 macro hintColor(player):
     hintColors[
         sorted(
-            hintActions[player.hintCp].filter(
+            hintActions[player.viewCp].filter(
                 lambda span: span.x <= player.hintTime and player.hintTime < span.y
             ),
             lambda span: -(span.z % 4)
@@ -53,83 +63,79 @@ rule "Load Objects":
     )
 
 
-rule "Sync Checkpoint":
-    @Event eachPlayer
-    @Condition eventPlayer.hintCp != hintViewCp(eventPlayer)
-
-    eventPlayer.hintCp = hintViewCp(eventPlayer)
-
-
 rule "Playback":
     @Event eachPlayer
     @Condition eventPlayer.isHintOn == true
     @Condition eventPlayer.isInLobby == false
-    @Condition eventPlayer.hintCp == hintViewCp(eventPlayer)
-    @Condition len(hintRoutes[eventPlayer.hintCp]) > 1
+    @Condition eventPlayer.viewCp == viewedCp(eventPlayer)
+    @Condition len(hintRoutes[eventPlayer.viewCp]) > 1
 
     stopChasingVariable(eventPlayer.hintPos)
     stopChasingVariable(eventPlayer.hintTime)
     eventPlayer.hintTime = -1
     eventPlayer.hintIndex = 0
-    eventPlayer.hintPlayCp = eventPlayer.hintCp
-    eventPlayer.hintPos = hintRoutes[eventPlayer.hintCp][0]
+    eventPlayer.hintPlayCp = eventPlayer.viewCp
+    # The route being played, so it doesn't need looking up on every step
+    eventPlayer.hintKeyframes = hintRoutes[eventPlayer.viewCp]
+    eventPlayer.hintKeyframeTimes = hintTimes[eventPlayer.viewCp]
+    eventPlayer.hintPos = eventPlayer.hintKeyframes[0]
     eventPlayer.isHintPlaying = true
     wait(0.5, Wait.ABORT_WHEN_FALSE)
     eventPlayer.hintTime = 0
     eventPlayer.hintStep = 0
     chaseAtRate(eventPlayer.hintTime, Math.INFINITY, 1)
     while (
-        eventPlayer.hintStep < hintTimes[eventPlayer.hintCp].last()
-        and eventPlayer.hintPlayCp == eventPlayer.hintCp
+        eventPlayer.hintStep < eventPlayer.hintKeyframeTimes.last()
+        and eventPlayer.hintPlayCp == eventPlayer.viewCp
     ):
-        if eventPlayer.hintStep >= hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex]:
+        if eventPlayer.hintStep >= eventPlayer.hintKeyframeTimes[eventPlayer.hintIndex]:
             eventPlayer.hintIndex++
             # hintSpline: [0]start [1]end [2]startVelocity [3]endVelocity
             eventPlayer.hintSpline = [
-                hintRoutes[eventPlayer.hintCp][eventPlayer.hintIndex - 1],
-                hintRoutes[eventPlayer.hintCp][eventPlayer.hintIndex],
+                eventPlayer.hintKeyframes[eventPlayer.hintIndex - 1],
+                eventPlayer.hintKeyframes[eventPlayer.hintIndex],
                 (
-                    hintRoutes[eventPlayer.hintCp][eventPlayer.hintIndex]
-                    - hintRoutes[eventPlayer.hintCp][max(eventPlayer.hintIndex - 2, 0)]
+                    eventPlayer.hintKeyframes[eventPlayer.hintIndex]
+                    - eventPlayer.hintKeyframes[max(eventPlayer.hintIndex - 2, 0)]
                 )
                 * (
                     (
-                        hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex]
-                        - hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex - 1]
+                        eventPlayer.hintKeyframeTimes[eventPlayer.hintIndex]
+                        - eventPlayer.hintKeyframeTimes[eventPlayer.hintIndex - 1]
                     )
                     / (
-                        hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex]
-                        - hintTimes[eventPlayer.hintCp][max(eventPlayer.hintIndex - 2, 0)]
+                        eventPlayer.hintKeyframeTimes[eventPlayer.hintIndex]
+                        - eventPlayer.hintKeyframeTimes[max(eventPlayer.hintIndex - 2, 0)]
                     )
                 ),
                 (
-                    hintRoutes[eventPlayer.hintCp][
-                        min(eventPlayer.hintIndex + 1, len(hintRoutes[eventPlayer.hintCp]) - 1)
+                    eventPlayer.hintKeyframes[
+                        min(eventPlayer.hintIndex + 1, len(eventPlayer.hintKeyframes) - 1)
                     ]
-                    - hintRoutes[eventPlayer.hintCp][eventPlayer.hintIndex - 1]
+                    - eventPlayer.hintKeyframes[eventPlayer.hintIndex - 1]
                 )
                 * (
                     (
-                        hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex]
-                        - hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex - 1]
+                        eventPlayer.hintKeyframeTimes[eventPlayer.hintIndex]
+                        - eventPlayer.hintKeyframeTimes[eventPlayer.hintIndex - 1]
                     )
                     / (
-                        hintTimes[eventPlayer.hintCp][
-                            min(eventPlayer.hintIndex + 1, len(hintRoutes[eventPlayer.hintCp]) - 1)
+                        eventPlayer.hintKeyframeTimes[
+                            min(eventPlayer.hintIndex + 1, len(eventPlayer.hintKeyframes) - 1)
                         ]
-                        - hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex - 1]
+                        - eventPlayer.hintKeyframeTimes[eventPlayer.hintIndex - 1]
                     )
                 )
             ]
         eventPlayer.hintStep = min(
             eventPlayer.hintStep + 0.1,
-            hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex]
+            eventPlayer.hintKeyframeTimes[eventPlayer.hintIndex]
         )
         eventPlayer.hintS = (
-            eventPlayer.hintStep - hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex - 1]
+            eventPlayer.hintStep - eventPlayer.hintKeyframeTimes[eventPlayer.hintIndex - 1]
         ) / (
-            hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex]
-            - hintTimes[eventPlayer.hintCp][eventPlayer.hintIndex - 1]
+            eventPlayer.hintKeyframeTimes[eventPlayer.hintIndex]
+            - eventPlayer.hintKeyframeTimes[eventPlayer.hintIndex - 1]
         )
         chaseOverTime(
             eventPlayer.hintPos,
@@ -145,7 +151,7 @@ rule "Playback":
     stopChasingVariable(eventPlayer.hintTime)
     eventPlayer.hintTime = -1
     eventPlayer.hintIndex = 0
-    if eventPlayer.hintPlayCp == eventPlayer.hintCp:
+    if eventPlayer.hintPlayCp == eventPlayer.viewCp:
         wait(1, Wait.ABORT_WHEN_FALSE)
     if RULE_CONDITION: loop()
 
@@ -156,7 +162,7 @@ rule "Stop Playback":
     @Condition (
         not eventPlayer.isHintOn
         or eventPlayer.isInLobby
-        or len(hintRoutes[eventPlayer.hintCp]) <= 1
+        or len(hintRoutes[eventPlayer.viewCp]) <= 1
     ) == true
 
     eventPlayer.isHintPlaying = false
@@ -183,11 +189,11 @@ rule "Trail":
 rule "Grapple":
     @Event eachPlayer
     @Condition eventPlayer.isHintPlaying == true
-    @Condition len(hintAnchors[eventPlayer.hintCp]) > 0
+    @Condition len(hintAnchors[eventPlayer.viewCp]) > 0
 
-    eventPlayer.hintAnchor = hintAnchors[eventPlayer.hintCp][
-        hintActions[eventPlayer.hintCp].index(
-            hintActions[eventPlayer.hintCp].filter(
+    eventPlayer.hintAnchor = hintAnchors[eventPlayer.viewCp][
+        hintActions[eventPlayer.viewCp].index(
+            hintActions[eventPlayer.viewCp].filter(
                 lambda span: span.z == 1
                 and span.x <= eventPlayer.hintTime
                 and eventPlayer.hintTime < span.y

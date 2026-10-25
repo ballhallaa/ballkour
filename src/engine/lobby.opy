@@ -73,57 +73,22 @@ rule "Load Leaderboard Area":
                 lbObj = lb[12]
         else:
             lbObj = lb[index]
-        # lbObj[i]: [0]name [1]time [2]mistakes [3]alignmentSeparator
+        # lbObj[i]: [0]name [1]time [2]mistakes [3]alignmentSeparator [4]rankColor
         lbObj = lbObj.split(",")
         lbObj[3] = lbObj[3].replace("'", "")
-        if index == 1:
-            lbObjFormatted = (
-                "{}. <fgFFFF00FF>{}</fg>{}({}<fgFFFF00FF>{}, {}{}</fg>)".format(
-                    index,
-                    lbObj[0],
-                    lbObj[3],
-                    iconString(Icon.BOLT),
-                    lbObj[1],
-                    iconString(Icon.SKULL),
-                    lbObj[2]
-                )
-            )
-        elif index == 2:
-            lbObjFormatted = (
-                "{}. <fgC0C0C0FF>{}</fg>{}({}<fgC0C0C0FF>{}, {}{}</fg>)".format(
-                    index,
-                    lbObj[0],
-                    lbObj[3],
-                    iconString(Icon.BOLT),
-                    lbObj[1],
-                    iconString(Icon.SKULL),
-                    lbObj[2]
-                )
-            )
-        elif index == 3:
-            lbObjFormatted = (
-                "{}. <fgCD7F32FF>{}</fg>{}({}<fgCD7F32FF>{}, {}{}</fg>)".format(
-                    index,
-                    lbObj[0],
-                    lbObj[3],
-                    iconString(Icon.BOLT),
-                    lbObj[1],
-                    iconString(Icon.SKULL),
-                    lbObj[2]
-                )
-            )
-        elif index >= 4:
-            lbObjFormatted = (
-                "{}. <fg00E697FF>{}</fg>{}({}<fg00E697FF>{}, {}{}</fg>)".format(
-                    index,
-                    lbObj[0],
-                    lbObj[3],
-                    iconString(Icon.BOLT),
-                    lbObj[1],
-                    iconString(Icon.SKULL),
-                    lbObj[2]
-                )
-            )
+        # Gold, silver and bronze, then the rest
+        lbObj[4] = ["<fgFFFF00FF>", "<fgC0C0C0FF>", "<fgCD7F32FF>", "<fg00E697FF>"][min(index, 4) - 1]
+        lbObjFormatted = "{}. {}{}</fg>{}({}{}{}, {}{}</fg>)".format(
+            index,
+            lbObj[4],
+            lbObj[0],
+            lbObj[3],
+            iconString(Icon.BOLT),
+            lbObj[4],
+            lbObj[1],
+            iconString(Icon.SKULL),
+            lbObj[2]
+        )
         createInWorldText(
             getAllPlayers().filter(lambda localPlayer: localPlayer.isInLobby),
             lbObjFormatted,
@@ -184,7 +149,7 @@ rule "Start Run Circle Entry":
     eventPlayer.isInLobby = false
     eventPlayer.isLoading = true
     newRun()
-    eventPlayer.nameplate = "{} | {}".format(eventPlayer, eventPlayer.runCurrentCp)
+    showCpNameplate()
     eventPlayer.isLoading = false
 
 
@@ -256,13 +221,8 @@ rule "Resume Run Circle Entry":
     eventPlayer.isInLobby = false
     cpResetPlayer()
     setCpAbilities()
-    eventPlayer.nameplate = "{} | {}".format(eventPlayer, eventPlayer.runCurrentCp)
-    eventPlayer.setFacing(
-        directionTowards(
-            eventPlayer.getEyePosition(), cps[eventPlayer.runCurrentCp][7]
-        ),
-        Relativity.TO_WORLD
-    )
+    showCpNameplate()
+    faceNextCp()
     eventPlayer.isLoading = false
 
 
