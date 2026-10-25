@@ -54,7 +54,7 @@ settings {
 #!rulePrefix "Course"
 
 
-rule "Contact & Info":
+rule "Info":
     logToInspector("Hello! Welcome to Ballkour's Paraíso course!")
     logToInspector(
         "Original course (3700E) created by Spiz. Recreated by ballmybeloved."
@@ -69,12 +69,12 @@ rule "Contact & Info":
 #!include "settings.opy"
 
 
-rule "Leaderboard (LB)":
+rule "Leaderboard":
     # lb[i]: [0]name [1]time [2]mistakes [3]alignmentSeparator
     lb = []
 
 
-rule "Checkpoints (CPs)":
+rule "Checkpoints":
     # cpDefaults[i]: [0]cpSize [1]bounceSize [2]nextCpSize
     cpDefaults = []
     cpDefaults[0] = 2.5

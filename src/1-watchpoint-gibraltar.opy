@@ -58,7 +58,7 @@ settings {
 #!rulePrefix "Course"
 
 
-rule "Contact & Info":
+rule "Info":
     logToInspector("Hello! Welcome to Ballkour's Watchpoint: Gibraltar course!")
     logToInspector("Original course (W1RWY) created by Spiz. Recreated by ballhallaa.")
     logToInspector(
@@ -72,7 +72,7 @@ rule "Contact & Info":
 #!include "settings.opy"
 
 
-rule "Leaderboard (LB)":
+rule "Leaderboard":
     # lb[i]: [0]name [1]time [2]mistakes [3]alignmentSeparator
     lb = []
     lb[1] = "BALLMYBLOVED, 3:54.23, 5, '           '"
@@ -87,7 +87,7 @@ rule "Leaderboard (LB)":
     lb[10] = "VANESSA, 6:59.56, 58, '                 '"
 
 
-rule "Checkpoints (CPs)":
+rule "Checkpoints":
     # cpDefaults[i]: [0]cpSize [1]bounceSize [2]nextCpSize
     cpDefaults = []
     cpDefaults[0] = 2.5

@@ -54,7 +54,7 @@ settings {
 #!rulePrefix "Course"
 
 
-rule "Contact & Info":
+rule "Info":
     logToInspector("Hello! Welcome to Ballkour's Blizzard World (Winter) course!")
     logToInspector("Original course (6B9Z09) created by Spiz. Recreated by ballhallaa.")
     logToInspector("Changes: this route's checkpoints are slightly bigger")
@@ -66,13 +66,13 @@ rule "Contact & Info":
 #!include "settings.opy"
 
 
-rule "Leaderboard (LB)":
+rule "Leaderboard":
     # lb[i]: [0]name [1]time [2]mistakes [3]alignmentSeparator
     lb = []
     lb[1] = "BALLMYBLOVED, 7:14.76, 16, '        '"
 
 
-rule "Checkpoints (CPs)":
+rule "Checkpoints":
     # cpDefaults[i]: [0]cpSize [1]bounceSize [2]nextCpSize
     cpDefaults = []
     cpDefaults[0] = 2.5
