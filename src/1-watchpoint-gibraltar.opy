@@ -69,12 +69,7 @@ rule "Contact & Info":
     logToInspector("Course playthrough: ballkour.com/gibraltar")
 
 
-rule "Settings":
-    settings_ = []
-    settings_[0] = createWorkshopSettingBool("Settings", "Debug", false, 1)
-    settings_[1] = createWorkshopSettingBool("Settings", "Lobby Stats", false, 0)
-    if HINT_RECORDER:
-        settings_[2] = createWorkshopSettingBool("Settings", "Hint Recorder", false, 2)
+#!include "settings.opy"
 
 
 rule "Leaderboard (LB)":
@@ -228,15 +223,16 @@ rule "Lobby":
     lbPos[1] = lobbyData[11] + vect(0, -0.65, 0)
     for index in range(2, 11):
         lbPos[index] = lbPos[1] + vect(0, -0.5, 0) * (index - 1)
-    lobbyData[14] = vect(101.52, lobbyData[11].y, 62.81)
-    lobbyData[15] = 1.2
-    lobbyData[16] = 0.85
-    lobbyData[17] = lobbyData[14] + vect(0, -0.65, 0)
-    # The stats rows spread evenly down to the leaderboard's last row
-    for index in range(18, 25):
-        lobbyData[index] = lobbyData[17] + (
-            ((vect(0, lbPos[10].y - lobbyData[17].y, 0)) / 7) * (index - 17)
-        )
+    if isLobbyStatsOn:
+        lobbyData[14] = vect(101.52, lobbyData[11].y, 62.81)
+        lobbyData[15] = 1.2
+        lobbyData[16] = 0.85
+        lobbyData[17] = lobbyData[14] + vect(0, -0.65, 0)
+        # The stats rows spread evenly down to the leaderboard's last row
+        for index in range(18, 25):
+            lobbyData[index] = lobbyData[17] + (
+                ((vect(0, lbPos[10].y - lobbyData[17].y, 0)) / 7) * (index - 17)
+            )
 
 
 rule "Lobby Boundary":

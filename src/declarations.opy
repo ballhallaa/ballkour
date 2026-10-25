@@ -1,8 +1,10 @@
 # Settings
 globalvar settings_
-# The Hint Recorder only exists in dev builds (a VERSION ending in -dev), so release builds don't spend elements on it
-macro HINT_RECORDER = strContains(VERSION, "-dev")
-macro isHintRecorderOn = HINT_RECORDER and settings_[2]
+# Debug, Lobby Stats and the Hint Recorder only exist in dev builds (a VERSION ending in -dev), so release builds don't spend elements on them
+macro DEV = strContains(VERSION, "-dev")
+macro isDebugOn = DEV and settings_[0]
+macro isLobbyStatsOn = DEV and settings_[1]
+macro isHintRecorderOn = DEV and settings_[2]
 
 # Leaderboard
 globalvar lb

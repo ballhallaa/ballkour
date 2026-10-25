@@ -8,13 +8,14 @@ rule "Joins":
 
     eventPlayer.isLoading = true
     eventPlayer.isHintOn = true
-    if not "{}".format(eventPlayer) in players:
-        if eventPlayer == hostPlayer:
-            hostPlayerName = "{}".format(eventPlayer)
-        lobbyStats[0]++
-        players[len(players)] = "{}".format(eventPlayer)
-    else:
-        lobbyStats[1]++
+    if isLobbyStatsOn:
+        if not "{}".format(eventPlayer) in players:
+            if eventPlayer == hostPlayer:
+                hostPlayerName = "{}".format(eventPlayer)
+            lobbyStats[0]++
+            players[len(players)] = "{}".format(eventPlayer)
+        else:
+            lobbyStats[1]++
     waitUntil(eventPlayer.hasSpawned(), Math.INFINITY)
     eventPlayer.disableGamemodeHud()
     eventPlayer.disableKillFeed()
