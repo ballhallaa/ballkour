@@ -5,23 +5,26 @@
 rule "Decompress Routes":
     # Each course stores hintData[i] as one compressed vector array: vect(keyframe count, action count, anchor count),
     # then hintRoutes[i], hintTimes[i] three to a vector, hintActions[i] and hintAnchors[i] (one per action, or none)
-    for index in range(len(hintData)):
-        if hintData[index] != null:
-            hintScratch = decompressVectors(hintData[index])
-            hintRoutes[index] = hintScratch.slice(1, hintScratch[0].x)
+    # One route per tick, since decoding every route at once is thousands of string lookups in the server's first tick.
+    # It has its own counter because rules that can run mid-decode (Player: Leaves) loop with the global index
+    for hintDecodeIndex in range(len(hintData)):
+        if hintData[hintDecodeIndex] != null:
+            hintScratch = decompressVectors(hintData[hintDecodeIndex])
+            hintRoutes[hintDecodeIndex] = hintScratch.slice(1, hintScratch[0].x)
             # Time i is the x, y or z of its vector, which a dot product with Left, Up or Forward picks out
-            hintTimes[index] = hintRoutes[index].map(
+            hintTimes[hintDecodeIndex] = hintRoutes[hintDecodeIndex].map(
                 lambda keyframe, i: dotProduct(
                     hintScratch[1 + hintScratch[0].x + floor(i / 3)],
                     [Vector.LEFT, Vector.UP, Vector.FORWARD][i % 3]
                 )
             )
-            hintActions[index] = hintScratch.slice(
+            hintActions[hintDecodeIndex] = hintScratch.slice(
                 len(hintScratch) - hintScratch[0].y - hintScratch[0].z, hintScratch[0].y
             )
-            hintAnchors[index] = hintScratch.slice(
+            hintAnchors[hintDecodeIndex] = hintScratch.slice(
                 len(hintScratch) - hintScratch[0].z, hintScratch[0].z
             )
+            wait()
     hintData = null
     hintScratch = null
 

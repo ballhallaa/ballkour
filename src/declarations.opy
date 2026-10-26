@@ -23,6 +23,7 @@ globalvar cpDefaults
 # Hints
 globalvar hintData
 globalvar hintScratch
+globalvar hintDecodeIndex
 globalvar hintRoutes
 globalvar hintTimes
 globalvar hintActions
