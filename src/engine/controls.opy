@@ -582,8 +582,8 @@ rule "Load Hints HUD":
                 else "\n\n\n"
             ),
             (
-                ("Hints On\nInfo: <fg00E092FF>{}</fg>{}").format(
-                    inputBindingString(Button.INTERACT),
+                ("Hints On\nInfo: <fg00E092FF>{} (Hold)</fg>{}").format(
+                    inputBindingString(Button.ABILITY_2),
                     (
                         (
                             "\n   <fgCB87FFFF>Movement</fg>"
@@ -614,21 +614,12 @@ rule "Load Hints HUD":
 rule "Hint Info Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
-    @Condition eventPlayer.isHoldingButton(Button.INTERACT) == true
+    @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == true
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
     @Condition eventPlayer.isHintOn == true
     @Condition len(hintRoutes[eventPlayer.viewCp]) > 1
     @Condition eventPlayer.spectating[5] == false
     @Condition eventPlayer.isInLobby == false
 
-    waitUntil(
-        not eventPlayer.isHoldingButton(Button.INTERACT)
-        or eventPlayer.isHoldingButton(Button.ULTIMATE)
-        or eventPlayer.isHoldingButton(Button.ABILITY_1),
-        Math.INFINITY
-    )
-    if eventPlayer.isHoldingButton(Button.ULTIMATE) or eventPlayer.isHoldingButton(
-        Button.ABILITY_1
-    ):
-        return
+    wait(0.35, Wait.ABORT_WHEN_FALSE)
     eventPlayer.isViewingHintInfo = not eventPlayer.isViewingHintInfo
