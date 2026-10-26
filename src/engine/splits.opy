@@ -5,11 +5,6 @@
 macro NO_SPLIT_STATS = "Best   --\nAvg   --"
 
 
-# After a clear, the HUD shows that CP's delta for 2s instead of the live split
-macro isShowingSplitDelta(runner):
-    getTotalTimeElapsed() < runner.splitDelta[4]
-
-
 rule "Load HUD":
     hudSubtext(
         getAllPlayers().filter(
@@ -17,18 +12,18 @@ rule "Load HUD":
             and not localPlayer.spectating[3]
             and (
                 localPlayer.viewCp < lastCp
-                or isShowingSplitDelta(localPlayer.viewRunner)
+                or localPlayer.viewRunner.isShowingSplitDelta
             )
         ),
         ("\nCP {}   {}").format(
             (
                 localPlayer.viewRunner.splitDelta[0]
-                if isShowingSplitDelta(localPlayer.viewRunner)
+                if localPlayer.viewRunner.isShowingSplitDelta
                 else localPlayer.viewCp
             ),
             (
                 localPlayer.viewRunner.splitDelta[1]
-                if isShowingSplitDelta(localPlayer.viewRunner)
+                if localPlayer.viewRunner.isShowingSplitDelta
                 else (
                     localPlayer.viewRunner.runTime - localPlayer.viewRunner.splitStart
                     if isDebugOn
@@ -40,12 +35,11 @@ rule "Load HUD":
         3,
         (
             localPlayer.viewRunner.splitDelta[2]
-            if isShowingSplitDelta(localPlayer.viewRunner)
+            if localPlayer.viewRunner.isShowingSplitDelta
             else (
                 rgb(255, 70, 70)
-                if localPlayer.viewRunner.splitClears[localPlayer.viewCp]
-                and localPlayer.viewRunner.runTime - localPlayer.viewRunner.splitStart
-                > localPlayer.viewRunner.splitBests[localPlayer.viewCp]
+                if localPlayer.viewRunner.runTime - localPlayer.viewRunner.splitStart
+                > localPlayer.viewRunner.splitCpBest
                 else rgb(230, 151, 0)
             )
         ),
@@ -58,12 +52,12 @@ rule "Load HUD":
             and not localPlayer.spectating[3]
             and (
                 localPlayer.viewCp < lastCp
-                or isShowingSplitDelta(localPlayer.viewRunner)
+                or localPlayer.viewRunner.isShowingSplitDelta
             )
         ),
         (
             localPlayer.viewRunner.splitDelta[3]
-            if isShowingSplitDelta(localPlayer.viewRunner)
+            if localPlayer.viewRunner.isShowingSplitDelta
             else (
                 localPlayer.viewRunner.splitStatsFormatted[localPlayer.viewCp]
                 if localPlayer.viewRunner.splitClears[localPlayer.viewCp]
@@ -79,7 +73,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: not localPlayer.isInLobby
             and not localPlayer.spectating[3]
-            and isShowingSplitDelta(localPlayer.viewRunner)
+            and localPlayer.viewRunner.isShowingSplitDelta
         ),
         ("Time: {} | Total: {}").format(
             localPlayer.viewRunner.cpTimeFormatted,
@@ -90,6 +84,18 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
+
+
+rule "Hide Delta":
+    @Event eachPlayer
+    @Condition eventPlayer.isShowingSplitDelta == true
+
+    # After a clear, the HUD shows that CP's delta for 2s instead of the live split.
+    # A flag instead of comparing the time in the HUD, which would run every tick for every player.
+    # Another clear during the delta moves splitDelta[4] later.
+    while getTotalTimeElapsed() < eventPlayer.splitDelta[4]:
+        wait(eventPlayer.splitDelta[4] - getTotalTimeElapsed())
+    eventPlayer.isShowingSplitDelta = false
 
 
 def recordSplit():
@@ -108,6 +114,7 @@ def recordSplit():
         NO_SPLIT_STATS,
         getTotalTimeElapsed() + 2
     ]
+    eventPlayer.isShowingSplitDelta = true
     eventPlayer.timeToFormat = eventPlayer.splitTime
     # A first clear has nothing to compare against, so it shows the time itself
     if not eventPlayer.splitClears[eventPlayer.runCurrentCp]:

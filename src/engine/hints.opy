@@ -29,15 +29,10 @@ rule "Decompress Routes":
     hintScratch = null
 
 
-macro hintColor(player):
-    hintColors[
-        sorted(
-            hintActions[player.viewCp].filter(
-                lambda span: span.x <= player.hintTime and player.hintTime < span.y
-            ),
-            lambda span: -(span.z % 4)
-        )[0].z
-    ]
+macro activeHintActions(player):
+    hintActions[player.hintPlayCp].filter(
+        lambda span: span.x <= player.hintTime and player.hintTime < span.y
+    )
 
 
 rule "Load Objects":
@@ -51,7 +46,7 @@ rule "Load Objects":
     createEffect(
         getAllPlayers().filter(lambda localPlayer: localPlayer.isHintPlaying),
         Effect.ORB,
-        hintColor(localPlayer),
+        localPlayer.hintColor,
         localPlayer.hintPos + vect(0, 1, 0),
         0.5,
         EffectReeval.VISIBILITY_POSITION_RADIUS_AND_COLOR
@@ -84,6 +79,8 @@ rule "Playback":
     eventPlayer.hintKeyframes = hintRoutes[eventPlayer.viewCp]
     eventPlayer.hintKeyframeTimes = hintTimes[eventPlayer.viewCp]
     eventPlayer.hintPos = eventPlayer.hintKeyframes[0]
+    eventPlayer.hintColor = hintColors[0]
+    eventPlayer.hintAnchor = null
     eventPlayer.isHintPlaying = true
     wait(0.5, Wait.ABORT_WHEN_FALSE)
     eventPlayer.hintTime = 0
@@ -93,9 +90,18 @@ rule "Playback":
         eventPlayer.hintStep < eventPlayer.hintKeyframeTimes.last()
         and eventPlayer.hintPlayCp == eventPlayer.viewCp
     ):
+        # Once per step, so the orb, trail and grapple beam don't each work these out every tick
+        eventPlayer.hintColor = hintColors[
+            sorted(activeHintActions(eventPlayer), lambda span: -(span.z % 4))[0].z
+        ]
+        eventPlayer.hintAnchor = hintAnchors[eventPlayer.hintPlayCp][
+            hintActions[eventPlayer.hintPlayCp].index(
+                activeHintActions(eventPlayer).filter(lambda span: span.z == 1)[0]
+            )
+        ]
         if eventPlayer.hintStep >= eventPlayer.hintKeyframeTimes[eventPlayer.hintIndex]:
             eventPlayer.hintIndex++
-            # hintSpline: [0]start [1]end [2]startVelocity [3]endVelocity
+            # Hermite form first: [0]start [1]end [2]startVelocity [3]endVelocity
             eventPlayer.hintSpline = [
                 eventPlayer.hintKeyframes[eventPlayer.hintIndex - 1],
                 eventPlayer.hintKeyframes[eventPlayer.hintIndex],
@@ -140,26 +146,37 @@ rule "Playback":
                     )
                 )
             ]
+            # Then as a + b*s + c*s^2 + d*s^3, once per keyframe, since working the curve out on every step was
+            # most of hint playback's server load. hintSpline: [0]a [1]b [2]c [3]d [4]startTime [5]duration
+            eventPlayer.hintSpline = [
+                eventPlayer.hintSpline[0],
+                eventPlayer.hintSpline[2],
+                3 * (eventPlayer.hintSpline[1] - eventPlayer.hintSpline[0])
+                - 2 * eventPlayer.hintSpline[2]
+                - eventPlayer.hintSpline[3],
+                2 * (eventPlayer.hintSpline[0] - eventPlayer.hintSpline[1])
+                + eventPlayer.hintSpline[2]
+                + eventPlayer.hintSpline[3],
+                eventPlayer.hintKeyframeTimes[eventPlayer.hintIndex - 1],
+                eventPlayer.hintKeyframeTimes[eventPlayer.hintIndex]
+                - eventPlayer.hintKeyframeTimes[eventPlayer.hintIndex - 1]
+            ]
         eventPlayer.hintStep = min(
             eventPlayer.hintStep + 0.1,
             eventPlayer.hintKeyframeTimes[eventPlayer.hintIndex]
         )
         eventPlayer.hintS = (
-            eventPlayer.hintStep
-            - eventPlayer.hintKeyframeTimes[eventPlayer.hintIndex - 1]
-        ) / (
-            eventPlayer.hintKeyframeTimes[eventPlayer.hintIndex]
-            - eventPlayer.hintKeyframeTimes[eventPlayer.hintIndex - 1]
-        )
+            eventPlayer.hintStep - eventPlayer.hintSpline[4]
+        ) / eventPlayer.hintSpline[5]
         chaseOverTime(
             eventPlayer.hintPos,
             eventPlayer.hintSpline[0]
-            * (2 * eventPlayer.hintS**3 - 3 * eventPlayer.hintS**2 + 1)
-            + eventPlayer.hintSpline[1]
-            * (3 * eventPlayer.hintS**2 - 2 * eventPlayer.hintS**3)
-            + eventPlayer.hintSpline[2]
-            * (eventPlayer.hintS**3 - 2 * eventPlayer.hintS**2 + eventPlayer.hintS)
-            + eventPlayer.hintSpline[3] * (eventPlayer.hintS**3 - eventPlayer.hintS**2),
+            + eventPlayer.hintS
+            * (
+                eventPlayer.hintSpline[1]
+                + eventPlayer.hintS
+                * (eventPlayer.hintSpline[2] + eventPlayer.hintS * eventPlayer.hintSpline[3])
+            ),
             eventPlayer.hintStep - eventPlayer.hintTime,
             ChaseTimeReeval.NONE
         )
@@ -167,6 +184,8 @@ rule "Playback":
     stopChasingVariable(eventPlayer.hintTime)
     eventPlayer.hintTime = -1
     eventPlayer.hintIndex = 0
+    eventPlayer.hintColor = hintColors[0]
+    eventPlayer.hintAnchor = null
     if eventPlayer.hintPlayCp == eventPlayer.viewCp:
         wait(1, Wait.ABORT_WHEN_FALSE)
     if RULE_CONDITION:
@@ -195,30 +214,10 @@ rule "Trail":
     playEffect(
         eventPlayer,
         DynamicEffect.GOOD_EXPLOSION,
-        hintColor(eventPlayer),
+        eventPlayer.hintColor,
         eventPlayer.hintPos + vect(0, 1, 0),
         0.3
     )
     wait(0.1, Wait.ABORT_WHEN_FALSE)
     if RULE_CONDITION:
         loop()
-
-
-rule "Grapple":
-    @Event eachPlayer
-    @Condition eventPlayer.isHintPlaying == true
-    @Condition len(hintAnchors[eventPlayer.viewCp]) > 0
-
-    eventPlayer.hintAnchor = hintAnchors[eventPlayer.viewCp][
-        hintActions[eventPlayer.viewCp].index(
-            hintActions[eventPlayer.viewCp].filter(
-                lambda span: span.z == 1
-                and span.x <= eventPlayer.hintTime
-                and eventPlayer.hintTime < span.y
-            )[0]
-        )
-    ]
-    wait()
-    if RULE_CONDITION:
-        loop()
-    eventPlayer.hintAnchor = null

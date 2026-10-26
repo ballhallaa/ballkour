@@ -39,6 +39,7 @@ globalvar elapsedTime
 globalvar elapsedTimeFormatted
 globalvar ddBots
 globalvar dd
+globalvar serverLoadAvg
 
 # Players
 globalvar players
@@ -49,6 +50,7 @@ globalvar tinyNameplateObjs
 # Spectating
 globalvar playerToEnableFreecam
 globalvar freecamStartPos
+globalvar freecamQueue = []
 
 globalvar index 127
 
@@ -91,6 +93,8 @@ playervar splitTotals
 playervar splitClears
 playervar splitStatsFormatted
 playervar splitDelta
+playervar isShowingSplitDelta
+playervar splitCpBest
 
 # Hint Playback
 playervar isHintOn
@@ -105,6 +109,7 @@ playervar hintTime
 playervar hintPos
 playervar hintS
 playervar hintSpline
+playervar hintColor
 playervar hintAnchor
 
 # Hint Recording
@@ -130,6 +135,7 @@ playervar isInFreemode
 playervar spectating
 playervar firstPersonSpectatingTime
 playervar spectateTargets
+playervar heroSwapTime
 
 playervar index 127
 
@@ -163,6 +169,7 @@ subroutine formatTime
 subroutine enableSpectator
 subroutine disableSpectator
 subroutine enableFreecam
+subroutine swapToWreckingBall
 subroutine enableFreecamForSpectators
 subroutine syncSpectatorCps
 subroutine reattachToSpectatingTarget
