@@ -114,3 +114,26 @@ rule "Auto-Restart Server":
     wait(60)
     # 3hr59min in
     restartMatch()
+
+
+rule "Server Load HUD":
+    @Condition DEV == true
+
+    # Overwatch shuts the server down as its load nears 100%, so dev builds show the host what pushes it up
+    hudSubtext(
+        hostPlayer,
+        "Server Load: {}% | Avg: {}% | 10s Avg: {}% | Peak: {}%".format(
+            round(getServerLoad()),
+            round(getAverageServerLoad()),
+            round(serverLoadAvg),
+            round(getPeakServerLoad())
+        ),
+        HudPosition.RIGHT,
+        6,
+        Color.LIGHT_VIOLET,
+        HudReeval.VISIBILITY_AND_STRING
+    )
+    # Avg only covers 2s and jumps around too much to compare builds by, so 10s Avg evens it out
+    while true:
+        serverLoadAvg += (getServerLoad() - serverLoadAvg) / 100
+        wait(0.1)

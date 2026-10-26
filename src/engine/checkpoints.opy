@@ -33,6 +33,12 @@ def loadCpData():
     eventPlayer.splitStart = eventPlayer.runTime
     # The run can be paused here (after a go-back or skip), which stops the formatting loop
     eventPlayer.splitTimeFormatted = "0.00"
+    # The split HUD turns red past this, which it never is on a CP that hasn't been cleared yet
+    eventPlayer.splitCpBest = (
+        eventPlayer.splitBests[eventPlayer.runCurrentCp]
+        if eventPlayer.splitClears[eventPlayer.runCurrentCp]
+        else Math.INFINITY
+    )
 
 
 def setCpAbilities():
