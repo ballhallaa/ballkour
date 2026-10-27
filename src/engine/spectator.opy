@@ -79,7 +79,7 @@ rule "Load HUD":
         ("\n\nSpectators: {}").format(localPlayer.spectating[10]),
         HudPosition.LEFT,
         12,
-        Color.TURQUOISE,
+        rgb(0, 224, 146),
         HudReeval.VISIBILITY_AND_STRING
     )
 
