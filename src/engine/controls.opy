@@ -594,14 +594,7 @@ rule "Load Hints HUD":
             and localPlayer.viewCp < lastCp
             and len(hintRoutes) > 0
         ),
-        ("{}{}").format(
-            (
-                "\n\n"
-                if localPlayer.isInFreemode
-                or localPlayer.spectating[0]
-                or localPlayer.spectating[10] > 0
-                else "\n\n\n\n"
-            ),
+        ("\n\n{}").format(
             (
                 (
                     "Hints On"

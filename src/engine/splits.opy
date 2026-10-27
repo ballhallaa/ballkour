@@ -15,7 +15,7 @@ rule "Load HUD":
                 or localPlayer.viewRunner.isShowingSplitDelta
             )
         ),
-        ("\nCP {}   {}").format(
+        ("\n\nCP {}   {}").format(
             (
                 localPlayer.viewRunner.splitDelta[0]
                 if localPlayer.viewRunner.isShowingSplitDelta
