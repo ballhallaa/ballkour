@@ -143,7 +143,7 @@ rule "Run Text":
             and timeToBeat > 0
             and localPlayer.isRunLegit
         ),
-        "<fgA52A2AFF>Submit a Video of Your Run\n"
+        "<fgFF4646FF>Submit a Video of Your Run\n"
         "                        @\n"
         "              ballkour.com</fg>\n\n"
         "       <fg00E697FF>Thanks for Playing!</fg>",
@@ -159,7 +159,7 @@ rule "Run Text":
             and localPlayer.isRunLegit
         ),
         "                Top-10 Time!</fg>\n"
-        "<fgEC2300FF>Submit a Video of Your Run\n"
+        "<fgFF4646FF>Submit a Video of Your Run\n"
         "                        @\n"
         "              ballkour.com</fg>\n\n"
         "       <fg00E697FF>Thanks for Playing!</fg>",
@@ -173,7 +173,7 @@ rule "Run Text":
             lambda localPlayer: localPlayer.isViewingRunCompletionText
             and not localPlayer.isRunLegit
         ),
-        "             <fgA52A2AFF>Run Not Counted\n"
+        "             <fgFF4646FF>Run Not Counted\n"
         "Skipped CPs or Used Freemode</fg>\n\n"
         "         <fg00E697FF>Thanks for Playing!</fg>",
         HudPosition.TOP,

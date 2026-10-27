@@ -30,11 +30,15 @@ rule "HUD Input":
 
 rule "Load HUD":
     hudSubheader(
-        getAllPlayers().filter(
-            lambda localPlayer: localPlayer.isViewingCtrlsHud and localPlayer.viewCp > 0
-        ),
-        ("Prev. CP:                               <fg00E092FF>{} + {}</fg>").format(
-            inputBindingString(Button.ULTIMATE), inputBindingString(Button.PRIMARY_FIRE)
+        getAllPlayers().filter(lambda localPlayer: localPlayer.isViewingCtrlsHud),
+        ("{}{} + {}</fg>").format(
+            (
+                "Prev. CP:                               <fg00E092FF>"
+                if localPlayer.viewCp > 0
+                else "<fg808080FF>Prev. CP:                               "
+            ),
+            inputBindingString(Button.ULTIMATE),
+            inputBindingString(Button.PRIMARY_FIRE)
         ),
         HudPosition.LEFT,
         1,
@@ -42,11 +46,13 @@ rule "Load HUD":
         HudReeval.VISIBILITY_AND_STRING
     )
     hudSubheader(
-        getAllPlayers().filter(
-            lambda localPlayer: localPlayer.isViewingCtrlsHud
-            and localPlayer.viewCp < lastCp
-        ),
-        ("Next CP:                               <fg00E092FF>{} + {}</fg>").format(
+        getAllPlayers().filter(lambda localPlayer: localPlayer.isViewingCtrlsHud),
+        ("{}{} + {}</fg>").format(
+            (
+                "Next CP:                               <fg00E092FF>"
+                if localPlayer.viewCp < lastCp
+                else "<fg808080FF>Next CP:                               "
+            ),
             inputBindingString(Button.ULTIMATE),
             inputBindingString(Button.SECONDARY_FIRE)
         ),
@@ -58,9 +64,14 @@ rule "Load HUD":
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
-            and ((not localPlayer.spectating[0] and localPlayer.runCurrentCp < lastCp))
+            and not localPlayer.spectating[0]
         ),
-        ("Reset CP:                           <fg00E092FF>{} (Hold)</fg>").format(
+        ("{}{} (Hold)</fg>").format(
+            (
+                "Reset CP:                           <fg00E092FF>"
+                if localPlayer.runCurrentCp < lastCp
+                else "<fg808080FF>Reset CP:                           "
+            ),
             inputBindingString(Button.RELOAD)
         ),
         HudPosition.LEFT,
@@ -81,11 +92,16 @@ rule "Load HUD":
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
-            and localPlayer.runCurrentCp < lastCp
             and not localPlayer.spectating[0]
         ),
-        ("Freemode:                            <fg00E092FF>{} + {}</fg>").format(
-            inputBindingString(Button.ULTIMATE), inputBindingString(Button.INTERACT)
+        ("{}{} + {}</fg>").format(
+            (
+                "Freemode:                            <fg00E092FF>"
+                if localPlayer.runCurrentCp < lastCp
+                else "<fg808080FF>Freemode:                            "
+            ),
+            inputBindingString(Button.ULTIMATE),
+            inputBindingString(Button.INTERACT)
         ),
         HudPosition.LEFT,
         5,
@@ -94,16 +110,16 @@ rule "Load HUD":
     )
     hudSubheader(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.isViewingCtrlsHud
-            and localPlayer.viewCp < lastCp
-            and len(hintRoutes) > 0
+            lambda localPlayer: localPlayer.isViewingCtrlsHud and len(hintRoutes) > 0
         ),
-        ("{}<fg00E092FF>{} + {}</fg>").format(
+        ("{}{}{}{} + {}</fg>").format(
+            "" if localPlayer.viewCp < lastCp else "<fg808080FF>",
             (
                 "Disable Hints:                "
                 if localPlayer.isHintOn
                 else "Enable Hints:                 "
             ),
+            "<fg00E092FF>" if localPlayer.viewCp < lastCp else "",
             inputBindingString(Button.ULTIMATE),
             inputBindingString(Button.MELEE)
         ),
