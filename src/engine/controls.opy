@@ -596,10 +596,7 @@ rule "Load Hints HUD":
         ),
         ("\n\n{}").format(
             (
-                (
-                    "Hints On"
-                    "\nInfo: <fg00E092FF>{} + {}</fg>{}"
-                ).format(
+                ("Hints On" "\nInfo: <fg00E092FF>{} + {}</fg>{}").format(
                     inputBindingString(Button.ULTIMATE),
                     inputBindingString(Button.ABILITY_2),
                     (

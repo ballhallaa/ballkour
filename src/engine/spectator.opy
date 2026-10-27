@@ -440,9 +440,12 @@ def enableFreecamForSpectators():
                 if getAllPlayers()[index].spectating[2] == false:
                     # Its swap to Jetpack Cat waits its turn in Freecam Queue, with the camera held where it was
                     if entityExists(eventPlayer):
-                        getAllPlayers()[index].spectating[11] = spectatorCamPos(eventPlayer)
+                        getAllPlayers()[index].spectating[11] = spectatorCamPos(
+                            eventPlayer
+                        )
                         getAllPlayers()[index].spectating[12] = (
-                            eventPlayer.getEyePosition() + eventPlayer.getFacingDirection()
+                            eventPlayer.getEyePosition()
+                            + eventPlayer.getFacingDirection()
                         )
                     else:
                         getAllPlayers()[index].spectating[11] = getAllPlayers()[
@@ -481,7 +484,9 @@ rule "Freecam Queue":
             - (freecamQueue[0].getEyePosition() - freecamQueue[0].getPosition())
         )
         freecamQueue[0].setFacing(
-            directionTowards(freecamQueue[0].spectating[11], freecamQueue[0].spectating[12]),
+            directionTowards(
+                freecamQueue[0].spectating[11], freecamQueue[0].spectating[12]
+            ),
             Relativity.TO_WORLD
         )
     freecamQueue = freecamQueue.slice(1, len(freecamQueue))
