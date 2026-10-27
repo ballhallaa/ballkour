@@ -103,7 +103,7 @@ rule "Run Text":
         "\n\nCongrats, {}!\n".format(localPlayer),
         HudPosition.TOP,
         2,
-        Color.TURQUOISE,
+        rgb(0, 224, 146),
         HudReeval.VISIBILITY_AND_STRING
     )
     hudSubheader(
@@ -146,7 +146,7 @@ rule "Run Text":
         "<fgFF4646FF>Submit a Video of Your Run\n"
         "                        @\n"
         "              ballkour.com</fg>\n\n"
-        "       <fg00E697FF>Thanks for Playing!</fg>",
+        "       <fg00E092FF>Thanks for Playing!</fg>",
         HudPosition.TOP,
         6,
         Color.WHITE,
@@ -162,7 +162,7 @@ rule "Run Text":
         "<fgFF4646FF>Submit a Video of Your Run\n"
         "                        @\n"
         "              ballkour.com</fg>\n\n"
-        "       <fg00E697FF>Thanks for Playing!</fg>",
+        "       <fg00E092FF>Thanks for Playing!</fg>",
         HudPosition.TOP,
         6,
         rgb(230, 151, 0),
@@ -175,7 +175,7 @@ rule "Run Text":
         ),
         "             <fgFF4646FF>Run Not Counted\n"
         "Skipped CPs or Used Freemode</fg>\n\n"
-        "         <fg00E697FF>Thanks for Playing!</fg>",
+        "         <fg00E092FF>Thanks for Playing!</fg>",
         HudPosition.TOP,
         6,
         Color.WHITE,

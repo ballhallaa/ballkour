@@ -241,11 +241,9 @@ rule "Lobby":
         lobbyData[15] = 1.2
         lobbyData[16] = 0.7
         lobbyData[17] = lobbyData[14] + vect(0, -0.65, 0)
-        # The stats rows spread evenly down to the leaderboard's last row
+        # The stats rows use the leaderboard's row spacing
         for index in range(18, 25):
-            lobbyData[index] = lobbyData[17] + (
-                ((vect(0, lbPos[10].y - lobbyData[17].y, 0)) / 7) * (index - 17)
-            )
+            lobbyData[index] = lobbyData[17] + vect(0, -0.4, 0) * (index - 17)
 
 
 rule "Lobby Boundary":

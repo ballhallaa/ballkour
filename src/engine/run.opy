@@ -21,12 +21,8 @@ rule "Load HUD":
         "ballkour.com",
         HudPosition.TOP,
         0,
-        rgb(
-            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15),
-            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15 + 120),
-            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15 + 240)
-        ),
-        HudReeval.VISIBILITY_AND_COLOR
+        rgb(0, 224, 146),
+        HudReeval.VISIBILITY
     )
     hudSubtext(
         getAllPlayers().filter(lambda localPlayer: not localPlayer.isInLobby),

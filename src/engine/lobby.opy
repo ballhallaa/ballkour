@@ -77,10 +77,10 @@ rule "Load Leaderboard Area":
         lbObj = lbObj.split(",")
         lbObj[3] = lbObj[3].replace("'", "")
         # Gold, silver and bronze, then the rest
-        lbObj[4] = ["<fgFFFF00FF>", "<fgC0C0C0FF>", "<fgCD7F32FF>", "<fg00E697FF>"][
+        lbObj[4] = ["<fgFFFF00FF>", "<fgC0C0C0FF>", "<fgCD7F32FF>", "<fg00E092FF>"][
             min(index, 4) - 1
         ]
-        lbObjFormatted = "{}. {}{}</fg>{}({}{}{}, {}{}</fg>)".format(
+        lbObjFormatted = "{}. {}{}</fg>{}{}{}{}   {}{}</fg>".format(
             index,
             lbObj[4],
             lbObj[0],
@@ -110,7 +110,7 @@ rule "Load Start Run Area":
         1,
         Clip.SURFACES,
         WorldTextReeval.VISIBILITY,
-        Color.TURQUOISE
+        rgb(0, 224, 146)
     )
     createEffect(
         getAllPlayers().filter(lambda localPlayer: localPlayer.isInLobby),
@@ -167,7 +167,7 @@ rule "Load Resume Run Area":
         1,
         Clip.SURFACES,
         WorldTextReeval.VISIBILITY,
-        Color.TURQUOISE
+        rgb(0, 224, 146)
     )
     createEffect(
         getAllPlayers().filter(
@@ -240,110 +240,106 @@ rule "Load Stats":
         lobbyData[14],
         lobbyData[15],
         Clip.SURFACES,
-        WorldTextReeval.VISIBILITY_AND_COLOR,
-        rgb(
-            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15),
-            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15 + 120),
-            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15 + 240)
-        )
+        WorldTextReeval.VISIBILITY,
+        rgb(0, 224, 146)
     )
     createInWorldText(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isInLobby
             and "{}".format(localPlayer) == hostPlayerName
         ),
-        "Elapsed Time: {}".format(
+        "Elapsed Time: <fg00E092FF>{}</fg>".format(
             elapsedTimeFormatted if not isDebugOn else elapsedTime
         ),
         lobbyData[17],
         lobbyData[16],
         Clip.SURFACES,
         WorldTextReeval.VISIBILITY_AND_STRING,
-        Color.TURQUOISE
+        rgb(230, 151, 0)
     )
     createInWorldText(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isInLobby
             and "{}".format(localPlayer) == hostPlayerName
         ),
-        "New Players: {}".format(lobbyStats[0]),
+        "New Players: <fg00E092FF>{}</fg>".format(lobbyStats[0]),
         lobbyData[18],
         lobbyData[16],
         Clip.SURFACES,
         WorldTextReeval.VISIBILITY_AND_STRING,
-        Color.TURQUOISE
+        rgb(230, 151, 0)
     )
     createInWorldText(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isInLobby
             and "{}".format(localPlayer) == hostPlayerName
         ),
-        "Rejoins: {}".format(lobbyStats[1]),
+        "Rejoins: <fg00E092FF>{}</fg>".format(lobbyStats[1]),
         lobbyData[19],
         lobbyData[16],
         Clip.SURFACES,
         WorldTextReeval.VISIBILITY_AND_STRING,
-        Color.TURQUOISE
+        rgb(230, 151, 0)
     )
     createInWorldText(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isInLobby
             and "{}".format(localPlayer) == hostPlayerName
         ),
-        "Legit Runs: {}".format(lobbyStats[2]),
+        "Legit Runs: <fg00E092FF>{}</fg>".format(lobbyStats[2]),
         lobbyData[20],
         lobbyData[16],
         Clip.SURFACES,
         WorldTextReeval.VISIBILITY_AND_STRING,
-        Color.TURQUOISE
+        rgb(230, 151, 0)
     )
     createInWorldText(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isInLobby
             and "{}".format(localPlayer) == hostPlayerName
         ),
-        "Total Run Time: {}".format(lobbyStats[4]),
+        "Total Run Time: <fg00E092FF>{}</fg>".format(lobbyStats[4]),
         lobbyData[21],
         lobbyData[16],
         Clip.SURFACES,
         WorldTextReeval.VISIBILITY_AND_STRING,
-        Color.TURQUOISE
+        rgb(230, 151, 0)
     )
     createInWorldText(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isInLobby
             and "{}".format(localPlayer) == hostPlayerName
         ),
-        "Total Mistakes: {}".format(lobbyStats[5]),
+        "Total Mistakes: <fg00E092FF>{}</fg>".format(lobbyStats[5]),
         lobbyData[22],
         lobbyData[16],
         Clip.SURFACES,
         WorldTextReeval.VISIBILITY_AND_STRING,
-        Color.TURQUOISE
+        rgb(230, 151, 0)
     )
     createInWorldText(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isInLobby
             and "{}".format(localPlayer) == hostPlayerName
         ),
-        "Avg Run Time: {}".format(lobbyStats[7]),
+        "Avg Run Time: <fg00E092FF>{}</fg>".format(lobbyStats[7]),
         lobbyData[23],
         lobbyData[16],
         Clip.SURFACES,
         WorldTextReeval.VISIBILITY_AND_STRING,
-        Color.TURQUOISE
+        rgb(230, 151, 0)
     )
     createInWorldText(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isInLobby
             and "{}".format(localPlayer) == hostPlayerName
         ),
-        "Avg Mistakes: {}".format(lobbyStats[8]),
+        "Avg Mistakes: <fg00E092FF>{}</fg>".format(lobbyStats[8]),
         lobbyData[24],
         lobbyData[16],
         Clip.SURFACES,
         WorldTextReeval.VISIBILITY_AND_STRING,
-        Color.TURQUOISE
+        rgb(230, 151, 0)
     )
 
 
