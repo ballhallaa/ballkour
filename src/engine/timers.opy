@@ -46,25 +46,26 @@ def formatTime():
     @Name "Format Time"
 
     eventPlayer.timeToFormat = round(eventPlayer.timeToFormat * 100) / 100
-    eventPlayer.timeFormatted = (
-        "{}:{}:{}".format(
-            floor(eventPlayer.timeToFormat / 3600),
-            (eventPlayer.timeToFormat % 3600 / 60 + 100).substring(1, 2),
-            (eventPlayer.timeToFormat % 60 + 100).substring(1, 9999)
-        )
-        if eventPlayer.timeToFormat >= 3600
-        else (
-            "{}:{}".format(
-                floor(eventPlayer.timeToFormat / 60),
-                (eventPlayer.timeToFormat % 60 + 100).substring(1, 9999)
-            )
+    # Every part is built from a whole number, since a number's text drops trailing zeros
+    # (65.10 would show as 1:05.1)
+    eventPlayer.timeFormatted = "{}.{}".format(
+        (
+            (floor(eventPlayer.timeToFormat % 60) + 100).substring(1, 2)
             if eventPlayer.timeToFormat >= 60
-            else "{}.{}".format(
-                floor(eventPlayer.timeToFormat),
-                (round(eventPlayer.timeToFormat % 1 * 100) + 100).substring(1, 2)
-            )
-        )
+            else floor(eventPlayer.timeToFormat)
+        ),
+        (round(eventPlayer.timeToFormat % 1 * 100) + 100).substring(1, 2)
     )
+    if eventPlayer.timeToFormat >= 3600:
+        eventPlayer.timeFormatted = "{}:{}:{}".format(
+            floor(eventPlayer.timeToFormat / 3600),
+            (floor(eventPlayer.timeToFormat % 3600 / 60) + 100).substring(1, 2),
+            eventPlayer.timeFormatted
+        )
+    elif eventPlayer.timeToFormat >= 60:
+        eventPlayer.timeFormatted = "{}:{}".format(
+            floor(eventPlayer.timeToFormat / 60), eventPlayer.timeFormatted
+        )
 
 
 rule "Start Checkpoint Timer":
