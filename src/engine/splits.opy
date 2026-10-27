@@ -2,7 +2,7 @@
 #!rulePrefix "Splits"
 
 
-macro NO_SPLIT_STATS = "Best   --\nAvg   --"
+macro NO_SPLIT_STATS = "Best: --\nAvg: --"
 
 
 rule "Load HUD":
@@ -15,7 +15,7 @@ rule "Load HUD":
                 or localPlayer.viewRunner.isShowingSplitDelta
             )
         ),
-        ("\n\nCP {}   {}").format(
+        ("\n\nCP {}: {}").format(
             (
                 localPlayer.viewRunner.splitDelta[0]
                 if localPlayer.viewRunner.isShowingSplitDelta
@@ -162,7 +162,7 @@ def recordSplit():
     )
     formatTime()
     eventPlayer.splitStatsFormatted[eventPlayer.runCurrentCp] = (
-        "Best   {}\nAvg   {}".format(
+        "Best: {}\nAvg: {}".format(
             eventPlayer.splitStatsFormatted[eventPlayer.runCurrentCp],
             eventPlayer.timeFormatted
         )
