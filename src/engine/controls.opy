@@ -130,8 +130,8 @@ rule "Load HUD":
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and not localPlayer.spectating[0]
         ),
-        ("Lobby/Pause:                       <fg00E092FF>{} + {}</fg>").format(
-            inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_2)
+        ("Lobby/Pause:               <fg00E092FF>{} + {}</fg>").format(
+            inputBindingString(Button.ULTIMATE), inputBindingString(Button.JUMP)
         ),
         HudPosition.LEFT,
         7,
@@ -143,8 +143,8 @@ rule "Load HUD":
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and localPlayer.spectating[0]
         ),
-        ("Lobby:                                    <fg00E092FF>{} + {}</fg>").format(
-            inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_2)
+        ("Lobby:                            <fg00E092FF>{} + {}</fg>").format(
+            inputBindingString(Button.ULTIMATE), inputBindingString(Button.JUMP)
         ),
         HudPosition.LEFT,
         7,
@@ -527,12 +527,12 @@ rule "Lobby Input":
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
     @Condition eventPlayer.isHoldingButton(Button.SECONDARY_FIRE) == false
-    @Condition eventPlayer.isHoldingButton(Button.JUMP) == false
+    @Condition eventPlayer.isHoldingButton(Button.JUMP) == true
     @Condition eventPlayer.isHoldingButton(Button.RELOAD) == false
     @Condition eventPlayer.isHoldingButton(Button.INTERACT) == false
     @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == true
+    @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
     @Condition eventPlayer.spectating[5] == false
     @Condition eventPlayer.isInLobby == false
 
@@ -582,7 +582,8 @@ rule "Load Hints HUD":
                 else "\n\n\n"
             ),
             (
-                ("Hints On\nInfo: <fg00E092FF>{} (Hold)</fg>{}").format(
+                ("Hints On\nInfo: <fg00E092FF>{} + {}</fg>{}").format(
+                    inputBindingString(Button.ULTIMATE),
                     inputBindingString(Button.ABILITY_2),
                     (
                         (
@@ -613,13 +614,18 @@ rule "Load Hints HUD":
 
 rule "Hint Info Input":
     @Event eachPlayer
-    @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == true
+    @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
+    @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
+    @Condition eventPlayer.isHoldingButton(Button.SECONDARY_FIRE) == false
+    @Condition eventPlayer.isHoldingButton(Button.JUMP) == false
+    @Condition eventPlayer.isHoldingButton(Button.RELOAD) == false
+    @Condition eventPlayer.isHoldingButton(Button.INTERACT) == false
+    @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
+    @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == true
     @Condition eventPlayer.isHintOn == true
     @Condition len(hintRoutes[eventPlayer.viewCp]) > 1
     @Condition eventPlayer.spectating[5] == false
     @Condition eventPlayer.isInLobby == false
 
-    wait(0.35, Wait.ABORT_WHEN_FALSE)
     eventPlayer.isViewingHintInfo = not eventPlayer.isViewingHintInfo
