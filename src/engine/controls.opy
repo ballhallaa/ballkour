@@ -529,7 +529,7 @@ rule "Load Freemode HUD":
             lambda localPlayer: localPlayer.isInFreemode
             and not localPlayer.spectating[0]
         ),
-        ("\n\n\nFreemode On"),
+        ("\n\nFreemode On"),
         HudPosition.LEFT,
         12,
         rgb(255, 70, 70),
@@ -596,14 +596,17 @@ rule "Load Hints HUD":
         ),
         ("{}{}").format(
             (
-                "\n"
+                "\n\n"
                 if localPlayer.isInFreemode
                 or localPlayer.spectating[0]
                 or localPlayer.spectating[10] > 0
-                else "\n\n\n"
+                else "\n\n\n\n"
             ),
             (
-                ("Hints On\nInfo: <fg00E092FF>{} + {}</fg>{}").format(
+                (
+                    "Hints On"
+                    "\nInfo: <fg00E092FF>{} + {}</fg>{}"
+                ).format(
                     inputBindingString(Button.ULTIMATE),
                     inputBindingString(Button.ABILITY_2),
                     (

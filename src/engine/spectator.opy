@@ -36,7 +36,7 @@ rule "Load HUD":
             lambda localPlayer: localPlayer.spectating[0]
             and localPlayer.spectating[1] == null
         ),
-        ("\n\n\nSpectating"),
+        ("\n\nSpectating"),
         HudPosition.LEFT,
         12,
         rgb(255, 70, 70),
@@ -47,7 +47,7 @@ rule "Load HUD":
             lambda localPlayer: localPlayer.spectating[0]
             and localPlayer.spectating[1] != null
         ),
-        ("\n\n\nSpectating {}").format(localPlayer.spectating[1]),
+        ("\n\nSpectating {}").format(localPlayer.spectating[1]),
         HudPosition.LEFT,
         12,
         rgb(255, 70, 70),
@@ -57,10 +57,10 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.spectating[0] and localPlayer.spectating[2]
         ),
-        ("\nFreecam On").format(localPlayer.spectating[1]),
+        ("Freecam On").format(localPlayer.spectating[1]),
         HudPosition.LEFT,
         13,
-        rgb(0, 204, 133),
+        rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
     hudSubheader(
