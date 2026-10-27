@@ -512,7 +512,7 @@ rule "Load Freemode HUD":
         ("\n\n\nFreemode On"),
         HudPosition.LEFT,
         12,
-        rgb(163, 0, 0),
+        rgb(255, 70, 70),
         HudReeval.VISIBILITY_AND_STRING
     )
 
