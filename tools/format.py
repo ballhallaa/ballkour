@@ -8,7 +8,9 @@
 Black only reads Python, so OverPy-only lines (rule headers, annotations like
 @Condition, globalvar/playervar/subroutine, macros, x++) are swapped for Python of the
 same width, formatted, then swapped back. The trailing commas black adds are taken out
-again, since OverPy rejects them after a function's last argument.
+again, since OverPy rejects them after a function's last argument. Strings split one
+per line (like a HUD text with a line per row) get a comment while black runs, since
+black otherwise joins them back onto one line whenever they fit.
 
 By default this checks src/ except the generated hint files (src/hints/, see
 tools/hints.py) and the courses, whose settings and cps tables are laid out by hand.
@@ -41,6 +43,8 @@ RULE_STANDIN_RE = re.compile(r"^def _rule_(\d+)\(\):$")
 DECLARATION_STANDIN = "#!_"
 MACRO_STANDIN = "_MACR_"
 INCREMENT_STANDIN_RE = re.compile(r"^(.*?) [+-]= 1  # _(\+\+|--)$")
+STRING_LINE_RE = re.compile(r'^\s*"(?:[^"\\]|\\.)*"$')
+SPLIT_STRING_MARKER = "  # _split"
 CLOSING_RE = re.compile(r"^\s*[)\]}]")
 TRAILING_COMMA_RE = re.compile(r",(\s*#.*)?$")
 
@@ -66,6 +70,13 @@ def to_python(source):
             lines.append(f"{m[1]} {m[2][0]}= 1  # _{m[2]}")
         else:
             lines.append(line)
+    # Black can't join a line that ends in a comment onto the next one
+    is_string = [bool(STRING_LINE_RE.match(line)) for line in lines]
+    for i, line in enumerate(lines):
+        if is_string[i] and (
+            (i > 0 and is_string[i - 1]) or (i + 1 < len(lines) and is_string[i + 1])
+        ):
+            lines[i] = line + SPLIT_STRING_MARKER
     return "\n".join(lines), (rules, annotations)
 
 
@@ -83,6 +94,7 @@ def from_python(python, swapped):
             line = m[1] + m[2]
         else:
             line = re.sub(rf"^(def )?{MACRO_STANDIN}", "macro ", line)
+        line = line.removesuffix(SPLIT_STRING_MARKER)
         if i + 1 < len(lines) and CLOSING_RE.match(lines[i + 1]):
             line = TRAILING_COMMA_RE.sub(r"\1", line)
         lines[i] = line
