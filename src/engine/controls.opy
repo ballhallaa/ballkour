@@ -146,8 +146,8 @@ rule "Load HUD":
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and not localPlayer.spectating[0]
         ),
-        ("Lobby/Pause:               <fg00E092FF>{} + {}</fg>").format(
-            inputBindingString(Button.ULTIMATE), inputBindingString(Button.JUMP)
+        ("Lobby/Pause:         <fg00E092FF>{} + {} (Hold)</fg>").format(
+            inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_2)
         ),
         HudPosition.LEFT,
         7,
@@ -159,8 +159,8 @@ rule "Load HUD":
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and localPlayer.spectating[0]
         ),
-        ("Lobby:                            <fg00E092FF>{} + {}</fg>").format(
-            inputBindingString(Button.ULTIMATE), inputBindingString(Button.JUMP)
+        ("Lobby:                      <fg00E092FF>{} + {} (Hold)</fg>").format(
+            inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_2)
         ),
         HudPosition.LEFT,
         7,
@@ -543,15 +543,16 @@ rule "Lobby Input":
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
     @Condition eventPlayer.isHoldingButton(Button.SECONDARY_FIRE) == false
-    @Condition eventPlayer.isHoldingButton(Button.JUMP) == true
+    @Condition eventPlayer.isHoldingButton(Button.JUMP) == false
     @Condition eventPlayer.isHoldingButton(Button.RELOAD) == false
     @Condition eventPlayer.isHoldingButton(Button.INTERACT) == false
     @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
+    @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == true
     @Condition eventPlayer.spectating[5] == false
     @Condition eventPlayer.isInLobby == false
 
+    wait(0.35, Wait.ABORT_WHEN_FALSE)
     eventPlayer.isLoading = true
     if eventPlayer.spectating[0]:
         disableSpectator()
@@ -644,4 +645,8 @@ rule "Hint Info Input":
     @Condition eventPlayer.spectating[5] == false
     @Condition eventPlayer.isInLobby == false
 
+    # Holding the same combo is Lobby/Pause, so only a tap toggles info
+    waitUntil(not eventPlayer.isHoldingButton(Button.ABILITY_2), 0.35)
+    if eventPlayer.isHoldingButton(Button.ABILITY_2):
+        return
     eventPlayer.isViewingHintInfo = not eventPlayer.isViewingHintInfo
