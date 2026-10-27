@@ -70,7 +70,7 @@ rule "Load HUD":
         ("(Disconnected)").format(localPlayer.spectating[1]),
         HudPosition.LEFT,
         14,
-        rgb(0, 204, 133),
+        rgb(0, 224, 146),
         HudReeval.VISIBILITY_AND_STRING
     )
     # Spectated Player's HUD
