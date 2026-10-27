@@ -2,69 +2,67 @@
 #!rulePrefix "Splits"
 
 
-macro NO_SPLIT_STATS = "Best: <fgFFFFFFFF>--</fg>\nAvg: <fgFFFFFFFF>--</fg>"
+# Stats: [0]attemptBest [1]attemptAvg [2]splitBest [3]splitAvg, formatted
+macro NO_SPLIT_STATS = ["--", "--", "--", "--"]
+
+
+# Keeps showing the cleared CP's old stats during its delta, so the deltas can be read against them
+macro viewedSplitStats(player):
+    (
+        player.viewRunner.splitDelta[3]
+        if player.viewRunner.isShowingSplitDelta
+        else (
+            player.viewRunner.splitStatsFormatted[player.viewCp]
+            if player.viewRunner.splitClears[player.viewCp]
+            else NO_SPLIT_STATS
+        )
+    )
+
+
+macro SPLITS_HUD_VISIBILITY = getAllPlayers().filter(
+    lambda localPlayer: not localPlayer.isInLobby
+    and not localPlayer.spectating[3]
+    and (localPlayer.viewCp < lastCp or localPlayer.viewRunner.isShowingSplitDelta)
+)
 
 
 rule "Load HUD":
-    hudSubtext(
-        getAllPlayers().filter(
-            lambda localPlayer: not localPlayer.isInLobby
-            and not localPlayer.spectating[3]
-            and (
-                localPlayer.viewCp < lastCp
-                or localPlayer.viewRunner.isShowingSplitDelta
-            )
-        ),
-        # Only the time is colored, so the label stays the HUD's orange
-        ("\n\nCP {}: {}{}</fg>").format(
-            (
-                localPlayer.viewRunner.splitDelta[0]
-                if localPlayer.viewRunner.isShowingSplitDelta
-                else localPlayer.viewCp
-            ),
-            (
-                localPlayer.viewRunner.splitDelta[2]
-                if localPlayer.viewRunner.isShowingSplitDelta
-                else (
-                    "<fgFF4646FF>"
-                    if localPlayer.viewRunner.runTime
-                    - localPlayer.viewRunner.splitStart
-                    > localPlayer.viewRunner.splitCpBest
-                    else "<fgFFFFFFFF>"
-                )
-            ),
-            (
-                localPlayer.viewRunner.splitDelta[1]
-                if localPlayer.viewRunner.isShowingSplitDelta
-                else (
-                    localPlayer.viewRunner.runTime - localPlayer.viewRunner.splitStart
-                    if isDebugOn
-                    else localPlayer.viewRunner.splitTimeFormatted
-                )
-            )
+    # A header, the biggest HUD text, so the CP stands above the times under it
+    hudHeader(
+        SPLITS_HUD_VISIBILITY,
+        ("CP {}").format(
+            localPlayer.viewRunner.splitDelta[0]
+            if localPlayer.viewRunner.isShowingSplitDelta
+            else localPlayer.viewCp
         ),
         HudPosition.RIGHT,
         3,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    # Keeps showing the cleared CP's old Best and Avg during its delta, so the delta can be read against them
+    # Best and Avg are subheaders, which Overwatch draws smaller than text, so the times stand out.
+    # Each part is its own HUD text: Overwatch left-aligns the lines inside one HUD text but
+    # centers HUD texts against each other, so this centers each Best and Avg under its time.
+    # Only the times are colored, so the labels stay the HUD's orange.
     hudSubtext(
-        getAllPlayers().filter(
-            lambda localPlayer: not localPlayer.isInLobby
-            and not localPlayer.spectating[3]
-            and (
-                localPlayer.viewCp < lastCp
-                or localPlayer.viewRunner.isShowingSplitDelta
-            )
-        ),
-        (
-            localPlayer.viewRunner.splitDelta[3]
-            if localPlayer.viewRunner.isShowingSplitDelta
-            else (
-                localPlayer.viewRunner.splitStatsFormatted[localPlayer.viewCp]
-                if localPlayer.viewRunner.splitClears[localPlayer.viewCp]
-                else NO_SPLIT_STATS
+        SPLITS_HUD_VISIBILITY,
+        ("Attempt: {}").format(
+            (
+                localPlayer.viewRunner.splitDelta[1]
+                if localPlayer.viewRunner.isShowingSplitDelta
+                else ("{}{}</fg>").format(
+                    (
+                        "<fgFF4646FF>"
+                        if localPlayer.viewRunner.cpTime
+                        > localPlayer.viewRunner.attemptCpBest
+                        else "<fgFFFFFFFF>"
+                    ),
+                    (
+                        localPlayer.viewRunner.cpTime
+                        if isDebugOn
+                        else localPlayer.viewRunner.cpTimeFormatted
+                    )
+                )
             )
         ),
         HudPosition.RIGHT,
@@ -72,20 +70,53 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    hudSubtext(
-        getAllPlayers().filter(
-            lambda localPlayer: not localPlayer.isInLobby
-            and not localPlayer.spectating[3]
-            and localPlayer.viewRunner.isShowingSplitDelta
-        ),
+    hudSubheader(
+        SPLITS_HUD_VISIBILITY,
         (
-            "Time: <fgFFFFFFFF>{}</fg> <fg808080FF>|</fg> Total: <fgFFFFFFFF>{}</fg>"
-        ).format(
-            localPlayer.viewRunner.cpTimeFormatted,
-            localPlayer.viewRunner.cpTotalTimeFormatted
-        ),
+            "Best: <fgFFFFFFFF>{}</fg>"
+            "\nAvg: <fgFFFFFFFF>{}</fg>"
+        ).format(viewedSplitStats(localPlayer)[0], viewedSplitStats(localPlayer)[1]),
         HudPosition.RIGHT,
         5,
+        rgb(230, 151, 0),
+        HudReeval.VISIBILITY_AND_STRING
+    )
+    hudSubtext(
+        SPLITS_HUD_VISIBILITY,
+        ("Split: {}").format(
+            (
+                localPlayer.viewRunner.splitDelta[2]
+                if localPlayer.viewRunner.isShowingSplitDelta
+                else ("{}{}</fg>").format(
+                    (
+                        "<fgFF4646FF>"
+                        if localPlayer.viewRunner.runTime
+                        - localPlayer.viewRunner.splitStart
+                        > localPlayer.viewRunner.splitCpBest
+                        else "<fgFFFFFFFF>"
+                    ),
+                    (
+                        localPlayer.viewRunner.runTime
+                        - localPlayer.viewRunner.splitStart
+                        if isDebugOn
+                        else localPlayer.viewRunner.splitTimeFormatted
+                    )
+                )
+            )
+        ),
+        HudPosition.RIGHT,
+        6,
+        rgb(230, 151, 0),
+        HudReeval.VISIBILITY_AND_STRING
+    )
+    hudSubheader(
+        SPLITS_HUD_VISIBILITY,
+        (
+            "Best: <fgFFFFFFFF>{}</fg>"
+            "\nAvg: <fgFFFFFFFF>{}</fg>"
+        ).format(viewedSplitStats(localPlayer)[2], viewedSplitStats(localPlayer)[3]),
+        HudPosition.RIGHT,
+        7,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -95,7 +126,7 @@ rule "Hide Delta":
     @Event eachPlayer
     @Condition eventPlayer.isShowingSplitDelta == true
 
-    # After a clear, the HUD shows that CP's delta for 2s instead of the live split.
+    # After a clear, the HUD shows that CP's deltas for 2s instead of the live times.
     # A flag instead of comparing the time in the HUD, which would run every tick for every player.
     # Another clear during the delta moves splitDelta[4] later.
     while getTotalTimeElapsed() < eventPlayer.splitDelta[4]:
@@ -106,67 +137,102 @@ rule "Hide Delta":
 def recordSplit():
     @Name "Record"
 
-    # A split runs from entering the CP to clearing it, so resets and mistakes count toward it
-    # splitDelta: [0]cp [1]deltaFormatted [2]colorTag [3]prevStatsFormatted [4]hideTime
+    # Each clear records two times: the attempt that cleared the CP, timed from leaving it,
+    # and the split from entering the CP to clearing it, which resets and mistakes count toward
+    # splitDelta: [0]cp [1]attemptFormatted [2]splitFormatted [3]prevStatsFormatted [4]hideTime
     # Rounded to the hundredths shown, so a new best has to be at least 0.01 faster
+    eventPlayer.cpTime = round(eventPlayer.cpTime * 100) / 100
     eventPlayer.splitTime = (
         round((eventPlayer.runTime - eventPlayer.splitStart) * 100) / 100
     )
     eventPlayer.splitDelta = [
         eventPlayer.runCurrentCp,
         "",
-        "<fgFFFF00FF>",
+        "",
         NO_SPLIT_STATS,
         getTotalTimeElapsed() + 2
     ]
     eventPlayer.isShowingSplitDelta = true
-    eventPlayer.timeToFormat = eventPlayer.splitTime
-    # A first clear has nothing to compare against, so it shows the time itself
+    # A first clear has nothing to compare against, so its times show in yellow without a delta
     if not eventPlayer.splitClears[eventPlayer.runCurrentCp]:
+        eventPlayer.attemptBests[eventPlayer.runCurrentCp] = eventPlayer.cpTime
         eventPlayer.splitBests[eventPlayer.runCurrentCp] = eventPlayer.splitTime
+        eventPlayer.timeToFormat = eventPlayer.cpTime
+        formatTime()
+        eventPlayer.splitDelta[1] = "<fgFFFF00FF>{}</fg>".format(
+            eventPlayer.timeFormatted
+        )
+        eventPlayer.timeToFormat = eventPlayer.splitTime
+        formatTime()
+        eventPlayer.splitDelta[2] = "<fgFFFF00FF>{}</fg>".format(
+            eventPlayer.timeFormatted
+        )
     else:
         eventPlayer.splitDelta[3] = eventPlayer.splitStatsFormatted[
             eventPlayer.runCurrentCp
         ]
         # A new best is compared to the old best, and anything else to the average
-        if eventPlayer.splitTime < eventPlayer.splitBests[eventPlayer.runCurrentCp]:
-            eventPlayer.timeToFormat -= eventPlayer.splitBests[eventPlayer.runCurrentCp]
-            eventPlayer.splitBests[eventPlayer.runCurrentCp] = eventPlayer.splitTime
-        else:
-            eventPlayer.timeToFormat -= (
-                eventPlayer.splitTotals[eventPlayer.runCurrentCp]
-                / eventPlayer.splitClears[eventPlayer.runCurrentCp]
-            )
-            # Rounded first, so a delta that shows as +0.00 counts as a tie
-            eventPlayer.timeToFormat = round(eventPlayer.timeToFormat * 100) / 100
-            eventPlayer.splitDelta[2] = (
-                "<fg00E092FF>"
-                if eventPlayer.timeToFormat < 0
-                else (
-                    "<fgFF4646FF>" if eventPlayer.timeToFormat > 0 else "<fgFFFFFFFF>"
-                )
-            )
-        eventPlayer.splitDelta[1] = "-" if eventPlayer.timeToFormat < 0 else "+"
-        eventPlayer.timeToFormat = abs(eventPlayer.timeToFormat)
-    formatTime()
-    eventPlayer.splitDelta[1] = "{}{}".format(
-        eventPlayer.splitDelta[1], eventPlayer.timeFormatted
-    )
+        eventPlayer.timeToFormat = eventPlayer.cpTime
+        eventPlayer.splitDiff = eventPlayer.cpTime - (
+            eventPlayer.attemptBests[eventPlayer.runCurrentCp]
+            if eventPlayer.cpTime < eventPlayer.attemptBests[eventPlayer.runCurrentCp]
+            else eventPlayer.attemptTotals[eventPlayer.runCurrentCp]
+            / eventPlayer.splitClears[eventPlayer.runCurrentCp]
+        )
+        formatSplitResult()
+        eventPlayer.splitDelta[1] = eventPlayer.splitResult
+        eventPlayer.timeToFormat = eventPlayer.splitTime
+        eventPlayer.splitDiff = eventPlayer.splitTime - (
+            eventPlayer.splitBests[eventPlayer.runCurrentCp]
+            if eventPlayer.splitTime < eventPlayer.splitBests[eventPlayer.runCurrentCp]
+            else eventPlayer.splitTotals[eventPlayer.runCurrentCp]
+            / eventPlayer.splitClears[eventPlayer.runCurrentCp]
+        )
+        formatSplitResult()
+        eventPlayer.splitDelta[2] = eventPlayer.splitResult
+        eventPlayer.attemptBests[eventPlayer.runCurrentCp] = min(
+            eventPlayer.attemptBests[eventPlayer.runCurrentCp], eventPlayer.cpTime
+        )
+        eventPlayer.splitBests[eventPlayer.runCurrentCp] = min(
+            eventPlayer.splitBests[eventPlayer.runCurrentCp], eventPlayer.splitTime
+        )
+    eventPlayer.attemptTotals[eventPlayer.runCurrentCp] += eventPlayer.cpTime
     eventPlayer.splitTotals[eventPlayer.runCurrentCp] += eventPlayer.splitTime
     eventPlayer.splitClears[eventPlayer.runCurrentCp]++
-    eventPlayer.timeToFormat = eventPlayer.splitBests[eventPlayer.runCurrentCp]
-    formatTime()
-    eventPlayer.splitStatsFormatted[eventPlayer.runCurrentCp] = (
-        eventPlayer.timeFormatted
-    )
-    eventPlayer.timeToFormat = (
+    # In the same order as NO_SPLIT_STATS
+    eventPlayer.splitResult = [
+        eventPlayer.attemptBests[eventPlayer.runCurrentCp],
+        eventPlayer.attemptTotals[eventPlayer.runCurrentCp]
+        / eventPlayer.splitClears[eventPlayer.runCurrentCp],
+        eventPlayer.splitBests[eventPlayer.runCurrentCp],
         eventPlayer.splitTotals[eventPlayer.runCurrentCp]
         / eventPlayer.splitClears[eventPlayer.runCurrentCp]
-    )
+    ]
+    for eventPlayer.index in range(4):
+        eventPlayer.timeToFormat = eventPlayer.splitResult[eventPlayer.index]
+        formatTime()
+        eventPlayer.splitResult[eventPlayer.index] = eventPlayer.timeFormatted
+    eventPlayer.splitStatsFormatted[eventPlayer.runCurrentCp] = eventPlayer.splitResult
+
+
+def formatSplitResult():
+    @Name "Format Result"
+
+    # Formats a time just recorded (timeToFormat) into splitResult, followed by its delta
+    # (splitDiff), which is green when faster and red when slower
     formatTime()
-    eventPlayer.splitStatsFormatted[eventPlayer.runCurrentCp] = (
-        "Best: <fgFFFFFFFF>{}</fg>\nAvg: <fgFFFFFFFF>{}</fg>".format(
-            eventPlayer.splitStatsFormatted[eventPlayer.runCurrentCp],
-            eventPlayer.timeFormatted
+    # Rounded first, so a delta that shows as +0.00 counts as a tie
+    eventPlayer.splitDiff = round(eventPlayer.splitDiff * 100) / 100
+    eventPlayer.splitResult = "<fgFFFFFFFF>{}</fg> {}".format(
+        eventPlayer.timeFormatted,
+        (
+            "<fg00E092FF>(-"
+            if eventPlayer.splitDiff < 0
+            else ("<fgFF4646FF>(+" if eventPlayer.splitDiff > 0 else "<fgFFFFFFFF>(+")
         )
+    )
+    eventPlayer.timeToFormat = abs(eventPlayer.splitDiff)
+    formatTime()
+    eventPlayer.splitResult = "{}{})</fg>".format(
+        eventPlayer.splitResult, eventPlayer.timeFormatted
     )

@@ -218,7 +218,10 @@ rule "Load HUD":
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and localPlayer.spectating[0]
         ),
-        ("{}{} + {}</fg>\n{}{} + {}</fg>").format(
+        (
+            "{}{} + {}</fg>"
+            "\n{}{} + {}</fg>"
+        ).format(
             (
                 "Prev. Player:              <fg00E092FF>"
                 if localPlayer.spectating[7]
@@ -245,7 +248,10 @@ rule "Load HUD":
             and localPlayer.spectating[0]
         ),
         # Freecam shares X-Hair Player's text: sort order 12 is taken by Spectating
-        ("{}{} + {}</fg>\n{}").format(
+        (
+            "{}{} + {}</fg>"
+            "\n{}"
+        ).format(
             (
                 "X-Hair Player:     <fg00E092FF>"
                 if localPlayer.spectating[2] and localPlayer.spectating[7]
@@ -437,7 +443,6 @@ rule "Reset Checkpoint Input":
         ):
             eventPlayer.runMistakes++
     cpResetPlayer()
-    eventPlayer.cpStartTime = eventPlayer.runTime
     eventPlayer.isLoading = false
 
 
@@ -498,7 +503,6 @@ rule "Freemode Input":
         eventPlayer.isRunPaused = true
         if not eventPlayer.spectating[0]:
             eventPlayer.isRunLegit = false
-            eventPlayer.cpStartTime = eventPlayer.runTime
         if (
             distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
             > eventPlayer.cpData[1]

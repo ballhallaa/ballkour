@@ -28,12 +28,17 @@ def loadCpData():
     # eventPlayer.cpData[i]: [0]cpLocation [1]cpSize [2]isGrappleAllowed [3]isShieldBounceAllowed [4]isPiledriverAllowed [5]bounceLocation [6]bounceSize [7]nextCpLocation [8]nextCpSize [9]isJumping [10]hasJumped [11]hasBhopped [12]isGrappling [13]hasUsedGrapple [14]hasShieldBounced [15]isPiledriving [16]hasUsedBounceJump
     # Copying the checkpoint leaves [9] onwards unset, which reads as false
     eventPlayer.cpData = cps[eventPlayer.runCurrentCp]
-    eventPlayer.cpStartTime = eventPlayer.runTime
     eventPlayer.cpTime = 0
     eventPlayer.splitStart = eventPlayer.runTime
     # The run can be paused here (after a go-back or skip), which stops the formatting loop
+    eventPlayer.cpTimeFormatted = "0.00"
     eventPlayer.splitTimeFormatted = "0.00"
-    # The split HUD turns red past this, which it never is on a CP that hasn't been cleared yet
+    # The live times turn red past these, which they never are on a CP that hasn't been cleared yet
+    eventPlayer.attemptCpBest = (
+        eventPlayer.attemptBests[eventPlayer.runCurrentCp]
+        if eventPlayer.splitClears[eventPlayer.runCurrentCp]
+        else Math.INFINITY
+    )
     eventPlayer.splitCpBest = (
         eventPlayer.splitBests[eventPlayer.runCurrentCp]
         if eventPlayer.splitClears[eventPlayer.runCurrentCp]
@@ -159,6 +164,8 @@ def cpResetPlayer():
 
     stopChasingVariable(eventPlayer.cpTime)
     eventPlayer.cpTime = 0
+    # The run can be paused here (in freemode), which stops the formatting loop
+    eventPlayer.cpTimeFormatted = "0.00"
     if not eventPlayer.spectating[0]:
         eventPlayer.teleport(eventPlayer.cpData[0])
     else:

@@ -79,10 +79,8 @@ playervar viewRunner
 # Checkpoints
 playervar cpData
 playervar isCpTimerActive
-playervar cpStartTime
 playervar cpTime
 playervar cpTimeFormatted
-playervar cpTotalTimeFormatted
 playervar viewCp
 
 # Splits
@@ -96,6 +94,11 @@ playervar splitStatsFormatted
 playervar splitDelta
 playervar isShowingSplitDelta
 playervar splitCpBest
+playervar attemptBests
+playervar attemptTotals
+playervar attemptCpBest
+playervar splitDiff
+playervar splitResult
 
 # Hint Playback
 playervar isHintOn
@@ -159,6 +162,7 @@ subroutine faceNextCp
 
 # Splits
 subroutine recordSplit
+subroutine formatSplitResult
 
 # Hints
 subroutine saveHintRoute
