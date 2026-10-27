@@ -1,8 +1,9 @@
 # Settings
 globalvar settings_
-# Debug, Lobby Stats and the Hint Recorder only exist in dev builds (a VERSION ending in -dev), so release builds don't spend elements on them
+# Debug, Server Load, Lobby Stats and the Hint Recorder only exist in dev builds (a VERSION ending in -dev), so release builds don't spend elements on them
 macro DEV = strContains(VERSION, "-dev")
 macro isDebugOn = DEV and settings_[0]
+macro isServerLoadOn = DEV and settings_[3]
 macro isLobbyStatsOn = DEV and settings_[1]
 macro isHintRecorderOn = DEV and settings_[2]
 

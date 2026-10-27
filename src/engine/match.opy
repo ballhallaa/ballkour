@@ -117,9 +117,9 @@ rule "Auto-Restart Server":
 
 
 rule "Server Load HUD":
-    @Condition DEV == true
+    @Condition isServerLoadOn == true
 
-    # Overwatch shuts the server down as its load nears 100%, so dev builds show the host what pushes it up
+    # Overwatch shuts the server down as its load nears 100%, so this shows the host what pushes it up
     hudSubtext(
         hostPlayer,
         "Server Load: {}% | Avg: {}% | 10s Avg: {}% | Peak: {}%".format(
