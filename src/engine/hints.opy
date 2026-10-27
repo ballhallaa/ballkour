@@ -175,7 +175,10 @@ rule "Playback":
             * (
                 eventPlayer.hintSpline[1]
                 + eventPlayer.hintS
-                * (eventPlayer.hintSpline[2] + eventPlayer.hintS * eventPlayer.hintSpline[3])
+                * (
+                    eventPlayer.hintSpline[2]
+                    + eventPlayer.hintS * eventPlayer.hintSpline[3]
+                )
             ),
             eventPlayer.hintStep - eventPlayer.hintTime,
             ChaseTimeReeval.NONE
