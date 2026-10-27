@@ -20,7 +20,6 @@ rule "Mode Input":
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == true
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
     @Condition eventPlayer.spectating[5] == false
-    @Condition eventPlayer.isInLobby == false
     @Condition canSwapHero(eventPlayer)
 
     # spectating[i]: [0]isSpectating [1]whoPlayerIsSpectating [2]isInFreecam [3]isInDisconnectedFreecam [4]disconnectedFreecamCp [5]isFirstPersonSpectating [6]isTransitioningIntoFirstPerson [7]hasSpectatableTargets [8]crosshairTarget [9]crosshairTargetDelay [10]spectatorAmnt [11]queuedCamPos [12]queuedCamLookAt
@@ -90,7 +89,13 @@ def enableSpectator():
     eventPlayer.isViewingRunCompletionText = false
     stopChasingVariable(eventPlayer.runTime)
     eventPlayer.isRunPaused = true
-    if (
+    # Being away from the checkpoint is no mistake in the lobby. Disable drops the player at a
+    # checkpoint, so without a run to resume they get a new one.
+    if eventPlayer.isInLobby:
+        eventPlayer.isInLobby = false
+        if not eventPlayer.isRunLoaded or eventPlayer.isRunFinished:
+            resetRun()
+    elif (
         distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
         > eventPlayer.cpData[1]
     ):

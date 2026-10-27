@@ -151,6 +151,7 @@ subroutine loadLobby
 
 # Run
 subroutine newRun
+subroutine resetRun
 subroutine updateStats
 subroutine pauseRun
 

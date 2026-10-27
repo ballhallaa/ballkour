@@ -148,10 +148,8 @@ rule "Start Run Circle Entry":
     @Condition eventPlayer.isInLobby == true
     @Condition distance(eventPlayer.getPosition(), lobbyData[5]) <= 2
 
-    eventPlayer.isInLobby = false
     eventPlayer.isLoading = true
     newRun()
-    showCpNameplate()
     eventPlayer.isLoading = false
 
 

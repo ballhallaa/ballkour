@@ -25,7 +25,7 @@ rule "Load HUD":
         HudReeval.VISIBILITY
     )
     hudSubtext(
-        getAllPlayers().filter(lambda localPlayer: not localPlayer.isInLobby),
+        getAllPlayers(),
         ("\n\n\n\nControls: <fg00E092FF>{}</fg>").format(
             inputBindingString(Button.ULTIMATE)
         ),
@@ -84,6 +84,20 @@ def newRun():
     eventPlayer.isLoading = true
     if eventPlayer.spectating[0]:
         disableSpectator()
+    eventPlayer.isInLobby = false
+    resetRun()
+    syncSpectatorCps()
+    loadCpData()
+    setCpAbilities()
+    cpResetPlayer()
+    faceNextCp()
+    showCpNameplate()
+    eventPlayer.isLoading = false
+
+
+def resetRun():
+    @Name "Reset"
+
     eventPlayer.isRunLoaded = false
     eventPlayer.isRunLoaded = true
     eventPlayer.isRunPaused = true
@@ -94,12 +108,6 @@ def newRun():
     eventPlayer.runTime = 0
     eventPlayer.runTimeFormatted = "0.00"
     eventPlayer.runMistakes = 0
-    syncSpectatorCps()
-    loadCpData()
-    setCpAbilities()
-    cpResetPlayer()
-    faceNextCp()
-    eventPlayer.isLoading = false
 
 
 def pauseRun():

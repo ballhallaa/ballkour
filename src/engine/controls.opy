@@ -6,7 +6,6 @@ rule "HUD Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
     @Condition eventPlayer.spectating[5] == false
-    @Condition eventPlayer.isInLobby == false
 
     eventPlayer.isViewingCtrlsHud = true
     eventPlayer.disallowButton(Button.PRIMARY_FIRE)
@@ -14,10 +13,8 @@ rule "HUD Input":
     eventPlayer.disallowButton(Button.ABILITY_1)
     eventPlayer.disallowButton(Button.ABILITY_2)
     eventPlayer.disallowButton(Button.MELEE)
-    waitUntil(
-        not eventPlayer.isHoldingButton(Button.ULTIMATE) or eventPlayer.isInLobby,
-        Math.INFINITY
-    )
+    # Stays open through Lobby/Pause, since the lobby has controls too
+    waitUntil(not eventPlayer.isHoldingButton(Button.ULTIMATE), Math.INFINITY)
     eventPlayer.isViewingCtrlsHud = false
     eventPlayer.allowButton(Button.MELEE)
     if not eventPlayer.spectating[0] or eventPlayer.spectating[2]:
@@ -29,8 +26,12 @@ rule "HUD Input":
 
 
 rule "Load HUD":
+    # The lobby only has New Run and Spectate
     hudSubheader(
-        getAllPlayers().filter(lambda localPlayer: localPlayer.isViewingCtrlsHud),
+        getAllPlayers().filter(
+            lambda localPlayer: localPlayer.isViewingCtrlsHud
+            and not localPlayer.isInLobby
+        ),
         ("{}{} + {}</fg>").format(
             (
                 "Prev. CP:                               <fg00E092FF>"
@@ -46,7 +47,10 @@ rule "Load HUD":
         HudReeval.VISIBILITY_AND_STRING
     )
     hudSubheader(
-        getAllPlayers().filter(lambda localPlayer: localPlayer.isViewingCtrlsHud),
+        getAllPlayers().filter(
+            lambda localPlayer: localPlayer.isViewingCtrlsHud
+            and not localPlayer.isInLobby
+        ),
         ("{}{} + {}</fg>").format(
             (
                 "Next CP:                               <fg00E092FF>"
@@ -64,6 +68,7 @@ rule "Load HUD":
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
+            and not localPlayer.isInLobby
             and not localPlayer.spectating[0]
             and localPlayer.runCurrentCp < lastCp
         ),
@@ -88,6 +93,7 @@ rule "Load HUD":
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
+            and not localPlayer.isInLobby
             and not localPlayer.spectating[0]
             and localPlayer.runCurrentCp < lastCp
         ),
@@ -102,6 +108,7 @@ rule "Load HUD":
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
+            and not localPlayer.isInLobby
             and localPlayer.viewCp < lastCp
             and len(hintRoutes) > 0
         ),
@@ -135,6 +142,7 @@ rule "Load HUD":
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
+            and not localPlayer.isInLobby
             and not localPlayer.spectating[0]
         ),
         ("Lobby/Pause:         <fg00E092FF>{} + {} (Hold)</fg>").format(
@@ -457,7 +465,6 @@ rule "New Run Input":
     @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
-    @Condition eventPlayer.isInLobby == false
 
     waitUntil(
         not (
