@@ -39,7 +39,7 @@ rule "Load HUD":
         ("\n\n\nSpectating"),
         HudPosition.LEFT,
         12,
-        rgb(163, 0, 0),
+        rgb(255, 70, 70),
         HudReeval.VISIBILITY_AND_STRING
     )
     hudSubtext(
@@ -50,7 +50,7 @@ rule "Load HUD":
         ("\n\n\nSpectating {}").format(localPlayer.spectating[1]),
         HudPosition.LEFT,
         12,
-        rgb(163, 0, 0),
+        rgb(255, 70, 70),
         HudReeval.VISIBILITY_AND_STRING
     )
     hudSubtext(
