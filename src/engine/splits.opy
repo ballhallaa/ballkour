@@ -2,7 +2,7 @@
 #!rulePrefix "Splits"
 
 
-macro NO_SPLIT_STATS = "Best: --\nAvg: --"
+macro NO_SPLIT_STATS = "Best: <fgFFFFFFFF>--</fg>\nAvg: <fgFFFFFFFF>--</fg>"
 
 
 rule "Load HUD":
@@ -15,11 +15,23 @@ rule "Load HUD":
                 or localPlayer.viewRunner.isShowingSplitDelta
             )
         ),
-        ("\n\nCP {}: {}").format(
+        # Only the time is colored, so the label stays the HUD's orange
+        ("\n\nCP {}: {}{}</fg>").format(
             (
                 localPlayer.viewRunner.splitDelta[0]
                 if localPlayer.viewRunner.isShowingSplitDelta
                 else localPlayer.viewCp
+            ),
+            (
+                localPlayer.viewRunner.splitDelta[2]
+                if localPlayer.viewRunner.isShowingSplitDelta
+                else (
+                    "<fgFF4646FF>"
+                    if localPlayer.viewRunner.runTime
+                    - localPlayer.viewRunner.splitStart
+                    > localPlayer.viewRunner.splitCpBest
+                    else "<fgFFFFFFFF>"
+                )
             ),
             (
                 localPlayer.viewRunner.splitDelta[1]
@@ -33,17 +45,8 @@ rule "Load HUD":
         ),
         HudPosition.RIGHT,
         3,
-        (
-            localPlayer.viewRunner.splitDelta[2]
-            if localPlayer.viewRunner.isShowingSplitDelta
-            else (
-                rgb(255, 70, 70)
-                if localPlayer.viewRunner.runTime - localPlayer.viewRunner.splitStart
-                > localPlayer.viewRunner.splitCpBest
-                else rgb(230, 151, 0)
-            )
-        ),
-        HudReeval.VISIBILITY_STRING_AND_COLOR
+        rgb(230, 151, 0),
+        HudReeval.VISIBILITY_AND_STRING
     )
     # Keeps showing the cleared CP's old Best and Avg during its delta, so the delta can be read against them
     hudSubtext(
@@ -75,7 +78,9 @@ rule "Load HUD":
             and not localPlayer.spectating[3]
             and localPlayer.viewRunner.isShowingSplitDelta
         ),
-        ("Time: {} | Total: {}").format(
+        (
+            "Time: <fgFFFFFFFF>{}</fg> <fg808080FF>|</fg> Total: <fgFFFFFFFF>{}</fg>"
+        ).format(
             localPlayer.viewRunner.cpTimeFormatted,
             localPlayer.viewRunner.cpTotalTimeFormatted
         ),
@@ -102,7 +107,7 @@ def recordSplit():
     @Name "Record"
 
     # A split runs from entering the CP to clearing it, so resets and mistakes count toward it
-    # splitDelta: [0]cp [1]deltaFormatted [2]color [3]prevStatsFormatted [4]hideTime
+    # splitDelta: [0]cp [1]deltaFormatted [2]colorTag [3]prevStatsFormatted [4]hideTime
     # Rounded to the hundredths shown, so a new best has to be at least 0.01 faster
     eventPlayer.splitTime = (
         round((eventPlayer.runTime - eventPlayer.splitStart) * 100) / 100
@@ -110,7 +115,7 @@ def recordSplit():
     eventPlayer.splitDelta = [
         eventPlayer.runCurrentCp,
         "",
-        rgb(255, 255, 0),
+        "<fgFFFF00FF>",
         NO_SPLIT_STATS,
         getTotalTimeElapsed() + 2
     ]
@@ -135,12 +140,10 @@ def recordSplit():
             # Rounded first, so a delta that shows as +0.00 counts as a tie
             eventPlayer.timeToFormat = round(eventPlayer.timeToFormat * 100) / 100
             eventPlayer.splitDelta[2] = (
-                Color.GREEN
+                "<fg00E092FF>"
                 if eventPlayer.timeToFormat < 0
                 else (
-                    rgb(255, 70, 70)
-                    if eventPlayer.timeToFormat > 0
-                    else rgb(230, 151, 0)
+                    "<fgFF4646FF>" if eventPlayer.timeToFormat > 0 else "<fgFFFFFFFF>"
                 )
             )
         eventPlayer.splitDelta[1] = "-" if eventPlayer.timeToFormat < 0 else "+"
@@ -162,7 +165,7 @@ def recordSplit():
     )
     formatTime()
     eventPlayer.splitStatsFormatted[eventPlayer.runCurrentCp] = (
-        "Best: {}\nAvg: {}".format(
+        "Best: <fgFFFFFFFF>{}</fg>\nAvg: <fgFFFFFFFF>{}</fg>".format(
             eventPlayer.splitStatsFormatted[eventPlayer.runCurrentCp],
             eventPlayer.timeFormatted
         )
