@@ -39,6 +39,9 @@ rule "Update Run Format":
         eventPlayer.timeToFormat = eventPlayer.runTime - eventPlayer.splitStart
         formatTime()
         eventPlayer.splitTimeFormatted = eventPlayer.timeFormatted
+        eventPlayer.timeToFormat = eventPlayer.cpTime
+        formatTime()
+        eventPlayer.cpTimeFormatted = eventPlayer.timeFormatted
     eventPlayer.isTimerActive = false
 
 
@@ -108,3 +111,5 @@ rule "Restart Checkpoint Timer":
     eventPlayer.isCpTimerActive = false
     stopChasingVariable(eventPlayer.cpTime)
     eventPlayer.cpTime = 0
+    # The run can be paused here (after freemode), which stops the formatting loop
+    eventPlayer.cpTimeFormatted = "0.00"

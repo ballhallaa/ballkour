@@ -104,13 +104,29 @@ rule "Auto-Restart Server":
     @Condition elapsedTime >= 12540
 
     chaseAtRate(elapsedTime, Math.INFINITY, 1)
-    bigMessage(true[0], "Server restart: \n30min")
+    bigMessage(
+        true[0],
+        "Server restart: "
+        "\n30min"
+    )
     wait(900)
-    bigMessage(true[0], "Server restart: \n15min")
+    bigMessage(
+        true[0],
+        "Server restart: "
+        "\n15min"
+    )
     wait(600)
-    bigMessage(true[0], "Server restart: \n5min")
+    bigMessage(
+        true[0],
+        "Server restart: "
+        "\n5min"
+    )
     wait(240)
-    bigMessage(true[0], "Server restart: \n1min")
+    bigMessage(
+        true[0],
+        "Server restart: "
+        "\n1min"
+    )
     wait(60)
     # 3hr59min in
     restartMatch()
@@ -129,7 +145,7 @@ rule "Server Load HUD":
             round(getPeakServerLoad())
         ),
         HudPosition.RIGHT,
-        6,
+        8,
         Color.LIGHT_VIOLET,
         HudReeval.VISIBILITY_AND_STRING
     )

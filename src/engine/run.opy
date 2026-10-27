@@ -66,7 +66,11 @@ rule "Load HUD":
             lambda localPlayer: not localPlayer.isInLobby
             and not localPlayer.spectating[3]
         ),
-        ("{} {}").format(iconString(Icon.SKULL), localPlayer.viewRunner.runMistakes),
+        # The blank lines space out the splits under it, since a header like the splits' CP
+        # would draw its background box over blank lines of its own
+        ("{} {}\n\n").format(
+            iconString(Icon.SKULL), localPlayer.viewRunner.runMistakes
+        ),
         HudPosition.RIGHT,
         2,
         rgb(230, 151, 0),

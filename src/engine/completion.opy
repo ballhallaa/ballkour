@@ -26,13 +26,6 @@ rule "Checkpoint (No Skipping)":
     )
 
     stopChasingVariable(eventPlayer.cpTime)
-    # Time and Total show under the splits for as long as the delta
-    eventPlayer.timeToFormat = eventPlayer.cpTime
-    formatTime()
-    eventPlayer.cpTimeFormatted = eventPlayer.timeFormatted
-    eventPlayer.timeToFormat = eventPlayer.runTime - eventPlayer.cpStartTime
-    formatTime()
-    eventPlayer.cpTotalTimeFormatted = eventPlayer.timeFormatted
     recordSplit()
     if isHintRecorderOn and eventPlayer == hostPlayer:
         saveHintRoute()
