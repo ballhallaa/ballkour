@@ -282,10 +282,6 @@ msgid "{0} | FREECAM"
 msgstr "{0} | CÂMERA LIVRE"
 
 #. file splits.opy, rule "Load HUD"
-msgid "CP {0}"
-msgstr "CP {0}"
-
-#. file splits.opy, rule "Load HUD"
 msgid "Attempt: {0}"
 msgstr "Tentativa: {0}"
 
