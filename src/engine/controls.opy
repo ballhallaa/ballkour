@@ -427,7 +427,7 @@ rule "Reset Checkpoint Input":
     @Condition eventPlayer.isInLobby == false
     @Condition (eventPlayer.hasSpawned() and not eventPlayer.isLoading) == true
 
-    waitUntil(not eventPlayer.isHoldingButton(Button.RELOAD), 0.2)
+    waitUntil(not eventPlayer.isHoldingButton(Button.RELOAD), 0.15)
     if (
         not eventPlayer.isHoldingButton(Button.RELOAD)
         and eventPlayer.runCurrentCp < lastCp
