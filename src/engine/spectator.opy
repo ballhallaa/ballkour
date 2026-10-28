@@ -35,7 +35,7 @@ rule "Load HUD":
             lambda localPlayer: localPlayer.spectating[0]
             and localPlayer.spectating[1] == null
         ),
-        ("\n\nSpectating"),
+        _("\n\nSpectating"),
         HudPosition.LEFT,
         12,
         rgb(255, 70, 70),
@@ -46,7 +46,7 @@ rule "Load HUD":
             lambda localPlayer: localPlayer.spectating[0]
             and localPlayer.spectating[1] != null
         ),
-        ("\n\nSpectating {}").format(localPlayer.spectating[1]),
+        _("\n\nSpectating {}").format(localPlayer.spectating[1]),
         HudPosition.LEFT,
         12,
         rgb(255, 70, 70),
@@ -56,7 +56,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.spectating[0] and localPlayer.spectating[2]
         ),
-        ("Freecam On"),
+        _("Freecam On"),
         HudPosition.LEFT,
         13,
         rgb(230, 151, 0),
@@ -66,7 +66,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.spectating[0] and localPlayer.spectating[3]
         ),
-        ("(Disconnected)"),
+        _("(Disconnected)"),
         HudPosition.LEFT,
         14,
         rgb(0, 224, 146),
@@ -75,7 +75,7 @@ rule "Load HUD":
     # Spectated Player's HUD
     hudSubtext(
         getAllPlayers().filter(lambda localPlayer: localPlayer.spectating[10] > 0),
-        ("\n\nSpectators: {}").format(localPlayer.spectating[10]),
+        _("\n\nSpectators: {}").format(localPlayer.spectating[10]),
         HudPosition.LEFT,
         12,
         rgb(0, 224, 146),
@@ -169,7 +169,7 @@ def disableSpectator():
     eventPlayer.spectating[3] = false
     loadCpData()
     if eventPlayer.isInFreemode:
-        eventPlayer.nameplate = "{} | FREEMODE".format(eventPlayer)
+        eventPlayer.nameplate = _("{} | FREEMODE").format(eventPlayer)
     else:
         setCpAbilities()
         cpResetPlayer()
@@ -361,7 +361,7 @@ def enableFreecam():
     playerToEnableFreecam.setAbility1Enabled(false)
     playerToEnableFreecam.disallowButton(Button.ABILITY_2)
     playerToEnableFreecam.setAbility2Enabled(false)
-    playerToEnableFreecam.nameplate = "{} | FREECAM".format(playerToEnableFreecam)
+    playerToEnableFreecam.nameplate = _("{} | FREECAM").format(playerToEnableFreecam)
     playerToEnableFreecam.spectating[2] = true
     playerToEnableFreecam = null
 
@@ -536,7 +536,8 @@ def reattachToSpectatingTarget():
     eventPlayer.setAbility1Enabled(false)
     eventPlayer.disallowButton(Button.ABILITY_2)
     eventPlayer.setAbility2Enabled(false)
-    eventPlayer.nameplate = ""
+    # Nameplates are shown with _(), so a blank one has to be a translated string too
+    eventPlayer.nameplate = _("{}").format("")
     eventPlayer.spectating[2] = false
     eventPlayer.spectating[3] = false
 
@@ -593,7 +594,7 @@ def enableFirstPersonSpectator():
     for eventPlayer.index in range(1, 4):
         bigMessage(
             eventPlayer,
-            (
+            _(
                 "{0}<fgE62400FF>HEADS UP</fg>{0}\n"
                 "<fgFFD700FF>Hold {1} to exit!</fg>\n"
                 "<fgFFFFFFFF>- - - - - - - - - - - - - - - - -</fg>\n"

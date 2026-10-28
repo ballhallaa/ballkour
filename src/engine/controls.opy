@@ -27,17 +27,16 @@ rule "HUD Input":
 
 rule "Load HUD":
     # The lobby only has New Run and Spectate
+    # Each line is one translated string with its padding inside, so a translation can
+    # pad its own label. Grayed-out lines take their colors as arguments for the same reason.
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and not localPlayer.isInLobby
         ),
-        ("{}{} + {}</fg>").format(
-            (
-                "Prev. CP:                               <fg00E092FF>"
-                if localPlayer.viewCp > 0
-                else "<fg808080FF>Prev. CP:                               "
-            ),
+        _("{}Prev. CP:                               {}{} + {}</fg>").format(
+            "" if localPlayer.viewCp > 0 else "<fg808080FF>",
+            "<fg00E092FF>" if localPlayer.viewCp > 0 else "",
             inputBindingString(Button.ULTIMATE),
             inputBindingString(Button.PRIMARY_FIRE)
         ),
@@ -51,12 +50,9 @@ rule "Load HUD":
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and not localPlayer.isInLobby
         ),
-        ("{}{} + {}</fg>").format(
-            (
-                "Next CP:                               <fg00E092FF>"
-                if localPlayer.viewCp < lastCp
-                else "<fg808080FF>Next CP:                               "
-            ),
+        _("{}Next CP:                               {}{} + {}</fg>").format(
+            "" if localPlayer.viewCp < lastCp else "<fg808080FF>",
+            "<fg00E092FF>" if localPlayer.viewCp < lastCp else "",
             inputBindingString(Button.ULTIMATE),
             inputBindingString(Button.SECONDARY_FIRE)
         ),
@@ -72,7 +68,7 @@ rule "Load HUD":
             and not localPlayer.spectating[0]
             and localPlayer.runCurrentCp < lastCp
         ),
-        ("Reset CP:                           <fg00E092FF>{} (Hold)</fg>").format(
+        _("Reset CP:                           <fg00E092FF>{} (Hold)</fg>").format(
             inputBindingString(Button.RELOAD)
         ),
         HudPosition.LEFT,
@@ -82,7 +78,7 @@ rule "Load HUD":
     )
     hudSubheader(
         getAllPlayers().filter(lambda localPlayer: localPlayer.isViewingCtrlsHud),
-        ("New Run:                 <fg00E092FF>{} + {} (Hold)</fg>").format(
+        _("New Run:                 <fg00E092FF>{} + {} (Hold)</fg>").format(
             inputBindingString(Button.ULTIMATE), inputBindingString(Button.RELOAD)
         ),
         HudPosition.LEFT,
@@ -97,7 +93,7 @@ rule "Load HUD":
             and not localPlayer.spectating[0]
             and localPlayer.runCurrentCp < lastCp
         ),
-        ("Freemode:                            <fg00E092FF>{} + {}</fg>").format(
+        _("Freemode:                            <fg00E092FF>{} + {}</fg>").format(
             inputBindingString(Button.ULTIMATE), inputBindingString(Button.INTERACT)
         ),
         HudPosition.LEFT,
@@ -112,14 +108,14 @@ rule "Load HUD":
             and localPlayer.viewCp < lastCp
             and len(hintRoutes) > 0
         ),
-        ("{}<fg00E092FF>{} + {}</fg>").format(
-            (
-                "Disable Hints:                "
-                if localPlayer.isHintOn
-                else "Enable Hints:                 "
-            ),
-            inputBindingString(Button.ULTIMATE),
-            inputBindingString(Button.MELEE)
+        (
+            _("Disable Hints:                <fg00E092FF>{} + {}</fg>").format(
+                inputBindingString(Button.ULTIMATE), inputBindingString(Button.MELEE)
+            )
+            if localPlayer.isHintOn
+            else _("Enable Hints:                 <fg00E092FF>{} + {}</fg>").format(
+                inputBindingString(Button.ULTIMATE), inputBindingString(Button.MELEE)
+            )
         ),
         HudPosition.LEFT,
         5,
@@ -131,7 +127,7 @@ rule "Load HUD":
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and not localPlayer.spectating[0]
         ),
-        ("Spectate:                       <fg00E092FF>{} + {}</fg>").format(
+        _("Spectate:                       <fg00E092FF>{} + {}</fg>").format(
             inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_1)
         ),
         HudPosition.LEFT,
@@ -145,7 +141,7 @@ rule "Load HUD":
             and not localPlayer.isInLobby
             and not localPlayer.spectating[0]
         ),
-        ("Lobby/Pause:         <fg00E092FF>{} + {} (Hold)</fg>").format(
+        _("Lobby/Pause:         <fg00E092FF>{} + {} (Hold)</fg>").format(
             inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_2)
         ),
         HudPosition.LEFT,
@@ -158,7 +154,7 @@ rule "Load HUD":
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and localPlayer.spectating[0]
         ),
-        ("Lobby:                      <fg00E092FF>{} + {} (Hold)</fg>").format(
+        _("Lobby:                      <fg00E092FF>{} + {} (Hold)</fg>").format(
             inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_2)
         ),
         HudPosition.LEFT,
@@ -171,7 +167,7 @@ rule "Load HUD":
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and localPlayer.spectating[0]
         ),
-        (
+        _(
             "<fg808080FF>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</fg>\n"
             "<fgEC9900FF>        Spectator Controls</fg>\n"
             "Disable:                         <fg00E092FF>{} + {}</fg>"
@@ -190,7 +186,7 @@ rule "Load HUD":
             and localPlayer.spectating[1] != null
             and localPlayer.spectating[2]
         ),
-        ("Reattach:                      <fg00E092FF>{} + {}</fg>").format(
+        _("Reattach:                      <fg00E092FF>{} + {}</fg>").format(
             inputBindingString(Button.ABILITY_1), inputBindingString(Button.RELOAD)
         ),
         HudPosition.LEFT,
@@ -204,7 +200,7 @@ rule "Load HUD":
             and localPlayer.spectating[0]
             and localPlayer.spectating[1] != null
         ),
-        ("First Person:               <fg00E092FF>{} + {}</fg>").format(
+        _("First Person:               <fg00E092FF>{} + {}</fg>").format(
             inputBindingString(Button.ABILITY_1), inputBindingString(Button.INTERACT)
         ),
         HudPosition.LEFT,
@@ -217,23 +213,14 @@ rule "Load HUD":
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and localPlayer.spectating[0]
         ),
-        (
-            "{}{} + {}</fg>"
-            "\n{}{} + {}</fg>"
+        _(
+            "{0}Prev. Player:              {1}{2} + {3}</fg>"
+            "\n{0}Next Player:               {1}{2} + {4}</fg>"
         ).format(
-            (
-                "Prev. Player:              <fg00E092FF>"
-                if localPlayer.spectating[7]
-                else "<fg808080FF>Prev. Player:              "
-            ),
+            "" if localPlayer.spectating[7] else "<fg808080FF>",
+            "<fg00E092FF>" if localPlayer.spectating[7] else "",
             inputBindingString(Button.ABILITY_1),
             inputBindingString(Button.PRIMARY_FIRE),
-            (
-                "Next Player:               <fg00E092FF>"
-                if localPlayer.spectating[7]
-                else "<fg808080FF>Next Player:               "
-            ),
-            inputBindingString(Button.ABILITY_1),
             inputBindingString(Button.SECONDARY_FIRE)
         ),
         HudPosition.LEFT,
@@ -247,16 +234,21 @@ rule "Load HUD":
             and localPlayer.spectating[0]
         ),
         # Freecam shares X-Hair Player's text: sort order 12 is taken by Spectating
-        ("{}{} + {}</fg>{}").format(
+        _("{}X-Hair Player:     {}{} + {}</fg>{}").format(
             (
-                "X-Hair Player:     <fg00E092FF>"
+                ""
                 if localPlayer.spectating[2] and localPlayer.spectating[7]
-                else "<fg808080FF>X-Hair Player:     "
+                else "<fg808080FF>"
+            ),
+            (
+                "<fg00E092FF>"
+                if localPlayer.spectating[2] and localPlayer.spectating[7]
+                else ""
             ),
             inputBindingString(Button.ABILITY_1),
             inputBindingString(Button.JUMP),
             (
-                "\nFreecam:                             <fg00E092FF>Move</fg>"
+                _("\nFreecam:                             <fg00E092FF>Move</fg>")
                 if not localPlayer.spectating[2]
                 else ""
             )
@@ -508,7 +500,7 @@ rule "Freemode Input":
         eventPlayer.setSecondaryFireEnabled(true)
         eventPlayer.setAbility2Enabled(true)
         eventPlayer.allowButton(Button.CROUCH)
-        eventPlayer.nameplate = "{} | FREEMODE".format(eventPlayer)
+        eventPlayer.nameplate = _("{} | FREEMODE").format(eventPlayer)
         eventPlayer.isInFreemode = true
     else:
         eventPlayer.isLoading = true
@@ -530,7 +522,7 @@ rule "Load Freemode HUD":
             lambda localPlayer: localPlayer.isInFreemode
             and not localPlayer.spectating[0]
         ),
-        ("\n\nFreemode On"),
+        _("\n\nFreemode On"),
         HudPosition.LEFT,
         12,
         rgb(255, 70, 70),
@@ -599,17 +591,17 @@ rule "Load Hints HUD":
         ),
         ("\n\n{}").format(
             (
-                ("Hints: <fg00E092FF>{} + {}</fg>").format(
+                _("Hints: <fg00E092FF>{} + {}</fg>").format(
                     inputBindingString(Button.ULTIMATE),
                     inputBindingString(Button.MELEE)
                 )
                 if not localPlayer.isHintOn
                 else (
-                    ("Hints On" "\nInfo: <fg00E092FF>{} + {}</fg>{}").format(
+                    _("Hints On" "\nInfo: <fg00E092FF>{} + {}</fg>{}").format(
                         inputBindingString(Button.ULTIMATE),
                         inputBindingString(Button.ABILITY_2),
                         (
-                            (
+                            _(
                                 "\n   <fgCB87FFFF>Movement</fg>"
                                 "\n   <fgFFFFFFFF>Jump</fg>"
                                 "\n   <fgFFD200FF>Grapple</fg>"
@@ -625,7 +617,7 @@ rule "Load Hints HUD":
                         )
                     )
                     if len(hintRoutes[localPlayer.viewCp]) > 1
-                    else "No Hint For This CP"
+                    else _("No Hint For This CP")
                 )
             )
         ),

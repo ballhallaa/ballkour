@@ -6,6 +6,8 @@ import os
 import re
 import shutil
 import subprocess
+import sys
+import unicodedata
 from pathlib import Path
 
 SRC = Path(__file__).resolve().parent.parent / "src"
@@ -36,6 +38,23 @@ overpy.readyPromise.then(async () => {
 
 def courses(src=SRC):
     return sorted(p for p in src.glob("*.opy") if COURSE_RE.search(p.read_text()))
+
+
+def fold(text):
+    """Lowercase without accents, so "paraiso" matches "Paraíso"."""
+    decomposed = unicodedata.normalize("NFKD", text.lower())
+    return "".join(c for c in decomposed if not unicodedata.combining(c))
+
+
+def find_course(name):
+    path = Path(name)
+    if path.is_file():
+        return path.resolve()
+    matches = [p for p in courses() if fold(name) in fold(p.stem)]
+    if len(matches) != 1:
+        names = ", ".join(p.stem for p in courses())
+        sys.exit(f"'{name}' should match exactly one course: {names}")
+    return matches[0]
 
 
 def compile_files(paths):

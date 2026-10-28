@@ -26,7 +26,7 @@ rule "Load HUD":
     )
     hudSubtext(
         getAllPlayers(),
-        ("\n\n\n\nControls: <fg00E092FF>{}</fg>").format(
+        _("\n\n\n\nControls: <fg00E092FF>{}</fg>").format(
             inputBindingString(Button.ULTIMATE)
         ),
         HudPosition.LEFT,
