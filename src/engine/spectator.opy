@@ -56,7 +56,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.spectating[0] and localPlayer.spectating[2]
         ),
-        ("Freecam On").format(localPlayer.spectating[1]),
+        ("Freecam On"),
         HudPosition.LEFT,
         13,
         rgb(230, 151, 0),
@@ -66,7 +66,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.spectating[0] and localPlayer.spectating[3]
         ),
-        ("(Disconnected)").format(localPlayer.spectating[1]),
+        ("(Disconnected)"),
         HudPosition.LEFT,
         14,
         rgb(0, 224, 146),
