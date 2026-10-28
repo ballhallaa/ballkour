@@ -27,10 +27,12 @@ macro SPLITS_HUD_VISIBILITY = getAllPlayers().filter(
 
 
 rule "Load HUD":
-    # A header, the biggest HUD text, so the CP stands above the times under it
+    # A header, the biggest HUD text, so the CP stands above the times under it.
+    # A flag icon instead of a word, so it needs no translation and stays narrow in every language.
     hudHeader(
         SPLITS_HUD_VISIBILITY,
-        _("CP {}").format(
+        "{} {}".format(
+            iconString(Icon.FLAG),
             localPlayer.viewRunner.splitDelta[0]
             if localPlayer.viewRunner.isShowingSplitDelta
             else localPlayer.viewCp
