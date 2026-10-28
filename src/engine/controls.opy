@@ -187,15 +187,11 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and localPlayer.spectating[0]
+            and localPlayer.spectating[1] != null
+            and localPlayer.spectating[2]
         ),
-        ("{}{} + {}</fg>").format(
-            (
-                "Reattach:                      <fg00E092FF>"
-                if localPlayer.spectating[1] != null and localPlayer.spectating[2]
-                else "<fg808080FF>Reattach:                      "
-            ),
-            inputBindingString(Button.ABILITY_1),
-            inputBindingString(Button.RELOAD)
+        ("Reattach:                      <fg00E092FF>{} + {}</fg>").format(
+            inputBindingString(Button.ABILITY_1), inputBindingString(Button.RELOAD)
         ),
         HudPosition.LEFT,
         8,
@@ -206,15 +202,10 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and localPlayer.spectating[0]
+            and localPlayer.spectating[1] != null
         ),
-        ("{}{} + {}</fg>").format(
-            (
-                "First Person:               <fg00E092FF>"
-                if localPlayer.spectating[1] != null
-                else "<fg808080FF>First Person:               "
-            ),
-            inputBindingString(Button.ABILITY_1),
-            inputBindingString(Button.INTERACT)
+        ("First Person:               <fg00E092FF>{} + {}</fg>").format(
+            inputBindingString(Button.ABILITY_1), inputBindingString(Button.INTERACT)
         ),
         HudPosition.LEFT,
         9,
@@ -256,10 +247,7 @@ rule "Load HUD":
             and localPlayer.spectating[0]
         ),
         # Freecam shares X-Hair Player's text: sort order 12 is taken by Spectating
-        (
-            "{}{} + {}</fg>"
-            "\n{}"
-        ).format(
+        ("{}{} + {}</fg>{}").format(
             (
                 "X-Hair Player:     <fg00E092FF>"
                 if localPlayer.spectating[2] and localPlayer.spectating[7]
@@ -268,9 +256,9 @@ rule "Load HUD":
             inputBindingString(Button.ABILITY_1),
             inputBindingString(Button.JUMP),
             (
-                "Freecam:                             <fg00E092FF>Move</fg>"
+                "\nFreecam:                             <fg00E092FF>Move</fg>"
                 if not localPlayer.spectating[2]
-                else "<fg808080FF>Freecam:                             Move</fg>"
+                else ""
             )
         ),
         HudPosition.LEFT,
