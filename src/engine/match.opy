@@ -106,26 +106,34 @@ rule "Auto-Restart Server":
     chaseAtRate(elapsedTime, Math.INFINITY, 1)
     bigMessage(
         true[0],
-        "Server restart: "
-        "\n30min"
+        _(
+            "Server restart: "
+            "\n30min"
+        )
     )
     wait(900)
     bigMessage(
         true[0],
-        "Server restart: "
-        "\n15min"
+        _(
+            "Server restart: "
+            "\n15min"
+        )
     )
     wait(600)
     bigMessage(
         true[0],
-        "Server restart: "
-        "\n5min"
+        _(
+            "Server restart: "
+            "\n5min"
+        )
     )
     wait(240)
     bigMessage(
         true[0],
-        "Server restart: "
-        "\n1min"
+        _(
+            "Server restart: "
+            "\n1min"
+        )
     )
     wait(60)
     # 3hr59min in

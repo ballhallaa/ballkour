@@ -30,7 +30,7 @@ rule "Load HUD":
     # A header, the biggest HUD text, so the CP stands above the times under it
     hudHeader(
         SPLITS_HUD_VISIBILITY,
-        ("CP {}").format(
+        _("CP {}").format(
             localPlayer.viewRunner.splitDelta[0]
             if localPlayer.viewRunner.isShowingSplitDelta
             else localPlayer.viewCp
@@ -46,7 +46,7 @@ rule "Load HUD":
     # Only the times are colored, so the labels stay the HUD's orange.
     hudSubtext(
         SPLITS_HUD_VISIBILITY,
-        ("Attempt: {}").format(
+        _("Attempt: {}").format(
             (
                 localPlayer.viewRunner.splitDelta[1]
                 if localPlayer.viewRunner.isShowingSplitDelta
@@ -72,7 +72,7 @@ rule "Load HUD":
     )
     hudSubheader(
         SPLITS_HUD_VISIBILITY,
-        (
+        _(
             "Best: <fgFFFFFFFF>{}</fg>"
             "\nAvg: <fgFFFFFFFF>{}</fg>"
         ).format(viewedSplitStats(localPlayer)[0], viewedSplitStats(localPlayer)[1]),
@@ -83,7 +83,7 @@ rule "Load HUD":
     )
     hudSubtext(
         SPLITS_HUD_VISIBILITY,
-        ("Split: {}").format(
+        _("Split: {}").format(
             (
                 localPlayer.viewRunner.splitDelta[2]
                 if localPlayer.viewRunner.isShowingSplitDelta
@@ -111,7 +111,7 @@ rule "Load HUD":
     )
     hudSubheader(
         SPLITS_HUD_VISIBILITY,
-        (
+        _(
             "Best: <fgFFFFFFFF>{}</fg>"
             "\nAvg: <fgFFFFFFFF>{}</fg>"
         ).format(viewedSplitStats(localPlayer)[2], viewedSplitStats(localPlayer)[3]),

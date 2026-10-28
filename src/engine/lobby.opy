@@ -22,18 +22,18 @@ def loadLobby():
     eventPlayer.setSecondaryFireEnabled(true)
     eventPlayer.setAbility2Enabled(true)
     eventPlayer.allowButton(Button.CROUCH)
-    eventPlayer.nameplate = "{}".format(eventPlayer)
+    eventPlayer.nameplate = _("{}").format(eventPlayer)
     wait()
 
 
 rule "Load Welcome Area":
     createInWorldText(
         getAllPlayers().filter(lambda localPlayer: localPlayer.isInLobby),
-        "Welcome to",
+        _("Welcome to"),
         lobbyData[2],
         lobbyData[4],
         Clip.SURFACES,
-        WorldTextReeval.VISIBILITY,
+        WorldTextReeval.VISIBILITY_AND_STRING,
         rgb(230, 151, 0)
     )
     createInWorldText(
@@ -50,11 +50,11 @@ rule "Load Welcome Area":
 rule "Load Leaderboard Area":
     createInWorldText(
         getAllPlayers().filter(lambda localPlayer: localPlayer.isInLobby),
-        "Leaderboard",
+        _("Leaderboard"),
         lobbyData[11],
         lobbyData[12],
         Clip.SURFACES,
-        WorldTextReeval.VISIBILITY_AND_COLOR,
+        WorldTextReeval.VISIBILITY_STRING_AND_COLOR,
         rgb(
             127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15),
             127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15 + 120),
@@ -105,11 +105,11 @@ rule "Load Leaderboard Area":
 rule "Load Start Run Area":
     createInWorldText(
         getAllPlayers().filter(lambda localPlayer: localPlayer.isInLobby),
-        "New Run",
+        _("New Run"),
         lobbyData[7],
         1,
         Clip.SURFACES,
-        WorldTextReeval.VISIBILITY,
+        WorldTextReeval.VISIBILITY_AND_STRING,
         rgb(0, 224, 146)
     )
     createEffect(
@@ -160,11 +160,11 @@ rule "Load Resume Run Area":
             and localPlayer.isRunLoaded
             and not localPlayer.isRunFinished
         ),
-        "Resume Run",
+        _("Resume Run"),
         lobbyData[10],
         1,
         Clip.SURFACES,
-        WorldTextReeval.VISIBILITY,
+        WorldTextReeval.VISIBILITY_AND_STRING,
         rgb(0, 224, 146)
     )
     createEffect(

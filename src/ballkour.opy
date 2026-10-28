@@ -1,5 +1,8 @@
 #!mainFile "main.opy"
 #!setupTags
+# Translated in translations/<language>.po (see tools/translations.py)
+#!translations en de es fr it ja ko pl pt ru th tr zh_cn zh_tw
+#!disableTranslationSourceLines
 #!useVariableForCompressionAlphabet
 #!rulePrefixTemplate f"{$prefix}: {$rule}" if $prefix and $rule else $rule
 

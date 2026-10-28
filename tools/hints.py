@@ -37,10 +37,9 @@ import argparse
 import math
 import re
 import sys
-import unicodedata
 from pathlib import Path
 
-from overpy import SRC, compile_files, courses
+from overpy import SRC, compile_files, courses, find_course, fold
 
 ELEMENT_LIMIT = 32768
 CPS_PER_RULE = 10
@@ -60,23 +59,6 @@ WORKSHOP_LOG_DIRS = [
     "~/.steam/steam/steamapps/compatdata/2357570/pfx/drive_c/users/steamuser/Documents/Overwatch/Workshop",
     "~/Documents/Overwatch/Workshop",
 ]
-
-
-def fold(text):
-    """Lowercase without accents, so "paraiso" matches "Paraíso"."""
-    decomposed = unicodedata.normalize("NFKD", text.lower())
-    return "".join(c for c in decomposed if not unicodedata.combining(c))
-
-
-def find_course(name):
-    path = Path(name)
-    if path.is_file():
-        return path.resolve()
-    matches = [p for p in courses() if fold(name) in fold(p.stem)]
-    if len(matches) != 1:
-        names = ", ".join(p.stem for p in courses())
-        sys.exit(f"'{name}' should match exactly one course: {names}")
-    return matches[0]
 
 
 def hints_path(course):

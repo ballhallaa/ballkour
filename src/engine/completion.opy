@@ -78,7 +78,7 @@ rule "Final Checkpoint Reached":
         eventPlayer.runFinalMistakes = eventPlayer.runMistakes
         eventPlayer.isViewingRunCompletionText = true
     eventPlayer.isInFreemode = true
-    eventPlayer.nameplate = "{} | FREEMODE".format(eventPlayer)
+    eventPlayer.nameplate = _("{} | FREEMODE").format(eventPlayer)
 
 
 rule "Load Run Text":
@@ -94,7 +94,7 @@ rule "Run Text":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
         ),
-        "\n\nCongrats, {}!\n".format(localPlayer),
+        _("\n\nCongrats, {}!\n").format(localPlayer),
         HudPosition.TOP,
         2,
         rgb(0, 224, 146),
@@ -104,7 +104,7 @@ rule "Run Text":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
         ),
-        "Time: {}".format(localPlayer.runFinalTimeFormatted),
+        _("Time: {}").format(localPlayer.runFinalTimeFormatted),
         HudPosition.TOP,
         3,
         rgb(230, 151, 0),
@@ -114,7 +114,7 @@ rule "Run Text":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
         ),
-        "Time to Beat: {}".format(timeToBeatFormatted),
+        _("Time to Beat: {}").format(timeToBeatFormatted),
         HudPosition.TOP,
         4,
         rgb(230, 151, 0),
@@ -124,12 +124,14 @@ rule "Run Text":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
         ),
-        "Mistakes: {}\n".format(localPlayer.runFinalMistakes),
+        _("Mistakes: {}\n").format(localPlayer.runFinalMistakes),
         HudPosition.TOP,
         5,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
+    # Lines start with a color tag and then their centering spaces: OverPy adds a line's
+    # leading spaces to every translation, but spaces after the tag are the translation's own
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
@@ -137,14 +139,16 @@ rule "Run Text":
             and timeToBeat > 0
             and localPlayer.isRunLegit
         ),
-        "<fgFF4646FF>Submit a Video of Your Run\n"
-        "                        @\n"
-        "              ballkour.com</fg>\n\n"
-        "       <fg00E092FF>Thanks for Playing!</fg>",
+        _(
+            "<fgFF4646FF>Submit a Video of Your Run</fg>\n"
+            "<fgFF4646FF>                        @</fg>\n"
+            "<fgFF4646FF>              ballkour.com</fg>\n\n"
+            "<fg00E092FF>       Thanks for Playing!</fg>"
+        ),
         HudPosition.TOP,
         6,
         Color.WHITE,
-        HudReeval.VISIBILITY
+        HudReeval.VISIBILITY_AND_STRING
     )
     hudSubheader(
         getAllPlayers().filter(
@@ -152,28 +156,32 @@ rule "Run Text":
             and (timeToBeat == 0 or localPlayer.runTime <= timeToBeat)
             and localPlayer.isRunLegit
         ),
-        "                Top-10 Time!</fg>\n"
-        "<fgFF4646FF>Submit a Video of Your Run\n"
-        "                        @\n"
-        "              ballkour.com</fg>\n\n"
-        "       <fg00E092FF>Thanks for Playing!</fg>",
+        _(
+            "<fgE69700FF>                Top-10 Time!</fg>\n"
+            "<fgFF4646FF>Submit a Video of Your Run</fg>\n"
+            "<fgFF4646FF>                        @</fg>\n"
+            "<fgFF4646FF>              ballkour.com</fg>\n\n"
+            "<fg00E092FF>       Thanks for Playing!</fg>"
+        ),
         HudPosition.TOP,
         6,
         rgb(230, 151, 0),
-        HudReeval.VISIBILITY
+        HudReeval.VISIBILITY_AND_STRING
     )
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
             and not localPlayer.isRunLegit
         ),
-        "             <fgFF4646FF>Run Not Counted\n"
-        "Skipped CPs or Used Freemode</fg>\n\n"
-        "         <fg00E092FF>Thanks for Playing!</fg>",
+        _(
+            "<fgFF4646FF>             Run Not Counted\n"
+            "Skipped CPs or Used Freemode</fg>\n\n"
+            "<fg00E092FF>         Thanks for Playing!</fg>"
+        ),
         HudPosition.TOP,
         6,
         Color.WHITE,
-        HudReeval.VISIBILITY
+        HudReeval.VISIBILITY_AND_STRING
     )
 
 

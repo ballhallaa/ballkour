@@ -1,0 +1,306 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: de\n"
+"X-Generator: OverPy\n"
+
+# TODO: check if all occurrences have the same translation
+#. 3 occurrences:
+#.  - file completion.opy, rule "Final Checkpoint Reached"
+#.  - file controls.opy, rule "Freemode Input"
+#.  - file spectator.opy, rule "Subroutine disableSpectator"
+#, hasMultipleOccurrencesNotification
+msgid "{0} | FREEMODE"
+msgstr "{0} | FREIER MODUS"
+
+#. file completion.opy, rule "Run Text"
+msgid "Congrats, {0}!"
+msgstr "Glückwunsch, {0}!"
+
+#. file completion.opy, rule "Run Text"
+msgid "Time: {0}"
+msgstr "Zeit: {0}"
+
+#. file completion.opy, rule "Run Text"
+msgid "Time to Beat: {0}"
+msgstr "Zu schlagen: {0}"
+
+#. file completion.opy, rule "Run Text"
+msgid "Mistakes: {0}"
+msgstr "Fehler: {0}"
+
+#. file completion.opy, rule "Run Text"
+msgid ""
+"<fgFF4646FF>Submit a Video of Your Run</fg>\n"
+"<fgFF4646FF>                        @</fg>\n"
+"<fgFF4646FF>              ballkour.com</fg>\n"
+"\n"
+"<fg00E092FF>       Thanks for Playing!</fg>"
+msgstr ""
+"<fgFF4646FF>Reiche ein Video deines Laufs ein</fg>\n"
+"<fgFF4646FF>                            @</fg>\n"
+"<fgFF4646FF>                  ballkour.com</fg>\n"
+"\n"
+"<fg00E092FF>             Danke fürs Spielen!</fg>"
+
+#. file completion.opy, rule "Run Text"
+msgid ""
+"<fgE69700FF>                Top-10 Time!</fg>\n"
+"<fgFF4646FF>Submit a Video of Your Run</fg>\n"
+"<fgFF4646FF>                        @</fg>\n"
+"<fgFF4646FF>              ballkour.com</fg>\n"
+"\n"
+"<fg00E092FF>       Thanks for Playing!</fg>"
+msgstr ""
+"<fgE69700FF>                     Top-10-Zeit!</fg>\n"
+"<fgFF4646FF>Reiche ein Video deines Laufs ein</fg>\n"
+"<fgFF4646FF>                            @</fg>\n"
+"<fgFF4646FF>                  ballkour.com</fg>\n"
+"\n"
+"<fg00E092FF>             Danke fürs Spielen!</fg>"
+
+#. file completion.opy, rule "Run Text"
+msgid ""
+"<fgFF4646FF>             Run Not Counted\n"
+"Skipped CPs or Used Freemode</fg>\n"
+"\n"
+"<fg00E092FF>         Thanks for Playing!</fg>"
+msgstr ""
+"<fgFF4646FF>                  Lauf nicht gewertet\n"
+"CPs übersprungen oder freier Modus</fg>\n"
+"\n"
+"<fg00E092FF>                  Danke fürs Spielen!</fg>"
+
+#. file controls.opy, rule "Load Freemode HUD"
+msgid "Freemode On"
+msgstr "Freier Modus an"
+
+#. file controls.opy, rule "Load Hints HUD"
+msgid "Hints: <fg00E092FF>{0} + {1}</fg>"
+msgstr "Hinweise: <fg00E092FF>{0} + {1}</fg>"
+
+#. file controls.opy, rule "Load Hints HUD"
+msgid ""
+"Hints On\n"
+"Info: <fg00E092FF>{0} + {1}</fg>{2}"
+msgstr ""
+"Hinweise an\n"
+"Info: <fg00E092FF>{0} + {1}</fg>{2}"
+
+#. file controls.opy, rule "Load Hints HUD"
+msgid ""
+"<fgCB87FFFF>Movement</fg>\n"
+"<fgFFFFFFFF>Jump</fg>\n"
+"<fgFFD200FF>Grapple</fg>\n"
+"<fgFF4646FF>Piledrive</fg>\n"
+"<fg00BEFFFF>Shield Bounce</fg>\n"
+"Disable: <fg00E092FF>{0} + {1}</fg>"
+msgstr ""
+"<fgCB87FFFF>Bewegung</fg>\n"
+"<fgFFFFFFFF>Sprung</fg>\n"
+"<fgFFD200FF>Greifhaken</fg>\n"
+"<fgFF4646FF>Rammstoß</fg>\n"
+"<fg00BEFFFF>Schildabprall</fg>\n"
+"Ausschalten: <fg00E092FF>{0} + {1}</fg>"
+
+#. file controls.opy, rule "Load Hints HUD"
+msgid "No Hint For This CP"
+msgstr "Kein Hinweis für diesen CP"
+
+#. file controls.opy, rule "Load HUD"
+msgid "{0}Prev. CP:                               {1}{2} + {3}</fg>"
+msgstr "{0}Vorh. CP:                                     {1}{2} + {3}</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "{0}Next CP:                               {1}{2} + {3}</fg>"
+msgstr "{0}Nächster CP:                             {1}{2} + {3}</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "Reset CP:                           <fg00E092FF>{0} (Hold)</fg>"
+msgstr "CP zurücksetzen:             <fg00E092FF>{0} (halten)</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "New Run:                 <fg00E092FF>{0} + {1} (Hold)</fg>"
+msgstr "Neuer Lauf:                 <fg00E092FF>{0} + {1} (halten)</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "Freemode:                            <fg00E092FF>{0} + {1}</fg>"
+msgstr "Freier Modus:                             <fg00E092FF>{0} + {1}</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "Disable Hints:                <fg00E092FF>{0} + {1}</fg>"
+msgstr "Hinweise aus:                        <fg00E092FF>{0} + {1}</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "Enable Hints:                 <fg00E092FF>{0} + {1}</fg>"
+msgstr "Hinweise an:                         <fg00E092FF>{0} + {1}</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "Spectate:                       <fg00E092FF>{0} + {1}</fg>"
+msgstr "Zuschauen:                         <fg00E092FF>{0} + {1}</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "Lobby/Pause:         <fg00E092FF>{0} + {1} (Hold)</fg>"
+msgstr "Lobby/Pause:              <fg00E092FF>{0} + {1} (halten)</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "Lobby:                      <fg00E092FF>{0} + {1} (Hold)</fg>"
+msgstr "Lobby:                           <fg00E092FF>{0} + {1} (halten)</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid ""
+"<fg808080FF>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</fg>\n"
+"<fgEC9900FF>        Spectator Controls</fg>\n"
+"Disable:                         <fg00E092FF>{0} + {1}</fg>"
+msgstr ""
+"<fg808080FF>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</fg>\n"
+"<fgEC9900FF>          Zuschauer-Steuerung</fg>\n"
+"Beenden:                              <fg00E092FF>{0} + {1}</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "Reattach:                      <fg00E092FF>{0} + {1}</fg>"
+msgstr "Wieder folgen:                   <fg00E092FF>{0} + {1}</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "First Person:               <fg00E092FF>{0} + {1}</fg>"
+msgstr "Ego-Perspektive:                <fg00E092FF>{0} + {1}</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid ""
+"{0}Prev. Player:              {1}{2} + {3}</fg>\n"
+"{0}Next Player:               {1}{2} + {4}</fg>"
+msgstr ""
+"{0}Vorh. Spieler:                    {1}{2} + {3}</fg>\n"
+"{0}Nächster Spieler:             {1}{2} + {4}</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "{0}X-Hair Player:     {1}{2} + {3}</fg>{4}"
+msgstr "{0}Anvisierter Spieler:   {1}{2} + {3}</fg>{4}"
+
+#. file controls.opy, rule "Load HUD"
+msgid "Freecam:                             <fg00E092FF>Move</fg>"
+msgstr "Freie Kamera:                      <fg00E092FF>Bewegen</fg>"
+
+#. file lobby.opy, rule "Load Leaderboard Area"
+msgid "Leaderboard"
+msgstr "Bestenliste"
+
+#. file lobby.opy, rule "Load Resume Run Area"
+msgid "Resume Run"
+msgstr "Lauf fortsetzen"
+
+#. file lobby.opy, rule "Load Start Run Area"
+msgid "New Run"
+msgstr "Neuer Lauf"
+
+#. file lobby.opy, rule "Load Welcome Area"
+msgid "Welcome to"
+msgstr "Willkommen bei"
+
+# TODO: check if all occurrences have the same translation
+#. 2 occurrences:
+#.  - file lobby.opy, rule "Subroutine loadLobby"
+#.  - file spectator.opy, rule "Subroutine reattachToSpectatingTarget"
+#, hasMultipleOccurrencesNotification
+msgid "{0}"
+msgstr "{0}"
+
+#. file match.opy, rule "Auto-Restart Server"
+msgid ""
+"Server restart:\n"
+"30min"
+msgstr ""
+"Serverneustart:\n"
+"30 Min."
+
+#. file match.opy, rule "Auto-Restart Server"
+msgid ""
+"Server restart:\n"
+"15min"
+msgstr ""
+"Serverneustart:\n"
+"15 Min."
+
+#. file match.opy, rule "Auto-Restart Server"
+msgid ""
+"Server restart:\n"
+"5min"
+msgstr ""
+"Serverneustart:\n"
+"5 Min."
+
+#. file match.opy, rule "Auto-Restart Server"
+msgid ""
+"Server restart:\n"
+"1min"
+msgstr ""
+"Serverneustart:\n"
+"1 Min."
+
+#. file players.opy, rule "Subroutine showCpNameplate"
+msgid "{0} | {1}"
+msgstr "{0} | {1}"
+
+#. file run.opy, rule "Load HUD"
+msgid "Controls: <fg00E092FF>{0}</fg>"
+msgstr "Steuerung: <fg00E092FF>{0}</fg>"
+
+#. file spectator.opy, rule "Load HUD"
+msgid "Spectating"
+msgstr "Zuschauen"
+
+#. file spectator.opy, rule "Load HUD"
+msgid "Spectating {0}"
+msgstr "Du schaust {0} zu"
+
+#. file spectator.opy, rule "Load HUD"
+msgid "Freecam On"
+msgstr "Freie Kamera an"
+
+#. file spectator.opy, rule "Load HUD"
+msgid "(Disconnected)"
+msgstr "(Getrennt)"
+
+#. file spectator.opy, rule "Load HUD"
+msgid "Spectators: {0}"
+msgstr "Zuschauer: {0}"
+
+#. file spectator.opy, rule "Subroutine enableFirstPersonSpectator"
+msgid ""
+"{0}<fgE62400FF>HEADS UP</fg>{0}\n"
+"<fgFFD700FF>Hold {1} to exit!</fg>\n"
+"<fgFFFFFFFF>- - - - - - - - - - - - - - - - -</fg>\n"
+"<fgE69700FF>Press {2} to change perspective</fg>"
+msgstr ""
+"{0}<fgE62400FF>ACHTUNG</fg>{0}\n"
+"<fgFFD700FF>Halte {1} zum Verlassen!</fg>\n"
+"<fgFFFFFFFF>- - - - - - - - - - - - - - - - -</fg>\n"
+"<fgE69700FF>Drücke {2} für eine andere Ansicht</fg>"
+
+#. file spectator.opy, rule "Subroutine enableFreecam"
+msgid "{0} | FREECAM"
+msgstr "{0} | FREIE KAMERA"
+
+#. file splits.opy, rule "Load HUD"
+msgid "CP {0}"
+msgstr "CP {0}"
+
+#. file splits.opy, rule "Load HUD"
+msgid "Attempt: {0}"
+msgstr "Versuch: {0}"
+
+# TODO: check if all occurrences have the same translation
+#. 2 occurrences:
+#.  - file splits.opy, rule "Load HUD"
+#.  - file splits.opy, rule "Load HUD"
+#, hasMultipleOccurrencesNotification
+msgid ""
+"Best: <fgFFFFFFFF>{0}</fg>\n"
+"Avg: <fgFFFFFFFF>{1}</fg>"
+msgstr ""
+"Beste: <fgFFFFFFFF>{0}</fg>\n"
+"Schnitt: <fgFFFFFFFF>{1}</fg>"
+
+#. file splits.opy, rule "Load HUD"
+msgid "Split: {0}"
+msgstr "Split: {0}"

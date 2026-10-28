@@ -31,7 +31,7 @@ rule "Joins":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer != eventPlayer and not eventPlayer.isTiny
         ),
-        eventPlayer.nameplate,
+        _(eventPlayer.nameplate),
         eventPlayer,
         1,
         Clip.SURFACES,
@@ -42,7 +42,7 @@ rule "Joins":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer != eventPlayer and eventPlayer.isTiny
         ),
-        eventPlayer.nameplate,
+        _(eventPlayer.nameplate),
         eventPlayer,
         0.5,
         Clip.SURFACES,
@@ -69,7 +69,7 @@ rule "Joins":
 def showCpNameplate():
     @Name "Show Checkpoint On Nameplate"
 
-    eventPlayer.nameplate = "{} | {}".format(eventPlayer, eventPlayer.runCurrentCp)
+    eventPlayer.nameplate = _("{} | {}").format(eventPlayer, eventPlayer.runCurrentCp)
 
 
 rule "Leaves":
