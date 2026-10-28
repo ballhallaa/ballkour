@@ -126,28 +126,6 @@ macro spectatorCamPos(target):
     )
 
 
-rule "Camera Loop":
-    @Event eachPlayer
-    @Condition eventPlayer.spectating[0] == true
-    @Condition eventPlayer.spectating[2] == false
-    @Condition eventPlayer.spectating[3] == false
-    @Condition eventPlayer.spectating[5] == false
-
-    while (
-        eventPlayer.spectating[0]
-        and not eventPlayer.spectating[2]
-        and not eventPlayer.spectating[3]
-        and not eventPlayer.spectating[5]
-    ):
-        eventPlayer.startCamera(
-            spectatorCamPos(eventPlayer.spectating[1]),
-            eventPlayer.spectating[1].getEyePosition()
-            + eventPlayer.spectating[1].getFacingDirection(),
-            250
-        )
-        wait()
-
-
 rule "Hold Queued Camera":
     @Event eachPlayer
     @Condition eventPlayer in freecamQueue
@@ -541,11 +519,12 @@ def reattachToSpectatingTarget():
     swapToWreckingBall()
     eventPlayer.setInvisibility(Invis.ALL)
     eventPlayer.startForcingPosition(eventPlayer.spectating[1].getPosition())
+    # The camera reevaluates its positions, so it keeps following the target without being restarted
     eventPlayer.startCamera(
         spectatorCamPos(eventPlayer.spectating[1]),
         eventPlayer.spectating[1].getEyePosition()
         + eventPlayer.spectating[1].getFacingDirection(),
-        500
+        250
     )
     eventPlayer.disallowButton(Button.PRIMARY_FIRE)
     eventPlayer.disallowButton(Button.SECONDARY_FIRE)
