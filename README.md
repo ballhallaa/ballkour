@@ -29,4 +29,12 @@ Note: Senimar's courses (8-15) are ordered by difficulty
 
 ---
 
+### Translations
+
+Ballkour's HUD is translated into multiple languages on [Weblate](https://hosted.weblate.org/engage/ballkour/). Native speakers are welcome to review and improve the translations there.
+
+[![Translation status](https://hosted.weblate.org/widget/ballkour/svg-badge.svg)](https://hosted.weblate.org/engage/ballkour/)
+
+---
+
 ![alt text](gallery/logos/logo.png)  
