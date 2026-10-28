@@ -7,7 +7,6 @@ rule "Joins":
     @Condition eventPlayer.isDummy() == false
 
     eventPlayer.isLoading = true
-    eventPlayer.isHintOn = true
     if isLobbyStatsOn:
         if not "{}".format(eventPlayer) in players:
             if eventPlayer == hostPlayer:

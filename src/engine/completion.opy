@@ -29,6 +29,7 @@ rule "Checkpoint (No Skipping)":
     recordSplit()
     if isHintRecorderOn and eventPlayer == hostPlayer:
         saveHintRoute()
+    resetCpMistakes()
     eventPlayer.isLoading = true
     eventPlayer.runCurrentCp++
     syncSpectatorCps()

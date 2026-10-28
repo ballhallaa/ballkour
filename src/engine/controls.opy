@@ -294,6 +294,7 @@ rule "Prev. Checkpoint Input":
         eventPlayer.runCurrentCp--
         syncSpectatorCps()
         showCpNameplate()
+        resetCpMistakes()
     else:
         if not eventPlayer.spectating[2]:
             enableFreecam()
@@ -367,6 +368,7 @@ rule "Next Checkpoint Input":
         eventPlayer.runCurrentCp++
         syncSpectatorCps()
         showCpNameplate()
+        resetCpMistakes()
     else:
         if not eventPlayer.spectating[2]:
             enableFreecam()
@@ -583,39 +585,48 @@ rule "Hints Input":
     @Condition eventPlayer.viewCp < lastCp
 
     eventPlayer.isHintOn = not eventPlayer.isHintOn
+    # Toggled by hand, so moving to another CP doesn't turn them off
+    eventPlayer.isHintAutoOn = false
 
 
 rule "Load Hints HUD":
+    # While hints are off, the same spot shows how to turn them on
     hudSubtext(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.isHintOn
-            and not localPlayer.isInLobby
+            lambda localPlayer: not localPlayer.isInLobby
             and localPlayer.viewCp < lastCp
             and len(hintRoutes) > 0
         ),
         ("\n\n{}").format(
             (
-                ("Hints On" "\nInfo: <fg00E092FF>{} + {}</fg>{}").format(
+                ("Hints: <fg00E092FF>{} + {}</fg>").format(
                     inputBindingString(Button.ULTIMATE),
-                    inputBindingString(Button.ABILITY_2),
-                    (
-                        (
-                            "\n   <fgCB87FFFF>Movement</fg>"
-                            "\n   <fgFFFFFFFF>Jump</fg>"
-                            "\n   <fgFFD200FF>Grapple</fg>"
-                            "\n   <fgFF4646FF>Piledrive</fg>"
-                            "\n   <fg00BEFFFF>Shield Bounce</fg>"
-                            "\nDisable: <fg00E092FF>{} + {}</fg>"
-                        ).format(
-                            inputBindingString(Button.ULTIMATE),
-                            inputBindingString(Button.MELEE)
-                        )
-                        if localPlayer.isViewingHintInfo
-                        else ""
-                    )
+                    inputBindingString(Button.MELEE)
                 )
-                if len(hintRoutes[localPlayer.viewCp]) > 1
-                else "No Hint For This CP"
+                if not localPlayer.isHintOn
+                else (
+                    ("Hints On" "\nInfo: <fg00E092FF>{} + {}</fg>{}").format(
+                        inputBindingString(Button.ULTIMATE),
+                        inputBindingString(Button.ABILITY_2),
+                        (
+                            (
+                                "\n   <fgCB87FFFF>Movement</fg>"
+                                "\n   <fgFFFFFFFF>Jump</fg>"
+                                "\n   <fgFFD200FF>Grapple</fg>"
+                                "\n   <fgFF4646FF>Piledrive</fg>"
+                                "\n   <fg00BEFFFF>Shield Bounce</fg>"
+                                "\nDisable: <fg00E092FF>{} + {}</fg>"
+                            ).format(
+                                inputBindingString(Button.ULTIMATE),
+                                inputBindingString(Button.MELEE)
+                            )
+                            if localPlayer.isViewingHintInfo
+                            else ""
+                        )
+                    )
+                    if len(hintRoutes[localPlayer.viewCp]) > 1
+                    else "No Hint For This CP"
+                )
             )
         ),
         HudPosition.LEFT,
