@@ -81,6 +81,7 @@ playervar cpData
 playervar isCpTimerActive
 playervar cpTime
 playervar cpTimeFormatted
+playervar cpStartMistakes
 playervar viewCp
 
 # Splits
@@ -102,6 +103,7 @@ playervar splitResult
 
 # Hint Playback
 playervar isHintOn
+playervar isHintAutoOn
 playervar isHintPlaying
 playervar isViewingHintInfo
 playervar hintPlayCp
@@ -167,6 +169,7 @@ subroutine formatSplitResult
 
 # Hints
 subroutine saveHintRoute
+subroutine resetCpMistakes
 
 # Time Formatting
 subroutine formatTime

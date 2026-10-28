@@ -108,6 +108,7 @@ def resetRun():
     eventPlayer.runTime = 0
     eventPlayer.runTimeFormatted = "0.00"
     eventPlayer.runMistakes = 0
+    resetCpMistakes()
 
 
 def pauseRun():

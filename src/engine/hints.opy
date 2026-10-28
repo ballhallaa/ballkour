@@ -63,6 +63,30 @@ rule "Load Objects":
     )
 
 
+rule "Enable After Mistakes":
+    @Event eachPlayer
+    # Hints start off and turn on after 10 mistakes on one CP, until the player moves to another
+    # CP. Turning them off again sticks until then, since this only fires when the count reaches 10
+    @Condition eventPlayer.runMistakes - eventPlayer.cpStartMistakes >= 10
+
+    # Hints the player turned on stay on when the CP changes
+    if not eventPlayer.isHintOn:
+        eventPlayer.isHintOn = true
+        eventPlayer.isHintAutoOn = true
+
+
+def resetCpMistakes():
+    @Name "Reset CP Mistakes"
+
+    # Called when the player moves to another CP (a clear, Prev/Next CP, a new run, or leaving
+    # spectator on a different CP). Resetting the CP, the lobby, freemode and spectating don't
+    # call it, so the CP's mistakes there keep counting toward hints
+    eventPlayer.cpStartMistakes = eventPlayer.runMistakes
+    if eventPlayer.isHintAutoOn:
+        eventPlayer.isHintOn = false
+        eventPlayer.isHintAutoOn = false
+
+
 rule "Playback":
     @Event eachPlayer
     @Condition eventPlayer.isHintOn == true

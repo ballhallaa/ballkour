@@ -159,6 +159,9 @@ def disableSpectator():
         eventPlayer.spectating[4] = eventPlayer.spectating[1].runCurrentCp
     if eventPlayer.spectating[4] > eventPlayer.runCurrentCp:
         eventPlayer.isRunLegit = false
+    # Landing back on the CP they left keeps its mistake count
+    if eventPlayer.spectating[4] != eventPlayer.runCurrentCp:
+        resetCpMistakes()
     eventPlayer.runCurrentCp = eventPlayer.spectating[4]
     eventPlayer.spectating[1].spectating[10]--
     eventPlayer.spectating[1] = null
