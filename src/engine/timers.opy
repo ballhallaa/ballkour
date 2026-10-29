@@ -42,6 +42,16 @@ rule "Update Run Format":
         eventPlayer.timeToFormat = eventPlayer.cpTime
         formatTime()
         eventPlayer.cpTimeFormatted = eventPlayer.timeFormatted
+        # Until the current split passes the average, the ETA stays what Load Pace set
+        if eventPlayer.runTime - eventPlayer.splitStart > eventPlayer.paceSplit:
+            eventPlayer.timeToFormat = (
+                eventPlayer.paceEta
+                + eventPlayer.runTime
+                - eventPlayer.splitStart
+                - eventPlayer.paceSplit
+            )
+            formatTime()
+            eventPlayer.paceEtaFormatted = eventPlayer.timeFormatted
     eventPlayer.isTimerActive = false
 
 

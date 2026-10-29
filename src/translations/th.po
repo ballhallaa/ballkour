@@ -300,3 +300,7 @@ msgstr ""
 #. file splits.opy, rule "Load HUD"
 msgid "Split: {0}"
 msgstr "ช่วง: {0}"
+
+#. file splits.opy, rule "Load HUD"
+msgid "ETA: {0}"
+msgstr "เวลาคาดการณ์: {0}"

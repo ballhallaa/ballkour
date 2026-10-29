@@ -106,6 +106,9 @@ def resetRun():
     eventPlayer.runTime = 0
     eventPlayer.runTimeFormatted = "0.00"
     eventPlayer.runMistakes = 0
+    # The ETA paces each run from its own splits, unlike the per-CP Best and Avg
+    eventPlayer.paceSplitTotal = 0
+    eventPlayer.paceSplitClears = 0
     resetCpMistakes()
 
 

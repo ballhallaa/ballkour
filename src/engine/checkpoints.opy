@@ -44,6 +44,7 @@ def loadCpData():
         if eventPlayer.splitClears[eventPlayer.runCurrentCp]
         else Math.INFINITY
     )
+    loadPace()
 
 
 def setCpAbilities():
