@@ -29,38 +29,41 @@ rule "Load HUD":
     # The lobby only has New Run and Spectate
     # Each line is one translated string with its padding inside, so a translation can
     # pad its own label. Grayed-out lines take their colors as arguments for the same reason.
+    ctrlsHudText[0] = _("@0Prev. CP:                               @1@2 + @3</fg>")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and not localPlayer.isInLobby
         ),
-        _("{}Prev. CP:                               {}{} + {}</fg>").format(
-            "" if localPlayer.viewCp > 0 else "<fg808080FF>",
-            "<fgFFFFFFFF>" if localPlayer.viewCp > 0 else "",
-            inputBindingString(Button.ULTIMATE),
-            inputBindingString(Button.PRIMARY_FIRE)
-        ),
+        _(ctrlsHudText[0])
+        .replace("@0", "" if localPlayer.viewCp > 0 else "<fg808080FF>")
+        .replace("@1", "<fgFFFFFFFF>" if localPlayer.viewCp > 0 else "")
+        .replace("@2", inputBindingString(Button.ULTIMATE))
+        .replace("@3", inputBindingString(Button.PRIMARY_FIRE)),
         HudPosition.LEFT,
         1,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
+    ctrlsHudText[1] = _("@0Next CP:                               @1@2 + @3</fg>")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and not localPlayer.isInLobby
         ),
-        _("{}Next CP:                               {}{} + {}</fg>").format(
-            "" if localPlayer.viewCp < lastCp else "<fg808080FF>",
-            "<fgFFFFFFFF>" if localPlayer.viewCp < lastCp else "",
-            inputBindingString(Button.ULTIMATE),
-            inputBindingString(Button.SECONDARY_FIRE)
-        ),
+        _(ctrlsHudText[1])
+        .replace("@0", "" if localPlayer.viewCp < lastCp else "<fg808080FF>")
+        .replace("@1", "<fgFFFFFFFF>" if localPlayer.viewCp < lastCp else "")
+        .replace("@2", inputBindingString(Button.ULTIMATE))
+        .replace("@3", inputBindingString(Button.SECONDARY_FIRE)),
         HudPosition.LEFT,
         2,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
+    ctrlsHudText[2] = _(
+        "Reset CP:                           <fgFFFFFFFF>@0 (Hold)</fg>"
+    )
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
@@ -68,24 +71,24 @@ rule "Load HUD":
             and not localPlayer.spectating[0]
             and localPlayer.runCurrentCp < lastCp
         ),
-        _("Reset CP:                           <fgFFFFFFFF>{} (Hold)</fg>").format(
-            inputBindingString(Button.RELOAD)
-        ),
+        _(ctrlsHudText[2]).replace("@0", inputBindingString(Button.RELOAD)),
         HudPosition.LEFT,
         3,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
+    ctrlsHudText[3] = _("New Run:                 <fgFFFFFFFF>@0 + @1 (Hold)</fg>")
     hudSubheader(
         getAllPlayers().filter(lambda localPlayer: localPlayer.isViewingCtrlsHud),
-        _("New Run:                 <fgFFFFFFFF>{} + {} (Hold)</fg>").format(
-            inputBindingString(Button.ULTIMATE), inputBindingString(Button.RELOAD)
-        ),
+        _(ctrlsHudText[3])
+        .replace("@0", inputBindingString(Button.ULTIMATE))
+        .replace("@1", inputBindingString(Button.RELOAD)),
         HudPosition.LEFT,
         4,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
+    ctrlsHudText[4] = _("Freemode:                            <fgFFFFFFFF>@0 + @1</fg>")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
@@ -93,14 +96,16 @@ rule "Load HUD":
             and not localPlayer.spectating[0]
             and localPlayer.runCurrentCp < lastCp
         ),
-        _("Freemode:                            <fgFFFFFFFF>{} + {}</fg>").format(
-            inputBindingString(Button.ULTIMATE), inputBindingString(Button.INTERACT)
-        ),
+        _(ctrlsHudText[4])
+        .replace("@0", inputBindingString(Button.ULTIMATE))
+        .replace("@1", inputBindingString(Button.INTERACT)),
         HudPosition.LEFT,
         5,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
+    ctrlsHudText[5] = _("Disable Hints:                <fgFFFFFFFF>@0 + @1</fg>")
+    ctrlsHudText[6] = _("Enable Hints:                 <fgFFFFFFFF>@0 + @1</fg>")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
@@ -109,76 +114,81 @@ rule "Load HUD":
             and len(hintRoutes) > 0
         ),
         (
-            _("Disable Hints:                <fgFFFFFFFF>{} + {}</fg>").format(
-                inputBindingString(Button.ULTIMATE), inputBindingString(Button.MELEE)
-            )
+            _(ctrlsHudText[5])
+            .replace("@0", inputBindingString(Button.ULTIMATE))
+            .replace("@1", inputBindingString(Button.MELEE))
             if localPlayer.isHintOn
-            else _("Enable Hints:                 <fgFFFFFFFF>{} + {}</fg>").format(
-                inputBindingString(Button.ULTIMATE), inputBindingString(Button.MELEE)
-            )
+            else _(ctrlsHudText[6])
+            .replace("@0", inputBindingString(Button.ULTIMATE))
+            .replace("@1", inputBindingString(Button.MELEE))
         ),
         HudPosition.LEFT,
         5,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
+    ctrlsHudText[7] = _("Spectate:                       <fgFFFFFFFF>@0 + @1</fg>")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and not localPlayer.spectating[0]
         ),
-        _("Spectate:                       <fgFFFFFFFF>{} + {}</fg>").format(
-            inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_1)
-        ),
+        _(ctrlsHudText[7])
+        .replace("@0", inputBindingString(Button.ULTIMATE))
+        .replace("@1", inputBindingString(Button.ABILITY_1)),
         HudPosition.LEFT,
         6,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
+    ctrlsHudText[8] = _("Lobby/Pause:         <fgFFFFFFFF>@0 + @1 (Hold)</fg>")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and not localPlayer.isInLobby
             and not localPlayer.spectating[0]
         ),
-        _("Lobby/Pause:         <fgFFFFFFFF>{} + {} (Hold)</fg>").format(
-            inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_2)
-        ),
+        _(ctrlsHudText[8])
+        .replace("@0", inputBindingString(Button.ULTIMATE))
+        .replace("@1", inputBindingString(Button.ABILITY_2)),
         HudPosition.LEFT,
         7,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
+    )
+    ctrlsHudText[9] = _("Lobby:                      <fgFFFFFFFF>@0 + @1 (Hold)</fg>")
+    hudSubheader(
+        getAllPlayers().filter(
+            lambda localPlayer: localPlayer.isViewingCtrlsHud
+            and localPlayer.spectating[0]
+        ),
+        _(ctrlsHudText[9])
+        .replace("@0", inputBindingString(Button.ULTIMATE))
+        .replace("@1", inputBindingString(Button.ABILITY_2)),
+        HudPosition.LEFT,
+        7,
+        rgb(230, 151, 0),
+        HudReeval.VISIBILITY_AND_STRING
+    )
+    ctrlsHudText[10] = _(
+        "<fg808080FF>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</fg>\n"
+        "<fgEC9900FF>        Spectator Controls</fg>\n"
+        "Disable:                         <fgFFFFFFFF>@0 + @1</fg>"
     )
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and localPlayer.spectating[0]
         ),
-        _("Lobby:                      <fgFFFFFFFF>{} + {} (Hold)</fg>").format(
-            inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_2)
-        ),
+        _(ctrlsHudText[10])
+        .replace("@0", inputBindingString(Button.ULTIMATE))
+        .replace("@1", inputBindingString(Button.ABILITY_1)),
         HudPosition.LEFT,
         7,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    hudSubheader(
-        getAllPlayers().filter(
-            lambda localPlayer: localPlayer.isViewingCtrlsHud
-            and localPlayer.spectating[0]
-        ),
-        _(
-            "<fg808080FF>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</fg>\n"
-            "<fgEC9900FF>        Spectator Controls</fg>\n"
-            "Disable:                         <fgFFFFFFFF>{} + {}</fg>"
-        ).format(
-            inputBindingString(Button.ULTIMATE), inputBindingString(Button.ABILITY_1)
-        ),
-        HudPosition.LEFT,
-        7,
-        rgb(230, 151, 0),
-        HudReeval.VISIBILITY_AND_STRING
-    )
+    ctrlsHudText[11] = _("Reattach:                      <fgFFFFFFFF>@0 + @1</fg>")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
@@ -186,73 +196,77 @@ rule "Load HUD":
             and localPlayer.spectating[1] != null
             and localPlayer.spectating[2]
         ),
-        _("Reattach:                      <fgFFFFFFFF>{} + {}</fg>").format(
-            inputBindingString(Button.ABILITY_1), inputBindingString(Button.RELOAD)
-        ),
+        _(ctrlsHudText[11])
+        .replace("@0", inputBindingString(Button.ABILITY_1))
+        .replace("@1", inputBindingString(Button.RELOAD)),
         HudPosition.LEFT,
         8,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
+    ctrlsHudText[12] = _("First Person:               <fgFFFFFFFF>@0 + @1</fg>")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and localPlayer.spectating[0]
             and localPlayer.spectating[1] != null
         ),
-        _("First Person:               <fgFFFFFFFF>{} + {}</fg>").format(
-            inputBindingString(Button.ABILITY_1), inputBindingString(Button.INTERACT)
-        ),
+        _(ctrlsHudText[12])
+        .replace("@0", inputBindingString(Button.ABILITY_1))
+        .replace("@1", inputBindingString(Button.INTERACT)),
         HudPosition.LEFT,
         9,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
+    )
+    ctrlsHudText[13] = _(
+        "@0Prev. Player:              @1@2 + @3</fg>"
+        "\n@0Next Player:               @1@2 + @4</fg>"
     )
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and localPlayer.spectating[0]
         ),
-        _(
-            "{0}Prev. Player:              {1}{2} + {3}</fg>"
-            "\n{0}Next Player:               {1}{2} + {4}</fg>"
-        ).format(
-            "" if localPlayer.spectating[7] else "<fg808080FF>",
-            "<fgFFFFFFFF>" if localPlayer.spectating[7] else "",
-            inputBindingString(Button.ABILITY_1),
-            inputBindingString(Button.PRIMARY_FIRE),
-            inputBindingString(Button.SECONDARY_FIRE)
-        ),
+        _(ctrlsHudText[13])
+        .replace("@0", "" if localPlayer.spectating[7] else "<fg808080FF>")
+        .replace("@1", "<fgFFFFFFFF>" if localPlayer.spectating[7] else "")
+        .replace("@2", inputBindingString(Button.ABILITY_1))
+        .replace("@3", inputBindingString(Button.PRIMARY_FIRE))
+        .replace("@4", inputBindingString(Button.SECONDARY_FIRE)),
         HudPosition.LEFT,
         10,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
+    ctrlsHudText[14] = _("@0X-Hair Player:     @1@2 + @3</fg>@4")
+    ctrlsHudText[15] = _("\nFreecam:                             <fgFFFFFFFF>Move</fg>")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and localPlayer.spectating[0]
         ),
         # Freecam shares X-Hair Player's text: sort order 12 is taken by Spectating
-        _("{}X-Hair Player:     {}{} + {}</fg>{}").format(
+        _(ctrlsHudText[14])
+        .replace(
+            "@0",
             (
                 ""
                 if localPlayer.spectating[2] and localPlayer.spectating[7]
                 else "<fg808080FF>"
-            ),
+            )
+        )
+        .replace(
+            "@1",
             (
                 "<fgFFFFFFFF>"
                 if localPlayer.spectating[2] and localPlayer.spectating[7]
                 else ""
-            ),
-            inputBindingString(Button.ABILITY_1),
-            inputBindingString(Button.JUMP),
-            (
-                _("\nFreecam:                             <fgFFFFFFFF>Move</fg>")
-                if not localPlayer.spectating[2]
-                else ""
             )
-        ),
+        )
+        .replace("@2", inputBindingString(Button.ABILITY_1))
+        .replace("@3", inputBindingString(Button.JUMP))
+        .replace("@4", _(ctrlsHudText[15]) if not localPlayer.spectating[2] else ""),
         HudPosition.LEFT,
         11,
         rgb(230, 151, 0),
@@ -517,12 +531,13 @@ rule "Freemode Input":
 
 
 rule "Load Freemode HUD":
+    freemodeHudText = _("\n\nFreemode On")
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isInFreemode
             and not localPlayer.spectating[0]
         ),
-        _("\n\nFreemode On"),
+        _(freemodeHudText),
         HudPosition.LEFT,
         12,
         rgb(255, 70, 70),
@@ -583,6 +598,17 @@ rule "Hints Input":
 
 rule "Load Hints HUD":
     # While hints are off, the same spot shows how to turn them on
+    hintsHudText[0] = _("Hints: <fgFFFFFFFF>@0 + @1</fg>")
+    hintsHudText[1] = _("Hints On" "\nInfo: <fgFFFFFFFF>@0 + @1</fg>@2")
+    hintsHudText[2] = _(
+        "\n   <fgCB87FFFF>Movement</fg>"
+        "\n   <fgFFFFFFFF>Jump</fg>"
+        "\n   <fgFFD200FF>Grapple</fg>"
+        "\n   <fgFF4646FF>Piledrive</fg>"
+        "\n   <fg00BEFFFF>Shield Bounce</fg>"
+        "\nDisable: <fgFFFFFFFF>@0 + @1</fg>"
+    )
+    hintsHudText[3] = _("No Hint For This CP")
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: not localPlayer.isInLobby
@@ -591,33 +617,26 @@ rule "Load Hints HUD":
         ),
         ("\n\n{}").format(
             (
-                _("Hints: <fgFFFFFFFF>{} + {}</fg>").format(
-                    inputBindingString(Button.ULTIMATE),
-                    inputBindingString(Button.MELEE)
-                )
+                _(hintsHudText[0])
+                .replace("@0", inputBindingString(Button.ULTIMATE))
+                .replace("@1", inputBindingString(Button.MELEE))
                 if not localPlayer.isHintOn
                 else (
-                    _("Hints On" "\nInfo: <fgFFFFFFFF>{} + {}</fg>{}").format(
-                        inputBindingString(Button.ULTIMATE),
-                        inputBindingString(Button.ABILITY_2),
+                    _(hintsHudText[1])
+                    .replace("@0", inputBindingString(Button.ULTIMATE))
+                    .replace("@1", inputBindingString(Button.ABILITY_2))
+                    .replace(
+                        "@2",
                         (
-                            _(
-                                "\n   <fgCB87FFFF>Movement</fg>"
-                                "\n   <fgFFFFFFFF>Jump</fg>"
-                                "\n   <fgFFD200FF>Grapple</fg>"
-                                "\n   <fgFF4646FF>Piledrive</fg>"
-                                "\n   <fg00BEFFFF>Shield Bounce</fg>"
-                                "\nDisable: <fgFFFFFFFF>{} + {}</fg>"
-                            ).format(
-                                inputBindingString(Button.ULTIMATE),
-                                inputBindingString(Button.MELEE)
-                            )
+                            _(hintsHudText[2])
+                            .replace("@0", inputBindingString(Button.ULTIMATE))
+                            .replace("@1", inputBindingString(Button.MELEE))
                             if localPlayer.isViewingHintInfo
                             else ""
                         )
                     )
                     if len(hintRoutes[localPlayer.viewCp]) > 1
-                    else _("No Hint For This CP")
+                    else _(hintsHudText[3])
                 )
             )
         ),

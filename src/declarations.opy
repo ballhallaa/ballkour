@@ -53,6 +53,19 @@ globalvar playerToEnableFreecam
 globalvar freecamStartPos
 globalvar freecamQueue = []
 
+# Translated HUD Text
+# Each HUD text's translations are stored here once and shown with _(), instead of written into the HUD text.
+# Overwatch reprocesses every HUD text's definition every 5s, and a translated string puts every language
+# into it, which took that spike from ~66% to ~90% server load. A stored string can't have {} placeholders,
+# so its arguments are @0, @1... markers, filled in with .replace("@0", value) where it's shown.
+globalvar ctrlsHudText = []
+globalvar freemodeHudText
+globalvar hintsHudText = []
+globalvar runHudText
+globalvar splitsHudText = []
+globalvar spectatorHudText = []
+globalvar completionHudText = []
+
 globalvar index 127
 
 # Player

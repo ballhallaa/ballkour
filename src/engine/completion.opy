@@ -90,41 +90,45 @@ rule "Load Run Text":
 
 
 rule "Run Text":
+    completionHudText[0] = _("\n\nCongrats, @0!\n")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
         ),
-        _("\n\nCongrats, {}!\n").format(localPlayer),
+        _(completionHudText[0]).replace("@0", localPlayer),
         HudPosition.TOP,
         2,
         rgb(0, 224, 146),
         HudReeval.VISIBILITY_AND_STRING
     )
+    completionHudText[1] = _("Time: @0")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
         ),
-        _("Time: {}").format(localPlayer.runFinalTimeFormatted),
+        _(completionHudText[1]).replace("@0", localPlayer.runFinalTimeFormatted),
         HudPosition.TOP,
         3,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
+    completionHudText[2] = _("Time to Beat: @0")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
         ),
-        _("Time to Beat: {}").format(timeToBeatFormatted),
+        _(completionHudText[2]).replace("@0", timeToBeatFormatted),
         HudPosition.TOP,
         4,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
+    completionHudText[3] = _("Mistakes: @0\n")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
         ),
-        _("Mistakes: {}\n").format(localPlayer.runFinalMistakes),
+        _(completionHudText[3]).replace("@0", localPlayer.runFinalMistakes),
         HudPosition.TOP,
         5,
         rgb(230, 151, 0),
@@ -132,6 +136,12 @@ rule "Run Text":
     )
     # Lines start with a color tag and then their centering spaces: OverPy adds a line's
     # leading spaces to every translation, but spaces after the tag are the translation's own
+    completionHudText[4] = _(
+        "<fgFF4646FF>Submit a Video of Your Run</fg>\n"
+        "<fgFF4646FF>                        @</fg>\n"
+        "<fgFF4646FF>              ballkour.com</fg>\n\n"
+        "<fg00E092FF>       Thanks for Playing!</fg>"
+    )
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
@@ -139,16 +149,18 @@ rule "Run Text":
             and timeToBeat > 0
             and localPlayer.isRunLegit
         ),
-        _(
-            "<fgFF4646FF>Submit a Video of Your Run</fg>\n"
-            "<fgFF4646FF>                        @</fg>\n"
-            "<fgFF4646FF>              ballkour.com</fg>\n\n"
-            "<fg00E092FF>       Thanks for Playing!</fg>"
-        ),
+        _(completionHudText[4]),
         HudPosition.TOP,
         6,
         Color.WHITE,
         HudReeval.VISIBILITY_AND_STRING
+    )
+    completionHudText[5] = _(
+        "<fgE69700FF>                Top-10 Time!</fg>\n"
+        "<fgFF4646FF>Submit a Video of Your Run</fg>\n"
+        "<fgFF4646FF>                        @</fg>\n"
+        "<fgFF4646FF>              ballkour.com</fg>\n\n"
+        "<fg00E092FF>       Thanks for Playing!</fg>"
     )
     hudSubheader(
         getAllPlayers().filter(
@@ -156,28 +168,23 @@ rule "Run Text":
             and (timeToBeat == 0 or localPlayer.runTime <= timeToBeat)
             and localPlayer.isRunLegit
         ),
-        _(
-            "<fgE69700FF>                Top-10 Time!</fg>\n"
-            "<fgFF4646FF>Submit a Video of Your Run</fg>\n"
-            "<fgFF4646FF>                        @</fg>\n"
-            "<fgFF4646FF>              ballkour.com</fg>\n\n"
-            "<fg00E092FF>       Thanks for Playing!</fg>"
-        ),
+        _(completionHudText[5]),
         HudPosition.TOP,
         6,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
+    )
+    completionHudText[6] = _(
+        "<fgFF4646FF>             Run Not Counted\n"
+        "Skipped CPs or Used Freemode</fg>\n\n"
+        "<fg00E092FF>         Thanks for Playing!</fg>"
     )
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
             and not localPlayer.isRunLegit
         ),
-        _(
-            "<fgFF4646FF>             Run Not Counted\n"
-            "Skipped CPs or Used Freemode</fg>\n\n"
-            "<fg00E092FF>         Thanks for Playing!</fg>"
-        ),
+        _(completionHudText[6]),
         HudPosition.TOP,
         6,
         Color.WHITE,
