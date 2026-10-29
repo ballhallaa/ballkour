@@ -54,12 +54,8 @@ rule "Load Leaderboard Area":
         lobbyData[11],
         lobbyData[12],
         Clip.SURFACES,
-        WorldTextReeval.VISIBILITY_STRING_AND_COLOR,
-        rgb(
-            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15),
-            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15 + 120),
-            127.5 + 127.5 * cosDeg(getTotalTimeElapsed() * 15 + 240)
-        )
+        WorldTextReeval.VISIBILITY_AND_STRING,
+        rgb(230, 151, 0)
     )
     # 1st-9th Position Placeholder"
     lb[11] = "---, -:--.--, -, '                                               '"
@@ -77,7 +73,7 @@ rule "Load Leaderboard Area":
         lbObj = lbObj.split(",")
         lbObj[3] = lbObj[3].replace("'", "")
         # Gold, silver and bronze, then the rest
-        lbObj[4] = ["<fgFFFF00FF>", "<fgC0C0C0FF>", "<fgCD7F32FF>", "<fg00E092FF>"][
+        lbObj[4] = ["<fgFFFF00FF>", "<fgB0C4DEFF>", "<fgC46A30FF>", "<fgFFFFFFFF>"][
             min(index, 4) - 1
         ]
         lbObjFormatted = "{}. {}{}</fg>{}{}{}{}   {}{}</fg>".format(
@@ -239,14 +235,14 @@ rule "Load Stats":
         lobbyData[15],
         Clip.SURFACES,
         WorldTextReeval.VISIBILITY,
-        rgb(0, 224, 146)
+        rgb(230, 151, 0)
     )
     createInWorldText(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isInLobby
             and "{}".format(localPlayer) == hostPlayerName
         ),
-        "Elapsed Time: <fg00E092FF>{}</fg>".format(
+        "Elapsed Time: <fgFFFFFFFF>{}</fg>".format(
             elapsedTimeFormatted if not isDebugOn else elapsedTime
         ),
         lobbyData[17],
@@ -260,7 +256,7 @@ rule "Load Stats":
             lambda localPlayer: localPlayer.isInLobby
             and "{}".format(localPlayer) == hostPlayerName
         ),
-        "New Players: <fg00E092FF>{}</fg>".format(lobbyStats[0]),
+        "New Players: <fgFFFFFFFF>{}</fg>".format(lobbyStats[0]),
         lobbyData[18],
         lobbyData[16],
         Clip.SURFACES,
@@ -272,7 +268,7 @@ rule "Load Stats":
             lambda localPlayer: localPlayer.isInLobby
             and "{}".format(localPlayer) == hostPlayerName
         ),
-        "Rejoins: <fg00E092FF>{}</fg>".format(lobbyStats[1]),
+        "Rejoins: <fgFFFFFFFF>{}</fg>".format(lobbyStats[1]),
         lobbyData[19],
         lobbyData[16],
         Clip.SURFACES,
@@ -284,7 +280,7 @@ rule "Load Stats":
             lambda localPlayer: localPlayer.isInLobby
             and "{}".format(localPlayer) == hostPlayerName
         ),
-        "Legit Runs: <fg00E092FF>{}</fg>".format(lobbyStats[2]),
+        "Legit Runs: <fgFFFFFFFF>{}</fg>".format(lobbyStats[2]),
         lobbyData[20],
         lobbyData[16],
         Clip.SURFACES,
@@ -296,7 +292,7 @@ rule "Load Stats":
             lambda localPlayer: localPlayer.isInLobby
             and "{}".format(localPlayer) == hostPlayerName
         ),
-        "Total Run Time: <fg00E092FF>{}</fg>".format(lobbyStats[4]),
+        "Total Run Time: <fgFFFFFFFF>{}</fg>".format(lobbyStats[4]),
         lobbyData[21],
         lobbyData[16],
         Clip.SURFACES,
@@ -308,7 +304,7 @@ rule "Load Stats":
             lambda localPlayer: localPlayer.isInLobby
             and "{}".format(localPlayer) == hostPlayerName
         ),
-        "Total Mistakes: <fg00E092FF>{}</fg>".format(lobbyStats[5]),
+        "Total Mistakes: <fgFFFFFFFF>{}</fg>".format(lobbyStats[5]),
         lobbyData[22],
         lobbyData[16],
         Clip.SURFACES,
@@ -320,7 +316,7 @@ rule "Load Stats":
             lambda localPlayer: localPlayer.isInLobby
             and "{}".format(localPlayer) == hostPlayerName
         ),
-        "Avg Run Time: <fg00E092FF>{}</fg>".format(lobbyStats[7]),
+        "Avg Run Time: <fgFFFFFFFF>{}</fg>".format(lobbyStats[7]),
         lobbyData[23],
         lobbyData[16],
         Clip.SURFACES,
@@ -332,7 +328,7 @@ rule "Load Stats":
             lambda localPlayer: localPlayer.isInLobby
             and "{}".format(localPlayer) == hostPlayerName
         ),
-        "Avg Mistakes: <fg00E092FF>{}</fg>".format(lobbyStats[8]),
+        "Avg Mistakes: <fgFFFFFFFF>{}</fg>".format(lobbyStats[8]),
         lobbyData[24],
         lobbyData[16],
         Clip.SURFACES,
