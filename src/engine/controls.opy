@@ -294,6 +294,9 @@ rule "Prev. Checkpoint Input":
     @Condition (eventPlayer.hasSpawned() and not eventPlayer.isLoading) == true
 
     eventPlayer.isLoading = true
+    # Watching someone, this switches to freecam, whose swap to Jetpack Cat finishes first
+    if eventPlayer.spectating[0] and not eventPlayer.spectating[2]:
+        swapToJetpackCat()
     eventPlayer.setPrimaryFireEnabled(false)
     pauseRun()
     if not eventPlayer.spectating[0]:
@@ -366,8 +369,11 @@ rule "Next Checkpoint Input":
     @Condition eventPlayer.isInLobby == false
     @Condition (eventPlayer.hasSpawned() and not eventPlayer.isLoading) == true
 
-    eventPlayer.setSecondaryFireEnabled(false)
     eventPlayer.isLoading = true
+    # Like Prev. Checkpoint Input
+    if eventPlayer.spectating[0] and not eventPlayer.spectating[2]:
+        swapToJetpackCat()
+    eventPlayer.setSecondaryFireEnabled(false)
     pauseRun()
     if not eventPlayer.spectating[0]:
         eventPlayer.isRunLegit = false
