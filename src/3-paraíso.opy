@@ -2,7 +2,7 @@
 
 settings {
     "main": {
-        "description": f"Paraíso \n\nv{VERSION} \n\nLatest Code: NT5G3K",
+        "description": f"Paraíso \n\nv{VERSION} \n\nLatest Code: NT5G3K \n\nBeta Code: MXJ0W",
         "modeName": "Ball Parkour ● ballkour.com"
     },
     "lobby": {
