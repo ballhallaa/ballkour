@@ -27,7 +27,7 @@ _Wrecking Ball Parkour Courses for Overwatch_
 15. 🇩🇪 ~~Eichenwalde: `R6TYG`~~ • Created by Senimar
 
 <sub>Senimar's courses (8–15) are ordered easiest → hardest</sub>  
-<sub> ~~Strikethrough~~ = broken since the Aug 2026 patch</sub>
+<sub>~~Strikethrough~~ = broken since the Aug 2026 patch</sub>
 
 ---
 
