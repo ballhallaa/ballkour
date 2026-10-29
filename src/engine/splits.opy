@@ -122,6 +122,36 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
+    # The ETA turns red while it's rising: the current split has run past the average split
+    hudSubtext(
+        SPLITS_HUD_VISIBILITY,
+        _("\nETA: {}").format(
+            ("{}{}</fg>").format(
+                (
+                    "<fgFF4646FF>"
+                    if localPlayer.viewRunner.runTime
+                    - localPlayer.viewRunner.splitStart
+                    > localPlayer.viewRunner.paceSplit
+                    else "<fgFFFFFFFF>"
+                ),
+                (
+                    localPlayer.viewRunner.paceEta
+                    + max(
+                        0,
+                        localPlayer.viewRunner.runTime
+                        - localPlayer.viewRunner.splitStart
+                        - localPlayer.viewRunner.paceSplit
+                    )
+                    if isDebugOn
+                    else localPlayer.viewRunner.paceEtaFormatted
+                )
+            )
+        ),
+        HudPosition.RIGHT,
+        8,
+        rgb(230, 151, 0),
+        HudReeval.VISIBILITY_AND_STRING
+    )
 
 
 rule "Hide Delta":
@@ -200,6 +230,8 @@ def recordSplit():
         )
     eventPlayer.attemptTotals[eventPlayer.runCurrentCp] += eventPlayer.cpTime
     eventPlayer.splitTotals[eventPlayer.runCurrentCp] += eventPlayer.splitTime
+    eventPlayer.paceSplitTotal += eventPlayer.splitTime
+    eventPlayer.paceSplitClears++
     eventPlayer.splitClears[eventPlayer.runCurrentCp]++
     # In the same order as NO_SPLIT_STATS
     eventPlayer.splitResult = [
@@ -238,3 +270,25 @@ def formatSplitResult():
     eventPlayer.splitResult = "{}{})</fg>".format(
         eventPlayer.splitResult, eventPlayer.timeFormatted
     )
+
+
+def loadPace():
+    @Name "Load Pace"
+
+    # paceEta is the time the current CP started at plus the average of the run's splits so far
+    # for each CP left, so 100 CPs at an average of 10 minutes estimate 1000 minutes.
+    # Once the current split runs past the average, Update Run Format adds the extra time.
+    # Nothing to estimate from until the first clear, so it never turns red
+    if not eventPlayer.paceSplitClears:
+        eventPlayer.paceEta = 0
+        eventPlayer.paceEtaFormatted = "--"
+        eventPlayer.paceSplit = Math.INFINITY
+        return
+    eventPlayer.paceSplit = eventPlayer.paceSplitTotal / eventPlayer.paceSplitClears
+    eventPlayer.paceEta = (
+        eventPlayer.splitStart
+        + (lastCp - eventPlayer.runCurrentCp) * eventPlayer.paceSplit
+    )
+    eventPlayer.timeToFormat = eventPlayer.paceEta
+    formatTime()
+    eventPlayer.paceEtaFormatted = eventPlayer.timeFormatted

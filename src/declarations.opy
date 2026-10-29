@@ -101,6 +101,13 @@ playervar attemptCpBest
 playervar splitDiff
 playervar splitResult
 
+# Pace
+playervar paceEta
+playervar paceEtaFormatted
+playervar paceSplit
+playervar paceSplitTotal
+playervar paceSplitClears
+
 # Hint Playback
 playervar isHintOn
 playervar isHintAutoOn
@@ -166,6 +173,9 @@ subroutine faceNextCp
 # Splits
 subroutine recordSplit
 subroutine formatSplitResult
+
+# Pace
+subroutine loadPace
 
 # Hints
 subroutine saveHintRoute
