@@ -82,6 +82,11 @@ rule "Sync Viewed Checkpoint":
     @Condition eventPlayer.viewCp != viewedCp(eventPlayer)
 
     eventPlayer.viewCp = viewedCp(eventPlayer)
+    # A change in the same tick as the sync (a restart right as a CP clears) doesn't retrigger
+    # the rule, since its condition never reads false in between, so this rechecks a tick later
+    wait()
+    if RULE_CONDITION:
+        loop()
 
 
 macro isViewingCp(player):

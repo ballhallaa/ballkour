@@ -13,6 +13,10 @@ rule "Sync Viewed Runner":
     @Condition eventPlayer.viewRunner != viewedRunner(eventPlayer)
 
     eventPlayer.viewRunner = viewedRunner(eventPlayer)
+    # Rechecks a tick later, like Sync Viewed Checkpoint
+    wait()
+    if RULE_CONDITION:
+        loop()
 
 
 rule "Load HUD":
