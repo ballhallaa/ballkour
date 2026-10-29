@@ -201,6 +201,7 @@ subroutine formatTime
 subroutine enableSpectator
 subroutine disableSpectator
 subroutine enableFreecam
+subroutine swapToJetpackCat
 subroutine swapToWreckingBall
 subroutine enableFreecamForSpectators
 subroutine syncSpectatorCps

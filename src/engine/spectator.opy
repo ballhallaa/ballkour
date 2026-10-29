@@ -2,10 +2,10 @@
 #!rulePrefix "Spectator"
 
 
-# A hero swap spikes the server's load (one peaks around 170%), so the inputs that swap between
-# Wrecking Ball and Jetpack Cat wait until a second after the player's last swap
+# A hero swap spikes the server's load, so the inputs that swap between Wrecking Ball and
+# Jetpack Cat wait until half a second after the player's last swap
 macro canSwapHero(player):
-    getTotalTimeElapsed() - player.heroSwapTime >= 1
+    getTotalTimeElapsed() - player.heroSwapTime >= 0.5
 
 
 rule "Mode Input":
@@ -94,6 +94,9 @@ def enableSpectator():
     eventPlayer.isViewingRunCompletionText = false
     stopChasingVariable(eventPlayer.runTime)
     eventPlayer.isRunPaused = true
+    # Loading keeps mistakes from counting while the swap finishes
+    eventPlayer.isLoading = true
+    swapToJetpackCat()
     # Being away from the checkpoint is no mistake in the lobby. Disable drops the player at a
     # checkpoint, so without a run to resume they get a new one.
     if eventPlayer.isInLobby:
@@ -111,6 +114,7 @@ def enableSpectator():
     eventPlayer.spectating[4] = eventPlayer.runCurrentCp
     enableFreecam()
     enableFreecamForSpectators()
+    eventPlayer.isLoading = false
 
 
 macro spectatorCamPos(target):
@@ -144,13 +148,30 @@ def disableSpectator():
     @Name "Disable"
 
     eventPlayer.isLoading = true
+    if not eventPlayer.spectating[3] and eventPlayer.spectating[1] != null:
+        eventPlayer.spectating[4] = eventPlayer.spectating[1].runCurrentCp
+    # Leaving freecam, the camera already shows the checkpoint the player lands on while the swap finishes,
+    # and the player is invisible (the swap keeps it, and it hides them from their own camera too), so
+    # nobody sees Wrecking Ball appear where the freecam was. Stop Camera and the teleport onto the
+    # checkpoint below share a tick.
+    if eventPlayer.getHero() != Hero.WRECKING_BALL and not eventPlayer.isInFreemode:
+        eventPlayer.startCamera(
+            cps[eventPlayer.spectating[4]][0] + vect(0, 1.7, 0),
+            cps[eventPlayer.spectating[4]][0]
+            + vect(0, 1.7, 0)
+            + eventPlayer.getFacingDirection(),
+            0
+        )
+        eventPlayer.setInvisibility(Invis.ALL)
+        # The camera gets its own tick too, so the swap still happens alone
+        wait()
+    swapToWreckingBall()
     eventPlayer.enableEnvironmentCollision()
     eventPlayer.setGravity(100)
     eventPlayer.setMoveSpeed(100)
     eventPlayer.stopForcingPosition()
     eventPlayer.stopCamera()
     eventPlayer.setInvisibility(Invis.NONE)
-    swapToWreckingBall()
     eventPlayer.allowButton(Button.PRIMARY_FIRE)
     eventPlayer.allowButton(Button.SECONDARY_FIRE)
     eventPlayer.setSecondaryFireEnabled(true)
@@ -160,8 +181,6 @@ def disableSpectator():
     eventPlayer.allowButton(Button.ABILITY_2)
     eventPlayer.setAbility2Enabled(true)
     eventPlayer.spectating[0] = false
-    if not eventPlayer.spectating[3] and eventPlayer.spectating[1] != null:
-        eventPlayer.spectating[4] = eventPlayer.spectating[1].runCurrentCp
     if eventPlayer.spectating[4] > eventPlayer.runCurrentCp:
         eventPlayer.isRunLegit = false
     # Landing back on the CP they left keeps its mistake count
@@ -321,6 +340,7 @@ rule "Enable Freecam Input":
     # Disconnected without freecam means waiting in Freecam Queue
     @Condition eventPlayer.spectating[3] == false
 
+    swapToJetpackCat()
     enableFreecam()
 
 
@@ -329,13 +349,10 @@ def enableFreecam():
 
     if playerToEnableFreecam == null:
         playerToEnableFreecam = eventPlayer
+    # The player is already Jetpack Cat: callers swap first, so the swap gets its own moment
     playerToEnableFreecam.disableEnvironmentCollision(true)
     playerToEnableFreecam.stopCamera()
     playerToEnableFreecam.stopForcingPosition()
-    # Records the swap for canSwapHero
-    if playerToEnableFreecam.getHero() != Hero.JETPACK_CAT:
-        playerToEnableFreecam.heroSwapTime = getTotalTimeElapsed()
-    playerToEnableFreecam.startForcingHero(Hero.JETPACK_CAT)
     if entityExists(playerToEnableFreecam.spectating[1]):
         # Starts the freecam where the spectator camera was
         freecamStartPos = spectatorCamPos(playerToEnableFreecam.spectating[1])
@@ -371,13 +388,29 @@ def enableFreecam():
     playerToEnableFreecam = null
 
 
+def swapToJetpackCat():
+    @Name "Swap To Jetpack Cat"
+
+    # Swaps, then waits until it's done before the caller changes anything else about the player:
+    # a swap at the same moment as the rest of spectator mode (collision, gravity, buttons, camera,
+    # teleports) peaked around 180% server load, against ~135% when the swap finished first.
+    # heroSwapTime is for canSwapHero.
+    if eventPlayer.getHero() != Hero.JETPACK_CAT:
+        eventPlayer.heroSwapTime = getTotalTimeElapsed()
+        eventPlayer.startForcingHero(Hero.JETPACK_CAT)
+        waitUntil(eventPlayer.getHero() == Hero.JETPACK_CAT, 1)
+        wait(0.25)
+
+
 def swapToWreckingBall():
     @Name "Swap To Wrecking Ball"
 
-    # Like the swap to Jetpack Cat in Enable Freecam
+    # Like Swap To Jetpack Cat
     if eventPlayer.getHero() != Hero.WRECKING_BALL:
         eventPlayer.heroSwapTime = getTotalTimeElapsed()
-    eventPlayer.startForcingHero(Hero.WRECKING_BALL)
+        eventPlayer.startForcingHero(Hero.WRECKING_BALL)
+        waitUntil(eventPlayer.getHero() == Hero.WRECKING_BALL, 1)
+        wait(0.25)
 
 
 rule "Freecam Speed Boost":
@@ -459,8 +492,24 @@ rule "Freecam Queue":
     @SuppressWarnings w_mismatched_subroutine_event
     @Condition len(freecamQueue) > 0
 
-    # One hero swap every 0.1s, since a hero swap spikes the server's load and several watchers can lose their
+    # One hero swap at a time, since a hero swap spikes the server's load and several watchers can lose their
     # target at once. Skips anyone who left, left spectator mode or started watching someone else meanwhile.
+    # Like Swap To Jetpack Cat, the swap finishes before Enable Freecam changes anything else.
+    if (
+        entityExists(freecamQueue[0])
+        and freecamQueue[0].spectating[0]
+        and freecamQueue[0].spectating[3]
+        and not freecamQueue[0].spectating[2]
+        and freecamQueue[0].getHero() != Hero.JETPACK_CAT
+    ):
+        freecamQueue[0].heroSwapTime = getTotalTimeElapsed()
+        freecamQueue[0].startForcingHero(Hero.JETPACK_CAT)
+        waitUntil(
+            not entityExists(freecamQueue[0])
+            or freecamQueue[0].getHero() == Hero.JETPACK_CAT,
+            1
+        )
+        wait(0.25)
     if (
         entityExists(freecamQueue[0])
         and freecamQueue[0].spectating[0]
@@ -517,14 +566,14 @@ rule "Reattach Input":
 def reattachToSpectatingTarget():
     @Name "Reattach"
 
+    # Watching someone as Jetpack Cat would play its sounds at their position
+    swapToWreckingBall()
     eventPlayer.applyImpulse(
         eventPlayer.getVelocity() * -0.001,
         0.001,
         Relativity.TO_WORLD,
         Impulse.CANCEL_CONTRARY_MOTION_XYZ
     )
-    # Watching someone as Jetpack Cat would play its sounds at their position
-    swapToWreckingBall()
     eventPlayer.setInvisibility(Invis.ALL)
     eventPlayer.startForcingPosition(eventPlayer.spectating[1].getPosition())
     # The camera reevaluates its positions, so it keeps following the target without being restarted
