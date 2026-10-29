@@ -2,7 +2,7 @@
 
 settings {
     "main": {
-        "description": f"Blizzard World (Winter) \n\nv{VERSION} \n\nLatest Code: GMWRF",
+        "description": f"Blizzard World (Winter) \n\nv{VERSION} \n\nLatest Code: GMWRF \n\nBeta Code: 8Y14F",
         "modeName": "Ball Parkour ● ballkour.com"
     },
     "lobby": {

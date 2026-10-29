@@ -2,7 +2,7 @@
 
 settings {
     "main": {
-        "description": f"Watchpoint: Gibraltar \n\nv{VERSION} \n\nLatest Code: 59W28",
+        "description": f"Watchpoint: Gibraltar \n\nv{VERSION} \n\nLatest Code: 59W28 \n\nBeta Code: 9GTJH",
         "modeName": "Ball Parkour ● ballkour.com"
     },
     "lobby": {
