@@ -33,9 +33,11 @@ rule "Load HUD":
         SPLITS_HUD_VISIBILITY,
         "{} {}".format(
             iconString(Icon.FLAG),
-            localPlayer.viewRunner.splitDelta[0]
-            if localPlayer.viewRunner.isShowingSplitDelta
-            else localPlayer.viewCp
+            (
+                localPlayer.viewRunner.splitDelta[0]
+                if localPlayer.viewRunner.isShowingSplitDelta
+                else localPlayer.viewCp
+            )
         ),
         HudPosition.RIGHT,
         3,
@@ -46,9 +48,11 @@ rule "Load HUD":
     # Each part is its own HUD text: Overwatch left-aligns the lines inside one HUD text but
     # centers HUD texts against each other, so this centers each Best and Avg under its time.
     # Only the times are colored, so the labels stay the HUD's orange.
+    splitsHudText[0] = _("Attempt: @0")
     hudSubtext(
         SPLITS_HUD_VISIBILITY,
-        _("Attempt: {}").format(
+        _(splitsHudText[0]).replace(
+            "@0",
             (
                 localPlayer.viewRunner.splitDelta[1]
                 if localPlayer.viewRunner.isShowingSplitDelta
@@ -72,20 +76,25 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
+    splitsHudText[1] = _(
+        "Best: <fgFFFFFFFF>@0</fg>"
+        "\nAvg: <fgFFFFFFFF>@1</fg>"
+    )
     hudSubheader(
         SPLITS_HUD_VISIBILITY,
-        _(
-            "Best: <fgFFFFFFFF>{}</fg>"
-            "\nAvg: <fgFFFFFFFF>{}</fg>"
-        ).format(viewedSplitStats(localPlayer)[0], viewedSplitStats(localPlayer)[1]),
+        _(splitsHudText[1])
+        .replace("@0", viewedSplitStats(localPlayer)[0])
+        .replace("@1", viewedSplitStats(localPlayer)[1]),
         HudPosition.RIGHT,
         5,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
+    splitsHudText[2] = _("Split: @0")
     hudSubtext(
         SPLITS_HUD_VISIBILITY,
-        _("Split: {}").format(
+        _(splitsHudText[2]).replace(
+            "@0",
             (
                 localPlayer.viewRunner.splitDelta[2]
                 if localPlayer.viewRunner.isShowingSplitDelta
@@ -111,21 +120,26 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
+    splitsHudText[3] = _(
+        "Best: <fgFFFFFFFF>@0</fg>"
+        "\nAvg: <fgFFFFFFFF>@1</fg>"
+    )
     hudSubheader(
         SPLITS_HUD_VISIBILITY,
-        _(
-            "Best: <fgFFFFFFFF>{}</fg>"
-            "\nAvg: <fgFFFFFFFF>{}</fg>"
-        ).format(viewedSplitStats(localPlayer)[2], viewedSplitStats(localPlayer)[3]),
+        _(splitsHudText[3])
+        .replace("@0", viewedSplitStats(localPlayer)[2])
+        .replace("@1", viewedSplitStats(localPlayer)[3]),
         HudPosition.RIGHT,
         7,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
     # The ETA turns red while it's rising: the current split has run past the average split
+    splitsHudText[4] = _("\nETA: @0")
     hudSubtext(
         SPLITS_HUD_VISIBILITY,
-        _("\nETA: {}").format(
+        _(splitsHudText[4]).replace(
+            "@0",
             ("{}{}</fg>").format(
                 (
                     "<fgFF4646FF>"

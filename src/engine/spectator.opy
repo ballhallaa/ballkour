@@ -30,52 +30,57 @@ rule "Mode Input":
 
 
 rule "Load HUD":
+    spectatorHudText[0] = _("\n\nSpectating")
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.spectating[0]
             and localPlayer.spectating[1] == null
         ),
-        _("\n\nSpectating"),
+        _(spectatorHudText[0]),
         HudPosition.LEFT,
         12,
         rgb(255, 70, 70),
         HudReeval.VISIBILITY_AND_STRING
     )
+    spectatorHudText[1] = _("\n\nSpectating @0")
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.spectating[0]
             and localPlayer.spectating[1] != null
         ),
-        _("\n\nSpectating {}").format(localPlayer.spectating[1]),
+        _(spectatorHudText[1]).replace("@0", localPlayer.spectating[1]),
         HudPosition.LEFT,
         12,
         rgb(255, 70, 70),
         HudReeval.VISIBILITY_AND_STRING
     )
+    spectatorHudText[2] = _("Freecam On")
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.spectating[0] and localPlayer.spectating[2]
         ),
-        _("Freecam On"),
+        _(spectatorHudText[2]),
         HudPosition.LEFT,
         13,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
+    spectatorHudText[3] = _("(Disconnected)")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.spectating[0] and localPlayer.spectating[3]
         ),
-        _("(Disconnected)"),
+        _(spectatorHudText[3]),
         HudPosition.LEFT,
         14,
         rgb(0, 224, 146),
         HudReeval.VISIBILITY_AND_STRING
     )
     # Spectated Player's HUD
+    spectatorHudText[4] = _("\n\nSpectators: @0")
     hudSubtext(
         getAllPlayers().filter(lambda localPlayer: localPlayer.spectating[10] > 0),
-        _("\n\nSpectators: {}").format(localPlayer.spectating[10]),
+        _(spectatorHudText[4]).replace("@0", localPlayer.spectating[10]),
         HudPosition.LEFT,
         12,
         rgb(0, 224, 146),

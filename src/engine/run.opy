@@ -28,11 +28,10 @@ rule "Load HUD":
         rgb(0, 224, 146),
         HudReeval.VISIBILITY
     )
+    runHudText = _("\n\n\n\nControls: <fgFFFFFFFF>@0</fg>")
     hudSubtext(
         getAllPlayers(),
-        _("\n\n\n\nControls: <fgFFFFFFFF>{}</fg>").format(
-            inputBindingString(Button.ULTIMATE)
-        ),
+        _(runHudText).replace("@0", inputBindingString(Button.ULTIMATE)),
         HudPosition.LEFT,
         0,
         rgb(230, 151, 0),
@@ -40,7 +39,9 @@ rule "Load HUD":
     )
     hudSubtext(
         getAllPlayers().filter(lambda localPlayer: not localPlayer.isInLobby),
-        ("\n\n\n\n{} {}/{}\n").format(iconString(Icon.FLAG), localPlayer.viewCp, lastCp),
+        ("\n\n\n\n{} {}/{}\n").format(
+            iconString(Icon.FLAG), localPlayer.viewCp, lastCp
+        ),
         HudPosition.RIGHT,
         0,
         rgb(230, 151, 0),
