@@ -6,26 +6,28 @@ _Wrecking Ball Parkour Courses for Overwatch_
 
 **Discord:** https://ballkour.com/discord  
 
+---
+
 ### All Courses:
 
-1. 🇬🇮 Watchpoint: Gibraltar: `59W28` (Creator: Spiz | Recreator: ballhallaa)
-2. 🇺🇸 Blizzard World: `GMWRF` (Creator: Spiz | Recreator: ballhallaa)
-3. 🇧🇷 ~~Paraíso: `NT5G3K`~~ (Creator: Spiz | Recreator: ballhallaa)
- (Broken since Aug 2026 update)
-4. 🇩🇪 ~~Eichenwalde: `9AVPN`~~ (Creator: Spiz) (Broken since Aug 2026 update)
-5. 🎯 Practice Range: `KSG9E9` (Creator: Spiz)
-6. 🇲🇽 Dorado: `N8ZFR` (Creator: Fasteroid)
-7. 🇬🇷 Ilios: `4BA40` (Creator: Fasteroid)
-8. 🇧🇷 ~~Paraíso: `5P58Q`~~ (Creator: Senimar)
-9. 🇪🇬 Temple of Anubis: `18ZZK` (Creator: Senimar)
-10. 🌙 Horizon Lunar Colony: `JEFA9` (Creator: Senimar)
-11. 🇺🇸 Blizzard World: `D6WC7` (Creator: Senimar)
-12. 🇲🇨 Circuit Royal: `71GPZ` (Creator: Senimar)
-13. 🇯🇵 Neon Junction: `EPWMD` (Creator: Senimar)
-14. 🇬🇧 King's Row: `PQZDY` (Creator: Senimar)
-15. 🇩🇪 ~~Eichenwalde: `R6TYG`~~ (Creator: Senimar) (Broken since Aug 2026 update)
+1. 🇬🇮 Watchpoint: Gibraltar: `59W28` • Created by Spiz, remade by ballhallaa • **Beta:** `9GTJH`
+2. 🇺🇸 Blizzard World: `GMWRF` • Created by Spiz, remade by ballhallaa • **Beta:** `8Y14F`
+3. 🇧🇷 Paraíso: `NT5G3K` • Created by Spiz, remade by ballhallaa • **Beta:** `MXJ0W`
+4. 🇩🇪 Eichenwalde: `9AVPN` • Created by Spiz
+5. 🎯 Practice Range: `KSG9E9` • Created by Spiz
+6. 🇲🇽 Dorado: `N8ZFR` • Created by Fasteroid
+7. 🇬🇷 Ilios: `4BA40` • Created by Fasteroid
+8. 🇧🇷 Paraíso: `5P58Q` • Created by Senimar
+9. 🇪🇬 Temple of Anubis: `18ZZK` • Created by Senimar
+10. 🌙 Horizon Lunar Colony: `JEFA9` • Created by Senimar
+11. 🇺🇸 Blizzard World: `D6WC7` • Created by Senimar
+12. 🇲🇨 Circuit Royal: `71GPZ` • Created by Senimar
+13. 🇯🇵 Neon Junction: `EPWMD` • Created by Senimar
+14. 🇬🇧 King's Row: `PQZDY` • Created by Senimar
+15. 🇩🇪 Eichenwalde: `R6TYG` • Created by Senimar
 
-Note: Senimar's courses (8-15) are ordered by difficulty
+<sub>Senimar's courses (8–15) are ordered easiest → hardest</sub>  
+<sub> ~~Strikethrough~~ = broken since the Aug 2026 patch</sub>
 
 ---
 
