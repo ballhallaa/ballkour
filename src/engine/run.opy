@@ -97,7 +97,11 @@ rule "Load HUD":
         ),
         "{}{}".format(
             (
-                "{}\n".format(scorecard)
+                "{}\n".format(
+                    scorecardShort
+                    if localPlayer.spectating[0] and localPlayer.isViewingCtrlsHud
+                    else scorecard
+                )
                 if not localPlayer.isScorecardHidden
                 and len(scorecardRunners.exclude(localPlayer)) > 0
                 else ""
@@ -158,6 +162,9 @@ rule "Update Scorecard":
                 else "<fg808080FF>{}</fg>".format(scorecardRow)
             )
         )
+        # Spectator's Controls list is the longest, and leaves room for 5 rows above the hero portrait
+        if index < 5:
+            scorecardShort = scorecard
     wait(1)
     loop()
 
