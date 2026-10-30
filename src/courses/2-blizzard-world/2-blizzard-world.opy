@@ -23,22 +23,22 @@ rule "Info":
 #!include "checkpoints.opy"
 
 
-rule "Disrupter Destructors":
-    # ddbots[0]: team; ddbots[i > 0]: [0]spawnLocation [1]facingDirection
-    ddBots = []
-    ddBots[0] = Team.2
+rule "Disruptive Environment Destructors":
+    # dedBots[0]: team; dedBots[i > 0]: [0]spawnLocation [1]facingDirection
+    dedBots = []
+    dedBots[0] = Team.2
     # Checkpoint 39
-    ddBots[1] = [vect(-109.674, -4.25, 111.782), vect(-98.37, -2.17, 114.92)]
-    ddBots[2] = [vect(-109.674, -4.25, 111.782), vect(-94.55, -2.83, 103.54)]
-    ddBots[3] = [vect(-108.22, -4.13, 107.72), vect(-104.33, -2.83, 101.1)]
-    ddBots[4] = [vect(-103.549, -2.25, 100.17), vect(-108.92, -5.08, 120.59)]
+    dedBots[1] = [vect(-109.674, -4.25, 111.782), vect(-98.37, -2.17, 114.92)]
+    dedBots[2] = [vect(-109.674, -4.25, 111.782), vect(-94.55, -2.83, 103.54)]
+    dedBots[3] = [vect(-108.22, -4.13, 107.72), vect(-104.33, -2.83, 101.1)]
+    dedBots[4] = [vect(-103.549, -2.25, 100.17), vect(-108.92, -5.08, 120.59)]
     # Checkpoint 45
-    ddBots[5] = [vect(-96.88, -1.25, 111.06), vect(-112.62, -3.65, 107.32)]
-    ddBots[6] = [vect(-97.41, -1.25, 114.94), vect(-111.9, 0.21, 111.15)]
-    ddBots[7] = [vect(-94.85, -1.25, 108.65), vect(-112.79, -0.62, 105.81)]
+    dedBots[5] = [vect(-96.88, -1.25, 111.06), vect(-112.62, -3.65, 107.32)]
+    dedBots[6] = [vect(-97.41, -1.25, 114.94), vect(-111.9, 0.21, 111.15)]
+    dedBots[7] = [vect(-94.85, -1.25, 108.65), vect(-112.79, -0.62, 105.81)]
     # Checkpoint 46
-    ddBots[8] = [vect(-109.511, -4.25, 121.231), vect(-97.74, -2.56, 114.55)]
-    ddBots[9] = [vect(-97.917, -1.253, 116.947), vect(-112.85, 0.12, 112.92)]
+    dedBots[8] = [vect(-109.511, -4.25, 121.231), vect(-97.74, -2.56, 114.55)]
+    dedBots[9] = [vect(-97.917, -1.253, 116.947), vect(-112.85, 0.12, 112.92)]
 
 
 #!include "hints.opy"
