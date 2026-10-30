@@ -8,6 +8,11 @@ macro viewedRunner(player):
     (player.spectating[1] if player.spectating[0] else player)
 
 
+# Fills out a scorecard column of 3 digits and its 3-space gap, as a digit is about as wide as 2 spaces
+macro scorecardPad(value):
+    "       ".substring(0, 3 + 2 * max(3 - strLen("{}".format(value)), 0))
+
+
 rule "Sync Viewed Runner":
     @Event eachPlayer
     @Condition eventPlayer.viewRunner != viewedRunner(eventPlayer)
@@ -79,6 +84,78 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
+    # Under the Hints HUD, which is LEFT's last. Hidden while the Controls HUD would push
+    # it off screen, and when the only runner listed is the player, as their run is on the right.
+    scorecardHudText[0] = _("Hide: <fgFFFFFFFF>@0 + @1</fg>")
+    scorecardHudText[1] = _("\n\nScorecard: <fgFFFFFFFF>@0 + @1</fg>")
+    # The rows are their own field because String Replace cuts off long strings, and they're
+    # too long for it. Fields of one HUD text left-align, so the line below stays under them.
+    hudText(
+        getAllPlayers().filter(
+            lambda localPlayer: not localPlayer.isViewingCtrlsHud
+            and len(scorecardRunners.exclude(localPlayer)) > 0
+        ),
+        null,
+        "" if localPlayer.isScorecardHidden else scorecard,
+        (
+            _(scorecardHudText[1])
+            if localPlayer.isScorecardHidden
+            else _(scorecardHudText[0])
+        )
+        .replace("@0", inputBindingString(Button.ULTIMATE))
+        .replace("@1", inputBindingString(Button.CROUCH)),
+        HudPosition.LEFT,
+        16,
+        null,
+        rgb(230, 151, 0),
+        rgb(230, 151, 0),
+        HudReeval.VISIBILITY_AND_STRING
+    )
+
+
+rule "Update Scorecard":
+    # A finished run stays listed, even though finishing turns on freemode
+    scorecardRunners = sorted(
+        getAllPlayers().filter(
+            lambda p: not p.isDummy()
+            and p.isRunLoaded
+            and not p.isInLobby
+            and not p.spectating[0]
+            and (p.isRunFinished or not p.isInFreemode)
+        ),
+        lambda p: p.runTime - p.runCurrentCp * 100000
+    )
+    # One string rebuilt each second, instead of a HUD text per runner: Overwatch reprocesses every
+    # HUD text's definition every 5s (see Translated HUD Text). It starts with a gap above it.
+    # A string only shows its first 4 icons, so they head the columns instead of filling each row.
+    scorecard = "\n\n{}    {}          {}".format(
+        iconString(Icon.FLAG), iconString(Icon.BOLT), iconString(Icon.SKULL)
+    )
+    for index in range(len(scorecardRunners)):
+        scorecardTime = scorecardRunners[index].runTimeFormatted.split(".")[0]
+        # The time's column fits h:mm:ss. Its padding is by length, since colons are narrower than digits.
+        scorecardRow = "{}{}{}{}{}{}{}".format(
+            scorecardRunners[index].runCurrentCp,
+            scorecardPad(scorecardRunners[index].runCurrentCp),
+            scorecardTime,
+            "            ".substring(
+                0, [0, 12, 11, 0, 7, 5, 0, 3][strLen(scorecardTime)]
+            ),
+            scorecardRunners[index].runMistakes,
+            scorecardPad(scorecardRunners[index].runMistakes),
+            scorecardRunners[index]
+        )
+        # Runs that skipped checkpoints are grayed out, as their CP wasn't earned
+        scorecard = "{}\n{}".format(
+            scorecard,
+            (
+                scorecardRow
+                if scorecardRunners[index].isRunLegit
+                else "<fg808080FF>{}</fg>".format(scorecardRow)
+            )
+        )
+    wait(1)
+    loop()
 
 
 def newRun():
