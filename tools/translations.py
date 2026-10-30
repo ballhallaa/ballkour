@@ -4,11 +4,12 @@
   python3 tools/translations.py                    link the courses, show progress
   python3 tools/translations.py preview [course]   write test builds to previews/
 
-OverPy reads and rewrites the translations of a course at src/<course>.<language>.po,
-for each language in the #!translations directive (src/ballkour.opy). All the
-translated text is in the engine, so every course shares src/translations/<language>.po,
-and src/<course>.<language>.po is a symlink to it. Run this after adding a course or a
-language: it makes the missing links, then lists what is left to translate.
+OverPy reads and rewrites the translations of a course at
+src/courses/<course>/<course>.<language>.po, for each language in the #!translations
+directive (src/ballkour.opy). All the translated text is in the engine, so every course
+shares src/translations/<language>.po, and the course's .po file is a symlink to it. Run
+this after adding a course or a language: it makes the missing links, then lists what is
+left to translate.
 
 To translate, edit src/translations/<language>.po (with a .po editor such as Poedit, or
 by hand), then recompile a course (OverPy: Compile). Keep the {0}-style placeholders and
@@ -30,6 +31,7 @@ Changing Overwatch's language is the Language setting in Steam (or Battle.net), 
 """
 
 import argparse
+import os
 import re
 import sys
 
@@ -126,7 +128,7 @@ def languages():
 
 def link(course, language):
     """Points the course's .po file for the language at the shared one."""
-    path = SRC / f"{course.stem}.{language}.po"
+    path = course.with_name(f"{course.stem}.{language}.po")
     target = TRANSLATIONS / f"{language}.po"
     if path.is_symlink() and path.resolve() == target.resolve():
         return
@@ -137,7 +139,7 @@ def link(course, language):
         path.unlink(missing_ok=True)
     if not target.exists():
         target.touch()
-    path.symlink_to(target.relative_to(SRC))
+    path.symlink_to(os.path.relpath(target, path.parent))
     print(f"linked {path.relative_to(SRC.parent)} -> {target.relative_to(SRC.parent)}")
 
 
@@ -163,7 +165,7 @@ def write_preview(name, course, comment, language, hook, extra=""):
     """Writes previews/<name>.opy, shown in the language, or detected if it's None."""
     (PREVIEWS / f"{name}.opy").write_text(
         f"# {comment} Test build: don't publish it.\n"
-        f'#!include "../src/{course.name}"\n'
+        f'#!include "../src/{course.relative_to(SRC)}"\n'
         '#!include "preview-rules.opy"\n'
         + (f"#!translations en {language}\n" if language else "")
         + f'#!postCompileHook "{hook}"\n'

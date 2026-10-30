@@ -12,8 +12,8 @@ from pathlib import Path
 
 SRC = Path(__file__).resolve().parent.parent / "src"
 
-# A course is a top-level file that pulls in the engine
-COURSE_RE = re.compile(r'^#!include "ballkour\.opy"', re.M)
+# A course is the file in its folder that pulls in the engine
+COURSE_RE = re.compile(r'^#!include "\.\./\.\./ballkour\.opy"', re.M)
 COMPILE_SCRIPT = """
 const [overpyPath, ...files] = process.argv.slice(1);
 const overpy = require(overpyPath), fs = require("fs"), path = require("path");
@@ -37,7 +37,9 @@ overpy.readyPromise.then(async () => {
 
 
 def courses(src=SRC):
-    return sorted(p for p in src.glob("*.opy") if COURSE_RE.search(p.read_text()))
+    return sorted(
+        p for p in src.glob("courses/*/*.opy") if COURSE_RE.search(p.read_text())
+    )
 
 
 def fold(text):
