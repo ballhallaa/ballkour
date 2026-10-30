@@ -134,8 +134,8 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    # The ETA turns red while it's rising: the current split has run past the average split
-    splitsHudText[4] = _("\nETA: @0")
+    # Pace turns red while it's rising: the current split has run past the average split
+    splitsHudText[4] = _("\nPace: @0")
     hudSubtext(
         SPLITS_HUD_VISIBILITY,
         _(splitsHudText[4]).replace(
