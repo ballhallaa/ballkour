@@ -38,8 +38,8 @@ globalvar lobbyStats
 # Match
 globalvar elapsedTime
 globalvar elapsedTimeFormatted
-globalvar ddBots
-globalvar dd
+globalvar dedBots
+globalvar ded
 globalvar serverLoadAvg
 
 # Players
