@@ -13,6 +13,10 @@ msgstr ""
 msgid "{0} | FREEMODE"
 msgstr "{0} | SERBEST MOD"
 
+#. file completion.opy, rule "Load Top Runs HUD"
+msgid "Lobby Top 3"
+msgstr "Lobi İlk 3"
+
 #. file completion.opy, rule "Run Text"
 msgid "Congrats, @0!"
 msgstr "Tebrikler, @0!"
@@ -246,12 +250,12 @@ msgid "Controls: <fgFFFFFFFF>@0 (Hold)</fg>"
 msgstr "Kontroller: <fgFFFFFFFF>@0 (basılı tut)</fg>"
 
 #. file run.opy, rule "Load HUD"
-msgid "Hide: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "Gizle: <fgFFFFFFFF>@0 + @1</fg>"
+msgid "Hide Scores: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "Skorları gizle: <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file run.opy, rule "Load HUD"
-msgid "Scorecard: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "Skor Tablosu: <fgFFFFFFFF>@0 + @1</fg>"
+msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "Skorlar: <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Spectating"

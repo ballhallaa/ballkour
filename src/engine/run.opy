@@ -84,30 +84,34 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    # Under the Hints HUD, which is LEFT's last. Hidden while the Controls HUD would push
-    # it off screen, and when the only runner listed is the player, as their run is on the right.
-    scorecardHudText[0] = _("Hide: <fgFFFFFFFF>@0 + @1</fg>")
-    scorecardHudText[1] = _("\n\nScorecard: <fgFFFFFFFF>@0 + @1</fg>")
-    # The rows are their own field because String Replace cuts off long strings, and they're
-    # too long for it. Fields of one HUD text left-align, so the line below stays under them.
-    hudText(
+    # Under the Hints HUD, which is LEFT's last. Its rows are left out when the only runner
+    # listed is the player, as their run is on the right, but its line stays while there's a
+    # Top 3 for it to hide.
+    scorecardHudText[0] = _("Hide Scores: <fgFFFFFFFF>@0 + @1</fg>")
+    scorecardHudText[1] = _("\n\nScores: <fgFFFFFFFF>@0 + @1</fg>")
+    # The rows stay out of the String Replace, which cuts off long strings, and they're too long for it
+    hudSubheader(
         getAllPlayers().filter(
-            lambda localPlayer: not localPlayer.isViewingCtrlsHud
-            and len(scorecardRunners.exclude(localPlayer)) > 0
+            lambda localPlayer: len(scorecardRunners.exclude(localPlayer)) > 0
+            or len(topRuns) > 0
         ),
-        null,
-        "" if localPlayer.isScorecardHidden else scorecard,
-        (
-            _(scorecardHudText[1])
-            if localPlayer.isScorecardHidden
-            else _(scorecardHudText[0])
-        )
-        .replace("@0", inputBindingString(Button.ULTIMATE))
-        .replace("@1", inputBindingString(Button.CROUCH)),
+        "{}{}".format(
+            (
+                "{}\n".format(scorecard)
+                if not localPlayer.isScorecardHidden
+                and len(scorecardRunners.exclude(localPlayer)) > 0
+                else ""
+            ),
+            (
+                _(scorecardHudText[1])
+                if localPlayer.isScorecardHidden
+                else _(scorecardHudText[0])
+            )
+            .replace("@0", inputBindingString(Button.ULTIMATE))
+            .replace("@1", inputBindingString(Button.CROUCH))
+        ),
         HudPosition.LEFT,
         16,
-        null,
-        rgb(230, 151, 0),
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )

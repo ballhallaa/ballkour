@@ -51,6 +51,9 @@ globalvar scorecard
 globalvar scorecardRunners
 globalvar scorecardRow
 globalvar scorecardTime
+globalvar topRuns = []
+globalvar topRunsScratch
+globalvar topRunsText
 
 # Spectating
 globalvar playerToEnableFreecam
@@ -70,6 +73,7 @@ globalvar splitsHudText = []
 globalvar spectatorHudText = []
 globalvar completionHudText = []
 globalvar scorecardHudText = []
+globalvar topRunsHudText
 
 globalvar index 127
 
@@ -191,6 +195,7 @@ subroutine faceNextCp
 
 # Splits
 subroutine recordSplit
+subroutine recordTopRun
 subroutine formatSplitResult
 
 # Pace

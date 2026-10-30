@@ -13,6 +13,10 @@ msgstr ""
 msgid "{0} | FREEMODE"
 msgstr "{0} | MODALITÀ LIBERA"
 
+#. file completion.opy, rule "Load Top Runs HUD"
+msgid "Lobby Top 3"
+msgstr "Top 3 della lobby"
+
 #. file completion.opy, rule "Run Text"
 msgid "Congrats, @0!"
 msgstr "Complimenti, @0!"
@@ -246,12 +250,12 @@ msgid "Controls: <fgFFFFFFFF>@0 (Hold)</fg>"
 msgstr "Comandi: <fgFFFFFFFF>@0 (tieni premuto)</fg>"
 
 #. file run.opy, rule "Load HUD"
-msgid "Hide: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "Nascondi: <fgFFFFFFFF>@0 + @1</fg>"
+msgid "Hide Scores: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "Nascondi punteggi: <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file run.opy, rule "Load HUD"
-msgid "Scorecard: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "Segnapunti: <fgFFFFFFFF>@0 + @1</fg>"
+msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "Punteggi: <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Spectating"
