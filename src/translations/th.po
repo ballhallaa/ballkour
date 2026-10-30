@@ -13,6 +13,10 @@ msgstr ""
 msgid "{0} | FREEMODE"
 msgstr "{0} | โหมดอิสระ"
 
+#. file completion.opy, rule "Load Top Runs HUD"
+msgid "Lobby Top 3"
+msgstr "ท็อป 3 ล็อบบี้"
+
 #. file completion.opy, rule "Run Text"
 msgid "Congrats, @0!"
 msgstr "ยินดีด้วย @0!"
@@ -246,12 +250,12 @@ msgid "Controls: <fgFFFFFFFF>@0 (Hold)</fg>"
 msgstr "การควบคุม: <fgFFFFFFFF>@0 (กดค้าง)</fg>"
 
 #. file run.opy, rule "Load HUD"
-msgid "Hide: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "ซ่อน: <fgFFFFFFFF>@0 + @1</fg>"
+msgid "Hide Scores: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "ซ่อนคะแนน: <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file run.opy, rule "Load HUD"
-msgid "Scorecard: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "สกอร์การ์ด: <fgFFFFFFFF>@0 + @1</fg>"
+msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "คะแนน: <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Spectating"

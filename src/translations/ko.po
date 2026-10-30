@@ -13,6 +13,10 @@ msgstr ""
 msgid "{0} | FREEMODE"
 msgstr "{0} | 자유 모드"
 
+#. file completion.opy, rule "Load Top Runs HUD"
+msgid "Lobby Top 3"
+msgstr "로비 TOP 3"
+
 #. file completion.opy, rule "Run Text"
 msgid "Congrats, @0!"
 msgstr "축하합니다, @0님!"
@@ -246,12 +250,12 @@ msgid "Controls: <fgFFFFFFFF>@0 (Hold)</fg>"
 msgstr "조작: <fgFFFFFFFF>@0 (길게 누르기)</fg>"
 
 #. file run.opy, rule "Load HUD"
-msgid "Hide: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "숨기기: <fgFFFFFFFF>@0 + @1</fg>"
+msgid "Hide Scores: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "점수 숨기기: <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file run.opy, rule "Load HUD"
-msgid "Scorecard: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "스코어카드: <fgFFFFFFFF>@0 + @1</fg>"
+msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "점수: <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Spectating"

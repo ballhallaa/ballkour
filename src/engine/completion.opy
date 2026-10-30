@@ -77,8 +77,56 @@ rule "Final Checkpoint Reached":
         eventPlayer.runFinalTimeFormatted = eventPlayer.runTimeFormatted
         eventPlayer.runFinalMistakes = eventPlayer.runMistakes
         eventPlayer.isViewingRunCompletionText = true
+        if eventPlayer.isRunLegit:
+            recordTopRun()
     eventPlayer.isInFreemode = true
     eventPlayer.nameplate = _("{} | FREEMODE").format(eventPlayer)
+
+
+def recordTopRun():
+    @Name "Record Top Run"
+
+    # topRuns[i]: [0]time [1]name [2]mistakes [3]timeFormatted
+    # By name, so a run stays listed after its player leaves, and one player can only hold one spot
+    topRunsScratch = topRuns.filter(lambda run: run[1] == "{}".format(eventPlayer))
+    if len(topRunsScratch) > 0 and topRunsScratch[0][0] <= eventPlayer.runTime:
+        return
+    topRunsScratch = topRuns.filter(lambda run: run[1] != "{}".format(eventPlayer))
+    topRunsScratch[len(topRunsScratch)] = [
+        eventPlayer.runTime,
+        "{}".format(eventPlayer),
+        eventPlayer.runFinalMistakes,
+        eventPlayer.runFinalTimeFormatted
+    ]
+    topRuns = sorted(topRunsScratch, lambda run: run[0]).slice(0, 3)
+    topRunsText = ""
+    # Padded like the scorecard's columns, but for 2-digit mistakes, and times of 7+ characters
+    for index in range(len(topRuns)):
+        topRunsText = "{}\n{}{}   {}{}{}{}{}</fg>".format(
+            topRunsText,
+            ["<fgFFFF00FF>", "<fgB0C4DEFF>", "<fgC46A30FF>"][index],
+            index + 1,
+            topRuns[index][3],
+            "     " if strLen(topRuns[index][3]) < 8 else "   ",
+            topRuns[index][2],
+            "     " if topRuns[index][2] < 10 else "   ",
+            topRuns[index][1]
+        )
+
+
+rule "Load Top Runs HUD":
+    # Under Pace, which is RIGHT's last. Stored and shown without String Replace (see Load HUD in run.opy)
+    topRunsHudText = _("Lobby Top 3")
+    hudSubheader(
+        getAllPlayers().filter(
+            lambda localPlayer: len(topRuns) > 0 and not localPlayer.isScorecardHidden
+        ),
+        ("\n{}{}").format(_(topRunsHudText), topRunsText),
+        HudPosition.RIGHT,
+        9,
+        rgb(230, 151, 0),
+        HudReeval.VISIBILITY_AND_STRING
+    )
 
 
 rule "Load Run Text":
