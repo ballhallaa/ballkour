@@ -1,7 +1,8 @@
 {
     // OverPy needs each course's translations next to it (src/courses/<course>/<course>.<language>.po),
-    // so the sidebar nests them under the course instead
+    // so the sidebar nests them under the course instead, collapsed
     "explorer.fileNesting.enabled": true,
+    "explorer.fileNesting.expand": false,
     "explorer.fileNesting.patterns": {
         "*.opy": "${capture}.*.po"
     }
