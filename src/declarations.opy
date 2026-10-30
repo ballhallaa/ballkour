@@ -48,6 +48,7 @@ globalvar hostPlayerName
 globalvar nameplateObjs
 globalvar tinyNameplateObjs
 globalvar scorecard
+globalvar scorecardShort
 globalvar scorecardRunners
 globalvar scorecardRow
 globalvar scorecardTime
