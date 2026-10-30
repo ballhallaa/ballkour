@@ -11,7 +11,7 @@ settings courseSettings(Watchpoint: Gibraltar, 59W28, 9GTJH, 12, 0, {"watchpoint
 
 rule "Info":
     logToInspector("Hello! Welcome to Ballkour's Watchpoint: Gibraltar course!")
-    logToInspector("Original course (W1RWY) created by Spiz. Recreated by ballhallaa.")
+    logToInspector("Original course (W1RWY) created by Spiz. Remade by ballhallaa.")
     logToInspector(
         "This route was slightly adjusted for quality purposes and also because this map was updated in Feb, 2026. Checkpoints are slightly bigger too."
     )

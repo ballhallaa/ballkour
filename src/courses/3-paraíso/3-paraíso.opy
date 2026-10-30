@@ -12,7 +12,7 @@ settings courseSettings(Paraíso, NT5G3K, MXJ0W, 12, 0, "paraiso")
 rule "Info":
     logToInspector("Hello! Welcome to Ballkour's Paraíso course!")
     logToInspector(
-        "Original course (3700E) created by Spiz. Recreated by ballmybeloved."
+        "Original course (3700E) created by Spiz. Remade by ballmybeloved."
     )
     logToInspector(
         "This route was slightly adjusted for quality purposes. Shield bounce has been reworked for better implementation in routes."

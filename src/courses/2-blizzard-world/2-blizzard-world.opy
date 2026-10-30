@@ -11,7 +11,7 @@ settings courseSettings(Blizzard World (Winter), GMWRF, 8Y14F, 0, 12, "blizzWorl
 
 rule "Info":
     logToInspector("Hello! Welcome to Ballkour's Blizzard World (Winter) course!")
-    logToInspector("Original course (6B9Z09) created by Spiz. Recreated by ballhallaa.")
+    logToInspector("Original course (6B9Z09) created by Spiz. Remade by ballhallaa.")
     logToInspector("Changes: this route's checkpoints are slightly bigger")
     logToInspector("Discord: ballkour.com/discord")
     logToInspector("Set a top-10 time? Submit a video with your run in our Discord!")
