@@ -12,8 +12,9 @@ again, since OverPy rejects them after a function's last argument. Strings split
 per line (like a HUD text with a line per row) get a comment while black runs, since
 black otherwise joins them back onto one line whenever they fit.
 
-By default this checks src/ except the generated hint files (src/hints/, see
-tools/hints.py) and the courses, whose settings and cps tables are laid out by hand.
+By default this checks src/ except the courses (src/courses/), whose cps tables are laid out
+by hand and whose hint files are generated (see tools/hints.py), and the macro in
+src/game-settings.opy.
 
 Needs black on the PATH (sudo pacman -S python-black, or pipx install black). Written
 against black 26.10.1: black's style changes a little each year. --fix also needs node
@@ -129,7 +130,7 @@ def run_black(sources):
 
 def check_compiled_output(changed):
     """Exits unless every course compiles exactly the same with the changed files."""
-    names = [course.name for course in courses()]
+    names = [course.relative_to(SRC) for course in courses()]
     with tempfile.TemporaryDirectory() as tmp:
         before, after = Path(tmp, "before"), Path(tmp, "after")
         for copy in (before, after):
@@ -179,7 +180,7 @@ def main():
     parser.add_argument("--fix", action="store_true", help="apply black's changes")
     args = parser.parse_args()
 
-    skipped = set(courses()) | set(SRC.glob("hints/*.opy"))
+    skipped = set(SRC.glob("courses/*/*.opy")) | {SRC / "game-settings.opy"}
     files = [f.resolve() for f in args.files] or [
         p for p in sorted(SRC.rglob("*.opy")) if p not in skipped
     ]

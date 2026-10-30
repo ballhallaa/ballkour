@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Manage the hint routes compiled into each course (src/hints/<course>.opy).
+"""Manage the hint routes compiled into each course (src/courses/<course>/hints.opy).
 
 Recording workflow:
   1. Once: in Options > Gameplay > General, turn on "Enable Workshop Inspector Log
@@ -62,7 +62,7 @@ WORKSHOP_LOG_DIRS = [
 
 
 def hints_path(course):
-    return SRC / "hints" / course.name
+    return course.with_name("hints.opy")
 
 
 def parse_vects(text):
@@ -278,7 +278,8 @@ def same_route(a, b):
 
 
 def cp_count(course):
-    return max(int(i) for i in CP_RE.findall(course.read_text())) + 1
+    checkpoints = course.with_name("checkpoints.opy").read_text()
+    return max(int(i) for i in CP_RE.findall(checkpoints)) + 1
 
 
 def format_ranges(numbers):
