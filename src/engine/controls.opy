@@ -150,7 +150,7 @@ rule "Load HUD":
         ),
         _(ctrlsHudText[8])
         .replace("@0", inputBindingString(Button.ULTIMATE))
-        .replace("@1", inputBindingString(Button.ABILITY_2)),
+        .replace("@1", inputBindingString(Button.CROUCH)),
         HudPosition.LEFT,
         7,
         rgb(230, 151, 0),
@@ -164,7 +164,7 @@ rule "Load HUD":
         ),
         _(ctrlsHudText[9])
         .replace("@0", inputBindingString(Button.ULTIMATE))
-        .replace("@1", inputBindingString(Button.ABILITY_2)),
+        .replace("@1", inputBindingString(Button.CROUCH)),
         HudPosition.LEFT,
         7,
         rgb(230, 151, 0),
@@ -564,9 +564,9 @@ rule "Lobby Input":
     @Condition eventPlayer.isHoldingButton(Button.JUMP) == false
     @Condition eventPlayer.isHoldingButton(Button.RELOAD) == false
     @Condition eventPlayer.isHoldingButton(Button.INTERACT) == false
-    @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
+    @Condition eventPlayer.isHoldingButton(Button.CROUCH) == true
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == true
+    @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
     @Condition eventPlayer.spectating[5] == false
     @Condition eventPlayer.isInLobby == false
 
@@ -574,7 +574,6 @@ rule "Lobby Input":
     eventPlayer.isLoading = true
     if eventPlayer.spectating[0]:
         disableSpectator()
-    eventPlayer.setAbility2Enabled(false)
     pauseRun()
     eventPlayer.isViewingRunCompletionText = false
     loadLobby()
@@ -669,8 +668,4 @@ rule "Hint Info Input":
     @Condition eventPlayer.spectating[5] == false
     @Condition eventPlayer.isInLobby == false
 
-    # Holding the same combo is Lobby/Pause, so only a tap toggles info
-    waitUntil(not eventPlayer.isHoldingButton(Button.ABILITY_2), 0.35)
-    if eventPlayer.isHoldingButton(Button.ABILITY_2):
-        return
     eventPlayer.isViewingHintInfo = not eventPlayer.isViewingHintInfo
