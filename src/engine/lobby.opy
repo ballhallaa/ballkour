@@ -222,6 +222,24 @@ rule "Resume Run Circle Entry":
     eventPlayer.isLoading = false
 
 
+rule "Boundary":
+    @Event eachPlayer
+    @Condition (eventPlayer.hasSpawned() and not eventPlayer.isLoading) == true
+    @Condition eventPlayer.isInLobby == true
+    @Condition distance(eventPlayer.getPosition(), lobbyData[0]) > lobbyData[25]
+
+    if eventPlayer.isFiringSecondaryFire():
+        eventPlayer.setSecondaryFireEnabled(false)
+        eventPlayer.setSecondaryFireEnabled(true)
+        eventPlayer.setAbilityCooldown(Button.SECONDARY_FIRE, 0.5)
+    eventPlayer.applyImpulse(
+        directionTowards(eventPlayer.getPosition(), lobbyData[0]),
+        10,
+        Relativity.TO_WORLD,
+        Impulse.CANCEL_CONTRARY_MOTION_XYZ
+    )
+
+
 rule "Load Stats":
     @Condition isLobbyStatsOn == true
 
