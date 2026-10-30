@@ -249,7 +249,7 @@ rule "Disrupter Destructors":
 
 
 rule "Lobby":
-    # lobbyData[i]: [0]spawnpoint [1]facing [2]welcomeSignTop [3]welcomeSignBottom [4]welcomeSignSize [5]startRunRing [6]startRunIcon [7]startRunSign [8]resumeRunRing [9]resumeRunIcon [10]resumeRunSign [11]lbSign [12]lbSignTextSize [13]lbPosTextSize [14]statsSign [15]statsSignSize [16]statsSize [17]elapsedTime [18]newPlayers [19]rejoins [20]legitRuns [21]totalRunTime [22]totalMistakes [23]avgRunTime [24]avgMistakes
+    # lobbyData[i]: [0]spawnpoint [1]facing [2]welcomeSignTop [3]welcomeSignBottom [4]welcomeSignSize [5]startRunRing [6]startRunIcon [7]startRunSign [8]resumeRunRing [9]resumeRunIcon [10]resumeRunSign [11]lbSign [12]lbSignTextSize [13]lbPosTextSize [14]statsSign [15]statsSignSize [16]statsSize [17]elapsedTime [18]newPlayers [19]rejoins [20]legitRuns [21]totalRunTime [22]totalMistakes [23]avgRunTime [24]avgMistakes [25]boundaryRadius
     lobbyData = []
     lobbyData[0] = vect(-38.33, 6.01, -96.34)
     lobbyData[5] = vect(-27.165, 6.01, -89.69)
@@ -265,6 +265,7 @@ rule "Lobby":
     lobbyData[11] = vect(-31.81, lobbyData[2].y + 0.5, -84.87)
     lobbyData[12] = 1.2
     lobbyData[13] = 0.85
+    lobbyData[25] = 18
     lbPos = []
     lbPos[1] = lobbyData[11] + vect(0, -0.65, 0)
     for index in range(2, 11):
@@ -276,24 +277,6 @@ rule "Lobby":
         lobbyData[17] = lobbyData[14] + vect(0, -0.585, 0)
         for index in range(18, 25):
             lobbyData[index] = lobbyData[17] + vect(0, -0.45, 0) * (index - 17)
-
-
-rule "Lobby Boundary":
-    @Event eachPlayer
-    @Condition (eventPlayer.hasSpawned() and not eventPlayer.isLoading) == true
-    @Condition eventPlayer.isInLobby == true
-    @Condition distance(eventPlayer.getPosition(), lobbyData[0]) > 18
-
-    if eventPlayer.isFiringSecondaryFire():
-        eventPlayer.setSecondaryFireEnabled(false)
-        eventPlayer.setSecondaryFireEnabled(true)
-        eventPlayer.setAbilityCooldown(Button.SECONDARY_FIRE, 0.5)
-    eventPlayer.applyImpulse(
-        directionTowards(eventPlayer.getPosition(), lobbyData[0]),
-        10,
-        Relativity.TO_WORLD,
-        Impulse.CANCEL_CONTRARY_MOTION_XYZ
-    )
 
 
 #!include "ballkour.opy"
