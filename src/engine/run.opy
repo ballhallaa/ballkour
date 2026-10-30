@@ -113,7 +113,7 @@ def resetRun():
     eventPlayer.runMistakes = 0
     # A delta still showing from the last run's clear would hide the new run's live times
     eventPlayer.isShowingSplitDelta = false
-    # The ETA paces each run from its own splits, unlike the per-CP Best and Avg
+    # Pace projects each run from its own splits, unlike the per-CP Best and Avg
     eventPlayer.paceSplitTotal = 0
     eventPlayer.paceSplitClears = 0
     resetCpMistakes()

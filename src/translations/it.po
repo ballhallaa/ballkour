@@ -302,5 +302,5 @@ msgid "Split: @0"
 msgstr "Parziale: @0"
 
 #. file splits.opy, rule "Load HUD"
-msgid "ETA: @0"
-msgstr "Arrivo: @0"
+msgid "Pace: @0"
+msgstr "Previsione: @0"
