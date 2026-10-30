@@ -14,7 +14,7 @@ rule "Lobby":
     lobbyData[8] = vect(-0.31, -3.99, -25.54)
     lobbyData[9] = lobbyData[8] + vect(0, -1, 0)
     lobbyData[10] = lobbyData[8] + vect(0, 1.5, 0)
-    lobbyData[11] = vect(12.055, 1.25, -23.265)
+    lobbyData[11] = vect(12.055, 2, -23.265)
     lobbyData[12] = 1.2
     lobbyData[13] = 0.7
     lobbyData[25] = 20

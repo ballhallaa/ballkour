@@ -47,6 +47,38 @@ rule "Load Welcome Area":
     )
 
 
+# The leaderboard row a player is looking at, from the height their aim reaches over the
+# rows, or 0 if they aren't looking across the rows' text. Rows past the last run wrap to 0.
+# While rolling it's off from the crosshair, as the camera isn't at the player's eyes.
+macro lbAimRow(player):
+    (
+        max(
+            0,
+            min(
+                round(
+                    (
+                        lbPos[1].y
+                        - player.getEyePosition().y
+                        + distance(
+                            vect(
+                                player.getEyePosition().x, 0, player.getEyePosition().z
+                            ),
+                            vect(lbPos[1].x, 0, lbPos[1].z)
+                        )
+                        * tanDeg(player.getVerticalFacingAngle())
+                    )
+                    / (lbPos[1].y - lbPos[2].y)
+                )
+                + 1,
+                lbRunCount + 1
+            )
+        )
+        % (lbRunCount + 1)
+        if abs(horizontalAngleTowards(player, lbPos[1])) <= 12
+        else 0
+    )
+
+
 rule "Load Leaderboard Area":
     createInWorldText(
         getAllPlayers().filter(lambda localPlayer: localPlayer.isInLobby),
@@ -57,6 +89,9 @@ rule "Load Leaderboard Area":
         WorldTextReeval.VISIBILITY_AND_STRING,
         rgb(230, 151, 0)
     )
+    # lb[0] is unused, so this is -1 without runs
+    lbRunCount = len(lb) - 1
+    lbRunText = []
     # 1st-9th Position Placeholder"
     lb[11] = "---, -:--.--, -, '                                               '"
     # 10th Position Placeholder"
@@ -87,6 +122,17 @@ rule "Load Leaderboard Area":
             iconString(Icon.SKULL),
             lbObj[2]
         )
+        # The row without its alignment, for the run info (lbRunInfo)
+        lbRunText[index] = "{}. {}{}</fg>   {}{}{}   {}{}</fg>".format(
+            index,
+            lbObj[4],
+            lbObj[0],
+            iconString(Icon.BOLT),
+            lbObj[4],
+            lbObj[1],
+            iconString(Icon.SKULL),
+            lbObj[2]
+        )
         createInWorldText(
             getAllPlayers().filter(lambda localPlayer: localPlayer.isInLobby),
             lbObjFormatted,
@@ -96,6 +142,70 @@ rule "Load Leaderboard Area":
             WorldTextReeval.VISIBILITY,
             rgb(230, 151, 0)
         )
+    # Courses without runs have no run info
+    if lbRunCount <= 0:
+        return
+    # Arrows on either side of the row the player is looking at, so they can see which run
+    # Interact opens. The 86 spaces between them clear the widest row. Only its position
+    # changes (changing its text too flickered): looking at no run moves it to lbPos[0],
+    # far below the floor.
+    lbPos[0] = lbPos[1] + vect(0, -1000, 0)
+    createInWorldText(
+        getAllPlayers().filter(lambda localPlayer: localPlayer.isInLobby),
+        (
+            "{}                                           "
+            "                                           {}"
+        ).format(iconString(Icon.ARROW_RIGHT), iconString(Icon.ARROW_LEFT)),
+        lbPos[lbAimRow(localPlayer)],
+        lobbyData[13],
+        Clip.SURFACES,
+        WorldTextReeval.VISIBILITY_AND_POSITION,
+        rgb(230, 151, 0)
+    )
+    lobbyHudText = _("Run Info: <fgFFFFFFFF>Look at a Run + @0</fg>")
+    createInWorldText(
+        getAllPlayers().filter(lambda localPlayer: localPlayer.isInLobby),
+        _(lobbyHudText).replace("@0", inputBindingString(Button.INTERACT)),
+        lbPos[10] + (lbPos[10] - lbPos[9]) * 1.5,
+        lobbyData[13],
+        Clip.SURFACES,
+        WorldTextReeval.VISIBILITY_AND_STRING,
+        rgb(230, 151, 0)
+    )
+
+
+rule "Run Info Input":
+    @Event eachPlayer
+    @Condition eventPlayer.isHoldingButton(Button.INTERACT) == true
+    @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
+    @Condition eventPlayer.isInLobby == true
+    @Condition lbRunCount > 0
+
+    eventPlayer.lbAim = lbAimRow(eventPlayer)
+    # Looking at the open run again hides it, like looking away from the runs
+    if eventPlayer.lbAim == eventPlayer.lbInfoRow:
+        eventPlayer.lbAim = 0
+    if eventPlayer.lbAim != eventPlayer.lbInfoRow:
+        eventPlayer.lbInfoRow = eventPlayer.lbAim
+        showRunInfo()
+
+
+rule "Hide Run Info":
+    @Event eachPlayer
+    @Condition eventPlayer.isInLobby == false
+    @Condition eventPlayer.lbInfoRow != 0
+
+    eventPlayer.lbInfoRow = 0
+    showRunInfo()
+
+
+def showRunInfo():
+    @Name "Show Run Info"
+
+    # Only open runs have a text (see lbRunInfo), so they're remade whenever that changes.
+    # These are the only progress bar texts.
+    destroyAllProgressBarInWorldTexts()
+    loadRunInfo()
 
 
 rule "Load Start Run Area":
@@ -356,7 +466,7 @@ rule "Load Stats":
 
 
 rule "Clear Unused Variables":
+    # lbPos stays for Run Info Input
     lb = null
-    lbPos = null
     lbObj = null
     lbObjFormatted = null

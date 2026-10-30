@@ -82,6 +82,8 @@ rule "Leaves":
                 lambda p: p.spectating[0] and p.spectating[1] == getAllPlayers()[index]
             )
         )
+    # Drops the run info they had open
+    showRunInfo()
 
 
 rule "Turn Inactive Players Tiny":

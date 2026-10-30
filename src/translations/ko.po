@@ -189,6 +189,10 @@ msgstr "자유 카메라:                                       <fgFFFFFFFF>이�
 msgid "Leaderboard"
 msgstr "순위표"
 
+#. file lobby.opy, rule "Load Leaderboard Area"
+msgid "Run Info: <fgFFFFFFFF>Look at a Run + @0</fg>"
+msgstr "기록 정보: <fgFFFFFFFF>기록을 보고 + @0</fg>"
+
 #. file lobby.opy, rule "Load Resume Run Area"
 msgid "Resume Run"
 msgstr "이어하기"

@@ -189,6 +189,10 @@ msgstr "Cámara libre:                         <fgFFFFFFFF>Moverse</fg>"
 msgid "Leaderboard"
 msgstr "Clasificación"
 
+#. file lobby.opy, rule "Load Leaderboard Area"
+msgid "Run Info: <fgFFFFFFFF>Look at a Run + @0</fg>"
+msgstr "Info de partida: <fgFFFFFFFF>Mira una partida + @0</fg>"
+
 #. file lobby.opy, rule "Load Resume Run Area"
 msgid "Resume Run"
 msgstr "Reanudar partida"
