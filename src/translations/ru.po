@@ -242,8 +242,8 @@ msgid "{0} | {1}"
 msgstr "{0} | {1}"
 
 #. file run.opy, rule "Load HUD"
-msgid "Controls: <fgFFFFFFFF>@0</fg>"
-msgstr "Управление: <fgFFFFFFFF>@0</fg>"
+msgid "Controls: <fgFFFFFFFF>@0 (Hold)</fg>"
+msgstr "Управление: <fgFFFFFFFF>@0 (удерживать)</fg>"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Spectating"

@@ -28,7 +28,7 @@ rule "Load HUD":
         rgb(0, 224, 146),
         HudReeval.VISIBILITY
     )
-    runHudText = _("\n\n\n\nControls: <fgFFFFFFFF>@0</fg>")
+    runHudText = _("\n\n\n\nControls: <fgFFFFFFFF>@0 (Hold)</fg>")
     hudSubtext(
         getAllPlayers(),
         _(runHudText).replace("@0", inputBindingString(Button.ULTIMATE)),
