@@ -245,6 +245,14 @@ msgstr "{0} | {1}"
 msgid "Controls: <fgFFFFFFFF>@0 (Hold)</fg>"
 msgstr "การควบคุม: <fgFFFFFFFF>@0 (กดค้าง)</fg>"
 
+#. file run.opy, rule "Load HUD"
+msgid "Hide: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "ซ่อน: <fgFFFFFFFF>@0 + @1</fg>"
+
+#. file run.opy, rule "Load HUD"
+msgid "Scorecard: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "สกอร์การ์ด: <fgFFFFFFFF>@0 + @1</fg>"
+
 #. file spectator.opy, rule "Load HUD"
 msgid "Spectating"
 msgstr "กำลังชม"

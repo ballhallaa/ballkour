@@ -674,3 +674,19 @@ rule "Hint Info Input":
     if eventPlayer.isHoldingButton(Button.ABILITY_2):
         return
     eventPlayer.isViewingHintInfo = not eventPlayer.isViewingHintInfo
+
+
+rule "Scorecard Input":
+    @Event eachPlayer
+    @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
+    @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
+    @Condition eventPlayer.isHoldingButton(Button.SECONDARY_FIRE) == false
+    @Condition eventPlayer.isHoldingButton(Button.JUMP) == false
+    @Condition eventPlayer.isHoldingButton(Button.RELOAD) == false
+    @Condition eventPlayer.isHoldingButton(Button.INTERACT) == false
+    @Condition eventPlayer.isHoldingButton(Button.CROUCH) == true
+    @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
+    @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
+    @Condition eventPlayer.spectating[5] == false
+
+    eventPlayer.isScorecardHidden = not eventPlayer.isScorecardHidden

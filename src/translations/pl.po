@@ -245,6 +245,14 @@ msgstr "{0} | {1}"
 msgid "Controls: <fgFFFFFFFF>@0 (Hold)</fg>"
 msgstr "Sterowanie: <fgFFFFFFFF>@0 (przytrzymaj)</fg>"
 
+#. file run.opy, rule "Load HUD"
+msgid "Hide: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "Ukryj: <fgFFFFFFFF>@0 + @1</fg>"
+
+#. file run.opy, rule "Load HUD"
+msgid "Scorecard: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "Tabela: <fgFFFFFFFF>@0 + @1</fg>"
+
 #. file spectator.opy, rule "Load HUD"
 msgid "Spectating"
 msgstr "Obserwujesz"

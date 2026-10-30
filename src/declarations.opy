@@ -47,6 +47,10 @@ globalvar players
 globalvar hostPlayerName
 globalvar nameplateObjs
 globalvar tinyNameplateObjs
+globalvar scorecard
+globalvar scorecardRunners
+globalvar scorecardRow
+globalvar scorecardTime
 
 # Spectating
 globalvar playerToEnableFreecam
@@ -65,6 +69,7 @@ globalvar runHudText
 globalvar splitsHudText = []
 globalvar spectatorHudText = []
 globalvar completionHudText = []
+globalvar scorecardHudText = []
 
 globalvar index 127
 
@@ -156,6 +161,7 @@ playervar timeFormatted
 # Controls
 playervar isViewingCtrlsHud
 playervar isInFreemode
+playervar isScorecardHidden
 
 # Spectating
 playervar spectating

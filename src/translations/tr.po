@@ -245,6 +245,14 @@ msgstr "{0} | {1}"
 msgid "Controls: <fgFFFFFFFF>@0 (Hold)</fg>"
 msgstr "Kontroller: <fgFFFFFFFF>@0 (basılı tut)</fg>"
 
+#. file run.opy, rule "Load HUD"
+msgid "Hide: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "Gizle: <fgFFFFFFFF>@0 + @1</fg>"
+
+#. file run.opy, rule "Load HUD"
+msgid "Scorecard: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "Skor Tablosu: <fgFFFFFFFF>@0 + @1</fg>"
+
 #. file spectator.opy, rule "Load HUD"
 msgid "Spectating"
 msgstr "İzleniyor"
