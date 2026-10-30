@@ -9,5 +9,5 @@ rule "Leaderboard":
 def loadRunInfo():
     @Name "Leaderboard Run Info"
 
-    # lbRunInfo(rank, submission date (UTC), video link without https://)
-    lbRunInfo(1, "Jun 5, 2026", "youtu.be/hNSpNvWyNcI")
+    # lbRunInfo(rank, submission date (UTC, YYYY-MM-DD), video link without https://)
+    lbRunInfo(1, "2026-06-05", "youtu.be/hNSpNvWyNcI")
