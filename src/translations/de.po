@@ -189,6 +189,10 @@ msgstr "Freie Kamera:                      <fgFFFFFFFF>Bewegen</fg>"
 msgid "Leaderboard"
 msgstr "Bestenliste"
 
+#. file lobby.opy, rule "Load Leaderboard Area"
+msgid "Run Info: <fgFFFFFFFF>Look at a Run + @0</fg>"
+msgstr "Lauf-Info: <fgFFFFFFFF>Auf einen Lauf schauen + @0</fg>"
+
 #. file lobby.opy, rule "Load Resume Run Area"
 msgid "Resume Run"
 msgstr "Lauf fortsetzen"

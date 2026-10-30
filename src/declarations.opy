@@ -12,6 +12,8 @@ globalvar lb
 globalvar lbPos
 globalvar lbObj
 globalvar lbObjFormatted
+globalvar lbRunCount
+globalvar lbRunText
 globalvar timeToBeat
 globalvar timeToBeatFormatted
 
@@ -75,6 +77,7 @@ globalvar spectatorHudText = []
 globalvar completionHudText = []
 globalvar scorecardHudText = []
 globalvar topRunsHudText
+globalvar lobbyHudText
 
 globalvar index 127
 
@@ -83,6 +86,10 @@ playervar isLoading
 playervar isInLobby
 playervar nameplate
 playervar isTiny
+
+# Leaderboard
+playervar lbAim
+playervar lbInfoRow
 
 # Run
 playervar isRunLoaded
@@ -181,6 +188,9 @@ subroutine showCpNameplate
 
 # Lobby
 subroutine loadLobby
+subroutine showRunInfo
+# Each course's leaderboard has its own, if it has runs
+subroutine loadRunInfo
 
 # Run
 subroutine newRun
@@ -219,3 +229,32 @@ subroutine enableFreecamForSpectators
 subroutine syncSpectatorCps
 subroutine reattachToSpectatingTarget
 subroutine enableFirstPersonSpectator
+
+
+# Leaderboard
+# A run's leaderboard row, submission date and video link, for the players who opened it
+# from its row (Lobby: Run Info Input). The course leaderboards use it, so it's defined here.
+# Only open runs get their text, as every text's definition adds to the server's load.
+# Workshop text is uppercase and video links aren't, so this overlays progress bar texts,
+# which can show lowercase. The row is a stored string, which isn't spread out like the
+# literal text: each of the overlaid texts draws all of it.
+# It follows the player's camera: the blank lines lift it toward the top of the screen
+# and push its progress bar off the screen.
+macro lbRunInfo(rank, date, link):
+    if any([player.lbInfoRow == rank for player in getAllPlayers()]):
+        createCasedProgressBarIwt(
+            3,
+            getAllPlayers().filter(lambda localPlayer: localPlayer.lbInfoRow == rank),
+            (
+                "\n\n\n\n\n\n\n\n\n{}"
+                "\n{}"
+                "\n<fgFFFFFFFF>{}</fg>\n\n\n\n\n\n\n\n\n"
+            ).format(lbRunText[rank], date, link),
+            updateEveryFrame(
+                localPlayer.getEyePosition() + localPlayer.getFacingDirection() * 10
+            ),
+            1,
+            Clip.NONE,
+            rgb(230, 151, 0),
+            ProgressWorldTextReeval.VISIBILITY_AND_POSITION
+        )
