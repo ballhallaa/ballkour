@@ -92,8 +92,8 @@ rule "Load HUD":
     # The rows stay out of the String Replace, which cuts off long strings, and they're too long for it
     hudSubheader(
         getAllPlayers().filter(
-            lambda localPlayer: len(scorecardRunners.exclude(localPlayer)) > 0
-            or len(topRuns) > 0
+            lambda localPlayer: not localPlayer.isScorecardHidden
+            and (len(scorecardRunners.exclude(localPlayer)) > 0 or len(topRuns) > 0)
         ),
         "{}{}".format(
             (
@@ -102,18 +102,27 @@ rule "Load HUD":
                     if localPlayer.spectating[0] and localPlayer.isViewingCtrlsHud
                     else scorecard
                 )
-                if not localPlayer.isScorecardHidden
-                and len(scorecardRunners.exclude(localPlayer)) > 0
+                if len(scorecardRunners.exclude(localPlayer)) > 0
                 else ""
             ),
-            (
-                _(scorecardHudText[1])
-                if localPlayer.isScorecardHidden
-                else _(scorecardHudText[0])
-            )
+            _(scorecardHudText[0])
             .replace("@0", inputBindingString(Button.ULTIMATE))
             .replace("@1", inputBindingString(Button.CROUCH))
         ),
+        HudPosition.LEFT,
+        16,
+        rgb(230, 151, 0),
+        HudReeval.VISIBILITY_AND_STRING
+    )
+    # On its own under Hints, so it's the same size as them
+    hudSubtext(
+        getAllPlayers().filter(
+            lambda localPlayer: localPlayer.isScorecardHidden
+            and (len(scorecardRunners.exclude(localPlayer)) > 0 or len(topRuns) > 0)
+        ),
+        _(scorecardHudText[1])
+        .replace("@0", inputBindingString(Button.ULTIMATE))
+        .replace("@1", inputBindingString(Button.CROUCH)),
         HudPosition.LEFT,
         16,
         rgb(230, 151, 0),
