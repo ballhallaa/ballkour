@@ -84,6 +84,8 @@ rule "Leaves":
         )
     # Drops the run info they had open
     showRunInfo()
+    # Their row comes off the scorecard
+    scorecardDirty = true
 
 
 rule "Turn Inactive Players Tiny":

@@ -8,6 +8,28 @@ macro viewedRunner(player):
     (player.spectating[1] if player.spectating[0] else player)
 
 
+# A finished run stays listed, even though finishing turns on freemode
+macro isOnScorecard(player):
+    (
+        not player.isDummy()
+        and player.isRunLoaded
+        and not player.isInLobby
+        and not player.spectating[0]
+        and (player.isRunFinished or not player.isInFreemode)
+    )
+
+
+# Everything a player's scorecard row shows but the time, so a change to it can refresh the
+# scorecard at once. The CP stays under 1000, and the flags fit below 1.
+macro scorecardKey(player):
+    (
+        player.runCurrentCp
+        + player.runMistakes * 1000
+        + player.isRunLegit * 0.5
+        + isOnScorecard(player) * 0.25
+    )
+
+
 # Fills out a scorecard column of 3 digits and its 3-space gap, as a digit is about as wide as 2 spaces
 macro scorecardPad(value):
     "       ".substring(0, 3 + 2 * max(3 - strLen("{}".format(value)), 0))
@@ -131,18 +153,12 @@ rule "Load HUD":
 
 
 rule "Update Scorecard":
-    # A finished run stays listed, even though finishing turns on freemode
+    scorecardDirty = false
     scorecardRunners = sorted(
-        getAllPlayers().filter(
-            lambda p: not p.isDummy()
-            and p.isRunLoaded
-            and not p.isInLobby
-            and not p.spectating[0]
-            and (p.isRunFinished or not p.isInFreemode)
-        ),
+        getAllPlayers().filter(lambda p: isOnScorecard(p)),
         lambda p: p.runTime - p.runCurrentCp * 100000
     )
-    # One string rebuilt each second, instead of a HUD text per runner: Overwatch reprocesses every
+    # One string rebuilt on each change and each second, instead of a HUD text per runner: Overwatch reprocesses every
     # HUD text's definition every 5s (see Translated HUD Text). It starts with a gap above it.
     # A string only shows its first 4 icons, so they head the columns instead of filling each row.
     scorecard = "\n\n{}    {}          {}".format(
@@ -174,8 +190,23 @@ rule "Update Scorecard":
         # Spectator's Controls list is the longest, and leaves room for 5 rows above the hero portrait
         if index < 5:
             scorecardShort = scorecard
-    wait(1)
+    # The time column ticks each second, and a change rebuilds it within 0.1s. Rebuilding on
+    # the next tick added ~20% to peak server load while Next CP was held with 12 rows.
+    wait(0.1)
+    waitUntil(scorecardDirty == true, 0.9)
     loop()
+
+
+rule "Refresh Scorecard On Change":
+    @Event eachPlayer
+    @Condition eventPlayer.scorecardKey != scorecardKey(eventPlayer)
+
+    eventPlayer.scorecardKey = scorecardKey(eventPlayer)
+    scorecardDirty = true
+    # Rechecks a tick later, like Sync Viewed Checkpoint
+    wait()
+    if RULE_CONDITION:
+        loop()
 
 
 def newRun():
