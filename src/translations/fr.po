@@ -265,6 +265,14 @@ msgstr "Masquer les scores : <fgFFFFFFFF>@0 + @1</fg>"
 msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
 msgstr "Scores : <fgFFFFFFFF>@0 + @1</fg>"
 
+#. file run.opy, rule "Load HUD"
+msgid "Runs: @0"
+msgstr "Parties : @0"
+
+#. file run.opy, rule "Load HUD"
+msgid "Attempts: @0"
+msgstr "Essais : @0"
+
 #. file spectator.opy, rule "Load HUD"
 msgid "Spectating"
 msgstr "Mode spectateur"

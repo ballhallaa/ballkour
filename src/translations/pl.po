@@ -265,6 +265,14 @@ msgstr "Ukryj wyniki: <fgFFFFFFFF>@0 + @1</fg>"
 msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
 msgstr "Wyniki: <fgFFFFFFFF>@0 + @1</fg>"
 
+#. file run.opy, rule "Load HUD"
+msgid "Runs: @0"
+msgstr "Podejścia: @0"
+
+#. file run.opy, rule "Load HUD"
+msgid "Attempts: @0"
+msgstr "Próby: @0"
+
 #. file spectator.opy, rule "Load HUD"
 msgid "Spectating"
 msgstr "Obserwujesz"

@@ -265,6 +265,14 @@ msgstr "Wertung ausblenden: <fgFFFFFFFF>@0 + @1</fg>"
 msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
 msgstr "Wertung: <fgFFFFFFFF>@0 + @1</fg>"
 
+#. file run.opy, rule "Load HUD"
+msgid "Runs: @0"
+msgstr "Läufe: @0"
+
+#. file run.opy, rule "Load HUD"
+msgid "Attempts: @0"
+msgstr "Versuche: @0"
+
 #. file spectator.opy, rule "Load HUD"
 msgid "Spectating"
 msgstr "Zuschauen"

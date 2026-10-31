@@ -31,6 +31,8 @@ rule "Checkpoint (No Skipping)":
         saveHintRoute()
     resetCpMistakes()
     eventPlayer.isLoading = true
+    # A clear ends an attempt too
+    eventPlayer.cpAttempts[eventPlayer.runCurrentCp]++
     eventPlayer.runCurrentCp++
     syncSpectatorCps()
     showCpNameplate()
@@ -73,6 +75,7 @@ rule "Final Checkpoint Reached":
             if isLobbyStatsOn:
                 updateStats()
     if not eventPlayer.isRunFinished:
+        eventPlayer.runCount++
         eventPlayer.isRunFinished = true
         eventPlayer.runFinalTimeFormatted = eventPlayer.runTimeFormatted
         eventPlayer.runFinalMistakes = eventPlayer.runMistakes
@@ -123,7 +126,7 @@ rule "Load Top Runs HUD":
         ),
         ("\n{}{}").format(_(topRunsHudText), topRunsText),
         HudPosition.RIGHT,
-        9,
+        11,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )

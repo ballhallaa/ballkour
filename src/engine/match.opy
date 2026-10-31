@@ -170,7 +170,7 @@ rule "Server Load HUD":
             round(getPeakServerLoad())
         ),
         HudPosition.RIGHT,
-        8,
+        10,
         Color.LIGHT_VIOLET,
         HudReeval.VISIBILITY_AND_STRING
     )
