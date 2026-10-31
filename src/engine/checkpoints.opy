@@ -3,23 +3,30 @@
 
 
 rule "Expand Data":
-    # Fills in what each map's cps[i] leaves out, so cps[i] becomes:
+    # Unpacks each map's cps and fills in what it leaves out, so cps[i] becomes:
     # [0]cpLocation [1]cpSize [2]isGrappleAllowed [3]isShieldBounceAllowed [4]isPiledriverAllowed [5]bounceLocation [6]bounceSize [7]nextCpLocation [8]nextCpSize
     # and the final checkpoint becomes [0]cpLocation [1]cpSize
-    lastCp = len(cps) - 1
+    hintScratch = cps
+    decompressScratch()
+    lastCp = (len(hintScratch) - 1) / 3
+    cps = []
     for index in range(lastCp):
         cps[index] = [
-            cps[index][0],
+            hintScratch[index * 3],
             cpDefaults[0],
-            cps[index][1],
-            cps[index][2],
-            cps[index][3],
-            cps[index][4],
+            hintScratch[index * 3 + 1].x != 0,
+            hintScratch[index * 3 + 1].y != 0,
+            hintScratch[index * 3 + 1].z != 0,
+            (
+                hintScratch[index * 3 + 2]
+                if hintScratch[index * 3 + 2] != vect(0, 0, 0)
+                else null
+            ),
             cpDefaults[1],
-            cps[index + 1][0],
+            hintScratch[(index + 1) * 3],
             cpDefaults[2]
         ]
-    cps[lastCp] = [cps[lastCp][0], cpDefaults[0]]
+    cps[lastCp] = [hintScratch[lastCp * 3], cpDefaults[0]]
 
 
 def loadCpData():

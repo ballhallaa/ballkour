@@ -218,6 +218,7 @@ subroutine formatSplitResult
 subroutine loadPace
 
 # Hints
+subroutine decompressScratch
 subroutine saveHintRoute
 subroutine resetCpMistakes
 

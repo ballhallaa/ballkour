@@ -49,7 +49,7 @@ NO_ANCHOR = (0.0, 0.0, 0.0)
 DATA_RE = re.compile(r"^\s*hintData\[(\d+)\] = compress\(\[(.*)\]\)\s*$")
 VECT_RE = re.compile(r"vect\(([^,]+),([^,]+),([^)]+)\)")
 RULE_RE = re.compile(r'^rule "(.*?)(?: \(CPs \d+-\d+\))?":\s*$')
-CP_RE = re.compile(r"^\s*cps\[(\d+)\] =", re.M)
+CP_RE = re.compile(r"^\s*vect\(", re.M)
 NUMBER_RE = re.compile(r"-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?")
 WORD_RE = re.compile(r"[A-Za-z][A-Za-z ]*")
 LOG_LINE_RE = re.compile(r"\bhint (\d+) (start|point|action|end)\b(.*)")
@@ -279,7 +279,7 @@ def same_route(a, b):
 
 def cp_count(course):
     checkpoints = course.with_name("checkpoints.opy").read_text()
-    return max(int(i) for i in CP_RE.findall(checkpoints)) + 1
+    return len(CP_RE.findall(checkpoints))
 
 
 def format_ranges(numbers):
