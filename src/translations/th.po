@@ -193,6 +193,10 @@ msgstr "กระดานผู้นำ"
 msgid "Run Info: <fgFFFFFFFF>Look at a Run + @0</fg>"
 msgstr "ข้อมูลสถิติ: <fgFFFFFFFF>มองที่สถิติ + @0</fg>"
 
+#. file lobby.opy, rule "Load Leaderboard Area"
+msgid "Hide: <fgFFFFFFFF>@0</fg>"
+msgstr "ซ่อน: <fgFFFFFFFF>@0</fg>"
+
 #. file lobby.opy, rule "Load Resume Run Area"
 msgid "Resume Run"
 msgstr "เล่นต่อ"
