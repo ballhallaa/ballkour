@@ -4,7 +4,7 @@
 
 # Ballkour
 
-_Wrecking Ball Parkour Courses for Overwatch_
+_Wrecking Ball parkour courses for Overwatch_
 
 [Website](https://ballkour.com) • [Gameplay](https://ballkour.com/gameplay) • [Discord](https://ballkour.com/discord)
 
