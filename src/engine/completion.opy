@@ -206,20 +206,15 @@ rule "Run Text":
         Color.WHITE,
         HudReeval.VISIBILITY_AND_STRING
     )
-    completionHudText[5] = _(
-        "<fgE69700FF>                Top-10 Time!</fg>\n"
-        "<fgFF4646FF>Submit a Video of Your Run</fg>\n"
-        "<fgFF4646FF>                        @</fg>\n"
-        "<fgFF4646FF>              ballkour.com</fg>\n\n"
-        "<fg00E092FF>       Thanks for Playing!</fg>"
-    )
+    # Goes above completionHudText[4], so the shared lines are only stored once
+    completionHudText[5] = _("<fgE69700FF>                Top-10 Time!</fg>")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
             and (timeToBeat == 0 or localPlayer.runTime <= timeToBeat)
             and localPlayer.isRunLegit
         ),
-        _(completionHudText[5]),
+        "{}\n{}".format(_(completionHudText[5]), _(completionHudText[4])),
         HudPosition.TOP,
         6,
         rgb(230, 151, 0),
