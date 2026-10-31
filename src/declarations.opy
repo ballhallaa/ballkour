@@ -51,6 +51,7 @@ globalvar nameplateObjs
 globalvar tinyNameplateObjs
 globalvar scorecard
 globalvar scorecardShort
+globalvar scorecardDirty
 globalvar scorecardRunners
 globalvar scorecardRow
 globalvar scorecardTime
@@ -174,6 +175,7 @@ playervar timeFormatted
 playervar isViewingCtrlsHud
 playervar isInFreemode
 playervar isScorecardHidden
+playervar scorecardKey
 
 # Spectating
 playervar spectating
