@@ -1,4 +1,4 @@
-#!mainFile "1-watchpoint-gibraltar.opy"
+#!mainFile "../src/courses/1-watchpoint-gibraltar/1-watchpoint-gibraltar.opy"
 
 rule "Leaderboard":
     # lb[i]: [0]name [1]time [2]mistakes [3]alignmentSeparator

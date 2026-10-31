@@ -19,7 +19,7 @@ rule "Info":
 
 
 #!include "../../settings.opy"
-#!include "leaderboard.opy"
+#!include "../../../leaderboards/2-blizzard-world.opy"
 #!include "checkpoints.opy"
 
 
