@@ -144,7 +144,7 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    # Under the Hints HUD, which is LEFT's last. Its rows are left out when the only runner
+    # Under the Q&A line, which is under Hints. Its rows are left out when the only runner
     # listed is the player, as their run is on the right, but its line stays while there's a
     # Top 3 for it to hide.
     scorecardHudText[0] = _("Hide Scores: <fgFFFFFFFF>@0 + @1</fg>")
@@ -170,11 +170,11 @@ rule "Load HUD":
             .replace("@1", inputBindingString(Button.CROUCH))
         ),
         HudPosition.LEFT,
-        16,
+        17,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    # On its own under Hints, so it's the same size as them
+    # On its own under the Q&A line, so it's the same size as it
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isScorecardHidden
@@ -184,7 +184,7 @@ rule "Load HUD":
         .replace("@0", inputBindingString(Button.ULTIMATE))
         .replace("@1", inputBindingString(Button.CROUCH)),
         HudPosition.LEFT,
-        16,
+        17,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -225,8 +225,8 @@ rule "Update Scorecard":
                 else "<fg808080FF>{}</fg>".format(scorecardRow)
             )
         )
-        # Spectator's Controls list is the longest, and leaves room for 5 rows above the hero portrait
-        if index < 5:
+        # Spectator's Controls list is the longest, and leaves room for 3 rows above the hero portrait
+        if index < 3:
             scorecardShort = scorecard
     # The time column ticks each second, and a change rebuilds it within 0.1s. Rebuilding on
     # the next tick added ~20% to peak server load while Next CP was held with 12 rows.
