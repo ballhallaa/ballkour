@@ -73,6 +73,7 @@ globalvar ctrlsHudText = []
 globalvar freemodeHudText
 globalvar hintsHudText = []
 globalvar runHudText
+globalvar counterHudText = []
 globalvar splitsHudText = []
 globalvar spectatorHudText = []
 globalvar completionHudText = []
@@ -104,6 +105,7 @@ playervar runTimeFormatted
 playervar runMistakes
 playervar runFinalTimeFormatted
 playervar runFinalMistakes
+playervar runCount
 playervar isViewingRunCompletionText
 playervar viewRunner
 
@@ -113,6 +115,7 @@ playervar isCpTimerActive
 playervar cpTime
 playervar cpTimeFormatted
 playervar cpStartMistakes
+playervar cpAttempts
 playervar viewCp
 
 # Splits
@@ -231,6 +234,13 @@ subroutine enableFreecamForSpectators
 subroutine syncSpectatorCps
 subroutine reattachToSpectatingTarget
 subroutine enableFirstPersonSpectator
+
+
+# Run
+# Every mistake also ends an attempt at the CP
+macro addMistake():
+    eventPlayer.runMistakes++
+    eventPlayer.cpAttempts[eventPlayer.runCurrentCp]++
 
 
 # Leaderboard

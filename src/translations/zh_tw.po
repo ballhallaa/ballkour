@@ -265,6 +265,14 @@ msgstr "隱藏成績: <fgFFFFFFFF>@0 + @1</fg>"
 msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
 msgstr "成績: <fgFFFFFFFF>@0 + @1</fg>"
 
+#. file run.opy, rule "Load HUD"
+msgid "Runs: @0"
+msgstr "遊戲次數：@0"
+
+#. file run.opy, rule "Load HUD"
+msgid "Attempts: @0"
+msgstr "嘗試次數：@0"
+
 #. file spectator.opy, rule "Load HUD"
 msgid "Spectating"
 msgstr "觀戰中"

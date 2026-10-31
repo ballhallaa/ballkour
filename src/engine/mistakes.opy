@@ -42,7 +42,7 @@ rule "Missed Checkpoint":
     @Condition eventPlayer.isDummy() == false
 
     eventPlayer.isLoading = true
-    eventPlayer.runMistakes++
+    addMistake()
     cpResetPlayer()
     if eventPlayer.isRunPaused:
         eventPlayer.isRunPaused = false
@@ -73,7 +73,7 @@ rule "Already Bhopped":
     )
 
     eventPlayer.isLoading = true
-    eventPlayer.runMistakes++
+    addMistake()
     cpResetPlayer()
     eventPlayer.isLoading = false
 
@@ -90,7 +90,7 @@ rule "Environment Death":
     if not eventPlayer.isInLobby:
         if not eventPlayer.isInFreemode and not eventPlayer.spectating[0]:
             cpResetPlayer()
-            eventPlayer.runMistakes++
+            addMistake()
         else:
             eventPlayer.teleport(nearestWalkablePosition(eventPlayer.getPosition()))
         eventPlayer.resurrect()

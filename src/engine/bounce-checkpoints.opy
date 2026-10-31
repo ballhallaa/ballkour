@@ -21,7 +21,7 @@ rule "No Grapple":
     )
 
     eventPlayer.isLoading = true
-    eventPlayer.runMistakes++
+    addMistake()
     cpResetPlayer()
     eventPlayer.isLoading = false
 
@@ -61,7 +61,7 @@ rule "Too Slow":
     )
 
     eventPlayer.isLoading = true
-    eventPlayer.runMistakes++
+    addMistake()
     cpResetPlayer()
     eventPlayer.isLoading = false
 
@@ -123,6 +123,6 @@ rule "Improperly Airborne":
     )
 
     eventPlayer.isLoading = true
-    eventPlayer.runMistakes++
+    addMistake()
     cpResetPlayer()
     eventPlayer.isLoading = false

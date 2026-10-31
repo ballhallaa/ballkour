@@ -64,13 +64,51 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    hudSubtext(
-        getAllPlayers().filter(lambda localPlayer: not localPlayer.isInLobby),
-        ("\n\n\n\n{} {}/{}\n").format(
-            iconString(Icon.FLAG), localPlayer.viewCp, lastCp
+    # Runs counts the runs finished or restarted (see Initialize New Run). Attempts counts the
+    # CP's mistakes and clears, over all the player's runs, like its Best and Avg.
+    # Subheaders, the smallest HUD text, so they stay quieter than the run's own numbers.
+    # Attempts follows the runner's own CP, not viewCp, which syncs a tick later: a clear would
+    # show the cleared CP's new count for that tick.
+    # They fill the 4 blank lines that were above the CP, which come back when they're hidden.
+    # Below them the CP keeps 2 of its blank lines, which puts it 8px above Controls instead of
+    # level with it: a subheader line is 24px and a text line 28px, and no mix of them makes up
+    # the 40px between the counters and Controls.
+    counterHudText[0] = _("Runs: @0")
+    hudSubheader(
+        getAllPlayers().filter(
+            lambda localPlayer: not localPlayer.isInLobby
+            and not localPlayer.spectating[3]
         ),
+        _(counterHudText[0]).replace("@0", localPlayer.viewRunner.runCount),
         HudPosition.RIGHT,
         0,
+        rgb(230, 151, 0),
+        HudReeval.VISIBILITY_AND_STRING
+    )
+    counterHudText[1] = _("Attempts: @0")
+    hudSubheader(
+        getAllPlayers().filter(
+            lambda localPlayer: not localPlayer.isInLobby
+            and not localPlayer.spectating[3]
+        ),
+        _(counterHudText[1]).replace(
+            "@0", localPlayer.viewRunner.cpAttempts[localPlayer.viewRunner.runCurrentCp]
+        ),
+        HudPosition.RIGHT,
+        1,
+        rgb(230, 151, 0),
+        HudReeval.VISIBILITY_AND_STRING
+    )
+    hudSubtext(
+        getAllPlayers().filter(lambda localPlayer: not localPlayer.isInLobby),
+        ("{}{} {}/{}\n").format(
+            "\n\n\n\n" if localPlayer.spectating[3] else "\n\n",
+            iconString(Icon.FLAG),
+            localPlayer.viewCp,
+            lastCp
+        ),
+        HudPosition.RIGHT,
+        2,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -89,7 +127,7 @@ rule "Load HUD":
             )
         ),
         HudPosition.RIGHT,
-        1,
+        3,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -102,7 +140,7 @@ rule "Load HUD":
             iconString(Icon.SKULL), localPlayer.viewRunner.runMistakes
         ),
         HudPosition.RIGHT,
-        2,
+        4,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -216,6 +254,13 @@ def newRun():
     if eventPlayer.spectating[0]:
         disableSpectator()
     eventPlayer.isInLobby = false
+    # A run counts once it ends: here if it's restarted after leaving the first CP, or when it's finished
+    if (
+        eventPlayer.isRunLoaded
+        and not eventPlayer.isRunFinished
+        and eventPlayer.runTime > 0
+    ):
+        eventPlayer.runCount++
     resetRun()
     syncSpectatorCps()
     loadCpData()
@@ -258,4 +303,4 @@ def pauseRun():
             distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
             > eventPlayer.cpData[1]
         ):
-            eventPlayer.runMistakes++
+            addMistake()

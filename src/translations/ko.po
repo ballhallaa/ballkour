@@ -265,6 +265,14 @@ msgstr "점수 숨기기: <fgFFFFFFFF>@0 + @1</fg>"
 msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
 msgstr "점수: <fgFFFFFFFF>@0 + @1</fg>"
 
+#. file run.opy, rule "Load HUD"
+msgid "Runs: @0"
+msgstr "플레이 횟수: @0"
+
+#. file run.opy, rule "Load HUD"
+msgid "Attempts: @0"
+msgstr "시도 횟수: @0"
+
 #. file spectator.opy, rule "Load HUD"
 msgid "Spectating"
 msgstr "관전 중"

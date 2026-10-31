@@ -451,7 +451,7 @@ rule "Reset Checkpoint Input":
             distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
             > eventPlayer.cpData[1]
         ):
-            eventPlayer.runMistakes++
+            addMistake()
     cpResetPlayer()
     eventPlayer.isLoading = false
 
@@ -516,7 +516,7 @@ rule "Freemode Input":
             distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
             > eventPlayer.cpData[1]
         ):
-            eventPlayer.runMistakes++
+            addMistake()
         eventPlayer.setSecondaryFireEnabled(true)
         eventPlayer.setAbility2Enabled(true)
         eventPlayer.allowButton(Button.CROUCH)

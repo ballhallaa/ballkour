@@ -107,7 +107,7 @@ def enableSpectator():
         distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
         > eventPlayer.cpData[1]
     ):
-        eventPlayer.runMistakes++
+        addMistake()
     eventPlayer.spectating[0] = true
     eventPlayer.spectating[1] = null
     eventPlayer.spectating[3] = true
