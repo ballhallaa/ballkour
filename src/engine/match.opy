@@ -2,15 +2,9 @@
 #!rulePrefix "Match"
 
 
-# Logs after each course's own Info rule, and before Initialize turns the Inspector off
+# Logs before Initialize turns the Inspector off
 rule "Info":
-    logToInspector("Website: ballkour.com")
-    logToInspector("Discord: ballkour.com/discord")
-    logToInspector("Report issues: ballkour.com/issues")
-    logToInspector(
-        "----------------------------------------------------------------------"
-    )
-    logToInspector(f"Version: v{VERSION}")
+    logToInspector("Latest source code: ballkour.com/github")
 
 
 rule "Initialize":
@@ -20,7 +14,7 @@ rule "Initialize":
     if not isDebugOn and not isHintRecorderOn:
         disableInspector()
     else:
-        # Sets the Info rules' lines apart from the debug logs that follow
+        # Sets the Info rule's line apart from the debug logs that follow
         logToInspector(
             "----------------------------------------------------------------------"
         )

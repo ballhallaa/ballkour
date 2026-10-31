@@ -7,17 +7,6 @@ settings courseSettings(Blizzard World (Winter), GMWRF, 8Y14F, 0, 12, "blizzWorl
 
 #!optimizeStrict
 #!rulePrefix "Course"
-
-
-rule "Info":
-    logToInspector("Hello! Welcome to Ballkour's Blizzard World (Winter) course!")
-    logToInspector("Legacy Code: 6B9Z09 | Creator: Spiz • Remaker: ballhallaa")
-    logToInspector(
-        "Changes: checkpoint position QOL adjustments, bigger checkpoints, and added shield bounces"
-    )
-    logToInspector("Course playthrough: ballkour.com/blizz-world")
-
-
 #!include "../../settings.opy"
 #!include "../../../leaderboards/2-blizzard-world.opy"
 #!include "checkpoints.opy"

@@ -7,16 +7,6 @@ settings courseSettings(Paraíso, NT5G3K, MXJ0W, 12, 0, "paraiso")
 
 #!optimizeStrict
 #!rulePrefix "Course"
-
-
-rule "Info":
-    logToInspector("Hello! Welcome to Ballkour's Paraíso course!")
-    logToInspector("Legacy Code: 3700E | Creator: Spiz • Remaker: ballhallaa")
-    logToInspector(
-        "Changes: checkpoint position QOL adjustments, bigger checkpoints, reworked shield bounce, and moved checkpoints due to map updates"
-    )
-
-
 #!include "../../settings.opy"
 #!include "../../../leaderboards/3-paraíso.opy"
 #!include "checkpoints.opy"
