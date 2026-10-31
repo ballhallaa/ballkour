@@ -15,10 +15,10 @@ rule "Info":
         "Original course (3700E) created by Spiz. Remade by ballmybeloved."
     )
     logToInspector(
-        "This route was slightly adjusted for quality purposes. Shield bounce has been reworked for better implementation in routes."
+        "This route was slightly adjusted for quality purposes and also because this map was updated in Aug 2026. Shield bounce has been reworked for better implementation in routes."
     )
+    logToInspector("Website: ballkour.com")
     logToInspector("Discord: ballkour.com/discord")
-    logToInspector("Set a top-10 time? Submit a video with your run in our Discord!")
 
 
 #!include "../../settings.opy"
