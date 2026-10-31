@@ -11,14 +11,10 @@ settings courseSettings(Paraíso, NT5G3K, MXJ0W, 12, 0, "paraiso")
 
 rule "Info":
     logToInspector("Hello! Welcome to Ballkour's Paraíso course!")
+    logToInspector("Legacy Code: 3700E | Creator: Spiz • Remaker: ballhallaa")
     logToInspector(
-        "Original course (3700E) created by Spiz. Remade by ballmybeloved."
+        "Changes: checkpoint position QOL adjustments, bigger checkpoints, reworked shield bounce, and moved checkpoints due to map updates"
     )
-    logToInspector(
-        "This route was slightly adjusted for quality purposes and also because this map was updated in Aug 2026. Shield bounce has been reworked for better implementation in routes."
-    )
-    logToInspector("Website: ballkour.com")
-    logToInspector("Discord: ballkour.com/discord")
 
 
 #!include "../../settings.opy"
