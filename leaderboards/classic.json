@@ -1,0 +1,72 @@
+{
+  "courses": [
+    {
+      "course": 4,
+      "name": "Eichenwalde",
+      "runs": []
+    },
+    {
+      "course": 5,
+      "name": "Practice Range",
+      "runs": []
+    },
+    {
+      "course": 6,
+      "name": "Dorado",
+      "runs": []
+    },
+    {
+      "course": 7,
+      "name": "Ilios",
+      "runs": []
+    },
+    {
+      "course": 8,
+      "name": "Paraíso",
+      "runs": []
+    },
+    {
+      "course": 9,
+      "name": "Temple of Anubis",
+      "runs": []
+    },
+    {
+      "course": 10,
+      "name": "Horizon Lunar Colony",
+      "runs": []
+    },
+    {
+      "course": 11,
+      "name": "Blizzard World",
+      "runs": []
+    },
+    {
+      "course": 12,
+      "name": "Circuit Royal",
+      "runs": []
+    },
+    {
+      "course": 13,
+      "name": "Neon Junction",
+      "runs": [
+        {
+          "name": "FIZZY",
+          "time": "4:11.19",
+          "mistakes": 18,
+          "date": "Aug 4, 2026",
+          "video": "https://youtu.be/rNPnIf2-zvE"
+        }
+      ]
+    },
+    {
+      "course": 14,
+      "name": "King’s Row",
+      "runs": []
+    },
+    {
+      "course": 15,
+      "name": "Eichenwalde",
+      "runs": []
+    }
+  ]
+}
