@@ -25,7 +25,7 @@ Remade by ballhallaa with a leaderboard on every course ([ballkour.com](https://
 <tr>
 <td align="right">1</td>
 <td>🇬🇮 <b>Watchpoint: Gibraltar</b><br>
-<sub>Creator: Spiz | Remaker: ballhallaa</sub></td>
+<sub>Creator: Spiz • Remaker: ballhallaa</sub></td>
 <td align="right">
 
 ```
@@ -44,7 +44,7 @@ Remade by ballhallaa with a leaderboard on every course ([ballkour.com](https://
 <tr>
 <td align="right">2</td>
 <td>🇺🇸 <b>Blizzard World (Winter)</b><br>
-<sub>Creator: Spiz | Remaker: ballhallaa</sub></td>
+<sub>Creator: Spiz • Remaker: ballhallaa</sub></td>
 <td align="right">
 
 ```
@@ -63,8 +63,8 @@ GMWRF
 <tr>
 <td align="right">3</td>
 <td>🇧🇷 <b>Paraíso</b><br>
-<sub>Creator: Spiz | Remaker: ballhallaa</sub></td>
-<td align="right"><del><code>NT5G3K</code></del></td>
+<sub>Creator: Spiz • Remaker: ballhallaa</sub></td>
+<td align="right"><pre><del>NT5G3K</del></pre></td>
 <td align="right">
 
 ```
@@ -85,7 +85,7 @@ More Wrecking Ball parkour from Spiz, Fasteroid, and Senimar.
 <tr>
 <td align="right">4</td>
 <td>🇩🇪 Eichenwalde</td>
-<td align="right"><del><code>9AVPN</code></del></td>
+<td align="right"><pre><del>9AVPN</del></pre></td>
 </tr>
 <tr>
 <td align="right">5</td>
@@ -125,7 +125,7 @@ N8ZFR
 <tr>
 <td align="right">8</td>
 <td>🇧🇷 Paraíso</td>
-<td align="right"><del><code>5P58Q</code></del></td>
+<td align="right"><pre><del>5P58Q</del></pre></td>
 </tr>
 <tr>
 <td align="right">9</td>
@@ -196,7 +196,7 @@ PQZDY
 <tr>
 <td align="right">15</td>
 <td>🇩🇪 Eichenwalde</td>
-<td align="right"><del><code>R6TYG</code></del></td>
+<td align="right"><pre><del>R6TYG</del></pre></td>
 </tr>
 </table>
 
