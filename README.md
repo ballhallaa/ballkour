@@ -25,7 +25,7 @@ Remade by ballhallaa with a leaderboard on every course ([ballkour.com](https://
 <tr>
 <td align="right">1</td>
 <td>🇬🇮 <b>Watchpoint: Gibraltar</b><br>
-<sub>Creator: Spiz | Remaker: ballhallaa</sub></td>
+<sub>Creator: Spiz • Remaker: ballhallaa</sub></td>
 <td align="right">
 
 ```
