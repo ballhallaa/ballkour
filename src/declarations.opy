@@ -14,6 +14,8 @@ globalvar lbObj
 globalvar lbObjFormatted
 globalvar lbRunCount
 globalvar lbRunText
+globalvar lbRunPad
+globalvar lbRunViewers
 globalvar timeToBeat
 globalvar timeToBeatFormatted
 
@@ -245,30 +247,28 @@ macro addMistake():
 
 
 # Leaderboard
-# A run's leaderboard row, submission date and video link, for the players who opened it
-# from its row (Lobby: Run Info Input). The course leaderboards use it, so it's defined here.
+# A run's submission date and video link, for the players who opened it from its row
+# (Lobby: Run Info Input). The course leaderboards use it, so it's defined here.
 # Only open runs get their text, as every text's definition adds to the server's load.
 # Workshop text is uppercase and video links aren't, so this overlays progress bar texts,
-# which can show lowercase. The row is a stored string, which isn't spread out like the
-# literal text: each of the overlaid texts draws all of it.
-# It follows the player's camera: the blank lines lift it toward the top of the screen
-# and push its progress bar off the screen. The hide line is a stored translation, so like
-# the row it's drawn by every overlaid text, and its key name needs the text reevaluated.
+# which can show lowercase. They only line up in the Latin font, and one CJK character
+# changes a text's whole font, so the row with the runner's name is its own text (Show Run
+# Info), like the hide line.
+# It follows the player's camera: the blank lines (lbRunPad) lift it toward the top of the
+# screen and push its progress bar off the screen. Each run's 3 texts are separate actions,
+# as only literal text is lowercased, so everything they share is kept short: the blank
+# lines are stored and the viewers are worked out once. Texts are remade whenever a run is
+# opened or closed, so only their position follows the camera.
 macro lbRunInfo(rank, date, link):
-    if any([player.lbInfoRow == rank for player in getAllPlayers()]):
+    lbRunViewers = getAllPlayers().filter(
+        lambda localPlayer: localPlayer.lbInfoRow == rank
+    )
+    if len(lbRunViewers) > 0:
         createCasedProgressBarIwt(
             3,
-            getAllPlayers().filter(lambda localPlayer: localPlayer.lbInfoRow == rank),
-            (
-                "\n\n\n\n\n\n\n\n\n{}"
-                "\n<fgFFFFFFFF>{}</fg>"
-                "\n<fgFFFFFFFF>{}</fg>"
-                "\n\n{}\n\n\n\n\n\n\n"
-            ).format(
-                lbRunText[rank],
-                date,
-                link,
-                _(lobbyHudText[1]).replace("@0", inputBindingString(Button.INTERACT))
+            lbRunViewers,
+            "{}{}\n<fgFFFFFFFF>{}</fg>\n<fgFFFFFFFF>{}</fg>{}".format(
+                lbRunPad[0], lbRunPad[4], date, link, lbRunPad[1]
             ),
             updateEveryFrame(
                 localPlayer.getEyePosition() + localPlayer.getFacingDirection() * 10
@@ -276,5 +276,5 @@ macro lbRunInfo(rank, date, link):
             1,
             Clip.NONE,
             rgb(230, 151, 0),
-            ProgressWorldTextReeval.VISIBILITY_POSITION_AND_VALUES
+            ProgressWorldTextReeval.POSITION
         )
