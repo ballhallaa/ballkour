@@ -193,6 +193,10 @@ msgstr "Liderlik tablosu"
 msgid "Run Info: <fgFFFFFFFF>Look at a Run + @0</fg>"
 msgstr "Deneme bilgisi: <fgFFFFFFFF>Bir denemeye bak + @0</fg>"
 
+#. file lobby.opy, rule "Load Leaderboard Area"
+msgid "Hide: <fgFFFFFFFF>@0</fg>"
+msgstr "Gizle: <fgFFFFFFFF>@0</fg>"
+
 #. file lobby.opy, rule "Load Resume Run Area"
 msgid "Resume Run"
 msgstr "Denemeye devam et"

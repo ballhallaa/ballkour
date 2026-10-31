@@ -193,6 +193,10 @@ msgstr "Таблица лидеров"
 msgid "Run Info: <fgFFFFFFFF>Look at a Run + @0</fg>"
 msgstr "Инфо о забеге: <fgFFFFFFFF>Посмотри на забег + @0</fg>"
 
+#. file lobby.opy, rule "Load Leaderboard Area"
+msgid "Hide: <fgFFFFFFFF>@0</fg>"
+msgstr "Скрыть: <fgFFFFFFFF>@0</fg>"
+
 #. file lobby.opy, rule "Load Resume Run Area"
 msgid "Resume Run"
 msgstr "Продолжить забег"

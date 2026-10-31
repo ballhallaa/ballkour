@@ -78,7 +78,7 @@ globalvar spectatorHudText = []
 globalvar completionHudText = []
 globalvar scorecardHudText = []
 globalvar topRunsHudText
-globalvar lobbyHudText
+globalvar lobbyHudText = []
 
 globalvar index 127
 
@@ -241,7 +241,8 @@ subroutine enableFirstPersonSpectator
 # which can show lowercase. The row is a stored string, which isn't spread out like the
 # literal text: each of the overlaid texts draws all of it.
 # It follows the player's camera: the blank lines lift it toward the top of the screen
-# and push its progress bar off the screen.
+# and push its progress bar off the screen. The hide line is a stored translation, so like
+# the row it's drawn by every overlaid text, and its key name needs the text reevaluated.
 macro lbRunInfo(rank, date, link):
     if any([player.lbInfoRow == rank for player in getAllPlayers()]):
         createCasedProgressBarIwt(
@@ -249,14 +250,20 @@ macro lbRunInfo(rank, date, link):
             getAllPlayers().filter(lambda localPlayer: localPlayer.lbInfoRow == rank),
             (
                 "\n\n\n\n\n\n\n\n\n{}"
-                "\n{}"
-                "\n<fgFFFFFFFF>{}</fg>\n\n\n\n\n\n\n\n\n"
-            ).format(lbRunText[rank], date, link),
+                "\n<fgFFFFFFFF>{}</fg>"
+                "\n<fgFFFFFFFF>{}</fg>"
+                "\n\n{}\n\n\n\n\n\n\n"
+            ).format(
+                lbRunText[rank],
+                date,
+                link,
+                _(lobbyHudText[1]).replace("@0", inputBindingString(Button.INTERACT))
+            ),
             updateEveryFrame(
                 localPlayer.getEyePosition() + localPlayer.getFacingDirection() * 10
             ),
             1,
             Clip.NONE,
             rgb(230, 151, 0),
-            ProgressWorldTextReeval.VISIBILITY_AND_POSITION
+            ProgressWorldTextReeval.VISIBILITY_POSITION_AND_VALUES
         )

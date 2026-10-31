@@ -193,6 +193,10 @@ msgstr "Classificação"
 msgid "Run Info: <fgFFFFFFFF>Look at a Run + @0</fg>"
 msgstr "Info da partida: <fgFFFFFFFF>Olhe para uma partida + @0</fg>"
 
+#. file lobby.opy, rule "Load Leaderboard Area"
+msgid "Hide: <fgFFFFFFFF>@0</fg>"
+msgstr "Ocultar: <fgFFFFFFFF>@0</fg>"
+
 #. file lobby.opy, rule "Load Resume Run Area"
 msgid "Resume Run"
 msgstr "Retomar partida"

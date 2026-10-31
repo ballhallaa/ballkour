@@ -162,10 +162,12 @@ rule "Load Leaderboard Area":
         WorldTextReeval.VISIBILITY_AND_POSITION,
         rgb(230, 151, 0)
     )
-    lobbyHudText = _("Run Info: <fgFFFFFFFF>Look at a Run + @0</fg>")
+    lobbyHudText[0] = _("Run Info: <fgFFFFFFFF>Look at a Run + @0</fg>")
+    # Shown under an open run's info (lbRunInfo)
+    lobbyHudText[1] = _("Hide: <fgFFFFFFFF>@0</fg>")
     createInWorldText(
         getAllPlayers().filter(lambda localPlayer: localPlayer.isInLobby),
-        _(lobbyHudText).replace("@0", inputBindingString(Button.INTERACT)),
+        _(lobbyHudText[0]).replace("@0", inputBindingString(Button.INTERACT)),
         lbPos[10] + (lbPos[10] - lbPos[9]) * 1.5,
         lobbyData[13],
         Clip.SURFACES,

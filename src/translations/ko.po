@@ -193,6 +193,10 @@ msgstr "순위표"
 msgid "Run Info: <fgFFFFFFFF>Look at a Run + @0</fg>"
 msgstr "기록 정보: <fgFFFFFFFF>기록을 보고 + @0</fg>"
 
+#. file lobby.opy, rule "Load Leaderboard Area"
+msgid "Hide: <fgFFFFFFFF>@0</fg>"
+msgstr "숨기기: <fgFFFFFFFF>@0</fg>"
+
 #. file lobby.opy, rule "Load Resume Run Area"
 msgid "Resume Run"
 msgstr "이어하기"

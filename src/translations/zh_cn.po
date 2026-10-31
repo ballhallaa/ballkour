@@ -193,6 +193,10 @@ msgstr "排行榜"
 msgid "Run Info: <fgFFFFFFFF>Look at a Run + @0</fg>"
 msgstr "记录详情：<fgFFFFFFFF>看向记录 + @0</fg>"
 
+#. file lobby.opy, rule "Load Leaderboard Area"
+msgid "Hide: <fgFFFFFFFF>@0</fg>"
+msgstr "隐藏：<fgFFFFFFFF>@0</fg>"
+
 #. file lobby.opy, rule "Load Resume Run Area"
 msgid "Resume Run"
 msgstr "继续游戏"

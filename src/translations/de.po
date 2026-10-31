@@ -193,6 +193,10 @@ msgstr "Bestenliste"
 msgid "Run Info: <fgFFFFFFFF>Look at a Run + @0</fg>"
 msgstr "Lauf-Info: <fgFFFFFFFF>Auf einen Lauf schauen + @0</fg>"
 
+#. file lobby.opy, rule "Load Leaderboard Area"
+msgid "Hide: <fgFFFFFFFF>@0</fg>"
+msgstr "Ausblenden: <fgFFFFFFFF>@0</fg>"
+
 #. file lobby.opy, rule "Load Resume Run Area"
 msgid "Resume Run"
 msgstr "Lauf fortsetzen"
