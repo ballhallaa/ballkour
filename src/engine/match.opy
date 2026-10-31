@@ -2,12 +2,28 @@
 #!rulePrefix "Match"
 
 
+# Logs after each course's own Info rule, and before Initialize turns the Inspector off
+rule "Info":
+    logToInspector("Website: ballkour.com")
+    logToInspector("Discord: ballkour.com/discord")
+    logToInspector("Report issues: ballkour.com/issues")
+    logToInspector(
+        "----------------------------------------------------------------------"
+    )
+    logToInspector(f"Version: v{VERSION}")
+
+
 rule "Initialize":
     disableAnnouncer()
     disableGamemodeCompletion()
     setMatchTime(0)
     if not isDebugOn and not isHintRecorderOn:
         disableInspector()
+    else:
+        # Sets the Info rules' lines apart from the debug logs that follow
+        logToInspector(
+            "----------------------------------------------------------------------"
+        )
     if isLobbyStatsOn:
         players = []
         # lobbyStats[i]: [0]players [1]rejoins [2]legitRuns [3]totalRunTime [4]totalRunTimeFormatted [5]totalMistakes [6]avgRunTime [7]avgRunTimeFormatted [8]avgMistakes
