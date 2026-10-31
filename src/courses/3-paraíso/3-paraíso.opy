@@ -18,7 +18,7 @@ rule "Info":
 
 
 #!include "../../settings.opy"
-#!include "leaderboard.opy"
+#!include "../../../leaderboards/3-paraíso.opy"
 #!include "checkpoints.opy"
 
 

@@ -1,4 +1,4 @@
-#!mainFile "2-blizzard-world.opy"
+#!mainFile "../src/courses/2-blizzard-world/2-blizzard-world.opy"
 
 rule "Leaderboard":
     # lb[i]: [0]name [1]time [2]mistakes [3]alignmentSeparator

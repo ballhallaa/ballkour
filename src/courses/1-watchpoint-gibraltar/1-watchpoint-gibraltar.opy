@@ -19,7 +19,7 @@ rule "Info":
 
 
 #!include "../../settings.opy"
-#!include "leaderboard.opy"
+#!include "../../../leaderboards/1-watchpoint-gibraltar.opy"
 #!include "checkpoints.opy"
 #!include "hints.opy"
 #!include "lobby.opy"
