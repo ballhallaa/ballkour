@@ -204,6 +204,6 @@ PQZDY
 
 ## Translations
 
-Ballkour's HUD is translated into multiple languages on [Weblate](https://hosted.weblate.org/engage/ballkour/). Native speakers are welcome to review and improve the translations there.
+Ballkour's HUD on the Beta is translated into multiple languages on [Weblate](https://hosted.weblate.org/engage/ballkour/). Native speakers are welcome to review and improve the translations there.
 
 [![Translation status](https://hosted.weblate.org/widget/ballkour/svg-badge.svg)](https://hosted.weblate.org/engage/ballkour/)
