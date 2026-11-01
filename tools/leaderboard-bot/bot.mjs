@@ -16,7 +16,6 @@ import { cardHtml } from "./card.mjs";
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = process.env.REPO_ROOT ? path.resolve(process.env.REPO_ROOT) : path.resolve(HERE, "../..");
 const HISTORY = path.join(REPO, "leaderboards/history.json");
-const PLAYERS = path.join(REPO, "leaderboards/players.json");
 const OUT = path.join(HERE, "out");
 const TOKEN = process.env.DISCORD_BOT_TOKEN || "";
 const DRY = !!process.env.DRY_RUN;
@@ -37,13 +36,15 @@ function isoDate(s) {
 }
 const toSeconds = (t) => t.split(":").reduce((sum, part) => sum * 60 + Number(part), 0);
 
-// lb[i] = "NAME, M:SS.cc, MISTAKES, '...'" and lbRunInfo(rank, "YYYY-MM-DD", "host/path"), the same as the website reads
+const DISCORD_ID = /^\d{17,20}$/;
+// lb[i] = "NAME, M:SS.cc, MISTAKES, '...'"  # discord: ID
+// and lbRunInfo(rank, "YYYY-MM-DD", "host/path"), the same as the website reads
 function parseOpy(text) {
   if (!/\blb\s*=\s*\[\s*\]/.test(text)) return null; // file layout changed: don't guess
   const rows = [];
-  for (const m of text.matchAll(/lb\[(\d+)\]\s*=\s*"([^"]*)"/g)) {
+  for (const m of text.matchAll(/lb\[(\d+)\]\s*=\s*"([^"]*)"(?:[ \t]*#[ \t]*discord:[ \t]*(\d{17,20})\b)?/g)) {
     const [name, time, miss] = m[2].split(",").map((s) => s.trim());
-    if (name && TIME.test(time) && /^\d+$/.test(miss)) rows[Number(m[1])] = { name, time, mistakes: Number(miss), date: "", video: "" };
+    if (name && TIME.test(time) && /^\d+$/.test(miss)) rows[Number(m[1])] = { name, discord: m[3] || "", time, mistakes: Number(miss), date: "", video: "" };
   }
   for (const m of text.matchAll(/lbRunInfo\(\s*(\d+)\s*,\s*"([^"]*)"\s*,\s*"([^"]*)"\s*\)/g)) {
     const r = rows[Number(m[1])];
@@ -53,7 +54,7 @@ function parseOpy(text) {
   }
   return rows.filter(Boolean).slice(0, 10);
 }
-// [{ "name", "time", "mistakes", "date", "video" }], the classic courses' files
+// [{ "name", "discord", "time", "mistakes", "date", "video" }], the classic courses' files
 function parseJson(text) {
   let runs;
   try { runs = JSON.parse(text); } catch { return null; }
@@ -62,6 +63,7 @@ function parseJson(text) {
     .filter((r) => r && typeof r.name === "string" && r.name.trim() && TIME.test(r.time) && Number.isInteger(r.mistakes) && r.mistakes >= 0)
     .map((r) => ({
       name: r.name.trim(),
+      discord: DISCORD_ID.test(r.discord) ? r.discord : "",
       time: r.time,
       mistakes: r.mistakes,
       date: isoDate(r.date),
@@ -78,8 +80,19 @@ function liveBoard(course) {
 }
 
 /* ---------- History ---------- */
-const key = (r) => `${r.time}|${r.mistakes}`;
-const sameBoard = (a, b) => a.length === b.length && a.every((r, i) => key(r) === key(b[i]));
+// The player is their Discord ID when both runs have one, and their name otherwise
+const samePlayer = (a, b) => (a.discord && b.discord ? a.discord === b.discord : a.name.toUpperCase() === b.name.toUpperCase());
+// The runs that weren't on the board before: each old run matches one new run with the same player, time and
+// mistakes, so a new run that ties an old one exactly still counts
+function freshRuns(runs, before) {
+  const left = [...before];
+  return new Set(runs.filter((r) => {
+    const i = left.findIndex((b) => b.time === r.time && b.mistakes === r.mistakes && samePlayer(b, r));
+    if (i >= 0) left.splice(i, 1);
+    return i < 0;
+  }));
+}
+const sameBoard = (a, b) => a.length === b.length && !freshRuns(a, b).size;
 const boardDate = (runs) => runs.map((r) => r.date).filter(Boolean).sort().pop() || "";
 // One run per line, so boards stay easy to read and edit by hand
 function dumpHistory(data) {
@@ -145,21 +158,13 @@ async function person(id) {
   return found;
 }
 
-/* ---------- Players: in-game name → Discord ID ---------- */
-const idOf = new Map();
-if (fs.existsSync(PLAYERS)) {
-  for (const p of JSON.parse(fs.readFileSync(PLAYERS, "utf8"))) {
-    if (p && /^\d{17,20}$/.test(String(p.discord)) && Array.isArray(p.names)) p.names.forEach((n) => idOf.set(String(n).toUpperCase(), String(p.discord)));
-  }
-}
-
 /* ---------- The message ---------- */
 const mdEscape = (s) => String(s).replace(/([\\*_~`|>#-])/g, "\\$1");
 function message(runs, fresh) {
-  const newRuns = runs.filter((r) => fresh.has(key(r)));
+  const newRuns = runs.filter((r) => fresh.has(r));
   const users = [];
   const names = newRuns.map((r) => {
-    const id = idOf.get(r.name.toUpperCase());
+    const id = DISCORD_ID.test(r.discord) ? r.discord : "";
     if (!id) return `**${mdEscape(r.name)}**`;
     if (!users.includes(id)) users.push(id);
     return `<@${id}>`;
@@ -227,14 +232,13 @@ let failed = false;
 for (const { course, list, at, isNew } of jobs) {
   const runs = list[at];
   const board = at + 1;
-  const before = new Set(at > 0 ? list[at - 1].map(key) : []);
-  const fresh = new Set(runs.map(key).filter((k) => !before.has(k)));
+  const fresh = freshRuns(runs, at > 0 ? list[at - 1] : []);
   const label = `${course.n} ${course.name}, board ${board}`;
   try {
     const people = new Map();
     for (const r of runs) {
-      const who = await person(idOf.get(r.name.toUpperCase()));
-      if (who) people.set(r.name, who);
+      const who = DISCORD_ID.test(r.discord) ? await person(r.discord) : null;
+      if (who) people.set(r, who);
     }
     const slug = path.basename(course.file).replace(/\.[^.]+$/, "").normalize("NFD").replace(/[^\w-]+/g, "");
     const filename = `${slug}-board-${board}.png`;
