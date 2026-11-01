@@ -175,53 +175,55 @@ rule "Load HUD":
         "\n\n<fg00E092FF>What do Attempt and Split mean?</fg>"
         "\nAttempt is timed from leaving the checkpoint, and Split from reaching it, so it"
         "\nincludes your mistakes. Each turns red once it's slower than your best."
-    )
-    # The rest of Attempt and Split's answer, as a translation can't be over 511 bytes
-    qaHudText[9] = (
         "\nAfter a clear they show your times for 2 seconds: <fgFFFF00FF>yellow</fg> on your first clear, then"
         "\n<fg00E092FF>green</fg> if faster or <fgFF4646FF>red</fg> if slower than your average. A new best is compared with your old best."
     )
-    qaHudText[10] = (
+    qaHudText[9] = (
         "\n\n<fg00E092FF>Are Best and Avg server records?</fg>"
         "\nNo, they're only your own times on that checkpoint, over all your runs."
         "\nThey reset when you leave or the server restarts."
     )
-    qaHudText[11] = (
+    qaHudText[10] = (
         "\n\n<fg00E092FF>What is Pace?</fg>"
         "\nYour estimated finish time, from this run's average split so far. Once your current"
         "\nsplit is slower than that average, it turns <fgFF4646FF>red</fg> and counts up with your time."
     )
-    qaHudText[12] = (
+    qaHudText[11] = (
         "\n\n<fg00E092FF>Why are some controls </fg><fg808080FF>grayed out</fg><fg00E092FF>?</fg>"
         "\nThey can't be used right now: Prev. CP on the first checkpoint, Next CP on the last,"
         "\nand the player controls while there's nobody to spectate. X-Hair Player also needs freecam."
     )
-    # Page 3
-    qaHudText[13] = (
-        "\n<fg00E092FF>What's on the scorecard?</fg>"
+    qaHudText[12] = (
+        "\n\n<fg00E092FF>What's on the scorecard?</fg>"
         "\nEach runner's checkpoint, time and mistakes, furthest first, then fastest."
         "\n<fg808080FF>Grayed out</fg> runs are disqualified."
     )
-    qaHudText[14] = (
-        "\n\n<fg00E092FF>What do the hint colors mean?</fg>"
+    # Page 3
+    qaHudText[13] = (
+        "\n<fg00E092FF>What do the hint colors mean?</fg>"
         "\n<fgCB87FFFF>Movement</fg>   <fgFFFFFFFF>Jump</fg>   <fgFFD200FF>Grapple</fg>   <fgFF4646FF>Piledrive</fg>   <fg00BEFFFF>Shield Bounce</fg>"
         "\nHints turn on by themselves after 10 mistakes on one checkpoint,"
         "\nand off again when you move on to another."
     )
-    qaHudText[15] = (
+    qaHudText[14] = (
         "\n\n<fg00E092FF>How do I get on the leaderboard?</fg>"
         "\nFinish a valid run and submit a video of it at ballkour.com."
         "\nLobby Top 3 only lists the fastest valid runs finished in this lobby."
     )
-    qaHudText[16] = (
+    qaHudText[15] = (
         "\n\n<fg00E092FF>Why are some players tiny?</fg>"
         "\nPlayers who haven't moved for 60 seconds shrink, so they're not in anyone's way."
         "\nThey grow back as soon as they move."
     )
-    qaHudText[17] = (
+    qaHudText[16] = (
         "\n\n<fg00E092FF>Does the server restart?</fg>"
         "\nYes, about every 4 hours, with warnings from 30 minutes before."
         "\nBest, Avg, Runs and Attempts start over."
+    )
+    qaHudText[17] = (
+        "\n\n<fg00E092FF>Why does it take so long to load a Ballkour game?</fg>"
+        "\nIts Workshop script is big, mostly from its translations into 13 languages,"
+        "\nand Overwatch takes a while to load it before the match starts."
     )
     qaHudText[18] = (
         "\n\n<fg00E092FF>Is something wrong in my language?</fg>"
