@@ -1,39 +1,36 @@
 <div align="center">
 
-<img src="gallery/logos/logo.png" alt="Ballkour logo" width="160">
+<img src="gallery/logos/logo.png" alt="Ballkour logo: a hamster in goggles riding a black and orange ball" width="160">
 
 # Ballkour
 
 _Wrecking Ball parkour courses for Overwatch_
 
-[Website](https://ballkour.com) • [Gameplay](https://ballkour.com/gameplay) • [Discord](https://ballkour.com/discord)
+[Website](https://ballkour.com) • [Leaderboards](https://ballkour.com/leaderboards) • [Gameplay](https://ballkour.com/gameplay) • [Discord](https://ballkour.com/discord)
 
 </div>
 
 ## Courses
 
-1. In Overwatch, open **Play → More → Custom Games → Create**.
-2. Go to **Settings → Import Code** (under Summary), and paste the code (e.g. `59W28`).
-3. Start the match and enjoy!
-
-### Ballkour remakes
-
-Remade by ballhallaa with a leaderboard on every course ([ballkour.com](https://ballkour.com/#leaderboard)). The beta codes add hints, splits, spectating, and translations.
+1. In Overwatch, go to **Play → More → Custom Games → Create**.
+2. Go to **Settings → Import Code** (under Summary) and paste the code (e.g. `59W28`).
+3. Start the match. Good luck!
 
 <table>
-<tr><th align="right">#</th><th align="left">Course</th><th align="right">Latest</th><th align="right">Beta</th></tr>
+<tr><th align="right">#</th><th align="left">Course</th><th align="right" colspan="2">Codes</th></tr>
+<tr><td colspan="4">Courses by <b>Spiz</b></td></tr>
 <tr>
 <td align="right">1</td>
-<td>🇬🇮 <b>Watchpoint: Gibraltar</b><br>
-<sub>Creator: Spiz • Remaker: ballhallaa</sub></td>
-<td align="right">
+<td>🇬🇮 Watchpoint: Gibraltar<br>
+<sub>Remaker: ballhallaa</sub></td>
+<td align="right"><sub>Latest</sub>
 
 ```
 59W28
 ```
 
 </td>
-<td align="right">
+<td align="right"><sub>Beta</sub>
 
 ```
 9GTJH
@@ -43,16 +40,16 @@ Remade by ballhallaa with a leaderboard on every course ([ballkour.com](https://
 </tr>
 <tr>
 <td align="right">2</td>
-<td>🇺🇸 <b>Blizzard World (Winter)</b><br>
-<sub>Creator: Spiz • Remaker: ballhallaa</sub></td>
-<td align="right">
+<td>🇺🇸 Blizzard World (Winter)<br>
+<sub>Remaker: ballhallaa</sub></td>
+<td align="right"><sub>Latest</sub>
 
 ```
 GMWRF
 ```
 
 </td>
-<td align="right">
+<td align="right"><sub>Beta</sub>
 
 ```
 8Y14F
@@ -62,10 +59,10 @@ GMWRF
 </tr>
 <tr>
 <td align="right">3</td>
-<td>🇧🇷 <b>Paraíso</b><br>
-<sub>Creator: Spiz • Remaker: ballhallaa</sub></td>
-<td align="right"><pre><del>NT5G3K</del></pre></td>
-<td align="right">
+<td>🇧🇷 Paraíso<br>
+<sub>Remaker: ballhallaa</sub></td>
+<td align="right"><sub>Broken</sub><pre><del>NT5G3K</del></pre></td>
+<td align="right"><sub>Beta</sub>
 
 ```
 MXJ0W
@@ -73,24 +70,17 @@ MXJ0W
 
 </td>
 </tr>
-</table>
-
-### Classic courses
-
-More Wrecking Ball parkour from Spiz, Fasteroid, and Senimar.
-
-<table>
-<tr><th align="right">#</th><th align="left">Course</th><th align="right">Code</th></tr>
-<tr><td colspan="3"><b>Spiz</b></td></tr>
 <tr>
 <td align="right">4</td>
 <td>🇩🇪 Eichenwalde</td>
-<td align="right"><pre><del>9AVPN</del></pre></td>
+<td></td>
+<td align="right"><sub>Broken</sub><pre><del>9AVPN</del></pre></td>
 </tr>
 <tr>
 <td align="right">5</td>
 <td>🎯 Practice Range</td>
-<td align="right">
+<td></td>
+<td align="right"><sub>Code</sub>
 
 ```
 KSG9E9
@@ -98,11 +88,12 @@ KSG9E9
 
 </td>
 </tr>
-<tr><td colspan="3"><b>Fasteroid</b></td></tr>
+<tr><td colspan="4">Courses by <b>Fasteroid</b></td></tr>
 <tr>
 <td align="right">6</td>
 <td>🇲🇽 Dorado</td>
-<td align="right">
+<td></td>
+<td align="right"><sub>Code</sub>
 
 ```
 N8ZFR
@@ -113,7 +104,8 @@ N8ZFR
 <tr>
 <td align="right">7</td>
 <td>🇬🇷 Ilios</td>
-<td align="right">
+<td></td>
+<td align="right"><sub>Code</sub>
 
 ```
 4BA40
@@ -121,16 +113,18 @@ N8ZFR
 
 </td>
 </tr>
-<tr><td colspan="3"><b>Senimar</b> &nbsp;<sub>ordered easiest → hardest</sub></td></tr>
+<tr><td colspan="4">Courses by <b>Senimar</b> &nbsp;<sub>easiest → hardest</sub></td></tr>
 <tr>
 <td align="right">8</td>
 <td>🇧🇷 Paraíso</td>
-<td align="right"><pre><del>5P58Q</del></pre></td>
+<td></td>
+<td align="right"><sub>Broken</sub><pre><del>5P58Q</del></pre></td>
 </tr>
 <tr>
 <td align="right">9</td>
 <td>🇪🇬 Temple of Anubis</td>
-<td align="right">
+<td></td>
+<td align="right"><sub>Code</sub>
 
 ```
 18ZZK
@@ -141,7 +135,8 @@ N8ZFR
 <tr>
 <td align="right">10</td>
 <td>🌙 Horizon Lunar Colony</td>
-<td align="right">
+<td></td>
+<td align="right"><sub>Code</sub>
 
 ```
 JEFA9
@@ -152,7 +147,8 @@ JEFA9
 <tr>
 <td align="right">11</td>
 <td>🇺🇸 Blizzard World</td>
-<td align="right">
+<td></td>
+<td align="right"><sub>Code</sub>
 
 ```
 D6WC7
@@ -163,7 +159,8 @@ D6WC7
 <tr>
 <td align="right">12</td>
 <td>🇲🇨 Circuit Royal</td>
-<td align="right">
+<td></td>
+<td align="right"><sub>Code</sub>
 
 ```
 71GPZ
@@ -174,7 +171,8 @@ D6WC7
 <tr>
 <td align="right">13</td>
 <td>🇯🇵 Neon Junction</td>
-<td align="right">
+<td></td>
+<td align="right"><sub>Code</sub>
 
 ```
 EPWMD
@@ -185,7 +183,8 @@ EPWMD
 <tr>
 <td align="right">14</td>
 <td>🇬🇧 King's Row</td>
-<td align="right">
+<td></td>
+<td align="right"><sub>Code</sub>
 
 ```
 PQZDY
@@ -196,15 +195,59 @@ PQZDY
 <tr>
 <td align="right">15</td>
 <td>🇩🇪 Eichenwalde</td>
-<td align="right"><pre><del>R6TYG</del></pre></td>
+<td></td>
+<td align="right"><sub>Broken</sub><pre><del>R6TYG</del></pre></td>
 </tr>
 </table>
 
 <sub>Struck-through codes have been broken since Overwatch's August 2026 patch.</sub>
 
+## Leaderboards
+
+Every course has a top 10 on [ballkour.com/leaderboards](https://ballkour.com/leaderboards).
+
+To submit a video of your run, [open a ticket](https://discord.com/channels/1212553452283101245/1498944426901508106) on our Discord and share your video. Not in our server yet? [Join us](https://ballkour.com/discord) first!
+
+## Features
+
+- **Checkpoint rules:** Some checkpoints block or utilize only Grapple, Shield Bounce, and/or Piledriver.
+- **Skip, go back, freemode:** Practice any checkpoint, or roam the map with the clock paused.
+- **Quality of life:** A cleaner HUD with easier menu controls. Hold to restart a checkpoint or your whole run, pause anytime and resume later, and get a bhop of grace on every checkpoint.
+- **Lobby leaderboard:** On the Ballkour remakes, the top 10 times hang in the lobby and the finish screen shows the time to beat.
+
+### Beta
+
+Try these with the Beta code of a Ballkour remake (courses 1–3).
+
+- **Hints:** A recorded route shows you the way through. Turn hints on yourself, or they switch on after 10 mistakes on one checkpoint.
+- **Spectate:** Watch other runners in first or third person, or fly in freecam mode.
+- **Splits:** Best and average times for every checkpoint, plus a pace timer to see your estimated finish time.
+- **Scorecards:** See every runner's checkpoint, time, and mistakes live, along with the lobby's top 3.
+- **Quality of life:** Idle runners shrink so they never block your view. See your current run and attempt numbers, view each run's video and date in the lobby, and toggle an FAQ for newcomers.
+- **Translations:** Translated into 13 languages, so each player gets a similar experience in their own language.
+
+## FAQ
+
+Answers to questions like what counts as a valid run or a mistake are on [ballkour.com/faq](https://ballkour.com/faq). They're the same as the in-game FAQ, which opens with **Ultimate + Ability 2** in a beta match.
+
+Something wrong or missing? [Report it on GitHub](https://ballkour.com/issues).
+
+## Discord
+
+Submit runs for the leaderboard, get notified on updates, and meet fellow ballers! Join us at [ballkour.com/discord](https://ballkour.com/discord).
+
+## Source code
+
+This repo is the game itself. Its release notes are under [Releases](https://github.com/ballhallaa/ballkour/releases), and the website lives at [ballhallaa/ballkour.com](https://github.com/ballhallaa/ballkour.com).
+
 ## Translations
 
-Ballkour's beta builds and [website](https://ballkour.com) are translated into 13 languages.  
-Fluent speakers are welcome to review and improve the translations on [Weblate](https://hosted.weblate.org/engage/ballkour/).
+Ballkour's beta builds and [website](https://ballkour.com) are translated into 13 languages: Deutsch, Español, Français, Italiano, Polski, Português, Türkçe, Русский, ไทย, 日本語, 한국어, 简体中文 and 繁體中文.  
+If you speak one of these languages well, you're welcome to review and improve the translations on [Weblate](https://hosted.weblate.org/engage/ballkour/).
 
 [![Translation status](https://hosted.weblate.org/widget/ballkour/svg-badge.svg)](https://hosted.weblate.org/engage/ballkour/)
+
+---
+
+<sub>Questions or feedback? Message **ballhallaa** on Discord.  
+Ballkour is a fan-made Overwatch Workshop mode. It isn't affiliated with Blizzard Entertainment.</sub>
