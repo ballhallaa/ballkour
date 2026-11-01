@@ -42,6 +42,7 @@ PREVIEWS = SRC.parent / "previews"
 LANGUAGES_RE = re.compile(r"^#!translations (.+)$", re.M)
 # An entry is its comments, msgid, then msgstr, each string continued on the lines after
 ENTRY_RE = re.compile(r'^msgid ((?:".*"\n)+)msgstr ((?:".*"\n?)+)', re.M)
+INCLUDE_RE = re.compile(r'^#!include "(.+)"$')
 
 # Post-compile hooks get the compiled Workshop text as content, and output their last value.
 # This one makes the HUD texts whose visibility checks isViewingCtrlsHud visible to everyone.
@@ -161,12 +162,34 @@ def status(args):
     print("Recompile a course to add new strings to the .po files.")
 
 
+def inline(path):
+    """The lines of a course file or ballkour.opy, to copy into a preview.
+
+    OverPy allows one post-compile hook, found from the main file's folder, so a preview
+    can't include ballkour.opy, whose minify hook would clash with the preview's own. The
+    preview copies in the course file and ballkour.opy instead, without the hook, and
+    with their includes made relative to previews/.
+    """
+    lines = []
+    for line in path.read_text().splitlines():
+        if line.startswith("#!postCompileHook "):
+            continue
+        if m := INCLUDE_RE.match(line):
+            target = (path.parent / m[1]).resolve()
+            if target == (SRC / "ballkour.opy").resolve():
+                lines += inline(target)
+                continue
+            line = f'#!include "{os.path.relpath(target, PREVIEWS)}"'
+        lines.append(line)
+    return lines
+
+
 def write_preview(name, course, comment, language, hook, extra=""):
     """Writes previews/<name>.opy, shown in the language, or detected if it's None."""
     (PREVIEWS / f"{name}.opy").write_text(
         f"# {comment} Test build: don't publish it.\n"
-        f'#!include "../src/{course.relative_to(SRC)}"\n'
-        '#!include "preview-rules.opy"\n'
+        + "\n".join(inline(course))
+        + '\n#!include "preview-rules.opy"\n'
         + (f"#!translations en {language}\n" if language else "")
         + f'#!postCompileHook "{hook}"\n'
         + extra

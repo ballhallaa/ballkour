@@ -5,6 +5,7 @@
 #!disableTranslationSourceLines
 #!useVariableForCompressionAlphabet
 #!rulePrefixTemplate f"{$prefix}: {$rule}" if $prefix and $rule else $rule
+#!postCompileHook "../../minify.js"
 
 #!include "engine/match.opy"
 #!include "engine/players.opy"
