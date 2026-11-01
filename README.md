@@ -217,7 +217,7 @@ To submit a video of your run, [open a ticket](https://discord.com/channels/1212
 
 ### Beta
 
-Try these with the Beta code of a Ballkour remake (courses 1–3).
+Try these with the Beta code of a Ballkour remake.
 
 - **Hints:** A recorded route shows you the way through. Turn hints on yourself, or they switch on after 10 mistakes on one checkpoint.
 - **Spectate:** Watch other runners in first or third person, or fly in freecam mode.
@@ -244,8 +244,6 @@ This repo is the game itself. Its release notes are under [Releases](https://git
 
 Ballkour's beta builds and [website](https://ballkour.com) are translated into 13 languages: Deutsch, Español, Français, Italiano, Polski, Português, Türkçe, Русский, ไทย, 日本語, 한국어, 简体中文 and 繁體中文.  
 If you speak one of these languages well, you're welcome to review and improve the translations on [Weblate](https://hosted.weblate.org/engage/ballkour/).
-
-[![Translation status](https://hosted.weblate.org/widget/ballkour/svg-badge.svg)](https://hosted.weblate.org/engage/ballkour/)
 
 ---
 
