@@ -226,20 +226,20 @@ msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
 msgstr "SSS: <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file qa.opy, rule "Load HUD"
-msgid "Close: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "Kapat: <fgFFFFFFFF>@0 + @1</fg>"
+msgid "Close: <fgFFFFFFFF>@0</fg>"
+msgstr "Kapat: <fgFFFFFFFF>@0</fg>"
 
 #. file qa.opy, rule "Load HUD"
-msgid "Next Page: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "Sonraki sayfa: <fgFFFFFFFF>@0 + @1</fg>"
+msgid "Next Page: <fgFFFFFFFF>@0</fg>"
+msgstr "Sonraki sayfa: <fgFFFFFFFF>@0</fg>"
 
 #. file qa.opy, rule "Load HUD"
 msgid "FAQ in English: <fgFFFFFFFF>ballkour.com/faq</fg>"
 msgstr "Türkçe SSS: <fgFFFFFFFF>ballkour.com/faq</fg>"
 
 #. file qa.opy, rule "Load HUD"
-msgid "Back to Page 1: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "1. sayfaya dön: <fgFFFFFFFF>@0 + @1</fg>"
+msgid "Back to Page 1: <fgFFFFFFFF>@0</fg>"
+msgstr "1. sayfaya dön: <fgFFFFFFFF>@0</fg>"
 
 #. file run.opy, rule "Load HUD"
 msgid "Controls: <fgFFFFFFFF>@0 (Hold)</fg>"

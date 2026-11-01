@@ -194,6 +194,8 @@ rule "Run Info Input":
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
     @Condition eventPlayer.isInLobby == true
     @Condition lbRunCount > 0
+    # Interact closes the Q&A
+    @Condition eventPlayer.qaPage == 0
 
     eventPlayer.lbAim = lbAimRow(eventPlayer)
     # Looking at the open run again hides it, like looking away from the runs
