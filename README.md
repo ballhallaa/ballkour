@@ -12,8 +12,8 @@ _Wrecking Ball parkour courses for Overwatch_
 
 ## Courses
 
-1. In Overwatch, go to **Play → More → Custom Games → Create**.
-2. Go to **Settings → Import Code** (under Summary) and paste the code (e.g. `59W28`).
+1. In Overwatch, go to <kbd>Play</kbd> › <kbd>More</kbd> › <kbd>Custom Games</kbd> › <kbd>Create</kbd>
+2. Go to <kbd>Settings</kbd> › <kbd>Import Code</kbd> (under Summary) and paste the code (e.g. `59W28`).
 3. Start the match. Good luck!
 
 <table>
