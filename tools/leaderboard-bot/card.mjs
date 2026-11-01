@@ -23,18 +23,17 @@ function fontFaces(fonts) {
 
 /**
  * course: { name, flag, code }, board: board number, date: "YYYY-MM-DD",
- * runs: [{ name, time, mistakes, date }] (up to 10), fresh: Set of "time|mistakes" keys that are new,
- * people: Map of run name → { name, avatar } from Discord, logo: data URI or ""
+ * runs: [{ name, time, mistakes, date }] (up to 10), fresh: Set of the runs that are new,
+ * people: Map of run → { name, avatar } from Discord, logo: data URI or ""
  */
 export function cardHtml({ course, board, date, runs, fresh, people, logo, fonts }) {
-  const key = (r) => `${r.time}|${r.mistakes}`;
   const row = (r, i) => {
     if (!r) {
       return `<li class="run empty"><span class="rank">${i + 1}</span><span class="line"><span class="name">---</span></span>` +
         `<span class="time">${BOLT}-:--.--</span><span class="miss"></span></li>`;
     }
-    const isNew = fresh.has(key(r));
-    const who = people.get(r.name);
+    const isNew = fresh.has(r);
+    const who = people.get(r);
     const pfp = who && who.avatar ? `<img class="pfp" src="${who.avatar}" alt="">` : "";
     return `<li class="run${i < 3 ? " p" + (i + 1) : ""}${isNew ? " fresh" : ""}">` +
       `<span class="rank">${i + 1}</span>` +

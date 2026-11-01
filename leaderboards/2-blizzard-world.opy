@@ -1,9 +1,9 @@
 #!mainFile "../src/courses/2-blizzard-world/2-blizzard-world.opy"
 
 rule "Leaderboard":
-    # lb[i]: [0]name [1]time [2]mistakes [3]alignmentSeparator
+    # lb[i]: [0]name [1]time [2]mistakes [3]alignmentSeparator, then a # discord: ID comment to link the player
     lb = []
-    lb[1] = "BALLMYBLOVED, 7:14.76, 16, '          '"
+    lb[1] = "BALLMYBLOVED, 7:14.76, 16, '          '"  # discord: 175372497720573953
 
 
 def loadRunInfo():
