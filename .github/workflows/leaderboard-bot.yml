@@ -33,7 +33,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      # With the LEADERBOARD_DEPLOY_KEY secret set, history.json updates are pushed with that deploy key, which can
+      # be allowed past develop's rules; without it, the workflow's own token is used
       - uses: actions/checkout@v4
+        with:
+          ssh-key: ${{ secrets.LEADERBOARD_DEPLOY_KEY }}
 
       - uses: actions/setup-node@v4
         with:
