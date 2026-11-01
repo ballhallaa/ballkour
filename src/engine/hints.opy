@@ -2,6 +2,13 @@
 #!rulePrefix "Hints"
 
 
+def decompressScratch():
+    @Name "Decompress Scratch"
+
+    # The decoding is big, so hints and checkpoints share this one copy of it
+    hintScratch = decompressVectors(hintScratch)
+
+
 rule "Decompress Routes":
     # Each course stores hintData[i] as one compressed vector array: vect(keyframe count, action count, anchor count),
     # then hintRoutes[i], hintTimes[i] three to a vector, hintActions[i] and hintAnchors[i] (one per action, or none)
@@ -9,7 +16,8 @@ rule "Decompress Routes":
     # It has its own counter because rules that can run mid-decode (Player: Leaves) loop with the global index
     for hintDecodeIndex in range(len(hintData)):
         if hintData[hintDecodeIndex] != null:
-            hintScratch = decompressVectors(hintData[hintDecodeIndex])
+            hintScratch = hintData[hintDecodeIndex]
+            decompressScratch()
             hintRoutes[hintDecodeIndex] = hintScratch.slice(1, hintScratch[0].x)
             # Time i is the x, y or z of its vector, which a dot product with Left, Up or Forward picks out
             hintTimes[hintDecodeIndex] = hintRoutes[hintDecodeIndex].map(
