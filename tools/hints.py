@@ -4,7 +4,7 @@
 Recording workflow:
   1. Once: in Options > Gameplay > General, turn on "Enable Workshop Inspector Log
      File". Overwatch then writes each match's Inspector log to
-     C:/Documents/Overwatch/Workshop on Windows, or ~/.steam/steam/steamapps/compatdata/2357570/pfx/drive_c/users/steamuser/Documents/Overwatch/Workshop/ 
+     C:/Documents/Overwatch/Workshop on Windows, or ~/.steam/steam/steamapps/compatdata/2357570/pfx/drive_c/users/steamuser/Documents/Overwatch/Workshop/
      on Linux.
   2. Compile the course from develop: the Hint Recorder is only in dev builds, whose
      src/VERSION ends in -dev, and release builds leave it out. In the course's
@@ -27,7 +27,7 @@ actions", and import that from a file (or - for stdin):
        python3 tools/hints.py import <map> export.txt
 
 Routes already in the hints file are kept unless the import has a different route
-for that checkpoint, so a course can be recorded across several sessions. To record a 
+for that checkpoint, so a course can be recorded across several sessions. To record a
 course from scratch and only see the new routes in-game, clear it first:
        python3 tools/hints.py clear <map>
 Then recompile the course (OverPy: Compile).
@@ -85,13 +85,19 @@ def read_hints(path):
             if len(rest) != keyframes + time_vects + action_count + anchor_count or (
                 anchor_count not in (0, action_count)
             ):
-                sys.exit(f"{path}: hintData[{cp}] doesn't match its vect(keyframes, actions, anchors)")
+                sys.exit(
+                    f"{path}: hintData[{cp}] doesn't match its vect(keyframes, actions, anchors)"
+                )
             points = rest[:keyframes]
             if not points:
                 continue
-            times = [t for v in rest[keyframes : keyframes + time_vects] for t in v][:keyframes]
+            times = [t for v in rest[keyframes : keyframes + time_vects] for t in v][
+                :keyframes
+            ]
             actions = rest[keyframes + time_vects :][:action_count]
-            anchors = [None if a == NO_ANCHOR else a for a in rest[len(rest) - anchor_count :]]
+            anchors = [
+                None if a == NO_ANCHOR else a for a in rest[len(rest) - anchor_count :]
+            ]
             hints[cp] = points, times, actions, anchors or [None] * action_count
     return name, hints
 
@@ -110,7 +116,13 @@ def pack(points, times, actions, anchors):
     anchors = [a or NO_ANCHOR for a in anchors] if any(anchors) else []
     padded = list(times) + [0] * (-len(times) % 3)
     time_vects = [tuple(padded[k : k + 3]) for k in range(0, len(padded), 3)]
-    return [(len(points), len(actions), len(anchors)), *points, *time_vects, *actions, *anchors]
+    return [
+        (len(points), len(actions), len(anchors)),
+        *points,
+        *time_vects,
+        *actions,
+        *anchors,
+    ]
 
 
 def write_hints(path, name, hints):
@@ -216,9 +228,17 @@ def spline_point(points, times, i, t):
 
     def velocity(k):
         a, b = max(k - 1, 0), min(k + 1, last)
-        return [(pb - pa) * h / (times[b] - times[a]) for pa, pb in zip(points[a], points[b])]
+        return [
+            (pb - pa) * h / (times[b] - times[a])
+            for pa, pb in zip(points[a], points[b])
+        ]
 
-    weights = (2 * s**3 - 3 * s**2 + 1, 3 * s**2 - 2 * s**3, s**3 - 2 * s**2 + s, s**3 - s**2)
+    weights = (
+        2 * s**3 - 3 * s**2 + 1,
+        3 * s**2 - 2 * s**3,
+        s**3 - 2 * s**2 + s,
+        s**3 - s**2,
+    )
     terms = (points[i], points[i + 1], velocity(i), velocity(i + 1))
     return [sum(w * term[c] for w, term in zip(weights, terms)) for c in range(3)]
 
@@ -334,7 +354,11 @@ def is_other_course(text, course):
 def newest_log(course):
     """The newest Inspector log with recorded routes for the course."""
     logs = sorted(
-        (log for folder in WORKSHOP_LOG_DIRS for log in Path(folder).expanduser().glob("*.txt")),
+        (
+            log
+            for folder in WORKSHOP_LOG_DIRS
+            for log in Path(folder).expanduser().glob("*.txt")
+        ),
         key=lambda log: log.stat().st_mtime,
         reverse=True,
     )
