@@ -57,7 +57,7 @@ rule "Load HUD":
     )
     runHudText = _("\n\n\n\nControls: <fgFFFFFFFF>@0 (Hold)</fg>")
     hudSubtext(
-        getAllPlayers(),
+        getAllPlayers().filter(lambda localPlayer: localPlayer.qaPage == 0),
         _(runHudText).replace("@0", inputBindingString(Button.ULTIMATE)),
         HudPosition.LEFT,
         0,
@@ -78,6 +78,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: not localPlayer.isInLobby
             and not localPlayer.spectating[3]
+            and localPlayer.qaPage == 0
         ),
         _(counterHudText[0]).replace("@0", localPlayer.viewRunner.runCount),
         HudPosition.RIGHT,
@@ -90,6 +91,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: not localPlayer.isInLobby
             and not localPlayer.spectating[3]
+            and localPlayer.qaPage == 0
         ),
         _(counterHudText[1]).replace(
             "@0", localPlayer.viewRunner.cpAttempts[localPlayer.viewRunner.runCurrentCp]
@@ -100,7 +102,9 @@ rule "Load HUD":
         HudReeval.VISIBILITY_AND_STRING
     )
     hudSubtext(
-        getAllPlayers().filter(lambda localPlayer: not localPlayer.isInLobby),
+        getAllPlayers().filter(
+            lambda localPlayer: not localPlayer.isInLobby and localPlayer.qaPage == 0
+        ),
         ("{}{} {}/{}\n").format(
             "\n\n\n\n" if localPlayer.spectating[3] else "\n\n",
             iconString(Icon.FLAG),
@@ -117,6 +121,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: not localPlayer.isInLobby
             and not localPlayer.spectating[3]
+            and localPlayer.qaPage == 0
         ),
         ("{} {}\n").format(
             iconString(Icon.BOLT),
@@ -135,6 +140,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: not localPlayer.isInLobby
             and not localPlayer.spectating[3]
+            and localPlayer.qaPage == 0
         ),
         ("{} {}\n\n\n").format(
             iconString(Icon.SKULL), localPlayer.viewRunner.runMistakes
@@ -154,6 +160,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: not localPlayer.isScorecardHidden
             and (len(scorecardRunners.exclude(localPlayer)) > 0 or len(topRuns) > 0)
+            and localPlayer.qaPage == 0
         ),
         "{}{}".format(
             (
@@ -179,6 +186,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isScorecardHidden
             and (len(scorecardRunners.exclude(localPlayer)) > 0 or len(topRuns) > 0)
+            and localPlayer.qaPage == 0
         ),
         _(scorecardHudText[1])
         .replace("@0", inputBindingString(Button.ULTIMATE))

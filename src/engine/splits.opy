@@ -23,6 +23,7 @@ macro SPLITS_HUD_VISIBILITY = getAllPlayers().filter(
     lambda localPlayer: not localPlayer.isInLobby
     and not localPlayer.spectating[3]
     and (localPlayer.viewCp < lastCp or localPlayer.viewRunner.isShowingSplitDelta)
+    and localPlayer.qaPage == 0
 )
 
 

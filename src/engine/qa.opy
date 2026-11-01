@@ -21,6 +21,8 @@ rule "Open":
     # player in place. Interact closes the Q&A and Jump turns its page, so it doesn't jump
     # while it's open, or once it closes until Jump is let go.
     eventPlayer.disallowButton(Button.JUMP)
+    # Every HUD text but the Q&A's hides while it's open, and so does the hero's own HUD
+    eventPlayer.disableHeroHud()
     # Looks up into the sky from high above the player, so the Q&A has a plain background.
     # Spectator mode leaves this camera alone until the Q&A closes.
     eventPlayer.startCamera(
@@ -108,6 +110,7 @@ rule "Open":
         eventPlayer.stopCamera()
         waitUntil(not eventPlayer.isHoldingButton(Button.JUMP), Math.INFINITY)
     eventPlayer.allowButton(Button.JUMP)
+    eventPlayer.enableHeroHud()
     if RULE_CONDITION:
         loop()
 
@@ -116,7 +119,7 @@ rule "Load HUD":
     # Under the Hints HUD on the left, in the lobby too, with the same 2 blank lines above it
     qaHudText[0] = _("\n\nFAQ: <fgFFFFFFFF>@0 + @1</fg>")
     hudSubtext(
-        getAllPlayers(),
+        getAllPlayers().filter(lambda localPlayer: localPlayer.qaPage == 0),
         _(qaHudText[0])
         .replace("@0", inputBindingString(Button.ULTIMATE))
         .replace("@1", inputBindingString(Button.ABILITY_2)),
@@ -263,27 +266,29 @@ rule "Load HUD":
         HudReeval.VISIBILITY_AND_STRING
     )
     # A page is one HUD text, as separate HUD texts center against each other while the
-    # lines of one left-align. Only the key line uses String Replace, which cuts off long
-    # strings.
+    # lines of one left-align
     hudSubheader(
         getAllPlayers().filter(lambda localPlayer: localPlayer.qaPage > 0),
-        (
-            "{}{}{}{}{}{}"
-            "\n\n{}\n{}"
-        ).format(
-            qaAnswer(1),
-            qaAnswer(2),
-            qaAnswer(3),
-            qaAnswer(4),
-            qaAnswer(5),
-            qaAnswer(6),
+        "{}{}{}{}{}{}".format(
+            qaAnswer(1), qaAnswer(2), qaAnswer(3), qaAnswer(4), qaAnswer(5), qaAnswer(6)
+        ),
+        HudPosition.TOP,
+        10,
+        rgb(230, 151, 0),
+        HudReeval.VISIBILITY_AND_STRING
+    )
+    # The keys are a size bigger than the page, so they're its own HUD text, centered under
+    # it. Only this one uses String Replace, which cuts off long strings.
+    hudSubtext(
+        getAllPlayers().filter(lambda localPlayer: localPlayer.qaPage > 0),
+        "\n{}\n{}".format(
             (
                 _(qaHudText[19]) if localPlayer.qaPage < QA_PAGES else _(qaHudText[22])
             ).replace("@0", inputBindingString(Button.JUMP)),
             _(qaHudText[20]).replace("@0", inputBindingString(Button.INTERACT))
         ),
         HudPosition.TOP,
-        10,
+        11,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )

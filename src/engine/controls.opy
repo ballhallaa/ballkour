@@ -37,6 +37,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and not localPlayer.isInLobby
+            and localPlayer.qaPage == 0
         ),
         _(ctrlsHudText[0])
         .replace("@0", "" if localPlayer.viewCp > 0 else "<fg808080FF>")
@@ -53,6 +54,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and not localPlayer.isInLobby
+            and localPlayer.qaPage == 0
         ),
         _(ctrlsHudText[1])
         .replace("@0", "" if localPlayer.viewCp < lastCp else "<fg808080FF>")
@@ -73,6 +75,7 @@ rule "Load HUD":
             and not localPlayer.isInLobby
             and not localPlayer.spectating[0]
             and localPlayer.runCurrentCp < lastCp
+            and localPlayer.qaPage == 0
         ),
         _(ctrlsHudText[2]).replace("@0", inputBindingString(Button.RELOAD)),
         HudPosition.LEFT,
@@ -82,7 +85,10 @@ rule "Load HUD":
     )
     ctrlsHudText[3] = _("New Run:                 <fgFFFFFFFF>@0 + @1 (Hold)</fg>")
     hudSubheader(
-        getAllPlayers().filter(lambda localPlayer: localPlayer.isViewingCtrlsHud),
+        getAllPlayers().filter(
+            lambda localPlayer: localPlayer.isViewingCtrlsHud
+            and localPlayer.qaPage == 0
+        ),
         _(ctrlsHudText[3])
         .replace("@0", inputBindingString(Button.ULTIMATE))
         .replace("@1", inputBindingString(Button.RELOAD)),
@@ -98,6 +104,7 @@ rule "Load HUD":
             and not localPlayer.isInLobby
             and not localPlayer.spectating[0]
             and localPlayer.runCurrentCp < lastCp
+            and localPlayer.qaPage == 0
         ),
         _(ctrlsHudText[4])
         .replace("@0", inputBindingString(Button.ULTIMATE))
@@ -115,6 +122,7 @@ rule "Load HUD":
             and not localPlayer.isInLobby
             and localPlayer.viewCp < lastCp
             and len(hintRoutes) > 0
+            and localPlayer.qaPage == 0
         ),
         (
             _(ctrlsHudText[5])
@@ -135,6 +143,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and not localPlayer.spectating[0]
+            and localPlayer.qaPage == 0
         ),
         _(ctrlsHudText[7])
         .replace("@0", inputBindingString(Button.ULTIMATE))
@@ -150,6 +159,7 @@ rule "Load HUD":
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and not localPlayer.isInLobby
             and not localPlayer.spectating[0]
+            and localPlayer.qaPage == 0
         ),
         _(ctrlsHudText[8])
         .replace("@0", inputBindingString(Button.ULTIMATE))
@@ -164,6 +174,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and localPlayer.spectating[0]
+            and localPlayer.qaPage == 0
         ),
         _(ctrlsHudText[9])
         .replace("@0", inputBindingString(Button.ULTIMATE))
@@ -182,6 +193,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and localPlayer.spectating[0]
+            and localPlayer.qaPage == 0
         ),
         _(ctrlsHudText[10])
         .replace("@0", inputBindingString(Button.ULTIMATE))
@@ -198,6 +210,7 @@ rule "Load HUD":
             and localPlayer.spectating[0]
             and localPlayer.spectating[1] != null
             and localPlayer.spectating[2]
+            and localPlayer.qaPage == 0
         ),
         _(ctrlsHudText[11])
         .replace("@0", inputBindingString(Button.ABILITY_1))
@@ -213,6 +226,7 @@ rule "Load HUD":
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and localPlayer.spectating[0]
             and localPlayer.spectating[1] != null
+            and localPlayer.qaPage == 0
         ),
         _(ctrlsHudText[12])
         .replace("@0", inputBindingString(Button.ABILITY_1))
@@ -230,6 +244,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and localPlayer.spectating[0]
+            and localPlayer.qaPage == 0
         ),
         _(ctrlsHudText[13])
         .replace("@0", "" if localPlayer.spectating[7] else "<fg808080FF>")
@@ -248,6 +263,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingCtrlsHud
             and localPlayer.spectating[0]
+            and localPlayer.qaPage == 0
         ),
         # Freecam shares X-Hair Player's text: sort order 12 is taken by Spectating
         _(ctrlsHudText[14])
@@ -295,6 +311,7 @@ rule "Prev. Checkpoint Input":
     ) == true
     @Condition eventPlayer.isInLobby == false
     @Condition (eventPlayer.hasSpawned() and not eventPlayer.isLoading) == true
+    @Condition eventPlayer.qaPage == 0
 
     eventPlayer.isLoading = true
     # Watching someone, this switches to freecam, whose swap to Jetpack Cat finishes first
@@ -371,6 +388,7 @@ rule "Next Checkpoint Input":
     ) == true
     @Condition eventPlayer.isInLobby == false
     @Condition (eventPlayer.hasSpawned() and not eventPlayer.isLoading) == true
+    @Condition eventPlayer.qaPage == 0
 
     eventPlayer.isLoading = true
     # Like Prev. Checkpoint Input
@@ -441,6 +459,7 @@ rule "Reset Checkpoint Input":
     @Condition eventPlayer.runCurrentCp < lastCp
     @Condition eventPlayer.isInLobby == false
     @Condition (eventPlayer.hasSpawned() and not eventPlayer.isLoading) == true
+    @Condition eventPlayer.qaPage == 0
 
     waitUntil(not eventPlayer.isHoldingButton(Button.RELOAD), 0.15)
     if (
@@ -470,6 +489,7 @@ rule "New Run Input":
     @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
+    @Condition eventPlayer.qaPage == 0
 
     waitUntil(
         not (
@@ -508,6 +528,7 @@ rule "Freemode Input":
     @Condition eventPlayer.spectating[5] == false
     @Condition eventPlayer.isInLobby == false
     @Condition eventPlayer.runCurrentCp < lastCp
+    @Condition eventPlayer.qaPage == 0
 
     eventPlayer.disallowButton(Button.MELEE)
     if not eventPlayer.isInFreemode:
@@ -565,6 +586,7 @@ rule "Load Freemode HUD":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isInFreemode
             and not localPlayer.spectating[0]
+            and localPlayer.qaPage == 0
         ),
         _(freemodeHudText),
         HudPosition.LEFT,
@@ -598,8 +620,8 @@ rule "Lobby Input":
     if not eventPlayer.isHoldingButton(Button.ABILITY_2):
         eventPlayer.qaPage = eventPlayer.qaPage % QA_PAGES + 1
         return
-    # Holding goes to Lobby/Pause, unless another button joined in
-    if eventPlayer.isInLobby or not RULE_CONDITION:
+    # Holding goes to Lobby/Pause, unless another button joined in or the Q&A is open
+    if eventPlayer.isInLobby or eventPlayer.qaPage > 0 or not RULE_CONDITION:
         return
     eventPlayer.isLoading = true
     if eventPlayer.spectating[0]:
@@ -626,6 +648,7 @@ rule "Hints Input":
     @Condition eventPlayer.spectating[5] == false
     @Condition eventPlayer.isInLobby == false
     @Condition eventPlayer.viewCp < lastCp
+    @Condition eventPlayer.qaPage == 0
 
     eventPlayer.isHintOn = not eventPlayer.isHintOn
     # Toggled by hand, so moving to another CP doesn't turn them off
@@ -643,6 +666,7 @@ rule "Load Hints HUD":
             lambda localPlayer: not localPlayer.isInLobby
             and localPlayer.viewCp < lastCp
             and len(hintRoutes) > 0
+            and localPlayer.qaPage == 0
         ),
         ("\n\n{}").format(
             (

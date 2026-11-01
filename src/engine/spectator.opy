@@ -20,6 +20,7 @@ rule "Mode Input":
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == true
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
     @Condition eventPlayer.spectating[5] == false
+    @Condition eventPlayer.qaPage == 0
     @Condition canSwapHero(eventPlayer)
 
     # spectating[i]: [0]isSpectating [1]whoPlayerIsSpectating [2]isInFreecam [3]isInDisconnectedFreecam [4]disconnectedFreecamCp [5]isFirstPersonSpectating [6]isTransitioningIntoFirstPerson [7]hasSpectatableTargets [8]crosshairTarget [9]crosshairTargetDelay [10]spectatorAmnt [11]queuedCamPos [12]queuedCamLookAt
@@ -35,6 +36,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.spectating[0]
             and localPlayer.spectating[1] == null
+            and localPlayer.qaPage == 0
         ),
         _(spectatorHudText[0]),
         HudPosition.LEFT,
@@ -47,6 +49,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.spectating[0]
             and localPlayer.spectating[1] != null
+            and localPlayer.qaPage == 0
         ),
         _(spectatorHudText[1]).replace("@0", localPlayer.spectating[1]),
         HudPosition.LEFT,
@@ -57,7 +60,9 @@ rule "Load HUD":
     spectatorHudText[2] = _("Freecam On")
     hudSubtext(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.spectating[0] and localPlayer.spectating[2]
+            lambda localPlayer: localPlayer.spectating[0]
+            and localPlayer.spectating[2]
+            and localPlayer.qaPage == 0
         ),
         _(spectatorHudText[2]),
         HudPosition.LEFT,
@@ -68,7 +73,9 @@ rule "Load HUD":
     spectatorHudText[3] = _("(Disconnected)")
     hudSubheader(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.spectating[0] and localPlayer.spectating[3]
+            lambda localPlayer: localPlayer.spectating[0]
+            and localPlayer.spectating[3]
+            and localPlayer.qaPage == 0
         ),
         _(spectatorHudText[3]),
         HudPosition.LEFT,
@@ -79,7 +86,10 @@ rule "Load HUD":
     # Spectated Player's HUD
     spectatorHudText[4] = _("\n\nSpectators: @0")
     hudSubtext(
-        getAllPlayers().filter(lambda localPlayer: localPlayer.spectating[10] > 0),
+        getAllPlayers().filter(
+            lambda localPlayer: localPlayer.spectating[10] > 0
+            and localPlayer.qaPage == 0
+        ),
         _(spectatorHudText[4]).replace("@0", localPlayer.spectating[10]),
         HudPosition.LEFT,
         12,
