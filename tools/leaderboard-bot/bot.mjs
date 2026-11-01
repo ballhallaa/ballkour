@@ -1,0 +1,284 @@
+// Posts each course's leaderboard to its Discord channel when it changes: a picture of the top 10 and a
+// "Congrats @X, @Y, and @Z for the new top-10 times!" line that pings only the new runners. Then it adds the
+// new board to leaderboards/history.json, which is also how it knows what it has already posted.
+//
+// Run by .github/workflows/leaderboard-bot.yml. Settings come from the environment:
+//   DISCORD_BOT_TOKEN  the bot's token (without it, names and pictures from Discord are left out)
+//   DRY_RUN=1          draw the pictures into out/ and print the messages, but don't post or change history.json
+//   FORCE_COURSE=n     post course n's newest board again, even if it hasn't changed
+
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { chromium } from "playwright";
+import { cardHtml } from "./card.mjs";
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const REPO = process.env.REPO_ROOT ? path.resolve(process.env.REPO_ROOT) : path.resolve(HERE, "../..");
+const HISTORY = path.join(REPO, "leaderboards/history.json");
+const PLAYERS = path.join(REPO, "leaderboards/players.json");
+const OUT = path.join(HERE, "out");
+const TOKEN = process.env.DISCORD_BOT_TOKEN || "";
+const DRY = !!process.env.DRY_RUN;
+const FORCE = Number(process.env.FORCE_COURSE) || 0;
+const API = "https://discord.com/api/v10";
+const { guild: GUILD, courses: COURSES } = JSON.parse(fs.readFileSync(path.join(HERE, "courses.json"), "utf8"));
+
+/* ---------- Reading the boards ---------- */
+const TIME = /^(\d{1,2}:)?\d{1,2}:\d{2}\.\d{2}$/;
+const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+// "YYYY-MM-DD" stays as it is; "Mon D, YYYY" becomes YYYY-MM-DD
+function isoDate(s) {
+  const str = String(s || "").trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+  const m = /^([A-Za-z]{3})[a-z]*\.?\s+(\d{1,2}),\s*(\d{4})$/.exec(str);
+  const mi = m ? MONTHS.indexOf(m[1].toLowerCase()) : -1;
+  return mi >= 0 ? `${m[3]}-${String(mi + 1).padStart(2, "0")}-${m[2].padStart(2, "0")}` : "";
+}
+const toSeconds = (t) => t.split(":").reduce((sum, part) => sum * 60 + Number(part), 0);
+
+// lb[i] = "NAME, M:SS.cc, MISTAKES, '...'" and lbRunInfo(rank, "YYYY-MM-DD", "host/path"), the same as the website reads
+function parseOpy(text) {
+  if (!/\blb\s*=\s*\[\s*\]/.test(text)) return null; // file layout changed: don't guess
+  const rows = [];
+  for (const m of text.matchAll(/lb\[(\d+)\]\s*=\s*"([^"]*)"/g)) {
+    const [name, time, miss] = m[2].split(",").map((s) => s.trim());
+    if (name && TIME.test(time) && /^\d+$/.test(miss)) rows[Number(m[1])] = { name, time, mistakes: Number(miss), date: "", video: "" };
+  }
+  for (const m of text.matchAll(/lbRunInfo\(\s*(\d+)\s*,\s*"([^"]*)"\s*,\s*"([^"]*)"\s*\)/g)) {
+    const r = rows[Number(m[1])];
+    if (!r) continue;
+    r.date = isoDate(m[2]);
+    if (/^[a-z0-9.-]+\.[a-z]{2,}(\/[^\s"'<>]*)?$/i.test(m[3])) r.video = "https://" + m[3];
+  }
+  return rows.filter(Boolean).slice(0, 10);
+}
+// [{ "name", "time", "mistakes", "date", "video" }], the classic courses' files
+function parseJson(text) {
+  let runs;
+  try { runs = JSON.parse(text); } catch { return null; }
+  if (!Array.isArray(runs)) return null;
+  return runs
+    .filter((r) => r && typeof r.name === "string" && r.name.trim() && TIME.test(r.time) && Number.isInteger(r.mistakes) && r.mistakes >= 0)
+    .map((r) => ({
+      name: r.name.trim(),
+      time: r.time,
+      mistakes: r.mistakes,
+      date: isoDate(r.date),
+      video: typeof r.video === "string" && /^https:\/\/[^\s"'<>]+$/.test(r.video) ? r.video : "",
+    }))
+    .sort((a, b) => toSeconds(a.time) - toSeconds(b.time) || a.mistakes - b.mistakes)
+    .slice(0, 10);
+}
+function liveBoard(course) {
+  const file = path.join(REPO, course.file);
+  if (!fs.existsSync(file)) return null;
+  const text = fs.readFileSync(file, "utf8");
+  return course.file.endsWith(".opy") ? parseOpy(text) : parseJson(text);
+}
+
+/* ---------- History ---------- */
+const key = (r) => `${r.time}|${r.mistakes}`;
+const sameBoard = (a, b) => a.length === b.length && a.every((r, i) => key(r) === key(b[i]));
+const boardDate = (runs) => runs.map((r) => r.date).filter(Boolean).sort().pop() || "";
+// One run per line, so boards stay easy to read and edit by hand
+function dumpHistory(data) {
+  const run = (r) => "{" + Object.entries(r).filter(([, v]) => v !== "" && v !== undefined)
+    .map(([k, v]) => `${JSON.stringify(k)}: ${JSON.stringify(v)}`).join(", ") + "}";
+  const entry = (e) => Object.entries(e).map(([k, v]) => {
+    if (k === "legacy" && Array.isArray(v)) return `    "legacy": [\n${v.map((r) => "      " + run(r)).join(",\n")}\n    ]`;
+    if (k === "boards" && Array.isArray(v)) return `    "boards": [\n${v.map((b) => `      [\n${b.map((r) => "        " + run(r)).join(",\n")}\n      ]`).join(",\n")}\n    ]`;
+    return `    ${JSON.stringify(k)}: ${JSON.stringify(v)}`;
+  }).join(",\n");
+  return `{\n${Object.entries(data).map(([k, e]) => `  ${JSON.stringify(k)}: {\n${entry(e)}\n  }`).join(",\n")}\n}\n`;
+}
+
+/* ---------- Discord ---------- */
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+async function api(method, route, body) {
+  for (let attempt = 0; attempt < 4; attempt++) {
+    const isForm = body instanceof FormData;
+    const res = await fetch(API + route, {
+      method,
+      headers: { Authorization: `Bot ${TOKEN}`, ...(body && !isForm ? { "Content-Type": "application/json" } : {}) },
+      body: isForm ? body : body ? JSON.stringify(body) : undefined,
+    });
+    if (res.status === 429) { // rate limited: wait as long as Discord asks
+      const wait = (await res.json().catch(() => ({}))).retry_after || 1;
+      await sleep(wait * 1000 + 250);
+      continue;
+    }
+    if (!res.ok) throw new Error(`${method} ${route} → ${res.status} ${await res.text()}`);
+    return res.status === 204 ? null : res.json();
+  }
+  throw new Error(`${method} ${route} → still rate limited`);
+}
+async function dataUri(url) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return "";
+    return `data:${res.headers.get("content-type") || "image/png"};base64,${Buffer.from(await res.arrayBuffer()).toString("base64")}`;
+  } catch {
+    return "";
+  }
+}
+// The name people see in the server (server nickname, then Discord display name, then username) and their picture
+const personCache = new Map();
+async function person(id) {
+  if (!TOKEN || !id) return null;
+  if (personCache.has(id)) return personCache.get(id);
+  let member = null, user = null;
+  try {
+    member = await api("GET", `/guilds/${GUILD}/members/${id}`);
+    user = member.user;
+  } catch {
+    try { user = await api("GET", `/users/${id}`); } catch { user = null; } // left the server
+  }
+  let found = null;
+  if (user) {
+    const avatar = member && member.avatar ? `https://cdn.discordapp.com/guilds/${GUILD}/users/${id}/avatars/${member.avatar}.png?size=64`
+      : user.avatar ? `https://cdn.discordapp.com/avatars/${id}/${user.avatar}.png?size=64`
+      : `https://cdn.discordapp.com/embed/avatars/${Number((BigInt(id) >> 22n) % 6n)}.png`;
+    found = { name: (member && member.nick) || user.global_name || user.username, avatar: await dataUri(avatar) };
+  }
+  personCache.set(id, found);
+  return found;
+}
+
+/* ---------- Players: in-game name → Discord ID ---------- */
+const idOf = new Map();
+if (fs.existsSync(PLAYERS)) {
+  for (const p of JSON.parse(fs.readFileSync(PLAYERS, "utf8"))) {
+    if (p && /^\d{17,20}$/.test(String(p.discord)) && Array.isArray(p.names)) p.names.forEach((n) => idOf.set(String(n).toUpperCase(), String(p.discord)));
+  }
+}
+
+/* ---------- The message ---------- */
+const mdEscape = (s) => String(s).replace(/([\\*_~`|>#-])/g, "\\$1");
+function message(runs, fresh) {
+  const newRuns = runs.filter((r) => fresh.has(key(r)));
+  const users = [];
+  const names = newRuns.map((r) => {
+    const id = idOf.get(r.name.toUpperCase());
+    if (!id) return `**${mdEscape(r.name)}**`;
+    if (!users.includes(id)) users.push(id);
+    return `<@${id}>`;
+  });
+  const lines = [];
+  if (names.length) {
+    const list = new Intl.ListFormat("en", { style: "long", type: "conjunction" }).format(names);
+    lines.push(`Congrats ${list} for the new top-10 time${names.length > 1 ? "s" : ""}!`);
+  }
+  lines.push("-# Watch every run: <https://ballkour.com/leaderboards>");
+  return { content: lines.join("\n"), users };
+}
+// Text for screen readers (Discord's image description)
+const altText = (course, board, runs) =>
+  `${course.name} top 10, board ${board}: ` + runs.map((r, i) => `${i + 1}. ${r.name} ${r.time}, ${r.mistakes} mistakes`).join("; ");
+
+/* ---------- Fonts and logo for the picture ---------- */
+function fonts() {
+  const file = (pkg, name) => {
+    const p = path.join(HERE, "node_modules", pkg, "files", name);
+    return fs.existsSync(p) ? pathToFileURL(p).href : "";
+  };
+  return {
+    "Barlow-500-normal": file("@fontsource/barlow", "barlow-latin-500-normal.woff2"),
+    "Barlow-600-normal": file("@fontsource/barlow", "barlow-latin-600-normal.woff2"),
+    "Barlow-700-normal": file("@fontsource/barlow", "barlow-latin-700-normal.woff2"),
+    "Barlow Condensed-800-italic": file("@fontsource/barlow-condensed", "barlow-condensed-latin-800-italic.woff2"),
+    "JetBrains Mono-400-normal": file("@fontsource/jetbrains-mono", "jetbrains-mono-latin-400-normal.woff2"),
+    "JetBrains Mono-600-normal": file("@fontsource/jetbrains-mono", "jetbrains-mono-latin-600-normal.woff2"),
+    "JetBrains Mono-700-normal": file("@fontsource/jetbrains-mono", "jetbrains-mono-latin-700-normal.woff2"),
+  };
+}
+
+/* ---------- Main ---------- */
+const history = JSON.parse(fs.readFileSync(HISTORY, "utf8"));
+const jobs = [];
+for (const course of COURSES) {
+  const archived = (history[course.n] && Array.isArray(history[course.n].boards)) ? history[course.n].boards : [];
+  const live = liveBoard(course);
+  if (FORCE) {
+    if (course.n !== FORCE) continue;
+    const list = archived.length ? archived : live && live.length ? [live] : [];
+    if (!list.length) throw new Error(`Course ${course.n} has no board to post`);
+    jobs.push({ course, list, at: list.length - 1, isNew: false });
+    continue;
+  }
+  if (!live || !live.length) continue;
+  if (archived.length && sameBoard(live, archived[archived.length - 1])) continue;
+  jobs.push({ course, list: [...archived, live], at: archived.length, isNew: true });
+}
+if (!jobs.length) {
+  console.log("No leaderboard changed since the last posted board.");
+  process.exit(0);
+}
+
+fs.mkdirSync(OUT, { recursive: true });
+const logo = await dataUri("https://ballkour.com/assets/logo.webp");
+const fontUrls = fonts();
+const browser = await chromium.launch();
+const page = await browser.newPage({ viewport: { width: 1100, height: 900 }, deviceScaleFactor: 2 });
+const channelTypes = new Map();
+const archivedNow = [];
+let failed = false;
+
+for (const { course, list, at, isNew } of jobs) {
+  const runs = list[at];
+  const board = at + 1;
+  const before = new Set(at > 0 ? list[at - 1].map(key) : []);
+  const fresh = new Set(runs.map(key).filter((k) => !before.has(k)));
+  const label = `${course.n} ${course.name}, board ${board}`;
+  try {
+    const people = new Map();
+    for (const r of runs) {
+      const who = await person(idOf.get(r.name.toUpperCase()));
+      if (who) people.set(r.name, who);
+    }
+    const slug = path.basename(course.file).replace(/\.[^.]+$/, "").normalize("NFD").replace(/[^\w-]+/g, "");
+    const filename = `${slug}-board-${board}.png`;
+    const htmlFile = path.join(OUT, `${slug}-board-${board}.html`);
+    fs.writeFileSync(htmlFile, cardHtml({ course, board, date: boardDate(runs), runs, fresh, people, logo, fonts: fontUrls }));
+    await page.goto(pathToFileURL(htmlFile).href, { waitUntil: "load" });
+    await page.evaluate(() => document.fonts.ready);
+    const png = await page.locator(".card").screenshot({ path: path.join(OUT, filename) });
+    const { content, users } = message(runs, fresh);
+    fs.writeFileSync(path.join(OUT, `${slug}-board-${board}.txt`), content + "\n");
+    console.log(`\n${label}\n${content}`);
+    if (DRY) continue;
+
+    const form = new FormData();
+    form.append("payload_json", JSON.stringify({
+      content,
+      allowed_mentions: { parse: [], users }, // ping only the new runners
+      attachments: [{ id: 0, filename, description: altText(course, board, runs).slice(0, 1024) }],
+      flags: 4, // no link previews
+    }));
+    form.append("files[0]", new Blob([png], { type: "image/png" }), filename);
+    const posted = await api("POST", `/channels/${course.channel}/messages`, form);
+    console.log(`Posted ${label}`);
+
+    // In an announcement channel, publish it so servers following the channel get it too
+    if (!channelTypes.has(course.channel)) channelTypes.set(course.channel, (await api("GET", `/channels/${course.channel}`)).type);
+    if (channelTypes.get(course.channel) === 5) {
+      await api("POST", `/channels/${course.channel}/messages/${posted.id}/crosspost`).catch((e) => console.warn(`Couldn't publish ${label}: ${e.message}`));
+    }
+
+    if (isNew) {
+      history[course.n] = history[course.n] || { course: course.name };
+      history[course.n].boards = list;
+      fs.writeFileSync(HISTORY, dumpHistory(history)); // saved after each post, so a later failure can't repost this one
+      archivedNow.push(`- ${course.name}: board ${board}`);
+    }
+  } catch (e) {
+    failed = true;
+    console.error(`Failed on ${label}: ${e.message}`);
+  }
+}
+await browser.close();
+
+if (archivedNow.length) {
+  fs.writeFileSync(path.join(OUT, "commit-message.txt"), `chore(leaderboard): archive posted boards\n\n${archivedNow.join("\n")}\n`);
+}
+if (failed) process.exit(1);
