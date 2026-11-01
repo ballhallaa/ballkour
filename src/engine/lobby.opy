@@ -163,15 +163,16 @@ rule "Load Leaderboard Area":
         rgb(230, 151, 0)
     )
     # The blank lines around a run's info (lbRunInfo): [0] above its row and [1] below its
-    # link, and [2] above and [3] below the hide line, which is its 14th of 21 lines. Each
-    # is a soft hyphen, as Overwatch drops empty lines. [4] is as wide as the longest link:
-    # a text's lines start at the left edge of its widest line, so with this in them the
-    # overlaid texts and the row all start at the same spot, whatever their link.
+    # link, and [2] above the hide line, which is its 14th of 21 lines, and [3] below the
+    # [4] line under it. Each is a soft hyphen, as Overwatch drops empty lines. [4] is as
+    # wide as the longest link: a text's lines start at the left edge of its widest line, so
+    # with this in them the overlaid texts, the row and the hide line all start at the same
+    # spot, whatever their link.
     lbRunPad = [
         "­\n­\n­\n­\n­\n­\n­\n­\n­\n",
         "\n­\n­\n­\n­\n­\n­\n­\n­\n­",
         "­\n­\n­\n­\n­\n­\n­\n­\n­\n­\n­\n­\n­\n",
-        "\n­\n­\n­\n­\n­\n­\n­",
+        "\n­\n­\n­\n­\n­\n­",
         "                                                                                                              ­"
     ]
     lobbyHudText[0] = _("Run Info: <fgFFFFFFFF>Look at a Run + @0</fg>")
@@ -242,9 +243,10 @@ def showRunInfo():
     createProgressBarInWorldText(
         getAllPlayers().filter(lambda localPlayer: localPlayer.lbInfoRow != 0),
         0,
-        "{}{}{}".format(
+        "{}{}\n{}{}".format(
             lbRunPad[2],
             _(lobbyHudText[1]).replace("@0", inputBindingString(Button.INTERACT)),
+            lbRunPad[4],
             lbRunPad[3]
         ),
         updateEveryFrame(
