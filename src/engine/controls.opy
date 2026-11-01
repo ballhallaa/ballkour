@@ -510,8 +510,6 @@ rule "Freemode Input":
     if not eventPlayer.isInFreemode:
         stopChasingVariable(eventPlayer.runTime)
         eventPlayer.isRunPaused = true
-        if not eventPlayer.spectating[0]:
-            eventPlayer.isRunLegit = false
         if (
             distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
             > eventPlayer.cpData[1]
@@ -534,6 +532,28 @@ rule "Freemode Input":
         showCpNameplate()
         eventPlayer.isLoading = false
     eventPlayer.allowButton(Button.MELEE)
+
+
+rule "Left CP In Freemode":
+    @Event eachPlayer
+    @Condition (
+        eventPlayer.hasSpawned()
+        and not eventPlayer.isLoading
+        and not eventPlayer.isInLobby
+    ) == true
+    @Condition eventPlayer.isInFreemode == true
+    @Condition eventPlayer.isRunLegit == true
+    @Condition eventPlayer.runCurrentCp < lastCp
+    @Condition eventPlayer.spectating[0] == false
+    @Condition (
+        distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
+        > eventPlayer.cpData[1]
+    )
+
+    # Freemode can't clear CPs, but it can be used to practice the ones ahead, so a run only
+    # stops counting once the player is away from their CP with freemode on.
+    # Turning it on mid-attempt counts too, as the player is already away from the CP.
+    eventPlayer.isRunLegit = false
 
 
 rule "Load Freemode HUD":
