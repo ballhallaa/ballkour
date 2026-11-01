@@ -17,9 +17,9 @@ rule "Open":
 
     # Lobby Input opens it and turns the pages. Every eachPlayer rule adds to the server's
     # periodic load, and six of them for the Q&A were enough to close the server, so this
-    # one rule does all of it: closing, the sky camera, and locking the player in place.
-    # Jump closes the Q&A, so it doesn't jump while it's open, or once it closes until
-    # Jump is let go.
+    # one rule does all of it: closing, turning pages, the sky camera, and locking the
+    # player in place. Interact closes the Q&A and Jump turns its page, so it doesn't jump
+    # while it's open, or once it closes until Jump is let go.
     eventPlayer.disallowButton(Button.JUMP)
     # Looks up into the sky from high above the player, so the Q&A has a plain background.
     # Spectator mode leaves this camera alone until the Q&A closes.
@@ -44,14 +44,16 @@ rule "Open":
             eventPlayer.disallowButton(Button.ABILITY_2)
             waitUntil(
                 eventPlayer.qaPage == 0
-                or (
-                    eventPlayer.isHoldingButton(Button.ULTIMATE)
-                    and eventPlayer.isHoldingButton(Button.JUMP)
-                )
+                or eventPlayer.isHoldingButton(Button.INTERACT)
+                or eventPlayer.isHoldingButton(Button.JUMP)
                 or eventPlayer.spectating[0],
                 Math.INFINITY
             )
-            if not eventPlayer.spectating[0]:
+            # A page turn locks them again on the next pass
+            if not eventPlayer.spectating[0] and (
+                eventPlayer.isHoldingButton(Button.INTERACT)
+                or not eventPlayer.isHoldingButton(Button.JUMP)
+            ):
                 eventPlayer.setMoveSpeed(100)
                 # Otherwise letting go of Ultimate gives them back in HUD Input
                 if not eventPlayer.isHoldingButton(Button.ULTIMATE):
@@ -64,37 +66,41 @@ rule "Open":
             eventPlayer.startForcingPosition(eventPlayer.getPosition(), false)
             waitUntil(
                 eventPlayer.qaPage == 0
-                or (
-                    eventPlayer.isHoldingButton(Button.ULTIMATE)
-                    and eventPlayer.isHoldingButton(Button.JUMP)
-                )
+                or eventPlayer.isHoldingButton(Button.INTERACT)
+                or eventPlayer.isHoldingButton(Button.JUMP)
                 or not eventPlayer.spectating[0]
                 or not eventPlayer.spectating[2],
                 Math.INFINITY
             )
-            if eventPlayer.spectating[2]:
+            # Jetpack Cat flies up with Jump, so a page turn keeps holding it
+            if eventPlayer.spectating[2] and (
+                eventPlayer.isHoldingButton(Button.INTERACT)
+                or not eventPlayer.isHoldingButton(Button.JUMP)
+            ):
                 eventPlayer.stopForcingPosition()
         else:
             # Watching someone already holds them in place
             waitUntil(
                 eventPlayer.qaPage == 0
-                or (
-                    eventPlayer.isHoldingButton(Button.ULTIMATE)
-                    and eventPlayer.isHoldingButton(Button.JUMP)
-                )
+                or eventPlayer.isHoldingButton(Button.INTERACT)
+                or eventPlayer.isHoldingButton(Button.JUMP)
                 or not eventPlayer.spectating[0]
                 or eventPlayer.spectating[2],
                 Math.INFINITY
             )
-        if eventPlayer.isHoldingButton(Button.ULTIMATE) and eventPlayer.isHoldingButton(
-            Button.JUMP
-        ):
+        if eventPlayer.isHoldingButton(Button.INTERACT):
+            # Closing once Interact is let go, so it doesn't go on to open run info in the
+            # lobby
+            waitUntil(not eventPlayer.isHoldingButton(Button.INTERACT), Math.INFINITY)
             eventPlayer.qaPage = 0
+        elif eventPlayer.isHoldingButton(Button.JUMP):
+            eventPlayer.qaPage = eventPlayer.qaPage % QA_PAGES + 1
+            waitUntil(not eventPlayer.isHoldingButton(Button.JUMP), Math.INFINITY)
     if eventPlayer.spectating[0] and not eventPlayer.spectating[2]:
         # Without a target, Hold Queued Camera takes over
         if eventPlayer.spectating[1] != null:
             startSpectatorCamera()
-        # Close's Jump shouldn't go on to enable freecam
+        # A held page turn's Jump shouldn't go on to enable freecam
         eventPlayer.spectating[9] = true
         waitUntil(not eventPlayer.isHoldingButton(Button.JUMP), Math.INFINITY)
         eventPlayer.spectating[9] = false
@@ -218,10 +224,10 @@ rule "Load HUD":
         "\n\n<fg00E092FF>Is something wrong in my language?</fg>"
         "\nThe translations are drafts, so please report mistakes at ballkour.com/issues."
     )
-    qaHudText[19] = _("Next Page: <fgFFFFFFFF>@0 + @1</fg>")
-    qaHudText[20] = _("Close: <fgFFFFFFFF>@0 + @1</fg>")
-    # Instead of Next Page on the last page, as the same keys go back around
-    qaHudText[22] = _("Back to Page 1: <fgFFFFFFFF>@0 + @1</fg>")
+    qaHudText[19] = _("Next Page: <fgFFFFFFFF>@0</fg>")
+    qaHudText[20] = _("Close: <fgFFFFFFFF>@0</fg>")
+    # Instead of Next Page on the last page, as the same key goes back around
+    qaHudText[22] = _("Back to Page 1: <fgFFFFFFFF>@0</fg>")
     # Each language names itself, e.g. "FAQ auf Deutsch"
     qaHudText[21] = _("FAQ in English: <fgFFFFFFFF>ballkour.com/faq</fg>")
     # A blank line above the title, under BALLKOUR.COM or the run completion text: a blank
@@ -271,12 +277,10 @@ rule "Load HUD":
             qaAnswer(4),
             qaAnswer(5),
             qaAnswer(6),
-            (_(qaHudText[19]) if localPlayer.qaPage < QA_PAGES else _(qaHudText[22]))
-            .replace("@0", inputBindingString(Button.ULTIMATE))
-            .replace("@1", inputBindingString(Button.ABILITY_2)),
-            _(qaHudText[20])
-            .replace("@0", inputBindingString(Button.ULTIMATE))
-            .replace("@1", inputBindingString(Button.JUMP))
+            (
+                _(qaHudText[19]) if localPlayer.qaPage < QA_PAGES else _(qaHudText[22])
+            ).replace("@0", inputBindingString(Button.JUMP)),
+            _(qaHudText[20]).replace("@0", inputBindingString(Button.INTERACT))
         ),
         HudPosition.TOP,
         10,

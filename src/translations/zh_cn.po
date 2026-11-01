@@ -226,20 +226,20 @@ msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
 msgstr "常见问题：<fgFFFFFFFF>@0 + @1</fg>"
 
 #. file qa.opy, rule "Load HUD"
-msgid "Close: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "关闭：<fgFFFFFFFF>@0 + @1</fg>"
+msgid "Close: <fgFFFFFFFF>@0</fg>"
+msgstr "关闭：<fgFFFFFFFF>@0</fg>"
 
 #. file qa.opy, rule "Load HUD"
-msgid "Next Page: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "下一页：<fgFFFFFFFF>@0 + @1</fg>"
+msgid "Next Page: <fgFFFFFFFF>@0</fg>"
+msgstr "下一页：<fgFFFFFFFF>@0</fg>"
 
 #. file qa.opy, rule "Load HUD"
 msgid "FAQ in English: <fgFFFFFFFF>ballkour.com/faq</fg>"
 msgstr "中文常见问题：<fgFFFFFFFF>ballkour.com/faq</fg>"
 
 #. file qa.opy, rule "Load HUD"
-msgid "Back to Page 1: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "返回第1页：<fgFFFFFFFF>@0 + @1</fg>"
+msgid "Back to Page 1: <fgFFFFFFFF>@0</fg>"
+msgstr "返回第1页：<fgFFFFFFFF>@0</fg>"
 
 #. file run.opy, rule "Load HUD"
 msgid "Controls: <fgFFFFFFFF>@0 (Hold)</fg>"
