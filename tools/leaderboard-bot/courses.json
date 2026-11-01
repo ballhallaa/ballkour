@@ -1,0 +1,20 @@
+{
+  "guild": "1212553452283101245",
+  "courses": [
+    { "n": 1, "name": "Watchpoint: Gibraltar", "flag": "🇬🇮", "code": "59W28", "file": "leaderboards/1-watchpoint-gibraltar.opy", "channel": "1498162993622683750" },
+    { "n": 2, "name": "Blizzard World (Winter)", "flag": "🇺🇸", "code": "GMWRF", "file": "leaderboards/2-blizzard-world.opy", "channel": "1498158771455918200" },
+    { "n": 3, "name": "Paraíso", "flag": "🇧🇷", "code": null, "file": "leaderboards/3-paraíso.opy", "channel": "1498162969056514128" },
+    { "n": 4, "name": "Eichenwalde", "flag": "🇩🇪", "code": null, "file": "leaderboards/4-eichenwalde.json", "channel": "1498162925502992414" },
+    { "n": 5, "name": "Practice Range", "flag": "🎯", "code": "KSG9E9", "file": "leaderboards/5-practice-range.json", "channel": "1498162982524551308" },
+    { "n": 6, "name": "Dorado", "flag": "🇲🇽", "code": "N8ZFR", "file": "leaderboards/6-dorado.json", "channel": "1533511230432743575" },
+    { "n": 7, "name": "Ilios", "flag": "🇬🇷", "code": "4BA40", "file": "leaderboards/7-ilios.json", "channel": "1533512792672571514" },
+    { "n": 8, "name": "Paraíso", "flag": "🇧🇷", "code": null, "file": "leaderboards/8-paraíso.json", "channel": "1533656968479244469" },
+    { "n": 9, "name": "Temple of Anubis", "flag": "🇪🇬", "code": "18ZZK", "file": "leaderboards/9-temple-of-anubis.json", "channel": "1533662688679301120" },
+    { "n": 10, "name": "Horizon Lunar Colony", "flag": "🌙", "code": "JEFA9", "file": "leaderboards/10-horizon-lunar-colony.json", "channel": "1533657150122102905" },
+    { "n": 11, "name": "Blizzard World", "flag": "🇺🇸", "code": "D6WC7", "file": "leaderboards/11-blizzard-world.json", "channel": "1533657355752050798" },
+    { "n": 12, "name": "Circuit Royal", "flag": "🇲🇨", "code": "71GPZ", "file": "leaderboards/12-circuit-royal.json", "channel": "1533657497976438844" },
+    { "n": 13, "name": "Neon Junction", "flag": "🇯🇵", "code": "EPWMD", "file": "leaderboards/13-neon-junction.json", "channel": "1533657675643093211" },
+    { "n": 14, "name": "King’s Row", "flag": "🇬🇧", "code": "PQZDY", "file": "leaderboards/14-kings-row.json", "channel": "1533659492959649932" },
+    { "n": 15, "name": "Eichenwalde", "flag": "🇩🇪", "code": null, "file": "leaderboards/15-eichenwalde.json", "channel": "1498162954204610570" }
+  ]
+}

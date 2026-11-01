@@ -1,0 +1,16 @@
+{
+  "name": "ballkour-leaderboard-bot",
+  "private": true,
+  "type": "module",
+  "description": "Posts leaderboard changes to the Ballkour Discord",
+  "scripts": {
+    "start": "node bot.mjs",
+    "dry-run": "DRY_RUN=1 node bot.mjs"
+  },
+  "dependencies": {
+    "@fontsource/barlow": "^5.0.0",
+    "@fontsource/barlow-condensed": "^5.0.0",
+    "@fontsource/jetbrains-mono": "^5.0.0",
+    "playwright": "1.49.1"
+  }
+}
