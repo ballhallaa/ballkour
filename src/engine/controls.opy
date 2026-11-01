@@ -17,6 +17,9 @@ rule "HUD Input":
     waitUntil(not eventPlayer.isHoldingButton(Button.ULTIMATE), Math.INFINITY)
     eventPlayer.isViewingCtrlsHud = false
     eventPlayer.allowButton(Button.MELEE)
+    # The Q&A keeps them until it closes (Q&A: Open)
+    if eventPlayer.qaPage > 0:
+        return
     if not eventPlayer.spectating[0] or eventPlayer.spectating[2]:
         eventPlayer.allowButton(Button.PRIMARY_FIRE)
         eventPlayer.allowButton(Button.SECONDARY_FIRE)
@@ -588,9 +591,16 @@ rule "Lobby Input":
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == true
     @Condition eventPlayer.spectating[5] == false
-    @Condition eventPlayer.isInLobby == false
 
-    wait(0.35, Wait.ABORT_WHEN_FALSE)
+    # A tap opens the Q&A or turns its page: 1, 2, 3, then 1 again. It shares this rule with
+    # Lobby/Pause because every eachPlayer rule adds to the server's load (see Q&A: Open).
+    waitUntil(not eventPlayer.isHoldingButton(Button.ABILITY_2), 0.35)
+    if not eventPlayer.isHoldingButton(Button.ABILITY_2):
+        eventPlayer.qaPage = eventPlayer.qaPage % QA_PAGES + 1
+        return
+    # Holding goes to Lobby/Pause, unless another button joined in
+    if eventPlayer.isInLobby or not RULE_CONDITION:
+        return
     eventPlayer.isLoading = true
     if eventPlayer.spectating[0]:
         disableSpectator()
@@ -625,16 +635,9 @@ rule "Hints Input":
 rule "Load Hints HUD":
     # While hints are off, the same spot shows how to turn them on
     hintsHudText[0] = _("Hints: <fgFFFFFFFF>@0 + @1</fg>")
-    hintsHudText[1] = _("Hints On" "\nInfo: <fgFFFFFFFF>@0 + @1</fg>@2")
-    hintsHudText[2] = _(
-        "\n   <fgCB87FFFF>Movement</fg>"
-        "\n   <fgFFFFFFFF>Jump</fg>"
-        "\n   <fgFFD200FF>Grapple</fg>"
-        "\n   <fgFF4646FF>Piledrive</fg>"
-        "\n   <fg00BEFFFF>Shield Bounce</fg>"
-        "\nDisable: <fgFFFFFFFF>@0 + @1</fg>"
-    )
-    hintsHudText[3] = _("No Hint For This CP")
+    # The colors are explained in the Q&A
+    hintsHudText[1] = _("Hints On")
+    hintsHudText[2] = _("No Hint For This CP")
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: not localPlayer.isInLobby
@@ -649,20 +652,8 @@ rule "Load Hints HUD":
                 if not localPlayer.isHintOn
                 else (
                     _(hintsHudText[1])
-                    .replace("@0", inputBindingString(Button.ULTIMATE))
-                    .replace("@1", inputBindingString(Button.ABILITY_2))
-                    .replace(
-                        "@2",
-                        (
-                            _(hintsHudText[2])
-                            .replace("@0", inputBindingString(Button.ULTIMATE))
-                            .replace("@1", inputBindingString(Button.MELEE))
-                            if localPlayer.isViewingHintInfo
-                            else ""
-                        )
-                    )
                     if len(hintRoutes[localPlayer.viewCp]) > 1
-                    else _(hintsHudText[3])
+                    else _(hintsHudText[2])
                 )
             )
         ),
@@ -671,29 +662,6 @@ rule "Load Hints HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-
-
-rule "Hint Info Input":
-    @Event eachPlayer
-    @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
-    @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
-    @Condition eventPlayer.isHoldingButton(Button.SECONDARY_FIRE) == false
-    @Condition eventPlayer.isHoldingButton(Button.JUMP) == false
-    @Condition eventPlayer.isHoldingButton(Button.RELOAD) == false
-    @Condition eventPlayer.isHoldingButton(Button.INTERACT) == false
-    @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == true
-    @Condition eventPlayer.isHintOn == true
-    @Condition len(hintRoutes[eventPlayer.viewCp]) > 1
-    @Condition eventPlayer.spectating[5] == false
-    @Condition eventPlayer.isInLobby == false
-
-    # Holding the same combo is Lobby/Pause, so only a tap toggles info
-    waitUntil(not eventPlayer.isHoldingButton(Button.ABILITY_2), 0.35)
-    if eventPlayer.isHoldingButton(Button.ABILITY_2):
-        return
-    eventPlayer.isViewingHintInfo = not eventPlayer.isViewingHintInfo
 
 
 rule "Scorecard Input":

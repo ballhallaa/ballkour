@@ -82,6 +82,7 @@ globalvar completionHudText = []
 globalvar scorecardHudText = []
 globalvar topRunsHudText
 globalvar lobbyHudText = []
+globalvar qaHudText = []
 
 globalvar index 127
 
@@ -148,7 +149,6 @@ playervar paceSplitClears
 playervar isHintOn
 playervar isHintAutoOn
 playervar isHintPlaying
-playervar isViewingHintInfo
 playervar hintPlayCp
 playervar hintKeyframes
 playervar hintKeyframeTimes
@@ -178,6 +178,10 @@ playervar timeFormatted
 
 # Controls
 playervar isViewingCtrlsHud
+# The Q&A page being read (1 to QA_PAGES), or 0 while it's closed
+playervar qaPage
+# Lobby Input turns the pages, so they're counted here
+macro QA_PAGES = 3
 playervar isInFreemode
 playervar isScorecardHidden
 playervar scorecardKey
