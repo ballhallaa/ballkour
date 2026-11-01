@@ -2,7 +2,9 @@
 # Text arguments go in without quotes, as #!define swaps them into the strings below.
 #!define courseSettings(COURSE_NAME, LATEST_CODE, BETA_CODE, TEAM_1_SLOTS, TEAM_2_SLOTS, ENABLED_MAP) { \
     "main": { \
-        "description": f"COURSE_NAME \n\nv{VERSION} \n\nLatest Code: LATEST_CODE \n\nBeta Code: BETA_CODE", \
+        "description": \
+        f"COURSE_NAME \n\nv{VERSION} \n\nLatest Code: LATEST_CODE \n\nBeta Code: BETA_CODE" if strContains(VERSION, "-beta.") else \
+        f"COURSE_NAME \n\nv{VERSION} \n\nLatest Code: LATEST_CODE", \
         "modeName": "Ball Parkour ● ballkour.com" \
     }, \
     "lobby": { \
