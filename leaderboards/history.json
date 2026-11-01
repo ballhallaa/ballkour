@@ -1,0 +1,318 @@
+{
+  "1": {
+    "course": "Watchpoint: Gibraltar",
+    "legacy": [
+      {"name": "BLACKMILES", "time": "4:30.--", "mistakes": 4},
+      {"name": "USE1355", "time": "4:39.--", "mistakes": 9},
+      {"name": "KAMONIC", "time": "4:49.--", "mistakes": 8},
+      {"name": "BOOPYDOOPY", "time": "4:59.--", "mistakes": 7},
+      {"name": "MOISTKLEENEX", "time": "5:01.--", "mistakes": 11},
+      {"name": "MIDSHIVA", "time": "5:30.--", "mistakes": 19},
+      {"name": "FLATO", "time": "5:55.--", "mistakes": 27},
+      {"name": "LYRA", "time": "6:03.--", "mistakes": 25},
+      {"name": "KAATAAWU", "time": "6:09.--", "mistakes": 30},
+      {"name": "DRFUNK", "time": "6:29.--", "mistakes": 31}
+    ],
+    "boards": [
+      [
+        {"name": "BALLMYBLOVED", "time": "5:56.64", "mistakes": 29, "date": "2026-04-29", "video": "https://youtu.be/EBG8rTw_r5U"}
+      ],
+      [
+        {"name": "BALLMYBLOVED", "time": "5:19.05", "mistakes": 21, "date": "2026-04-29", "video": "https://youtu.be/yC_XKGb4sP0"}
+      ],
+      [
+        {"name": "BALLMYBLOVED", "time": "5:19.05", "mistakes": 21, "date": "2026-04-29", "video": "https://youtu.be/yC_XKGb4sP0"},
+        {"name": "COLDSKIN", "time": "6:29.02", "mistakes": 45, "date": "2026-05-05", "video": "https://www.twitch.tv/videos/2764298479"}
+      ],
+      [
+        {"name": "BALLMYBLOVED", "time": "5:19.05", "mistakes": 21, "date": "2026-04-29", "video": "https://youtu.be/yC_XKGb4sP0"},
+        {"name": "COLDSKIN", "time": "6:23.41", "mistakes": 34, "date": "2026-05-05", "video": "https://www.twitch.tv/videos/2764298479"}
+      ],
+      [
+        {"name": "BALLMYBLOVED", "time": "5:19.05", "mistakes": 21, "date": "2026-04-29", "video": "https://youtu.be/yC_XKGb4sP0"},
+        {"name": "GAMINGCHAIR", "time": "6:00.79", "mistakes": 29, "date": "2026-05-05", "video": "https://youtu.be/OrnUjkDdePI"},
+        {"name": "COLDSKIN", "time": "6:23.41", "mistakes": 34, "date": "2026-05-05", "video": "https://www.twitch.tv/videos/2764298479"}
+      ],
+      [
+        {"name": "BALLMYBLOVED", "time": "5:19.05", "mistakes": 21, "date": "2026-04-29", "video": "https://youtu.be/yC_XKGb4sP0"},
+        {"name": "COLDSKIN", "time": "5:54.12", "mistakes": 22, "date": "2026-05-06", "video": "https://youtu.be/p9dIZbctgUk"},
+        {"name": "GAMINGCHAIR", "time": "6:00.79", "mistakes": 29, "date": "2026-05-05", "video": "https://youtu.be/OrnUjkDdePI"},
+        {"name": "APPLEJACK", "time": "14:38.48", "mistakes": 152, "date": "2026-05-06", "video": "https://youtu.be/FTaQJYL6EJg"}
+      ],
+      [
+        {"name": "BALLMYBLOVED", "time": "5:19.05", "mistakes": 21, "date": "2026-04-29", "video": "https://youtu.be/yC_XKGb4sP0"},
+        {"name": "COLDSKIN", "time": "5:54.12", "mistakes": 22, "date": "2026-05-06", "video": "https://youtu.be/p9dIZbctgUk"},
+        {"name": "DVD", "time": "5:55.95", "mistakes": 26, "date": "2026-05-07", "video": "https://youtu.be/ChNglCnfhuY"},
+        {"name": "GAMINGCHAIR", "time": "6:00.79", "mistakes": 29, "date": "2026-05-05", "video": "https://youtu.be/OrnUjkDdePI"},
+        {"name": "APPLEJACK", "time": "14:38.48", "mistakes": 152, "date": "2026-05-06", "video": "https://youtu.be/FTaQJYL6EJg"}
+      ],
+      [
+        {"name": "GAMINGCHAIR", "time": "5:08.37", "mistakes": 16, "date": "2026-05-07", "video": "https://youtu.be/Ufn1zTb1Upo"},
+        {"name": "DVD", "time": "5:10.74", "mistakes": 15, "date": "2026-05-07", "video": "https://youtu.be/i_rQJ-heCO8"},
+        {"name": "BALLMYBLOVED", "time": "5:19.05", "mistakes": 21, "date": "2026-04-29", "video": "https://youtu.be/yC_XKGb4sP0"},
+        {"name": "COLDSKIN", "time": "5:54.12", "mistakes": 22, "date": "2026-05-06", "video": "https://youtu.be/p9dIZbctgUk"},
+        {"name": "APPLEJACK", "time": "14:38.48", "mistakes": 152, "date": "2026-05-06", "video": "https://youtu.be/FTaQJYL6EJg"}
+      ],
+      [
+        {"name": "BACKLINEREIN", "time": "4:57.86", "mistakes": 15, "date": "2026-05-08", "video": "https://youtu.be/d7KDFvXyL8E"},
+        {"name": "DVD", "time": "5:02.50", "mistakes": 15, "date": "2026-05-07", "video": "https://youtu.be/RXrrX5Sj_L0"},
+        {"name": "GAMINGCHAIR", "time": "5:08.37", "mistakes": 16, "date": "2026-05-07", "video": "https://youtu.be/Ufn1zTb1Upo"},
+        {"name": "BALLMYBLOVED", "time": "5:19.05", "mistakes": 21, "date": "2026-04-29", "video": "https://youtu.be/yC_XKGb4sP0"},
+        {"name": "COLDSKIN", "time": "5:54.12", "mistakes": 22, "date": "2026-05-06", "video": "https://youtu.be/p9dIZbctgUk"},
+        {"name": "APPLEJACK", "time": "14:38.48", "mistakes": 152, "date": "2026-05-06", "video": "https://youtu.be/FTaQJYL6EJg"}
+      ],
+      [
+        {"name": "BACKLINEREIN", "time": "4:57.86", "mistakes": 15, "date": "2026-05-08", "video": "https://youtu.be/d7KDFvXyL8E"},
+        {"name": "BALLMYBLOVED", "time": "4:59.07", "mistakes": 19, "date": "2026-05-09", "video": "https://youtu.be/W_AQNV6DHcg"},
+        {"name": "DVD", "time": "5:02.50", "mistakes": 15, "date": "2026-05-07", "video": "https://youtu.be/RXrrX5Sj_L0"},
+        {"name": "GAMINGCHAIR", "time": "5:08.37", "mistakes": 16, "date": "2026-05-07", "video": "https://youtu.be/Ufn1zTb1Upo"},
+        {"name": "COLDSKIN", "time": "5:54.12", "mistakes": 22, "date": "2026-05-06", "video": "https://youtu.be/p9dIZbctgUk"},
+        {"name": "PETUNCA", "time": "9:58.47", "mistakes": 65, "date": "2026-05-09", "video": "https://youtu.be/4ZSwQCwHVYw"},
+        {"name": "APPLEJACK", "time": "14:38.48", "mistakes": 152, "date": "2026-05-06", "video": "https://youtu.be/FTaQJYL6EJg"}
+      ],
+      [
+        {"name": "BALLMYBLOVED", "time": "4:36.32", "mistakes": 16, "date": "2026-05-10", "video": "https://youtu.be/KIZG_1SReuY"},
+        {"name": "BACKLINEREIN", "time": "4:57.86", "mistakes": 15, "date": "2026-05-08", "video": "https://youtu.be/d7KDFvXyL8E"},
+        {"name": "DVD", "time": "5:02.50", "mistakes": 15, "date": "2026-05-07", "video": "https://youtu.be/RXrrX5Sj_L0"},
+        {"name": "GAMINGCHAIR", "time": "5:08.37", "mistakes": 16, "date": "2026-05-07", "video": "https://youtu.be/Ufn1zTb1Upo"},
+        {"name": "COLDSKIN", "time": "5:54.12", "mistakes": 22, "date": "2026-05-06", "video": "https://youtu.be/p9dIZbctgUk"},
+        {"name": "PETUNCA", "time": "9:58.47", "mistakes": 65, "date": "2026-05-09", "video": "https://youtu.be/4ZSwQCwHVYw"},
+        {"name": "APPLEJACK", "time": "14:38.48", "mistakes": 152, "date": "2026-05-06", "video": "https://youtu.be/FTaQJYL6EJg"}
+      ],
+      [
+        {"name": "BALLMYBLOVED", "time": "4:36.32", "mistakes": 16, "date": "2026-05-10", "video": "https://youtu.be/KIZG_1SReuY"},
+        {"name": "BACKLINEREIN", "time": "4:57.86", "mistakes": 15, "date": "2026-05-08", "video": "https://youtu.be/d7KDFvXyL8E"},
+        {"name": "DVD", "time": "5:02.50", "mistakes": 15, "date": "2026-05-07", "video": "https://youtu.be/RXrrX5Sj_L0"},
+        {"name": "GAMINGCHAIR", "time": "5:08.37", "mistakes": 16, "date": "2026-05-07", "video": "https://youtu.be/Ufn1zTb1Upo"},
+        {"name": "COLDSKIN", "time": "5:54.12", "mistakes": 22, "date": "2026-05-06", "video": "https://youtu.be/p9dIZbctgUk"},
+        {"name": "CHESSISFUN", "time": "7:54.96", "mistakes": 85, "date": "2026-05-12", "video": "https://youtu.be/IPH_poKiukM"},
+        {"name": "PETUNCA", "time": "9:58.47", "mistakes": 65, "date": "2026-05-09", "video": "https://youtu.be/4ZSwQCwHVYw"},
+        {"name": "APPLEJACK", "time": "14:38.48", "mistakes": 152, "date": "2026-05-06", "video": "https://youtu.be/FTaQJYL6EJg"}
+      ],
+      [
+        {"name": "BACKLINEREIN", "time": "4:34.15", "mistakes": 15, "date": "2026-05-13", "video": "https://youtu.be/SDw339nB_dw"},
+        {"name": "BALLMYBLOVED", "time": "4:36.32", "mistakes": 16, "date": "2026-05-10", "video": "https://youtu.be/KIZG_1SReuY"},
+        {"name": "DVD", "time": "5:02.50", "mistakes": 15, "date": "2026-05-07", "video": "https://youtu.be/RXrrX5Sj_L0"},
+        {"name": "GAMINGCHAIR", "time": "5:08.37", "mistakes": 16, "date": "2026-05-07", "video": "https://youtu.be/Ufn1zTb1Upo"},
+        {"name": "COLDSKIN", "time": "5:14.52", "mistakes": 20, "date": "2026-05-13", "video": "https://youtu.be/7MisV6fwJHg"},
+        {"name": "CHESSISFUN", "time": "7:54.96", "mistakes": 85, "date": "2026-05-12", "video": "https://youtu.be/IPH_poKiukM"},
+        {"name": "PETUNCA", "time": "9:58.47", "mistakes": 65, "date": "2026-05-09", "video": "https://youtu.be/4ZSwQCwHVYw"},
+        {"name": "KINGO", "time": "13:11.17", "mistakes": 174, "date": "2026-05-13", "video": "https://youtu.be/SdlpsAo0HiE"},
+        {"name": "APPLEJACK", "time": "14:38.48", "mistakes": 152, "date": "2026-05-06", "video": "https://youtu.be/FTaQJYL6EJg"}
+      ],
+      [
+        {"name": "BACKLINEREIN", "time": "4:34.15", "mistakes": 15, "date": "2026-05-13", "video": "https://youtu.be/SDw339nB_dw"},
+        {"name": "BALLMYBLOVED", "time": "4:36.32", "mistakes": 16, "date": "2026-05-10", "video": "https://youtu.be/KIZG_1SReuY"},
+        {"name": "COLDSKIN", "time": "5:01.32", "mistakes": 13, "date": "2026-05-17", "video": "https://youtu.be/U6TtmF5-2iI"},
+        {"name": "DVD", "time": "5:02.50", "mistakes": 15, "date": "2026-05-07", "video": "https://youtu.be/RXrrX5Sj_L0"},
+        {"name": "GAMINGCHAIR", "time": "5:08.37", "mistakes": 16, "date": "2026-05-07", "video": "https://youtu.be/Ufn1zTb1Upo"},
+        {"name": "CHESSISFUN", "time": "7:54.96", "mistakes": 85, "date": "2026-05-12", "video": "https://youtu.be/IPH_poKiukM"},
+        {"name": "PETUNCA", "time": "9:58.47", "mistakes": 65, "date": "2026-05-09", "video": "https://youtu.be/4ZSwQCwHVYw"},
+        {"name": "KINGO", "time": "13:11.17", "mistakes": 174, "date": "2026-05-13", "video": "https://youtu.be/SdlpsAo0HiE"},
+        {"name": "APPLEJACK", "time": "14:38.48", "mistakes": 152, "date": "2026-05-06", "video": "https://youtu.be/FTaQJYL6EJg"}
+      ],
+      [
+        {"name": "BACKLINEREIN", "time": "4:34.15", "mistakes": 15, "date": "2026-05-13", "video": "https://youtu.be/SDw339nB_dw"},
+        {"name": "BALLMYBLOVED", "time": "4:36.32", "mistakes": 16, "date": "2026-05-10", "video": "https://youtu.be/KIZG_1SReuY"},
+        {"name": "COLDSKIN", "time": "4:43.85", "mistakes": 10, "date": "2026-05-18", "video": "https://youtu.be/qdNueiRfzrM"},
+        {"name": "DVD", "time": "5:02.50", "mistakes": 15, "date": "2026-05-07", "video": "https://youtu.be/RXrrX5Sj_L0"},
+        {"name": "GAMINGCHAIR", "time": "5:08.37", "mistakes": 16, "date": "2026-05-07", "video": "https://youtu.be/Ufn1zTb1Upo"},
+        {"name": "CHESSISFUN", "time": "7:54.96", "mistakes": 85, "date": "2026-05-12", "video": "https://youtu.be/IPH_poKiukM"},
+        {"name": "PETUNCA", "time": "9:58.47", "mistakes": 65, "date": "2026-05-09", "video": "https://youtu.be/4ZSwQCwHVYw"},
+        {"name": "KINGO", "time": "13:11.17", "mistakes": 174, "date": "2026-05-13", "video": "https://youtu.be/SdlpsAo0HiE"},
+        {"name": "APPLEJACK", "time": "14:38.48", "mistakes": 152, "date": "2026-05-06", "video": "https://youtu.be/FTaQJYL6EJg"}
+      ],
+      [
+        {"name": "COLDSKIN", "time": "4:30.11", "mistakes": 10, "date": "2026-05-19", "video": "https://youtu.be/trpZHK6tOLI"},
+        {"name": "BACKLINEREIN", "time": "4:34.15", "mistakes": 15, "date": "2026-05-13", "video": "https://youtu.be/SDw339nB_dw"},
+        {"name": "BALLMYBLOVED", "time": "4:36.32", "mistakes": 16, "date": "2026-05-10", "video": "https://youtu.be/KIZG_1SReuY"},
+        {"name": "DVD", "time": "5:02.50", "mistakes": 15, "date": "2026-05-07", "video": "https://youtu.be/RXrrX5Sj_L0"},
+        {"name": "GAMINGCHAIR", "time": "5:08.37", "mistakes": 16, "date": "2026-05-07", "video": "https://youtu.be/Ufn1zTb1Upo"},
+        {"name": "CHESSISFUN", "time": "7:54.96", "mistakes": 85, "date": "2026-05-12", "video": "https://youtu.be/IPH_poKiukM"},
+        {"name": "PETUNCA", "time": "9:58.47", "mistakes": 65, "date": "2026-05-09", "video": "https://youtu.be/4ZSwQCwHVYw"},
+        {"name": "KINGO", "time": "13:11.17", "mistakes": 174, "date": "2026-05-13", "video": "https://youtu.be/SdlpsAo0HiE"},
+        {"name": "APPLEJACK", "time": "14:38.48", "mistakes": 152, "date": "2026-05-06", "video": "https://youtu.be/FTaQJYL6EJg"}
+      ],
+      [
+        {"name": "BALLMYBLOVED", "time": "4:03.09", "mistakes": 7, "date": "2026-05-24", "video": "https://youtu.be/QSpGoZo-feU"},
+        {"name": "COLDSKIN", "time": "4:30.11", "mistakes": 10, "date": "2026-05-19", "video": "https://youtu.be/trpZHK6tOLI"},
+        {"name": "BACKLINEREIN", "time": "4:34.15", "mistakes": 15, "date": "2026-05-13", "video": "https://youtu.be/SDw339nB_dw"},
+        {"name": "DVD", "time": "5:02.50", "mistakes": 15, "date": "2026-05-07", "video": "https://youtu.be/RXrrX5Sj_L0"},
+        {"name": "GAMINGCHAIR", "time": "5:08.37", "mistakes": 16, "date": "2026-05-07", "video": "https://youtu.be/Ufn1zTb1Upo"},
+        {"name": "CHESSISFUN", "time": "7:54.96", "mistakes": 85, "date": "2026-05-12", "video": "https://youtu.be/IPH_poKiukM"},
+        {"name": "PETUNCO", "time": "9:58.47", "mistakes": 65, "date": "2026-05-09", "video": "https://youtu.be/4ZSwQCwHVYw"},
+        {"name": "KINGO", "time": "13:11.17", "mistakes": 174, "date": "2026-05-13", "video": "https://youtu.be/SdlpsAo0HiE"},
+        {"name": "APPLEJACK", "time": "14:38.48", "mistakes": 152, "date": "2026-05-06", "video": "https://youtu.be/FTaQJYL6EJg"}
+      ],
+      [
+        {"name": "BALLMYBLOVED", "time": "4:03.09", "mistakes": 7, "date": "2026-05-24", "video": "https://youtu.be/QSpGoZo-feU"},
+        {"name": "COLDSKIN", "time": "4:30.11", "mistakes": 10, "date": "2026-05-19", "video": "https://youtu.be/trpZHK6tOLI"},
+        {"name": "BACKLINEREIN", "time": "4:34.15", "mistakes": 15, "date": "2026-05-13", "video": "https://youtu.be/SDw339nB_dw"},
+        {"name": "DVD", "time": "5:02.50", "mistakes": 15, "date": "2026-05-07", "video": "https://youtu.be/RXrrX5Sj_L0"},
+        {"name": "GAMINGCHAIR", "time": "5:08.37", "mistakes": 16, "date": "2026-05-07", "video": "https://youtu.be/Ufn1zTb1Upo"},
+        {"name": "CHESSISFUN", "time": "7:54.96", "mistakes": 85, "date": "2026-05-12", "video": "https://youtu.be/IPH_poKiukM"},
+        {"name": "JAKOBONEDGE", "time": "7:57.30", "mistakes": 53, "date": "2026-06-01", "video": "https://twitch.tv/videos/2786392067"},
+        {"name": "PETUNCO", "time": "9:58.47", "mistakes": 65, "date": "2026-05-09", "video": "https://youtu.be/4ZSwQCwHVYw"},
+        {"name": "KINGO", "time": "13:11.17", "mistakes": 174, "date": "2026-05-13", "video": "https://youtu.be/SdlpsAo0HiE"},
+        {"name": "APPLEJACK", "time": "14:38.48", "mistakes": 152, "date": "2026-05-06", "video": "https://youtu.be/FTaQJYL6EJg"}
+      ],
+      [
+        {"name": "BALLMYBLOVED", "time": "3:54.23", "mistakes": 5, "date": "2026-06-02", "video": "https://youtu.be/Rkz9kWNEiHM"},
+        {"name": "COLDSKIN", "time": "4:30.11", "mistakes": 10, "date": "2026-05-19", "video": "https://youtu.be/trpZHK6tOLI"},
+        {"name": "BACKLINEREIN", "time": "4:34.15", "mistakes": 15, "date": "2026-05-13", "video": "https://youtu.be/SDw339nB_dw"},
+        {"name": "DVD", "time": "5:02.50", "mistakes": 15, "date": "2026-05-07", "video": "https://youtu.be/RXrrX5Sj_L0"},
+        {"name": "GAMINGCHAIR", "time": "5:08.37", "mistakes": 16, "date": "2026-05-07", "video": "https://youtu.be/Ufn1zTb1Upo"},
+        {"name": "CHESSISFUN", "time": "7:54.96", "mistakes": 85, "date": "2026-05-12", "video": "https://youtu.be/IPH_poKiukM"},
+        {"name": "JAKOBONEDGE", "time": "7:57.30", "mistakes": 53, "date": "2026-06-01", "video": "https://twitch.tv/videos/2786392067"},
+        {"name": "PETUNCO", "time": "9:58.47", "mistakes": 65, "date": "2026-05-09", "video": "https://youtu.be/4ZSwQCwHVYw"},
+        {"name": "KINGO", "time": "13:11.17", "mistakes": 174, "date": "2026-05-13", "video": "https://youtu.be/SdlpsAo0HiE"},
+        {"name": "APPLEJACK", "time": "14:38.48", "mistakes": 152, "date": "2026-05-06", "video": "https://youtu.be/FTaQJYL6EJg"}
+      ],
+      [
+        {"name": "BALLMYBLOVED", "time": "3:54.23", "mistakes": 5, "date": "2026-06-02", "video": "https://youtu.be/Rkz9kWNEiHM"},
+        {"name": "COLDSKIN", "time": "4:30.11", "mistakes": 10, "date": "2026-05-19", "video": "https://youtu.be/trpZHK6tOLI"},
+        {"name": "BACKLINEREIN", "time": "4:34.15", "mistakes": 15, "date": "2026-05-13", "video": "https://youtu.be/SDw339nB_dw"},
+        {"name": "DVD", "time": "5:02.50", "mistakes": 15, "date": "2026-05-07", "video": "https://youtu.be/RXrrX5Sj_L0"},
+        {"name": "GAMINGCHAIR", "time": "5:08.37", "mistakes": 16, "date": "2026-05-07", "video": "https://youtu.be/Ufn1zTb1Upo"},
+        {"name": "CHESSISFUN", "time": "7:54.96", "mistakes": 85, "date": "2026-05-12", "video": "https://youtu.be/IPH_poKiukM"},
+        {"name": "JAKOBONEDGE", "time": "7:57.30", "mistakes": 53, "date": "2026-06-01", "video": "https://twitch.tv/videos/2786392067"},
+        {"name": "KILROY", "time": "8:50.38", "mistakes": 69, "date": "2026-06-05", "video": "https://youtu.be/Tj0x_Jc50bw"},
+        {"name": "PETUNCO", "time": "9:58.47", "mistakes": 65, "date": "2026-05-09", "video": "https://youtu.be/4ZSwQCwHVYw"},
+        {"name": "KINGO", "time": "13:11.17", "mistakes": 174, "date": "2026-05-13", "video": "https://youtu.be/SdlpsAo0HiE"}
+      ],
+      [
+        {"name": "BALLMYBLOVED", "time": "3:54.23", "mistakes": 5, "date": "2026-06-02", "video": "https://youtu.be/Rkz9kWNEiHM"},
+        {"name": "JAKOBONEDGE", "time": "4:21.96", "mistakes": 12, "date": "2026-06-11", "video": "https://youtu.be/L3tIoo9Ue40"},
+        {"name": "COLDSKIN", "time": "4:30.11", "mistakes": 10, "date": "2026-05-19", "video": "https://youtu.be/trpZHK6tOLI"},
+        {"name": "BACKLINEREIN", "time": "4:34.15", "mistakes": 15, "date": "2026-05-13", "video": "https://youtu.be/SDw339nB_dw"},
+        {"name": "DVD", "time": "5:02.50", "mistakes": 15, "date": "2026-05-07", "video": "https://youtu.be/RXrrX5Sj_L0"},
+        {"name": "GAMINGCHAIR", "time": "5:08.37", "mistakes": 16, "date": "2026-05-07", "video": "https://youtu.be/Ufn1zTb1Upo"},
+        {"name": "BLOWSKI", "time": "6:18.52", "mistakes": 41, "date": "2026-06-08", "video": "https://medal.tv/games/overwatch/clips/mRLLf9Be5GLBh43N2"},
+        {"name": "KINGO", "time": "6:26.18", "mistakes": 37, "date": "2026-06-10", "video": "https://youtu.be/OaXIV4kSh_k"},
+        {"name": "ABIKE", "time": "7:38.38", "mistakes": 46, "date": "2026-06-07"},
+        {"name": "安宁", "time": "7:40.02", "mistakes": 71, "date": "2026-06-09", "video": "https://medal.tv/games/overwatch/clips/mSPufuWKAufO8Nhxr"}
+      ],
+      [
+        {"name": "BALLMYBLOVED", "time": "3:54.23", "mistakes": 5, "date": "2026-06-02", "video": "https://youtu.be/Rkz9kWNEiHM"},
+        {"name": "JAKOBONEDGE", "time": "4:21.96", "mistakes": 12, "date": "2026-06-11", "video": "https://youtu.be/L3tIoo9Ue40"},
+        {"name": "COLDSKIN", "time": "4:30.11", "mistakes": 10, "date": "2026-05-19", "video": "https://youtu.be/trpZHK6tOLI"},
+        {"name": "BACKLINEREIN", "time": "4:34.15", "mistakes": 15, "date": "2026-05-13", "video": "https://youtu.be/SDw339nB_dw"},
+        {"name": "DVD", "time": "5:02.50", "mistakes": 15, "date": "2026-05-07", "video": "https://youtu.be/RXrrX5Sj_L0"},
+        {"name": "GAMINGCHAIR", "time": "5:08.37", "mistakes": 16, "date": "2026-05-07", "video": "https://youtu.be/Ufn1zTb1Upo"},
+        {"name": "安宁", "time": "5:51.20", "mistakes": 40, "date": "2026-06-12", "video": "https://medal.tv/games/overwatch/clips/mTG72hXv3vOdGEDPP"},
+        {"name": "BLOWSKI", "time": "6:18.52", "mistakes": 41, "date": "2026-06-08", "video": "https://medal.tv/games/overwatch/clips/mRLLf9Be5GLBh43N2"},
+        {"name": "KINGO", "time": "6:26.18", "mistakes": 37, "date": "2026-06-10", "video": "https://youtu.be/OaXIV4kSh_k"},
+        {"name": "ABIKE", "time": "7:38.38", "mistakes": 46, "date": "2026-06-07"}
+      ],
+      [
+        {"name": "BALLMYBLOVED", "time": "3:54.23", "mistakes": 5, "date": "2026-06-02", "video": "https://youtu.be/Rkz9kWNEiHM"},
+        {"name": "JAKOBONEDGE", "time": "4:21.96", "mistakes": 12, "date": "2026-06-11", "video": "https://youtu.be/L3tIoo9Ue40"},
+        {"name": "COLDSKIN", "time": "4:30.11", "mistakes": 10, "date": "2026-05-19", "video": "https://youtu.be/trpZHK6tOLI"},
+        {"name": "BACKLINEREIN", "time": "4:34.15", "mistakes": 15, "date": "2026-05-13", "video": "https://youtu.be/SDw339nB_dw"},
+        {"name": "DVD", "time": "5:02.50", "mistakes": 15, "date": "2026-05-07", "video": "https://youtu.be/RXrrX5Sj_L0"},
+        {"name": "GAMINGCHAIR", "time": "5:08.37", "mistakes": 16, "date": "2026-05-07", "video": "https://youtu.be/Ufn1zTb1Upo"},
+        {"name": "BLOWSKI", "time": "5:40.50", "mistakes": 24, "date": "2026-06-13", "video": "https://medal.tv/games/overwatch/clips/mTEZK5NUYrfkDFtcS"},
+        {"name": "安宁", "time": "5:51.20", "mistakes": 40, "date": "2026-06-12", "video": "https://medal.tv/games/overwatch/clips/mTG72hXv3vOdGEDPP"},
+        {"name": "KINGO", "time": "6:26.18", "mistakes": 37, "date": "2026-06-10", "video": "https://youtu.be/OaXIV4kSh_k"},
+        {"name": "ABIKE", "time": "7:38.38", "mistakes": 46, "date": "2026-06-07"}
+      ],
+      [
+        {"name": "BALLMYBLOVED", "time": "3:54.23", "mistakes": 5, "date": "2026-06-02", "video": "https://youtu.be/Rkz9kWNEiHM"},
+        {"name": "COLDSKIN", "time": "4:05.81", "mistakes": 2, "date": "2026-08-26", "video": "https://youtu.be/xDH0hywqCtc"},
+        {"name": "JAKOBONEDGE", "time": "4:21.96", "mistakes": 12, "date": "2026-06-11", "video": "https://youtu.be/L3tIoo9Ue40"},
+        {"name": "BACKLINEREIN", "time": "4:34.15", "mistakes": 15, "date": "2026-05-13", "video": "https://youtu.be/SDw339nB_dw"},
+        {"name": "DVD", "time": "5:02.50", "mistakes": 15, "date": "2026-05-07", "video": "https://youtu.be/RXrrX5Sj_L0"},
+        {"name": "GAMINGCHAIR", "time": "5:08.37", "mistakes": 16, "date": "2026-05-07", "video": "https://youtu.be/Ufn1zTb1Upo"},
+        {"name": "BLOWSKI", "time": "5:40.50", "mistakes": 24, "date": "2026-06-13", "video": "https://medal.tv/games/overwatch/clips/mTEZK5NUYrfkDFtcS"},
+        {"name": "安宁", "time": "5:51.20", "mistakes": 40, "date": "2026-06-12", "video": "https://medal.tv/games/overwatch/clips/mTG72hXv3vOdGEDPP"},
+        {"name": "KINGO", "time": "6:26.18", "mistakes": 37, "date": "2026-06-10", "video": "https://youtu.be/OaXIV4kSh_k"},
+        {"name": "ABIKE", "time": "7:38.38", "mistakes": 46, "date": "2026-06-07"}
+      ],
+      [
+        {"name": "BALLMYBLOVED", "time": "3:54.23", "mistakes": 5, "date": "2026-06-02", "video": "https://youtu.be/Rkz9kWNEiHM"},
+        {"name": "COLDSKIN", "time": "4:05.81", "mistakes": 2, "date": "2026-08-26", "video": "https://youtu.be/xDH0hywqCtc"},
+        {"name": "JAKOBONEDGE", "time": "4:21.96", "mistakes": 12, "date": "2026-06-11", "video": "https://youtu.be/L3tIoo9Ue40"},
+        {"name": "BACKLINEREIN", "time": "4:34.15", "mistakes": 15, "date": "2026-05-13", "video": "https://youtu.be/SDw339nB_dw"},
+        {"name": "DVD", "time": "5:02.50", "mistakes": 15, "date": "2026-05-07", "video": "https://youtu.be/RXrrX5Sj_L0"},
+        {"name": "GAMINGCHAIR", "time": "5:08.37", "mistakes": 16, "date": "2026-05-07", "video": "https://youtu.be/Ufn1zTb1Upo"},
+        {"name": "BLOWSKI", "time": "5:40.50", "mistakes": 24, "date": "2026-06-13", "video": "https://medal.tv/games/overwatch/clips/mTEZK5NUYrfkDFtcS"},
+        {"name": "安宁", "time": "5:51.20", "mistakes": 40, "date": "2026-06-12", "video": "https://medal.tv/games/overwatch/clips/mTG72hXv3vOdGEDPP"},
+        {"name": "KINGO", "time": "6:26.18", "mistakes": 37, "date": "2026-06-10", "video": "https://youtu.be/OaXIV4kSh_k"},
+        {"name": "VANESSA", "time": "6:59.56", "mistakes": 58, "date": "2026-09-30", "video": "https://medal.tv/games/overwatch/clips/nDcPQeGIujXfUqe5G"}
+      ]
+    ]
+  },
+  "2": {
+    "course": "Blizzard World (Winter)",
+    "legacy": [
+      {"name": "BLACKMILES", "time": "5:43.--", "mistakes": 6},
+      {"name": "MIDSHIVA", "time": "5:58.--", "mistakes": 10},
+      {"name": "BLINKZ", "time": "6:14.--", "mistakes": 14},
+      {"name": "PH-6310G", "time": "6:27.--", "mistakes": 14},
+      {"name": "THEBOW", "time": "6:38.--", "mistakes": 18},
+      {"name": "FLATO", "time": "6:55.--", "mistakes": 13},
+      {"name": "COLTDOG12", "time": "7:43.--", "mistakes": 27},
+      {"name": "LEG1ON", "time": "8:05.--", "mistakes": 31},
+      {"name": "ICUP", "time": "8:16.--", "mistakes": 37},
+      {"name": "FALLKEE", "time": "8:25.--", "mistakes": 27}
+    ],
+    "boards": [
+      [
+        {"name": "BALLMYBLOVED", "time": "7:14.76", "mistakes": 16, "date": "2026-06-05", "video": "https://youtu.be/hNSpNvWyNcI"}
+      ]
+    ]
+  },
+  "3": {
+    "course": "Paraíso",
+    "legacy": [
+      {"name": "BLACKMILES", "time": "7:17.--", "mistakes": 12},
+      {"name": "FLATO", "time": "7:49.--", "mistakes": 10},
+      {"name": "LEG1ON", "time": "11:25.--", "mistakes": 47},
+      {"name": "CHRIS90123", "time": "12:36.--", "mistakes": 85},
+      {"name": "CLAM", "time": "12:46.--", "mistakes": 56},
+      {"name": "SPIZ", "time": "13:44.--", "mistakes": 72},
+      {"name": "SULFUROUS", "time": "15:59.--", "mistakes": 138},
+      {"name": "SHAMAN", "time": "18:11.--", "mistakes": 122},
+      {"name": "SHAXX", "time": "22:33.--", "mistakes": 310},
+      {"name": "LALO", "time": "32:47.--", "mistakes": 336}
+    ]
+  },
+  "4": {
+    "course": "Eichenwalde",
+    "legacy": [
+      {"name": "BLACKMILES", "time": "7:07.--", "mistakes": 12},
+      {"name": "SENTENTIAL", "time": "7:30.--", "mistakes": 21},
+      {"name": "FARTYPANTS", "time": "9:31.--", "mistakes": 40},
+      {"name": "FLATO", "time": "13:54.--", "mistakes": 87},
+      {"name": "SPIZ", "time": "19:16.--", "mistakes": 146},
+      {"name": "GALACTICOW", "time": "21:44.--", "mistakes": 226},
+      {"name": "HEXGOLO", "time": "31:46.--", "mistakes": 373},
+      {"name": "LEG1ON", "time": "32:18.--", "mistakes": 206},
+      {"name": "SULFUROUS", "time": "40:36.--", "mistakes": 357},
+      {"name": "CHRIS90123", "time": "51:16.--", "mistakes": 482}
+    ]
+  },
+  "5": {
+    "course": "Practice Range",
+    "legacy": [
+      {"name": "BLACKMILES", "time": "6:05.--", "mistakes": 7},
+      {"name": "BLINKZ", "time": "6:06.--", "mistakes": 1},
+      {"name": "BESII", "time": "7:30.--", "mistakes": 35},
+      {"name": "SPIZ", "time": "8:14.--", "mistakes": 26},
+      {"name": "CHRIS90123", "time": "11:04.--", "mistakes": 53},
+      {"name": "CURIOUSSPIDY", "time": "11:16.--", "mistakes": 59},
+      {"name": "ZAZZLEBLOOM", "time": "11:30.--", "mistakes": 64},
+      {"name": "DVD", "time": "12:44.--", "mistakes": 61},
+      {"name": "LEG1ON", "time": "13:19.--", "mistakes": 54},
+      {"name": "SULFUROUS", "time": "14:36.--", "mistakes": 113}
+    ]
+  },
+  "13": {
+    "course": "Neon Junction",
+    "boards": [
+      [
+        {"name": "FIZZY", "time": "4:11.19", "mistakes": 18, "date": "2026-08-04", "video": "https://youtu.be/rNPnIf2-zvE"}
+      ]
+    ]
+  }
+}
