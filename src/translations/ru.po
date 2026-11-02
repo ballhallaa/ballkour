@@ -291,6 +291,10 @@ msgstr "Наблюдение: @0"
 msgid "Spectators: @0"
 msgstr "Зрители: @0"
 
+#. file spectator.opy, rule "Mode Input"
+msgid "SPECTATOR COOLDOWN: {0}s"
+msgstr "ПЕРЕЗАРЯДКА НАБЛЮДАТЕЛЯ: {0} с"
+
 #. file spectator.opy, rule "Subroutine enableFirstPersonSpectator"
 msgid ""
 "{0}<fgE62400FF>HEADS UP</fg>{0}\n"

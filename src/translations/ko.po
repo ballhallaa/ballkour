@@ -291,6 +291,10 @@ msgstr "@0 관전 중"
 msgid "Spectators: @0"
 msgstr "관전자: @0"
 
+#. file spectator.opy, rule "Mode Input"
+msgid "SPECTATOR COOLDOWN: {0}s"
+msgstr "관전 재사용 대기시간: {0}초"
+
 #. file spectator.opy, rule "Subroutine enableFirstPersonSpectator"
 msgid ""
 "{0}<fgE62400FF>HEADS UP</fg>{0}\n"
