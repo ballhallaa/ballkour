@@ -26,6 +26,13 @@ rule "Mode Input":
     @Condition eventPlayer.spectating[5] == false
     @Condition eventPlayer.qaPage == 0
 
+    toggleSpectator()
+
+
+# Mode Input, and the lobby's Spectate button
+def toggleSpectator():
+    @Name "Toggle"
+
     # A press during the cooldown only says how long is left, so it needs pressing again
     if not canSwapHero(eventPlayer):
         # Stored first: worked out inside the translated message, it read over 2s too high

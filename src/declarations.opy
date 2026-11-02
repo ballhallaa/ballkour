@@ -59,7 +59,7 @@ globalvar hostPlayerName
 globalvar nameplateObjs
 globalvar tinyNameplateObjs
 globalvar scorecard
-globalvar scorecardShort
+globalvar scorecardRows
 globalvar scorecardDirty
 globalvar scorecardRunners
 globalvar scorecardRow
@@ -248,6 +248,7 @@ subroutine resetCpMistakes
 subroutine formatTime
 
 # Spectating
+subroutine toggleSpectator
 subroutine enableSpectator
 subroutine disableSpectator
 subroutine enableFreecam
@@ -257,6 +258,12 @@ subroutine enableFreecamForSpectators
 subroutine syncSpectatorCps
 subroutine reattachToSpectatingTarget
 subroutine enableFirstPersonSpectator
+
+
+# Whether the Controls list shows: while Ultimate is held (Controls: HUD Input), apart from
+# in the lobby, where its controls are buttons
+macro isViewingCtrlsList(player):
+    (player.isViewingCtrlsHud and not player.isInLobby)
 
 
 # Who a control's text shows for: who it normally does, or with ALL_CONTROLS, everyone,

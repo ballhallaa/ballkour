@@ -12,26 +12,26 @@
 macro LOBBY_HEIGHT = 100
 macro LOBBY_DISTANCE = 10
 # The buttons, with the leaderboard under them. Players arrive looking at LOOK_ANGLE, the
-# 5th row, from where all of it fits on screen above their guns.
-macro BUTTON_ANGLE = -56
-macro BUTTON_SPACING = 4.5
-macro TITLE_ANGLE = -45.5
-macro ROW_ANGLE = -40.5
-macro ROW_SPACING = 3.3
+# 5th row, from where all of it fits on screen between BALLKOUR.COM and their guns.
+macro BUTTON_ANGLE = -56.5
+macro BUTTON_SPACING = 3.1
+macro TITLE_ANGLE = -43.5
+macro ROW_ANGLE = -39.3
+macro ROW_SPACING = 3
 macro LOOK_ANGLE = ROW_ANGLE + ROW_SPACING * 4
 # The languages, in a column this many degrees to the right of the leaderboard as seen
 # from LOOK_ANGLE, a row every LANGUAGE_SPACING from ROW_ANGLE down
 macro LANGUAGE_ACROSS = 30
-macro LANGUAGE_SPACING = 2.4
+macro LANGUAGE_SPACING = 2.3
 # How far to either side of a button or row a player can look and still pick it
 macro BUTTON_WIDTH = 18
 macro ROW_WIDTH = 21
 macro LANGUAGE_WIDTH = 8
 # The texts' sizes, which the angles above are spaced for
-macro TITLE_SIZE = 2
-macro BUTTON_SIZE = 2.1
-macro ROW_SIZE = 1.3
-macro HINT_SIZE = 1
+macro TITLE_SIZE = 1.5
+macro BUTTON_SIZE = 1.6
+macro ROW_SIZE = 1.15
+macro HINT_SIZE = 0.9
 macro LANGUAGE_TITLE_SIZE = 1.5
 macro LANGUAGE_SIZE = 1
 
@@ -165,15 +165,15 @@ macro lobbyAimRow(player, top, spacing, rows, width):
     )
 
 
-# The button a player is looking at (lobbyPos[1] to [3]), or 0
+# The button a player is looking at (lobbyPos[1] to [5]), or 0
 macro buttonAimRow(player):
     lobbyAimRow(
-        player, lobbyPos[1], BUTTON_SPACING, (3 if isLobbyStatsOn else 2), BUTTON_WIDTH
+        player, lobbyPos[1], BUTTON_SPACING, (5 if isLobbyStatsOn else 4), BUTTON_WIDTH
     )
 
 
 macro isAimingAtBack(player):
-    lobbyAimRow(player, lobbyPos[4], BUTTON_SPACING, 1, BUTTON_WIDTH) == 1
+    lobbyAimRow(player, lobbyPos[6], BUTTON_SPACING, 1, BUTTON_WIDTH) == 1
 
 
 macro lbAimRow(player):
@@ -230,16 +230,16 @@ macro lobbyButton(label, isAimedAt):
 rule "Load Buttons":
     # Checkpoint: Expand Data has unpacked cps by now, as its file is included first
     lobbyCam = cps[0][0] + vect(0, LOBBY_HEIGHT, 0)
-    # lobbyPos[i]: [0]lookAt [1]newRun [2]resumeRun [3]lobbyStats [4]back
+    # lobbyPos[i]: [0]lookAt [1]newRun [2]resumeRun [3]spectate [4]faq [5]lobbyStats [6]back
     lobbyPos = [lobbyAt(LOOK_ANGLE)]
-    # Lobby Stats goes under Resume Run with its Workshop Setting on, so the buttons move up
-    # one to make room
-    for index in range(1, 4):
+    # Lobby Stats goes under FAQ with its Workshop Setting on, so the buttons move up one to
+    # make room
+    for index in range(1, 6):
         lobbyPos[index] = lobbyAt(
             BUTTON_ANGLE + BUTTON_SPACING * (index - (2 if isLobbyStatsOn else 1))
         )
     # Lobby Stats' Back, where the 10th row is
-    lobbyPos[4] = lobbyAt(ROW_ANGLE + ROW_SPACING * 9)
+    lobbyPos[6] = lobbyAt(ROW_ANGLE + ROW_SPACING * 9)
     lobbyHudText[0] = _("New Run")
     createInWorldText(
         getAllPlayers().filter(lambda localPlayer: localPlayer.lobbyPage == 1),
@@ -265,14 +265,35 @@ rule "Load Buttons":
         WorldTextReeval.VISIBILITY_AND_STRING,
         rgb(0, 224, 146)
     )
+    # The same as the Spectate and FAQ controls, which the lobby's HUD leaves out
+    lobbyHudText[7] = _("Spectate")
+    createInWorldText(
+        getAllPlayers().filter(lambda localPlayer: localPlayer.lobbyPage == 1),
+        lobbyButton(_(lobbyHudText[7]), buttonAimRow(localPlayer) == 3),
+        lobbyPos[3],
+        BUTTON_SIZE,
+        Clip.NONE,
+        WorldTextReeval.VISIBILITY_AND_STRING,
+        rgb(0, 224, 146)
+    )
+    lobbyHudText[8] = _("FAQ")
+    createInWorldText(
+        getAllPlayers().filter(lambda localPlayer: localPlayer.lobbyPage == 1),
+        lobbyButton(_(lobbyHudText[8]), buttonAimRow(localPlayer) == 4),
+        lobbyPos[4],
+        BUTTON_SIZE,
+        Clip.NONE,
+        WorldTextReeval.VISIBILITY_AND_STRING,
+        rgb(0, 224, 146)
+    )
     if isLobbyStatsOn:
         createInWorldText(
             getAllPlayers().filter(
                 lambda localPlayer: localPlayer.lobbyPage == 1
                 and "{}".format(localPlayer) == hostPlayerName
             ),
-            lobbyButton("Lobby Stats", buttonAimRow(localPlayer) == 3),
-            lobbyPos[3],
+            lobbyButton("Lobby Stats", buttonAimRow(localPlayer) == 5),
+            lobbyPos[5],
             BUTTON_SIZE,
             Clip.NONE,
             WorldTextReeval.VISIBILITY_AND_STRING,
@@ -587,6 +608,12 @@ rule "Select Input":
                 faceNextCp()
                 eventPlayer.isLoading = false
         elif eventPlayer.lobbyAim == 3:
+            toggleSpectator()
+        elif eventPlayer.lobbyAim == 4:
+            # Once Interact is let go, as it closes the Q&A (Q&A: Open)
+            waitUntil(not eventPlayer.isHoldingButton(Button.INTERACT), Math.INFINITY)
+            eventPlayer.qaPage = 1
+        elif eventPlayer.lobbyAim == 5:
             if isLobbyStatsOn and "{}".format(eventPlayer) == hostPlayerName:
                 eventPlayer.lobbyPage = 2
         else:
