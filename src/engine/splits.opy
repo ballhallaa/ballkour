@@ -41,7 +41,7 @@ rule "Load HUD":
             )
         ),
         HudPosition.RIGHT,
-        5,
+        6,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -73,7 +73,7 @@ rule "Load HUD":
             )
         ),
         HudPosition.RIGHT,
-        6,
+        7,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -87,7 +87,7 @@ rule "Load HUD":
         .replace("@0", viewedSplitStats(localPlayer)[0])
         .replace("@1", viewedSplitStats(localPlayer)[1]),
         HudPosition.RIGHT,
-        7,
+        8,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -117,7 +117,7 @@ rule "Load HUD":
             )
         ),
         HudPosition.RIGHT,
-        8,
+        9,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -131,7 +131,7 @@ rule "Load HUD":
         .replace("@0", viewedSplitStats(localPlayer)[2])
         .replace("@1", viewedSplitStats(localPlayer)[3]),
         HudPosition.RIGHT,
-        9,
+        10,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -163,7 +163,7 @@ rule "Load HUD":
             )
         ),
         HudPosition.RIGHT,
-        10,
+        11,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )

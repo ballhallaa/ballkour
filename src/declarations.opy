@@ -131,6 +131,7 @@ playervar cpTime
 playervar cpTimeFormatted
 playervar cpStartMistakes
 playervar cpAttempts
+playervar cpMistakes
 playervar viewCp
 
 # Splits
@@ -283,6 +284,7 @@ macro allControlsOr(check):
 macro addMistake():
     eventPlayer.runMistakes++
     eventPlayer.cpAttempts[eventPlayer.runCurrentCp]++
+    eventPlayer.cpMistakes[eventPlayer.runCurrentCp]++
 
 
 # Leaderboard

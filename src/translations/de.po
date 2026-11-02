@@ -55,10 +55,6 @@ msgstr ""
 msgid "Congrats, @0!"
 msgstr "Glückwunsch, @0!"
 
-#. file completion.opy, rule "Run Text"
-msgid "Mistakes: @0"
-msgstr "Fehler: @0"
-
 #. file controls.opy, rule "Load Freemode HUD"
 msgid "Freemode On"
 msgstr "Freier Modus an"
@@ -254,6 +250,12 @@ msgstr ""
 #. file players.opy, rule "Subroutine showCpNameplate"
 msgid "{0} | {1}"
 msgstr "{0} | {1}"
+
+#. 2 occurrences:
+#.  - file run.opy, rule "Load HUD"
+#.  - file completion.opy, rule "Run Text"
+msgid "Mistakes: @0"
+msgstr "Fehler: @0"
 
 #. file run.opy, rule "Load HUD"
 msgid "Controls: <fgFFFFFFFF>@0 (Hold)</fg>"
