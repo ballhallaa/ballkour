@@ -614,11 +614,11 @@ rule "Lobby Input":
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == true
     @Condition eventPlayer.spectating[5] == false
 
-    # A tap opens the Q&A or turns its page: 1, 2, 3, then 1 again. It shares this rule with
-    # Lobby/Pause because every eachPlayer rule adds to the server's load (see Q&A: Open).
+    # A tap opens or closes the Q&A, and Jump turns its pages (Q&A: Open). It shares this
+    # rule with Lobby/Pause because every eachPlayer rule adds to the server's load.
     waitUntil(not eventPlayer.isHoldingButton(Button.ABILITY_2), 0.35)
     if not eventPlayer.isHoldingButton(Button.ABILITY_2):
-        eventPlayer.qaPage = eventPlayer.qaPage % QA_PAGES + 1
+        eventPlayer.qaPage = 1 if eventPlayer.qaPage == 0 else 0
         return
     # Holding goes to Lobby/Pause, unless another button joined in or the Q&A is open
     if eventPlayer.isInLobby or eventPlayer.qaPage > 0 or not RULE_CONDITION:
