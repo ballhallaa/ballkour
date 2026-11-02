@@ -96,8 +96,7 @@ rule "Open":
                 Math.INFINITY
             )
         if eventPlayer.isHoldingButton(Button.INTERACT):
-            # Closing once Interact is let go, so it doesn't go on to open run info in the
-            # lobby
+            # Closing once Interact is let go, so it doesn't go on to press a lobby button
             waitUntil(not eventPlayer.isHoldingButton(Button.INTERACT), Math.INFINITY)
             eventPlayer.qaPage = 0
         elif eventPlayer.isHoldingButton(Button.JUMP):

@@ -584,8 +584,12 @@ rule "Select Input":
                 eventPlayer.__languageIndex__ = eventPlayer.lobbyAim - 1
             elif lbRunCount > 0:
                 eventPlayer.lobbyAim = lbAimRow(eventPlayer)
-                # Looking at the open run again hides it, like looking away from the runs
-                if eventPlayer.lobbyAim == eventPlayer.lbInfoRow:
+                # Looking at the open run again hides it, like looking away from the runs.
+                # Interact only ever hides: it's the close key, runs are opened by clicking.
+                if (
+                    eventPlayer.lobbyAim == eventPlayer.lbInfoRow
+                    or eventPlayer.isHoldingButton(Button.INTERACT)
+                ):
                     eventPlayer.lobbyAim = 0
                 if eventPlayer.lobbyAim != eventPlayer.lbInfoRow:
                     eventPlayer.lbInfoRow = eventPlayer.lobbyAim
