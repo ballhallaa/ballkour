@@ -5,7 +5,8 @@
 // Run by .github/workflows/leaderboard-bot.yml. Settings come from the environment:
 //   DISCORD_BOT_TOKEN  the bot's token (without it, names and pictures from Discord are left out)
 //   DRY_RUN=1          draw the pictures into out/ and print the messages, but don't post or change history.json
-//   FORCE_COURSE=n     post course n's newest board again, even if it hasn't changed
+//   FORCE_COURSE=…     post these courses' newest boards again, even if they haven't changed: a course number (3),
+//                      a list (3,5,7), a range (3-12), or all. A course with no runs yet posts an empty top 10.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -19,7 +20,21 @@ const HISTORY = path.join(REPO, "leaderboards/history.json");
 const OUT = path.join(HERE, "out");
 const TOKEN = process.env.DISCORD_BOT_TOKEN || "";
 const DRY = !!process.env.DRY_RUN;
-const FORCE = Number(process.env.FORCE_COURSE) || 0;
+// "3", "3,5,7", "3-12" or "all" → the set of course numbers, or null when nothing is forced
+function forced(spec) {
+  const s = String(spec || "").trim().toLowerCase();
+  if (!s) return null;
+  if (s === "all") return "all";
+  const ns = new Set();
+  for (const part of s.split(/[\s,]+/).filter(Boolean)) {
+    const m = /^(\d+)(?:-(\d+))?$/.exec(part);
+    if (!m) throw new Error(`Can't read the course list ${JSON.stringify(spec)}: use a number (3), a list (3,5,7), a range (3-12) or all`);
+    const [a, b] = [Number(m[1]), Number(m[2] || m[1])];
+    for (let n = Math.min(a, b); n <= Math.max(a, b); n++) ns.add(n);
+  }
+  return ns;
+}
+const FORCE = forced(process.env.FORCE_COURSE);
 const API = "https://discord.com/api/v10";
 const { guild: GUILD, courses: COURSES } = JSON.parse(fs.readFileSync(path.join(HERE, "courses.json"), "utf8"));
 
@@ -177,9 +192,12 @@ function message(runs, fresh) {
   lines.push("-# Watch every run: [ballkour.com/leaderboards](https://ballkour.com/leaderboards)");
   return { content: lines.join("\n"), users };
 }
+// A course with no runs yet: no congrats, no pings, and an invitation instead of the link to watch runs
+const emptyMessage = () => ({ content: "No times yet. Be the first to set one!", users: [] });
 // Text for screen readers (Discord's image description)
-const altText = (course, board, runs) =>
-  `${course.name} top 10, board ${board}: ` + runs.map((r, i) => `${i + 1}. ${r.name} ${r.time}, ${r.mistakes} mistakes`).join("; ");
+const altText = (course, board, runs) => runs.length
+  ? `${course.name} top 10, board ${board}: ` + runs.map((r, i) => `${i + 1}. ${r.name} ${r.time}, ${r.mistakes} mistakes`).join("; ")
+  : `${course.name} top 10: no times yet`;
 
 /* ---------- Fonts and logo for the picture ---------- */
 function fonts() {
@@ -205,9 +223,9 @@ for (const course of COURSES) {
   const archived = (history[course.n] && Array.isArray(history[course.n].boards)) ? history[course.n].boards : [];
   const live = liveBoard(course);
   if (FORCE) {
-    if (course.n !== FORCE) continue;
-    const list = archived.length ? archived : live && live.length ? [live] : [];
-    if (!list.length) throw new Error(`Course ${course.n} has no board to post`);
+    if (FORCE !== "all" && !FORCE.has(course.n)) continue;
+    // The newest posted board, or the live one if none was posted yet, or an empty board if there are no runs
+    const list = archived.length ? archived : live && live.length ? [live] : [[]];
     jobs.push({ course, list, at: list.length - 1, isNew: false });
     continue;
   }
@@ -216,8 +234,8 @@ for (const course of COURSES) {
   jobs.push({ course, list: [...archived, live], at: archived.length, isNew: true });
 }
 if (!jobs.length) {
-  console.log("No leaderboard changed since the last posted board.");
-  process.exit(0);
+  console.log(FORCE ? "None of those course numbers exist." : "No leaderboard changed since the last posted board.");
+  process.exit(FORCE ? 1 : 0);
 }
 
 fs.mkdirSync(OUT, { recursive: true });
@@ -231,9 +249,9 @@ let failed = false;
 
 for (const { course, list, at, isNew } of jobs) {
   const runs = list[at];
-  const board = at + 1;
+  const board = runs.length ? at + 1 : 0; // 0: no runs yet, so no board number
   const fresh = freshRuns(runs, at > 0 ? list[at - 1] : []);
-  const label = `${course.n} ${course.name}, board ${board}`;
+  const label = board ? `${course.n} ${course.name}, board ${board}` : `${course.n} ${course.name}, no runs yet`;
   try {
     const people = new Map();
     for (const r of runs) {
@@ -241,14 +259,15 @@ for (const { course, list, at, isNew } of jobs) {
       if (who) people.set(r, who);
     }
     const slug = path.basename(course.file).replace(/\.[^.]+$/, "").normalize("NFD").replace(/[^\w-]+/g, "");
-    const filename = `${slug}-board-${board}.png`;
-    const htmlFile = path.join(OUT, `${slug}-board-${board}.html`);
+    const base = board ? `${slug}-board-${board}` : `${slug}-empty`;
+    const filename = `${base}.png`;
+    const htmlFile = path.join(OUT, `${base}.html`);
     fs.writeFileSync(htmlFile, cardHtml({ course, board, date: boardDate(runs), runs, fresh, people, logo, fonts: fontUrls }));
     await page.goto(pathToFileURL(htmlFile).href, { waitUntil: "load" });
     await page.evaluate(() => document.fonts.ready);
     const png = await page.locator(".card").screenshot({ path: path.join(OUT, filename) });
-    const { content, users } = message(runs, fresh);
-    fs.writeFileSync(path.join(OUT, `${slug}-board-${board}.txt`), content + "\n");
+    const { content, users } = runs.length ? message(runs, fresh) : emptyMessage();
+    fs.writeFileSync(path.join(OUT, `${base}.txt`), content + "\n");
     console.log(`\n${label}\n${content}`);
     if (DRY) continue;
 
