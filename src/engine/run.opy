@@ -221,7 +221,7 @@ rule "Update Scorecard":
     # One string rebuilt on each change and each second, instead of a HUD text per runner: Overwatch reprocesses every
     # HUD text's definition every 5s (see Translated HUD Text). It starts with a gap above it.
     # A string only shows its first 4 icons, so they head the columns instead of filling each row.
-    scorecard = "\n\n{}    {}          {}".format(
+    scorecard = "\n\n{}    {}       {}".format(
         iconString(Icon.FLAG), iconString(Icon.BOLT), iconString(Icon.SKULL)
     )
     for index in range(len(scorecardRunners)):
@@ -231,8 +231,8 @@ rule "Update Scorecard":
             scorecardRunners[index].runCurrentCp,
             scorecardPad(scorecardRunners[index].runCurrentCp),
             scorecardTime,
-            "            ".substring(
-                0, [0, 12, 11, 0, 7, 5, 0, 3][strLen(scorecardTime)]
+            "             ".substring(
+                0, [0, 13, 11, 0, 7, 5, 0, 2][strLen(scorecardTime)]
             ),
             scorecardRunners[index].runMistakes,
             scorecardPad(scorecardRunners[index].runMistakes),
