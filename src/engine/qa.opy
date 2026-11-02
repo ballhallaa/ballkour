@@ -120,7 +120,7 @@ rule "Open":
 
 
 rule "Load HUD":
-    # Under the Hints HUD on the left, in the lobby too, with the same 2 blank lines above it
+    # Above the Hints HUD on the left, in the lobby too, with the same 2 blank lines above it
     qaHudText[0] = _("\n\nFAQ: <fgFFFFFFFF>@0 + @1</fg>")
     hudSubtext(
         getAllPlayers().filter(lambda localPlayer: localPlayer.qaPage == 0),
@@ -128,7 +128,7 @@ rule "Load HUD":
         .replace("@0", inputBindingString(Button.ULTIMATE))
         .replace("@1", inputBindingString(Button.MELEE)),
         HudPosition.LEFT,
-        16,
+        15,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
