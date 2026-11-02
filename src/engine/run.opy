@@ -152,7 +152,7 @@ rule "Load HUD":
             and not localPlayer.spectating[3]
             and localPlayer.qaPage == 0
         ),
-        ("{} {}\n\n\n").format(
+        ("{} {}\n\n").format(
             iconString(Icon.SKULL), localPlayer.viewRunner.runMistakes
         ),
         HudPosition.RIGHT,
@@ -163,25 +163,51 @@ rule "Load HUD":
     # Under Hints, which is under the Q&A line. Its rows are left out when the only runner
     # listed is the player, as their run is on the right, but its line stays while there's a
     # Top 3 for it to hide.
+    # The Lobby Top 3 goes between the rows and the Hide Scores line, in the same HUD text so
+    # they all left-align. With the Controls list open, only the top 5 rows show, to make room.
     scorecardHudText[0] = _("Hide Scores: <fgFFFFFFFF>@0 + @1</fg>")
     scorecardHudText[1] = _("\nScores: <fgFFFFFFFF>@0 + @1</fg>")
+    topRunsHudText = _("Lobby Top 3")
+    # TEST: a fake Lobby Top 3
+    topRuns = [
+        [234.23, "BallMyBloved", 5, "3:54.23"],
+        [1245.81, "Coldskin", 12, "20:45.81"],
+        [4521.96, "WWWWWWWWWWWW", 99, "1:15:21.96"]
+    ]
+    topRunsText = ""
+    for index in range(len(topRuns)):
+        topRunsText = "{}\n{}{}   {}{}{}{}{}</fg>".format(
+            topRunsText,
+            ["<fgFFFF00FF>", "<fgB0C4DEFF>", "<fgC46A30FF>"][index],
+            index + 1,
+            topRuns[index][3],
+            "     " if strLen(topRuns[index][3]) < 8 else "   ",
+            topRuns[index][2],
+            "     " if topRuns[index][2] < 10 else "   ",
+            topRuns[index][1]
+        )
     # The rows stay out of the String Replace, which cuts off long strings, and they're too long for it
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: controlsVisible(
                 not localPlayer.isScorecardHidden
-                and (len(scorecardRunners.exclude(localPlayer)) > 0 or len(topRuns) > 0)
+                and (true or len(topRuns) > 0)
                 and localPlayer.qaPage == 0
             )
         ),
-        "{}{}".format(
+        "{}{}{}".format(
             (
                 "{}\n".format(
-                    scorecardShort
-                    if localPlayer.spectating[0] and localPlayer.isViewingCtrlsHud
-                    else scorecard
+                    scorecardShort if localPlayer.isViewingCtrlsHud else scorecard
                 )
-                if len(scorecardRunners.exclude(localPlayer)) > 0
+                if true
+                else ""
+            ),
+            (
+                "{}{}{}\n".format(
+                    "\n" if true else "\n\n", _(topRunsHudText), topRunsText
+                )
+                if len(topRuns) > 0
                 else ""
             ),
             _(scorecardHudText[0])
@@ -198,7 +224,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: controlsVisible(
                 localPlayer.isScorecardHidden
-                and (len(scorecardRunners.exclude(localPlayer)) > 0 or len(topRuns) > 0)
+                and (true or len(topRuns) > 0)
                 and localPlayer.qaPage == 0
             )
         ),
@@ -221,7 +247,7 @@ rule "Update Scorecard":
     # One string rebuilt on each change and each second, instead of a HUD text per runner: Overwatch reprocesses every
     # HUD text's definition every 5s (see Translated HUD Text). It starts with a gap above it.
     # A string only shows its first 4 icons, so they head the columns instead of filling each row.
-    scorecard = "\n{}    {}       {}".format(
+    scorecard = "\n\n{}    {}       {}".format(
         iconString(Icon.FLAG), iconString(Icon.BOLT), iconString(Icon.SKULL)
     )
     for index in range(len(scorecardRunners)):
@@ -247,8 +273,61 @@ rule "Update Scorecard":
                 else "<fg808080FF>{}</fg>".format(scorecardRow)
             )
         )
-        # Spectator's Controls list is the longest, and leaves room for 3 rows above the hero portrait
-        if index < 3:
+        # The top 5, for when the Controls list is open
+        if index < 5:
+            scorecardShort = scorecard
+    # TEST: 12 fake runners in place of the real ones
+    scorecard = "\n\n{}    {}       {}".format(
+        iconString(Icon.FLAG), iconString(Icon.BOLT), iconString(Icon.SKULL)
+    )
+    for index in range(12):
+        scorecardTime = [
+            "1:23:45",
+            "58:12",
+            "42:07",
+            "31:50",
+            "12:03",
+            "9:41",
+            "7:15",
+            "5:02",
+            "3:33",
+            "2:10",
+            "1:05",
+            "0:42"
+        ][index]
+        scorecardRow = "{}{}{}{}{}{}{}".format(
+            [100, 97, 85, 64, 42, 38, 25, 19, 12, 7, 3, 1][index],
+            scorecardPad([100, 97, 85, 64, 42, 38, 25, 19, 12, 7, 3, 1][index]),
+            scorecardTime,
+            "             ".substring(
+                0, [0, 13, 11, 0, 7, 5, 0, 2][strLen(scorecardTime)]
+            ),
+            [312, 140, 99, 57, 23, 18, 9, 4, 2, 1, 0, 0][index],
+            scorecardPad([312, 140, 99, 57, 23, 18, 9, 4, 2, 1, 0, 0][index]),
+            [
+                "WWWWWWWWWWWW",
+                "Ballhallaa",
+                "Kiriko",
+                "xX_Slayer_Xx",
+                "Mo",
+                "Hammond",
+                "Speedrunner",
+                "Wreck",
+                "Tracer",
+                "ABCDEFGHIJKL",
+                "Lúcio",
+                "Zen"
+            ][index]
+        )
+        scorecard = "{}\n{}".format(
+            scorecard,
+            (
+                "<fg808080FF>{}</fg>".format(scorecardRow)
+                if index in [3, 8]
+                else scorecardRow
+            )
+        )
+        if index < 5:
             scorecardShort = scorecard
     # The time column ticks each second, and a change rebuilds it within 0.1s. Rebuilding on
     # the next tick added ~20% to peak server load while Next CP was held with 12 rows.

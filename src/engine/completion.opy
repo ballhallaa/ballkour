@@ -117,23 +117,6 @@ def recordTopRun():
         )
 
 
-rule "Load Top Runs HUD":
-    # Under Pace, which is RIGHT's last. Stored and shown without String Replace (see Load HUD in run.opy)
-    topRunsHudText = _("Lobby Top 3")
-    hudSubheader(
-        getAllPlayers().filter(
-            lambda localPlayer: len(topRuns) > 0
-            and not localPlayer.isScorecardHidden
-            and localPlayer.qaPage == 0
-        ),
-        ("\n{}{}").format(_(topRunsHudText), topRunsText),
-        HudPosition.RIGHT,
-        11,
-        rgb(230, 151, 0),
-        HudReeval.VISIBILITY_AND_STRING
-    )
-
-
 rule "Load Run Text":
     @Event eachPlayer
     @Condition eventPlayer.isViewingRunCompletionText == true
