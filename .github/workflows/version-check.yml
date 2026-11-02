@@ -10,13 +10,26 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Verify tag format
+        run: |
+          # Stable vYYYY.MM.DD.NN, or pre-release vYYYY.MM.DD-beta.NN / vYYYY.MM.DD-rc.NN
+          # The counter is two digits so GitHub, which sorts it as text, keeps .10 after .09
+          if ! [[ "$GITHUB_REF_NAME" =~ ^v[0-9]{4}\.[0-9]{2}\.[0-9]{2}(\.[0-9]{2}|-(beta|rc)\.[0-9]{2})$ ]]; then
+            echo "::error::Tag $GITHUB_REF_NAME should look like v2026.11.03.00, v2026.11.03-beta.00 or v2026.11.03-rc.00"
+            exit 1
+          fi
+
+          echo "Tag format ✓"
+
       - name: Verify version header matches tag
         run: |
-          VERSION="${GITHUB_REF_NAME#v}"
-          echo "Expected version: $VERSION"
+          EXPECTED="${GITHUB_REF_NAME#v}"
+          ACTUAL="$(sed -nE 's/^macro VERSION = "(.*)"$/\1/p' src/VERSION)"
+          echo "Tag: $EXPECTED"
+          echo "src/VERSION: $ACTUAL"
 
-          if ! grep -qF "$VERSION" "src/VERSION"; then
-            echo "::error file=src/main.opy::Version header does not contain $VERSION"
+          if [[ "$ACTUAL" != "$EXPECTED" ]]; then
+            echo "::error file=src/VERSION::src/VERSION is \"$ACTUAL\" but the tag is $GITHUB_REF_NAME"
             exit 1
           fi
 
