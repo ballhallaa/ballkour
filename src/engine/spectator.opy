@@ -28,15 +28,17 @@ rule "Mode Input":
 
     # A press during the cooldown only says how long is left, so it needs pressing again
     if not canSwapHero(eventPlayer):
+        # Stored first: worked out inside the translated message, it read over 2s too high
+        eventPlayer.swapCooldownLeft = (
+            ceil(
+                (SWAP_COOLDOWN - (getTotalTimeElapsed() - eventPlayer.heroSwapTime))
+                * 10
+            )
+            / 10
+        )
         smallMessage(
             eventPlayer,
-            _("SPECTATOR COOLDOWN: {}s").format(
-                ceil(
-                    (SWAP_COOLDOWN - (getTotalTimeElapsed() - eventPlayer.heroSwapTime))
-                    * 10
-                )
-                / 10
-            )
+            _("SPECTATOR COOLDOWN: {}s").format(eventPlayer.swapCooldownLeft)
         )
         return
     # spectating[i]: [0]isSpectating [1]whoPlayerIsSpectating [2]isInFreecam [3]isInDisconnectedFreecam [4]disconnectedFreecamCp [5]isFirstPersonSpectating [6]isTransitioningIntoFirstPerson [7]hasSpectatableTargets [8]crosshairTarget [9]crosshairTargetDelay [10]spectatorAmnt [11]queuedCamPos [12]queuedCamLookAt
