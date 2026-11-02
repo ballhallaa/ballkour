@@ -98,11 +98,14 @@ rule "Load HUD":
         HudReeval.VISIBILITY_AND_STRING
     )
     # Runs counts the runs finished or restarted (see Initialize New Run). Attempts counts the
-    # CP's mistakes and clears, over all the player's runs, like its Best and Avg.
+    # CP's mistakes and clears, and Mistakes only its mistakes, over all the player's runs, like
+    # its Best and Avg.
     # Subheaders, the smallest HUD text, so they stay quieter than the run's own numbers.
-    # Attempts follows the runner's own CP, not viewCp, which syncs a tick later: a clear would
-    # show the cleared CP's new count for that tick.
-    # They fill the 4 blank lines that were above the CP, which come back when they're hidden.
+    # Only the numbers are white, so the labels stay the HUD's orange.
+    # Attempts and Mistakes follow the runner's own CP, not viewCp, which syncs a tick later: a
+    # clear would show the cleared CP's new count for that tick.
+    # The CP keeps 2 blank lines under them, like the 2 above the splits, so the 3 sections read
+    # apart. Hiding them gives it 5, about their height, so the CP barely moves.
     counterHudText[0] = _("Runs: @0")
     hudSubheader(
         getAllPlayers().filter(
@@ -110,7 +113,9 @@ rule "Load HUD":
             and not localPlayer.spectating[3]
             and localPlayer.faqPage == 0
         ),
-        _(counterHudText[0]).replace("@0", localPlayer.viewRunner.runCount),
+        _(counterHudText[0]).replace(
+            "@0", ("<fgFFFFFFFF>{}</fg>").format(localPlayer.viewRunner.runCount)
+        ),
         HudPosition.RIGHT,
         0,
         rgb(230, 151, 0),
@@ -124,10 +129,31 @@ rule "Load HUD":
             and localPlayer.faqPage == 0
         ),
         _(counterHudText[1]).replace(
-            "@0", localPlayer.viewRunner.cpAttempts[localPlayer.viewRunner.runCurrentCp]
+            "@0",
+            ("<fgFFFFFFFF>{}</fg>").format(
+                localPlayer.viewRunner.cpAttempts[localPlayer.viewRunner.runCurrentCp]
+            )
         ),
         HudPosition.RIGHT,
         1,
+        rgb(230, 151, 0),
+        HudReeval.VISIBILITY_AND_STRING
+    )
+    counterHudText[2] = _("Mistakes: @0")
+    hudSubheader(
+        getAllPlayers().filter(
+            lambda localPlayer: not localPlayer.isInLobby
+            and not localPlayer.spectating[3]
+            and localPlayer.faqPage == 0
+        ),
+        _(counterHudText[2]).replace(
+            "@0",
+            ("<fgFFFFFFFF>{}</fg>").format(
+                localPlayer.viewRunner.cpMistakes[localPlayer.viewRunner.runCurrentCp]
+            )
+        ),
+        HudPosition.RIGHT,
+        2,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -136,13 +162,13 @@ rule "Load HUD":
             lambda localPlayer: not localPlayer.isInLobby and localPlayer.faqPage == 0
         ),
         ("{}{} {}/{}\n").format(
-            "\n\n\n\n" if localPlayer.spectating[3] else "\n\n",
+            "\n\n\n\n\n" if localPlayer.spectating[3] else "\n\n",
             iconString(Icon.FLAG),
             localPlayer.viewCp,
             lastCp
         ),
         HudPosition.RIGHT,
-        2,
+        3,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -162,7 +188,7 @@ rule "Load HUD":
             )
         ),
         HudPosition.RIGHT,
-        3,
+        4,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -176,7 +202,7 @@ rule "Load HUD":
             iconString(Icon.SKULL), localPlayer.viewRunner.runMistakes
         ),
         HudPosition.RIGHT,
-        4,
+        5,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
