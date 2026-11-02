@@ -801,7 +801,7 @@ rule "Load Hints HUD":
             )
         ),
         HudPosition.LEFT,
-        15,
+        16,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )

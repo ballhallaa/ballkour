@@ -160,7 +160,7 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    # Under the Q&A line, which is under Hints. Its rows are left out when the only runner
+    # Under Hints, which is under the Q&A line. Its rows are left out when the only runner
     # listed is the player, as their run is on the right, but its line stays while there's a
     # Top 3 for it to hide.
     scorecardHudText[0] = _("Hide Scores: <fgFFFFFFFF>@0 + @1</fg>")
@@ -193,7 +193,7 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    # On its own under the Q&A line, so it's the same size as it
+    # On its own under Hints, so it's the same size as it
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: controlsVisible(
