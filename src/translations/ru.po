@@ -285,6 +285,10 @@ msgstr "Результаты: <fgFFFFFFFF>@0 + @1</fg>"
 msgid "Disqualified"
 msgstr "Дисквалификация"
 
+#. file run.opy, rule "Load HUD"
+msgid "Not Playing"
+msgstr "Не играют"
+
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"
 msgstr "Свободная камера включена"

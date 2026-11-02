@@ -214,8 +214,8 @@ rule "Load HUD":
     )
     faqHudText[12] = (
         "\n\n<fg00E092FF>What's on the scorecard?</fg>"
-        "\nEach runner's checkpoint, time and mistakes, furthest first, then fastest."
-        "\n<fgFF4646FF>Red</fg> runs, marked <fgFF4646FF>×</fg>, are disqualified."
+        "\nEach runner's checkpoint, time and mistakes, furthest first, then fastest. <fgFF4646FF>Red</fg> runs,"
+        "\nmarked <fgFF4646FF>×</fg>, are disqualified. Not Playing lists who's in the lobby, spectating or in freemode."
     )
     # Page 3
     faqHudText[13] = (

@@ -285,6 +285,10 @@ msgstr "คะแนน: <fgFFFFFFFF>@0 + @1</fg>"
 msgid "Disqualified"
 msgstr "ถูกตัดสิทธิ์"
 
+#. file run.opy, rule "Load HUD"
+msgid "Not Playing"
+msgstr "ไม่ได้เล่น"
+
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"
 msgstr "เปิดกล้องอิสระ"

@@ -285,6 +285,10 @@ msgstr "Wertung: <fgFFFFFFFF>@0 + @1</fg>"
 msgid "Disqualified"
 msgstr "Disqualifiziert"
 
+#. file run.opy, rule "Load HUD"
+msgid "Not Playing"
+msgstr "Spielt nicht"
+
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"
 msgstr "Freie Kamera an"

@@ -30,22 +30,24 @@ macro scorecardKey(player):
     )
 
 
-# Whether the scorecard lists its rows: not when the only runner listed is the player
+# Whether the scorecard lists its rows: not when the only player listed, running or not
+# playing, is the player
 macro scorecardHasRows(player):
-    len(scorecardRunners.exclude(player)) > 0
+    (len(scorecardRunners.exclude(player)) > 0 or len(notPlaying.exclude(player)) > 0)
 
 
-# The lines of the scorecard's text under its 2 blank ones: the icons and rows, the Lobby
-# Top 3's title and rows with a blank line between them, and Hide Scores
+# The lines of the scorecard's text under its 2 blank ones. The Lobby Top 3, the runners and
+# Not Playing each have a title or icons over their rows and a blank line above them, and
+# Hide Scores makes up for the first one's.
 macro scorecardLines(player):
     (
-        (scorecardRows + 1 if scorecardHasRows(player) else 0)
+        (len(topRuns) + 2 if len(topRuns) > 0 else 0)
         + (
-            len(topRuns) + (2 if scorecardHasRows(player) else 1)
-            if len(topRuns) > 0
+            (scorecardRows + 2 if scorecardRows > 0 else 0)
+            + (len(notPlaying) + 2 if len(notPlaying) > 0 else 0)
+            if scorecardHasRows(player)
             else 0
         )
-        + 1
     )
 
 
@@ -225,13 +227,14 @@ rule "Load HUD":
         rgb(255, 70, 70),
         HudReeval.VISIBILITY_AND_STRING
     )
-    # Under Hints. Its rows are left out when the only runner
-    # listed is the player, as their run is on the right, but its line stays while there's a
-    # Top 3 for it to hide.
+    # Under Hints. Its rows are left out when the player is the only one listed, as their run
+    # is on the right, but its line stays while there's a Top 3 for it to hide.
     # The Lobby Top 3 goes above the rows, in the same HUD text so they all left-align. At
-    # most 3 rows long, it stays put as runners come and go below it.
+    # most 3 rows long, it stays put as runners come and go below it. Not Playing goes under
+    # them, with its names grayed out.
     scorecardHudText[0] = _("Hide Scores: <fgFFFFFFFF>@0 + @1</fg>")
     scorecardHudText[1] = _("\nScores: <fgFFFFFFFF>@0 + @1</fg>")
+    scorecardHudText[2] = _("Not Playing")
     topRunsHudText = _("Lobby Top 3")
     # The rows stay out of the String Replace, which cuts off long strings, and they're too long for it
     hudSubheader(
@@ -258,9 +261,17 @@ rule "Load HUD":
                 if len(topRuns) > 0
                 else ""
             ),
-            # The rows' own 2 blank lines leave 1 between them and the Top 3
+            # The rows' own 2 blank lines leave 1 between them and the Top 3, and so do Not
+            # Playing's
             (
-                "{}\n".format(scorecard)
+                "{}{}\n".format(
+                    scorecard,
+                    (
+                        "\n\n{}{}".format(_(scorecardHudText[2]), notPlayingText)
+                        if len(notPlaying) > 0
+                        else ""
+                    )
+                )
                 if scorecardHasRows(localPlayer)
                 else ("\n" if len(topRuns) > 0 else "")
             ),
@@ -297,11 +308,26 @@ rule "Update Scorecard":
         getAllPlayers().filter(lambda p: isOnScorecard(p)),
         lambda p: p.runTime - p.runCurrentCp * 100000
     )
+    # Everyone else is listed by name under Not Playing: in the lobby, spectating, or in
+    # freemode before finishing
+    notPlaying = getAllPlayers().filter(
+        lambda p: not p.isDummy() and not isOnScorecard(p)
+    )
+    notPlayingText = ""
+    for index in range(len(notPlaying)):
+        notPlayingText = "{}\n<fg808080FF>{}</fg>".format(
+            notPlayingText, notPlaying[index]
+        )
     # One string rebuilt on each change and each second, instead of a HUD text per runner: Overwatch reprocesses every
     # HUD text's definition every 5s (see Translated HUD Text). It starts with a gap above it.
     # A string only shows its first 4 icons, so they head the columns instead of filling each row.
-    scorecard = "\n\n{}    {}       {}".format(
-        iconString(Icon.FLAG), iconString(Icon.BOLT), iconString(Icon.SKULL)
+    # Without runners it's left empty, so Not Playing isn't under icons with no rows.
+    scorecard = (
+        "\n\n{}    {}       {}".format(
+            iconString(Icon.FLAG), iconString(Icon.BOLT), iconString(Icon.SKULL)
+        )
+        if len(scorecardRunners) > 0
+        else ""
     )
     scorecardRows = len(scorecardRunners)
     for index in range(len(scorecardRunners)):

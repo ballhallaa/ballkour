@@ -285,6 +285,10 @@ msgstr "成績: <fgFFFFFFFF>@0 + @1</fg>"
 msgid "Disqualified"
 msgstr "已取消資格"
 
+#. file run.opy, rule "Load HUD"
+msgid "Not Playing"
+msgstr "未在遊戲中"
+
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"
 msgstr "自由視角已開啟"

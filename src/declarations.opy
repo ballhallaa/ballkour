@@ -64,6 +64,8 @@ globalvar scorecardDirty
 globalvar scorecardRunners
 globalvar scorecardRow
 globalvar scorecardTime
+globalvar notPlaying
+globalvar notPlayingText
 globalvar topRuns = []
 globalvar topRunsScratch
 globalvar topRunsText

@@ -285,6 +285,10 @@ msgstr "Punteggi: <fgFFFFFFFF>@0 + @1</fg>"
 msgid "Disqualified"
 msgstr "Squalificato"
 
+#. file run.opy, rule "Load HUD"
+msgid "Not Playing"
+msgstr "Non in gioco"
+
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"
 msgstr "Telecamera libera attiva"

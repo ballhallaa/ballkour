@@ -285,6 +285,10 @@ msgstr "スコア: <fgFFFFFFFF>@0 + @1</fg>"
 msgid "Disqualified"
 msgstr "失格"
 
+#. file run.opy, rule "Load HUD"
+msgid "Not Playing"
+msgstr "プレイしていない"
+
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"
 msgstr "フリーカメラ ON"

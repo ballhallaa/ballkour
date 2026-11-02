@@ -285,6 +285,10 @@ msgstr "Placar: <fgFFFFFFFF>@0 + @1</fg>"
 msgid "Disqualified"
 msgstr "Desclassificado"
 
+#. file run.opy, rule "Load HUD"
+msgid "Not Playing"
+msgstr "Sem jogar"
+
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"
 msgstr "Câmera livre ativada"
