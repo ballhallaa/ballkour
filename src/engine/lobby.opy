@@ -94,14 +94,18 @@ def loadLobby():
     )
     eventPlayer.setInvisibility(Invis.ALL)
     eventPlayer.nameplate = _("{}").format("")
-    # Looking around is all there is to do. Both fires pick a button (Select Input), so
-    # they're disallowed rather than disabled, which still lets the presses be read. The
-    # hero HUD stays, as hiding it hides the crosshair too.
+    # Looking around is all there is to do. Both fires pick a button (Select Input), and
+    # their presses can still be read with them off. Everything's disallowed rather than
+    # disabled so all the icons look the same, as slam's and ball form's can't show as off
+    # together, and a checkpoint's bans are lifted so they don't show here. The hero HUD
+    # stays, as hiding it hides the crosshair too.
     eventPlayer.disallowButton(Button.PRIMARY_FIRE)
     eventPlayer.disallowButton(Button.SECONDARY_FIRE)
-    eventPlayer.setAbility1Enabled(false)
-    eventPlayer.setAbility2Enabled(false)
+    eventPlayer.disallowButton(Button.ABILITY_1)
+    eventPlayer.disallowButton(Button.ABILITY_2)
     eventPlayer.disallowButton(Button.CROUCH)
+    eventPlayer.setSecondaryFireEnabled(true)
+    eventPlayer.setAbility2Enabled(true)
     eventPlayer.setFacing(directionTowards(lobbyCam, lobbyPos[0]), Relativity.TO_WORLD)
     wait()
 
@@ -116,7 +120,6 @@ def leaveLobby():
     eventPlayer.setMoveSpeed(100)
     eventPlayer.setJumpVerticalSpeed(100)
     eventPlayer.setInvisibility(Invis.NONE)
-    eventPlayer.setAbility1Enabled(true)
     # While Ultimate is held, letting go of it gives them back (Controls: HUD Input)
     if not eventPlayer.isHoldingButton(Button.ULTIMATE):
         eventPlayer.allowButton(Button.PRIMARY_FIRE)
