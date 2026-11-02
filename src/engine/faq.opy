@@ -161,14 +161,14 @@ rule "Load HUD":
         "\n\n<fg00E092FF>What counts as a valid run?</fg>"
         "\nYour run is only disqualified if you skip a checkpoint you haven't cleared yet this run."
         "\nGoing back or restarting checkpoints, skipping ahead to cleared checkpoints, and"
-        "\nspectating are fine. Leaving an uncleared checkpoint in freemode counts as skipping it."
-        "\nDisqualified runs don't count toward Lobby Top 3 or Lobby Stats."
+        "\nspectating are fine. Leaving an uncleared checkpoint in Freemode counts as skipping it."
+        "\nDisqualified runs don't count toward the top-10 leaderboard, Lobby Top 3, or Lobby Stats."
     )
     faqHudText[3] = (
         "\n\n<fg00E092FF>What counts as a mistake?</fg>"
         "\nLanding anywhere but the next checkpoint, bhopping twice, missing a bounce checkpoint's"
-        "\nbounce, dying, or leaving mid-attempt with Reset CP, Prev./Next CP, Lobby, Freemode"
-        "\nor Spectate."
+        "\njump, falling off the map, or leaving mid-attempt with Prev./Next CP, Reset CP, Freemode,"
+        "\nSpectate, or Lobby/Pause."
     )
     faqHudText[4] = (
         "\n\n<fg00E092FF>When does my run's timer start?</fg>"
@@ -177,10 +177,10 @@ rule "Load HUD":
     faqHudText[5] = (
         "\n\n<fg00E092FF>What pauses my run?</fg>"
         "\nLobby/Pause and Spectate stop your timer, and Resume Run in the lobby carries on from"
-        "\nyour checkpoint. Pausing away from your checkpoint counts as a mistake."
+        "\nyour checkpoint. Pausing outside your checkpoint counts as a mistake."
     )
     faqHudText[6] = (
-        "\n\n<fg00E092FF>What is freemode for?</fg>"
+        "\n\n<fg00E092FF>What is Freemode for?</fg>"
         "\nPractice, with no timer and all your abilities. You can't clear checkpoints in it,"
         "\nand leaving your checkpoint with it on disqualifies your run."
     )
@@ -192,15 +192,15 @@ rule "Load HUD":
     )
     faqHudText[8] = (
         "\n\n<fg00E092FF>What do Attempt and Split mean?</fg>"
-        "\nAttempt is timed from leaving the checkpoint, and Split from reaching it, so it"
+        "\nAttempt is timed from leaving the checkpoint. Split is timed from reaching it, so it"
         "\nincludes your mistakes. Each turns red once it's slower than your best."
-        "\nAfter a clear they show your times for 2 seconds: <fgFFFF00FF>yellow</fg> on your first clear, then"
+        "\nAfter a clear, they show your times for 2 seconds: <fgFFFF00FF>yellow</fg> on your first clear, then"
         "\n<fg00E092FF>green</fg> if faster or <fgFF4646FF>red</fg> if slower than your average. A new best is compared with your old best."
     )
     faqHudText[9] = (
         "\n\n<fg00E092FF>Are Best and Avg server records?</fg>"
         "\nNo, they're only your own times on that checkpoint, over all your runs."
-        "\nThey reset when you leave or the server restarts."
+        "\nThey reset when you leave or when the server restarts."
     )
     faqHudText[10] = (
         "\n\n<fg00E092FF>What is Pace?</fg>"
@@ -210,11 +210,11 @@ rule "Load HUD":
     faqHudText[11] = (
         "\n\n<fg00E092FF>Why are some controls </fg><fg808080FF>grayed out</fg><fg00E092FF>?</fg>"
         "\nThey can't be used right now: Prev. CP on the first checkpoint, Next CP on the last,"
-        "\nand the player controls while there's nobody to spectate. X-Hair Player also needs freecam."
+        "\nand the player controls while there's nobody to spectate. X-Hair Player also needs Freecam."
     )
     faqHudText[12] = (
         "\n\n<fg00E092FF>What's on the scorecard?</fg>"
-        "\nEach runner's checkpoint, time and mistakes, furthest first, then fastest."
+        "\nEach runner's checkpoint, time, and mistakes, furthest first, then fastest."
         "\n<fgFF4646FF>Red</fg> runs, marked <fgFF4646FF>×</fg>, are disqualified."
     )
     # Page 3
@@ -237,7 +237,8 @@ rule "Load HUD":
     faqHudText[16] = (
         "\n\n<fg00E092FF>Does the server restart?</fg>"
         "\nYes, about every 4 hours, with warnings from 30 minutes before."
-        "\nBest, Avg, Runs and Attempts start over."
+        "\nRuns, Attempts, Mistakes, Best, Avg, the scorecard, and Lobby Top 3 reset, so nothing"
+        "\ncarries over into a new match (a Workshop limitation)."
     )
     faqHudText[17] = (
         "\n\n<fg00E092FF>Why does it take so long to load a Ballkour game?</fg>"
