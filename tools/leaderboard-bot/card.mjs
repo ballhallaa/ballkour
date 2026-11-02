@@ -45,7 +45,7 @@ export function cardHtml({ course, board, date, runs, fresh, people, logo, fonts
       `</li>`;
   };
   const slots = Array.from({ length: 10 }, (_, i) => runs[i] || null);
-  const sub = ["Top 10", course.code ? `Code <b>${esc(course.code)}</b>` : "", `Board ${board}`, date].filter(Boolean)
+  const sub = ["Top 10", course.code ? `Code <b>${esc(course.code)}</b>` : "", board ? `Board ${board}` : "", date].filter(Boolean)
     .map((s) => `<span>${s}</span>`).join("<span>·</span>");
 
   return `<!doctype html><meta charset="utf-8"><style>
@@ -114,7 +114,7 @@ ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
     <ol>${slots.slice(0, 5).map((r, i) => row(r, i)).join("")}</ol>
     <ol>${slots.slice(5, 10).map((r, i) => row(r, i + 5)).join("")}</ol>
   </div>
-  <div class="foot"><span class="url">ballkour.com/leaderboards</span><span>Dates (YYYY-MM-DD) are when the run was submitted, in UTC.</span></div>
+  <div class="foot"><span class="url">ballkour.com/leaderboards</span>${runs.length ? "<span>Dates (YYYY-MM-DD) are when the run was submitted, in UTC.</span>" : ""}</div>
 </div>
 <script>
 // Names too long for their row shrink to fit instead of being cut off
