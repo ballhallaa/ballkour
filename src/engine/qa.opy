@@ -15,9 +15,9 @@ rule "Open":
     @Event eachPlayer
     @Condition eventPlayer.qaPage > 0
 
-    # Lobby Input opens and closes it. Every eachPlayer rule adds to the server's periodic
-    # load, and six of them for the Q&A were enough to close the server, so this one rule
-    # does all of it: closing, turning pages, the sky camera, and locking the player in
+    # Controls: FAQ Input opens and closes it. Every eachPlayer rule adds to the server's
+    # periodic load, and six of them for the Q&A were enough to close the server, so this one
+    # rule does all of it: closing, turning pages, the sky camera, and locking the player in
     # place. Interact closes the Q&A and Jump turns its page, so it doesn't jump while it's
     # open, or once it closes until Jump is let go.
     eventPlayer.disallowButton(Button.JUMP)
@@ -56,9 +56,14 @@ rule "Open":
                 eventPlayer.isHoldingButton(Button.INTERACT)
                 or not eventPlayer.isHoldingButton(Button.JUMP)
             ):
-                eventPlayer.setMoveSpeed(100)
-                # Otherwise letting go of Ultimate gives them back in HUD Input
-                if not eventPlayer.isHoldingButton(Button.ULTIMATE):
+                # The lobby holds them still (Lobby: Load)
+                eventPlayer.setMoveSpeed(0 if eventPlayer.isInLobby else 100)
+                # Otherwise letting go of Ultimate gives them back in HUD Input, and the
+                # lobby keeps them (Lobby: Leave)
+                if (
+                    not eventPlayer.isHoldingButton(Button.ULTIMATE)
+                    and not eventPlayer.isInLobby
+                ):
                     eventPlayer.allowButton(Button.PRIMARY_FIRE)
                     eventPlayer.allowButton(Button.SECONDARY_FIRE)
                     eventPlayer.allowButton(Button.ABILITY_1)
@@ -122,7 +127,7 @@ rule "Load HUD":
         getAllPlayers().filter(lambda localPlayer: localPlayer.qaPage == 0),
         _(qaHudText[0])
         .replace("@0", inputBindingString(Button.ULTIMATE))
-        .replace("@1", inputBindingString(Button.ABILITY_2)),
+        .replace("@1", inputBindingString(Button.MELEE)),
         HudPosition.LEFT,
         16,
         rgb(230, 151, 0),

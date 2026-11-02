@@ -54,11 +54,7 @@ rule "Grapple Use":
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
     @Condition eventPlayer.spectating[0] == false
 
-    if not (
-        eventPlayer.isInLobby
-        or eventPlayer.cpData[5] == null
-        or eventPlayer.isInFreemode
-    ):
+    if not (eventPlayer.cpData[5] == null or eventPlayer.isInFreemode):
         eventPlayer.cpData[12] = true
         waitUntil(
             not eventPlayer.isFiringSecondaryFire() or eventPlayer.getSpeed() >= 15,
@@ -74,14 +70,10 @@ rule "Grapple Use":
             eventPlayer.cpData[13] = true
         waitUntil(not eventPlayer.isFiringSecondaryFire(), Math.INFINITY)
         eventPlayer.setAbilityCooldown(Button.SECONDARY_FIRE, 0)
-    elif not eventPlayer.isInLobby and not eventPlayer.isInFreemode:
+    elif not eventPlayer.isInFreemode:
         waitUntil(not eventPlayer.isFiringSecondaryFire(), Math.INFINITY)
         eventPlayer.setAbilityCooldown(Button.SECONDARY_FIRE, 0)
-    if (
-        not eventPlayer.isInLobby
-        and eventPlayer.cpData[5] != null
-        and not eventPlayer.isInFreemode
-    ):
+    if eventPlayer.cpData[5] != null and not eventPlayer.isInFreemode:
         if (
             distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
             > eventPlayer.cpData[1]
@@ -91,7 +83,7 @@ rule "Grapple Use":
             eventPlayer.cpData[13] = false
         waitUntil(not eventPlayer.isFiringSecondaryFire(), Math.INFINITY)
         eventPlayer.setAbilityCooldown(Button.SECONDARY_FIRE, 0)
-    elif eventPlayer.isInLobby or eventPlayer.isInFreemode:
+    elif eventPlayer.isInFreemode:
         waitUntil(not eventPlayer.isFiringSecondaryFire(), Math.INFINITY)
         eventPlayer.setAbilityCooldown(Button.SECONDARY_FIRE, 0)
 
@@ -100,8 +92,10 @@ rule "Shield Bounce Use":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == true
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
+    # Its push would float a player away from the lobby, which has no gravity
+    @Condition eventPlayer.isInLobby == false
     @Condition (
-        (eventPlayer.isInLobby or eventPlayer.isInFreemode)
+        eventPlayer.isInFreemode
         or (eventPlayer.cpData[3] and not eventPlayer.cpData[14])
     ) == true
 
@@ -142,7 +136,7 @@ rule "Shield Bounce Use":
     )
     eventPlayer.setHealth(575)
     eventPlayer.setAbilityCooldown(Button.ABILITY_2, 0)
-    if eventPlayer.isInLobby or eventPlayer.isInFreemode:
+    if eventPlayer.isInFreemode:
         eventPlayer.setAbility2Enabled(true)
     elif eventPlayer.cpData[3] and not eventPlayer.cpData[14]:
         eventPlayer.cpData[14] = true

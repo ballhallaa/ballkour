@@ -31,5 +31,4 @@ rule "Disruptive Environment Destructors":
 
 
 #!include "hints.opy"
-#!include "lobby.opy"
 #!include "../../ballkour.opy"

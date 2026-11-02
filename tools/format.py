@@ -140,6 +140,8 @@ def check_compiled_output(changed):
             version.write_text(
                 re.sub(r'"([^"]*?)(-dev)?"', r'"\1-dev"', version.read_text())
             )
+        # The courses include their leaderboards from beside src/, which both copies share
+        shutil.copytree(SRC.parent / "leaderboards", Path(tmp, "leaderboards"))
         for file, text in changed.items():
             (after / file.relative_to(SRC)).write_text(text)
         results = compile_files(

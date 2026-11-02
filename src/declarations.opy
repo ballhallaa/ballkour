@@ -6,6 +6,9 @@ macro isDebugOn = DEV and settings_[0]
 macro isServerLoadOn = DEV and settings_[3]
 macro isLobbyStatsOn = DEV and settings_[1]
 macro isHintRecorderOn = DEV and settings_[2]
+# A VERSION ending in +all-ctrls (e.g. 2026.11.02-beta.1-dev+all-ctrls) shows every Controls
+# line on screen at once, for checking their padding, with no Workshop Setting to wait on
+macro ALL_CONTROLS = strContains(VERSION, "+all-ctrls")
 
 # Leaderboard
 globalvar lb
@@ -36,7 +39,11 @@ globalvar hintAnchors
 globalvar hintColors
 
 # Lobby
-globalvar lobbyData
+globalvar lobbyCam
+globalvar langPos
+globalvar langNames
+globalvar lobbyAngle
+globalvar lobbyPos
 globalvar lobbyStats
 
 # Match
@@ -92,8 +99,13 @@ playervar isInLobby
 playervar nameplate
 playervar isTiny
 
+# Lobby
+# The page they're on: 1 for the buttons and leaderboard, 2 for Lobby Stats, or 0 outside
+# the lobby
+playervar lobbyPage
+playervar lobbyAim
+
 # Leaderboard
-playervar lbAim
 playervar lbInfoRow
 
 # Run
@@ -180,8 +192,10 @@ playervar timeFormatted
 playervar isViewingCtrlsHud
 # The Q&A page being read (1 to QA_PAGES), or 0 while it's closed
 playervar qaPage
-# Lobby Input turns the pages, so they're counted here
+# Q&A: Open turns the pages, so they're counted here
 macro QA_PAGES = 3
+# The languages in #!translations (ballkour.opy), which __languageIndex__ counts from 0
+macro LANGUAGES = 14
 playervar isInFreemode
 playervar isScorecardHidden
 playervar scorecardKey
@@ -199,6 +213,7 @@ subroutine showCpNameplate
 
 # Lobby
 subroutine loadLobby
+subroutine leaveLobby
 subroutine showRunInfo
 # Each course's leaderboard has its own, if it has runs
 subroutine loadRunInfo
@@ -243,6 +258,18 @@ subroutine reattachToSpectatingTarget
 subroutine enableFirstPersonSpectator
 
 
+# Who a control's text shows for: who it normally does, or with ALL_CONTROLS, everyone,
+# whatever they're doing, apart from in the Q&A
+macro controlsVisible(normally):
+    (localPlayer.qaPage == 0 if ALL_CONTROLS else (normally))
+
+
+# Whether a control picks the text that names its keys. Builds without ALL_CONTROLS compile
+# it to just the check.
+macro allControlsOr(check):
+    (true if ALL_CONTROLS else (check))
+
+
 # Run
 # Every mistake also ends an attempt at the CP
 macro addMistake():
@@ -252,7 +279,7 @@ macro addMistake():
 
 # Leaderboard
 # A run's submission date and video link, for the players who opened it from its row
-# (Lobby: Run Info Input). The course leaderboards use it, so it's defined here.
+# (Lobby: Select Input). The course leaderboards use it, so it's defined here.
 # Only open runs get their text, as every text's definition adds to the server's load.
 # Workshop text is uppercase and video links aren't, so this overlays progress bar texts,
 # which can show lowercase. They only line up in the Latin font, and one CJK character
@@ -261,8 +288,9 @@ macro addMistake():
 # It follows the player's camera: the blank lines (lbRunPad) lift it toward the top of the
 # screen and push its progress bar off the screen. Each run's 3 texts are separate actions,
 # as only literal text is lowercased, so everything they share is kept short: the blank
-# lines are stored and the viewers are worked out once. Texts are remade whenever a run is
-# opened or closed, so only their position follows the camera.
+# lines are stored. Texts are remade whenever a run is opened or closed, which reaches the
+# player after their open run has already changed, so each viewer's open run is checked
+# again: the last run's date and link would show under the new row until then.
 macro lbRunInfo(rank, date, link):
     lbRunViewers = getAllPlayers().filter(
         lambda localPlayer: localPlayer.lbInfoRow == rank
@@ -270,7 +298,7 @@ macro lbRunInfo(rank, date, link):
     if len(lbRunViewers) > 0:
         createCasedProgressBarIwt(
             3,
-            lbRunViewers,
+            getAllPlayers().filter(lambda localPlayer: localPlayer.lbInfoRow == rank),
             "{}{}\n<fgFFFFFFFF>{}</fg>\n<fgFFFFFFFF>{}</fg>{}".format(
                 lbRunPad[0], lbRunPad[4], date, link, lbRunPad[1]
             ),
@@ -280,5 +308,5 @@ macro lbRunInfo(rank, date, link):
             1,
             Clip.NONE,
             rgb(230, 151, 0),
-            ProgressWorldTextReeval.POSITION
+            ProgressWorldTextReeval.VISIBILITY_AND_POSITION
         )

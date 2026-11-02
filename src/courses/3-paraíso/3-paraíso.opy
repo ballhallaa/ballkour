@@ -12,6 +12,11 @@ settings courseSettings(Paraíso, NT5G3K, MXJ0W, 12, 0, "paraiso")
 #!include "checkpoints.opy"
 
 
+rule "Lobby":
+    # The sun is behind the lobby's usual direction here
+    lobbyAngle = 180
+
+
 rule "Disruptive Environment Destructors":
     # dedBots[0]: team; dedBots[i > 0]: [0]spawnLocation [1]facingDirection
     dedBots = []
@@ -72,5 +77,4 @@ rule "Disruptive Environment Destructors":
 
 
 #!include "hints.opy"
-#!include "lobby.opy"
 #!include "../../ballkour.opy"

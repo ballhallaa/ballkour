@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
-"""Link each course to the shared translations, and build test previews of them.
+"""Link each course to the shared translations.
 
-  python3 tools/translations.py                    link the courses, show progress
-  python3 tools/translations.py preview [course]   write test builds to previews/
+  python3 tools/translations.py    link the courses, show progress
 
 OverPy reads and rewrites the translations of a course at
 src/courses/<course>/<course>.<language>.po, for each language in the #!translations
 directive (src/ballkour.opy). All the translated text is in the engine, so every course
 shares src/translations/<language>.po, and the course's .po file is a symlink to it. Run
 this after adding a course or a language: it makes the missing links, then lists what is
-left to translate.
+left to translate. Run it after changing an English line's spacing too: the English is how
+each .po file finds its translation, so the translations would otherwise come back empty.
+It carries them over to the new spacing, and if a compile already emptied them, it takes
+them back from the last commit. It also puts each rule's lines in the order the source has
+them, as OverPy adds a line it hasn't seen after the rest.
 
 To translate, edit src/translations/<language>.po (with a .po editor such as Poedit, or
 by hand), then recompile a course (OverPy: Compile). Keep the {0}-style placeholders and
@@ -18,106 +21,29 @@ completion text line up with spaces: pad a translation until it lines up in-game
 OverPy adds a line's leading and trailing spaces back to every language, so those lines
 start with a color tag to keep their padding part of the translation.
 
-Previews check a translation in-game without changing Overwatch's language. preview
-writes previews/<language>.opy for each language (the course in that language, whatever
-the game's language) and previews/language-check.opy (the real language detection, with
-the map name it reads at the top of the screen). Compile one (OverPy: Compile) and paste
-it. Every controls line shows at once, and Interact cycles the run completion screens.
-Previews read the .po files directly, so after editing one just recompile the preview.
-They're test builds: don't publish them. The course defaults to the first one.
-
-Changing Overwatch's language is the Language setting in Steam (or Battle.net), as the
---tank_Locale launch option leaves the names the Workshop reads in English.
+To check a translation in-game, switch to it with Ultimate + Jump + Primary/Secondary
+Fire (Prev./Next Language), or from the list in the lobby.
 """
 
 import argparse
 import os
 import re
+import shutil
+import subprocess
 import sys
+import tempfile
+from pathlib import Path
 
-from overpy import SRC, courses, find_course
+from overpy import SRC, compile_files, courses
 
 TRANSLATIONS = SRC / "translations"
-PREVIEWS = SRC.parent / "previews"
 LANGUAGES_RE = re.compile(r"^#!translations (.+)$", re.M)
 # An entry is its comments, msgid, then msgstr, each string continued on the lines after
 ENTRY_RE = re.compile(r'^msgid ((?:".*"\n)+)msgstr ((?:".*"\n?)+)', re.M)
-INCLUDE_RE = re.compile(r'^#!include "(.+)"$')
-
-# Post-compile hooks get the compiled Workshop text as content, and output their last value.
-# This one makes the HUD texts whose visibility checks isViewingCtrlsHud visible to everyone.
-SHOW_CONTROLS_JS = """\
-function showControls(text) {
-    const start = "Create HUD Text(";
-    let out = "", i = 0, j;
-    while ((j = text.indexOf(start, i)) !== -1) {
-        const from = j + start.length;
-        let depth = 0, k = from;
-        for (; ; k++) {
-            if (text[k] === "(") depth++;
-            else if (text[k] === ")") depth--;
-            else if (text[k] === "," && depth === 0) break;
-        }
-        const visibleTo = text.slice(from, k);
-        const controls = visibleTo.includes(".isViewingCtrlsHud");
-        out += text.slice(i, from) + (controls ? "All Players(All Teams)" : visibleTo);
-        i = k;
-    }
-    return out + text.slice(i);
-}
-"""
-# Swaps each language detection for 2, the preview's language (#!translations en <language>)
-FORCE_LANGUAGE_JS = """\
-function forceLanguage(text) {
-    const start = "Absolute Value(Index Of Array Value(Global.__overpyTranslationHelper__,";
-    let out = "", i = 0, j;
-    while ((j = text.indexOf(start, i)) !== -1) {
-        let depth = 0, k = j;
-        for (; ; k++) {
-            if (text[k] === "(") depth++;
-            else if (text[k] === ")" && --depth === 0) break;
-        }
-        out += text.slice(i, j) + "2";
-        i = k + 1;
-    }
-    return out + text.slice(i);
-}
-"""
-PREVIEW_RULES = """\
-# Interact cycles the run completion screens: slower than the time to beat, a top-10
-# time, a run that doesn't count, then hidden. It stops the run timer to set the run
-# time, so use it in the lobby.
-
-playervar previewCompletion
-
-
-rule "Preview: Cycle Run Completion Text":
-    @Event eachPlayer
-    @Condition eventPlayer.isHoldingButton(Button.INTERACT) == true
-    @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
-
-    eventPlayer.previewCompletion = (eventPlayer.previewCompletion + 1) % 4
-    stopChasingVariable(eventPlayer.runTime)
-    eventPlayer.runTime = 999999 if eventPlayer.previewCompletion == 1 else 0
-    eventPlayer.isRunLegit = eventPlayer.previewCompletion != 3
-    # Turned off first, so Load Run Text restarts its 30 seconds
-    eventPlayer.isViewingRunCompletionText = false
-    wait()
-    eventPlayer.isViewingRunCompletionText = eventPlayer.previewCompletion > 0
-"""
-LANGUAGE_CHECK_RULE = """
-
-rule "Preview: Language Check HUD":
-    hudSubheader(
-        getAllPlayers(),
-        "Language check: {}".format(updateEveryFrame(Map.ILIOS_RUINS)),
-        HudPosition.TOP,
-        -1,
-        Color.WHITE,
-        HudReeval.VISIBILITY_AND_STRING
-    )
-"""
+# A translated string in the source: _( and its string literals, joined up
+SOURCE_RE = re.compile(r'\b_\(\s*((?:"(?:[^"\\\n]|\\.)*"\s*)+)\)')
+LITERAL_RE = re.compile(r'"((?:[^"\\\n]|\\.)*)"')
+FILE_RE = re.compile(r"file (\S+), rule")
 
 
 def languages():
@@ -144,6 +70,138 @@ def link(course, language):
     print(f"linked {path.relative_to(SRC.parent)} -> {target.relative_to(SRC.parent)}")
 
 
+def spacing_key(msgid):
+    """A msgid without its spaces, so a respaced English line still matches its old one."""
+    return re.sub(r'[\s"]', "", msgid)
+
+
+def follow_respacing():
+    """Moves translations over to English lines whose spaces changed in the source.
+
+    OverPy writes a course's .po files when it compiles, so a copy of src/ compiles into a
+    temporary folder, and its .po files list the English as it is now. Each line in them that
+    the real .po files don't have takes the translation of the one line there that it matches
+    apart from spaces, and isn't in the source any more.
+    """
+    with tempfile.TemporaryDirectory() as tmp:
+        copy = Path(tmp)
+        shutil.copytree(SRC, copy / "src", symlinks=True)
+        shutil.copytree(SRC.parent / "leaderboards", copy / "leaderboards")
+        results = compile_files(courses(copy / "src")[:1])
+        if results is None:
+            print("Skipped respacing: needs node and the OverPy VS Code extension")
+            return
+        if "error" in results[0]:
+            sys.exit(f"OverPy compile failed: {results[0]['error']}")
+        for language in languages():
+            path = TRANSLATIONS / f"{language}.po"
+            text = path.read_text()
+            old = [m[1] for m in ENTRY_RE.finditer(text)][1:]
+            new = [
+                m[1]
+                for m in ENTRY_RE.finditer(
+                    (copy / "src" / "translations" / f"{language}.po").read_text()
+                )
+            ][1:]
+            gone = [msgid for msgid in old if msgid not in new]
+            moved = 0
+            for msgid in new:
+                if msgid in old:
+                    continue
+                matches = [g for g in gone if spacing_key(g) == spacing_key(msgid)]
+                if len(matches) == 1:
+                    text = text.replace(f"msgid {matches[0]}", f"msgid {msgid}", 1)
+                    gone.remove(matches[0])
+                    moved += 1
+            if moved:
+                path.write_text(text)
+                print(
+                    f"{language}: kept {moved} translation(s) through a spacing change"
+                )
+
+
+def recover_from_commit():
+    """Refills translations a compile emptied after their English was respaced.
+
+    Compiling before running this drops the old line, so its translation comes back from the
+    last commit's .po file instead, by the same match apart from spaces.
+    """
+    for language in languages():
+        path = TRANSLATIONS / f"{language}.po"
+        committed = subprocess.run(
+            ["git", "show", f"HEAD:src/translations/{language}.po"],
+            cwd=SRC.parent,
+            capture_output=True,
+            text=True,
+        )
+        if committed.returncode:
+            continue
+        before = {}
+        for m in ENTRY_RE.finditer(committed.stdout):
+            if m[2].strip() != '""':
+                before.setdefault(spacing_key(m[1]), []).append(m[2])
+        text = path.read_text()
+        recovered = 0
+        for m in ENTRY_RE.finditer(text):
+            found = before.get(spacing_key(m[1]), [])
+            if m[2].strip() == '""' and len(found) == 1:
+                text = text.replace(m[0], f"msgid {m[1]}msgstr {found[0]}", 1)
+                recovered += 1
+        if recovered:
+            path.write_text(text)
+            print(
+                f"{language}: took {recovered} emptied translation(s) from the last commit"
+            )
+
+
+def source_order():
+    """Each translated string's place in its source file, by file name and spacing_key."""
+    order = {}
+    for path in SRC.rglob("*.opy"):
+        places = order.setdefault(path.name, {})
+        for m in SOURCE_RE.finditer(path.read_text()):
+            text = "".join(LITERAL_RE.findall(m[1]))
+            # OverPy numbers the {}s in a msgid
+            count = iter(range(text.count("{}")))
+            text = re.sub(r"\{\}", lambda _: "{%d}" % next(count), text)
+            places.setdefault(spacing_key(text), len(places))
+    return order
+
+
+def sort_entries():
+    """Puts the lines under each rule in the order of its source file.
+
+    OverPy sorts entries by their comments (file and rule), keeping the order the file
+    already had among entries that share them, so this only reorders runs of entries with
+    the same comments, and OverPy keeps it.
+    """
+    order = source_order()
+    for language in languages():
+        path = TRANSLATIONS / f"{language}.po"
+        header, *blocks = path.read_text().rstrip("\n").split("\n\n")
+        comments = [b[: b.index("msgid ")] if "msgid " in b else b for b in blocks]
+
+        def place(i):
+            file = FILE_RE.search(comments[i])
+            msgid = ENTRY_RE.search(blocks[i] + "\n")
+            places = order.get(file[1], {}) if file else {}
+            return places.get(spacing_key(msgid[1]) if msgid else "", len(places))
+
+        result, i = [], 0
+        while i < len(blocks):
+            j = i
+            while j < len(blocks) and comments[j] == comments[i]:
+                j += 1
+            result += [
+                blocks[k] for k in sorted(range(i, j), key=lambda k: (place(k), k))
+            ]
+            i = j
+        text = "\n\n".join([header] + result) + "\n"
+        if text != path.read_text():
+            path.write_text(text)
+            print(f"{language}: put lines in source order")
+
+
 def progress(language):
     """Returns how many of the language's strings are translated, and how many there are."""
     entries = ENTRY_RE.findall((TRANSLATIONS / f"{language}.po").read_text())[1:]
@@ -151,108 +209,26 @@ def progress(language):
     return sum(msgstr.strip() != '""' for _, msgstr in entries), len(entries)
 
 
-def status(args):
+def status():
     TRANSLATIONS.mkdir(exist_ok=True)
     for course in courses():
         for language in languages():
             link(course, language)
+    follow_respacing()
+    recover_from_commit()
+    sort_entries()
     for language in languages():
         translated, total = progress(language)
         print(f"{language}: {translated}/{total} translated")
     print("Recompile a course to add new strings to the .po files.")
 
 
-def inline(path):
-    """The lines of a course file or ballkour.opy, to copy into a preview.
-
-    OverPy allows one post-compile hook, found from the main file's folder, so a preview
-    can't include ballkour.opy, whose minify hook would clash with the preview's own. The
-    preview copies in the course file and ballkour.opy instead, without the hook, and
-    with their includes made relative to previews/.
-    """
-    lines = []
-    for line in path.read_text().splitlines():
-        if line.startswith("#!postCompileHook "):
-            continue
-        if m := INCLUDE_RE.match(line):
-            target = (path.parent / m[1]).resolve()
-            if target == (SRC / "ballkour.opy").resolve():
-                lines += inline(target)
-                continue
-            line = f'#!include "{os.path.relpath(target, PREVIEWS)}"'
-        lines.append(line)
-    return lines
-
-
-def write_preview(name, course, comment, language, hook, extra=""):
-    """Writes previews/<name>.opy, shown in the language, or detected if it's None."""
-    (PREVIEWS / f"{name}.opy").write_text(
-        f"# {comment} Test build: don't publish it.\n"
-        + "\n".join(inline(course))
-        + '\n#!include "preview-rules.opy"\n'
-        + (f"#!translations en {language}\n" if language else "")
-        + f'#!postCompileHook "{hook}"\n'
-        + extra
-    )
-    # OverPy looks for a main file's translations next to it, named after it
-    for language in [language] if language else languages():
-        (PREVIEWS / f"{name}.{language}.po").symlink_to(
-            f"../src/translations/{language}.po"
-        )
-
-
-def preview(args):
-    course = find_course(args.course) if args.course else courses()[0]
-    PREVIEWS.mkdir(exist_ok=True)
-    for path in PREVIEWS.iterdir():
-        path.unlink()
-    (PREVIEWS / "show-controls.js").write_text(
-        SHOW_CONTROLS_JS + "\nshowControls(content).toString();\n"
-    )
-    (PREVIEWS / "force-language.js").write_text(
-        SHOW_CONTROLS_JS
-        + "\n"
-        + FORCE_LANGUAGE_JS
-        + "\nforceLanguage(showControls(content)).toString();\n"
-    )
-    (PREVIEWS / "preview-rules.opy").write_text(PREVIEW_RULES)
-    for language in languages():
-        write_preview(
-            language,
-            course,
-            f"{course.stem} in {language}, whatever the game's language.",
-            language,
-            "force-language.js",
-        )
-    write_preview(
-        "language-check",
-        course,
-        f"{course.stem} with the real language detection, and the map name it reads.",
-        None,
-        "show-controls.js",
-        LANGUAGE_CHECK_RULE,
-    )
-    print(
-        f"Wrote {course.stem} previews for {' '.join(languages())} and language-check"
-        f" to {PREVIEWS.relative_to(SRC.parent)}/"
-    )
-
-
 def main():
     parser = argparse.ArgumentParser(
         description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
     )
-    parser.set_defaults(run=status)
-    commands = parser.add_subparsers()
-    preview_parser = commands.add_parser(
-        "preview", help="write test builds that show a translation in-game"
-    )
-    preview_parser.add_argument(
-        "course", nargs="?", help="course file or part of its name (default: the first)"
-    )
-    preview_parser.set_defaults(run=preview)
-    args = parser.parse_args()
-    args.run(args)
+    parser.parse_args()
+    status()
 
 
 if __name__ == "__main__":

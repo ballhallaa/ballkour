@@ -228,7 +228,7 @@ Try these with the Beta code of a Ballkour remake.
 
 ## FAQ
 
-Answers to questions like what counts as a valid run or a mistake are on [ballkour.com/faq](https://ballkour.com/faq). They're the same as the in-game FAQ, which opens with **Ultimate + Ability 2** in a beta match.
+Answers to questions like what counts as a valid run or a mistake are on [ballkour.com/faq](https://ballkour.com/faq). They're the same as the in-game FAQ, which opens with **Ultimate + Melee** in a beta match.
 
 Something wrong or missing? [Report it on GitHub](https://ballkour.com/issues).
 
