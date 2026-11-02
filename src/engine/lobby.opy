@@ -94,13 +94,15 @@ def loadLobby():
     )
     eventPlayer.setInvisibility(Invis.ALL)
     eventPlayer.nameplate = _("{}").format("")
-    # Looking around is all there is to do. Both fires pick a button (Select Input), and
-    # their presses can still be read with them off. Everything's disallowed rather than
-    # disabled so all the icons look the same, as slam's and ball form's can't show as off
-    # together, and a checkpoint's bans are lifted so they don't show here. The hero HUD
+    # Looking around is all there is to do. Both fires pick a button and Melee closes a
+    # run's info (Select Input), and their presses can still be read with them off, which
+    # also keeps Melee from punching the others held here. Everything's disallowed rather
+    # than disabled so all the icons look the same, as slam's and ball form's can't show as
+    # off together, and a checkpoint's bans are lifted so they don't show here. The hero HUD
     # stays, as hiding it hides the crosshair too.
     eventPlayer.disallowButton(Button.PRIMARY_FIRE)
     eventPlayer.disallowButton(Button.SECONDARY_FIRE)
+    eventPlayer.disallowButton(Button.MELEE)
     eventPlayer.disallowButton(Button.ABILITY_1)
     eventPlayer.disallowButton(Button.ABILITY_2)
     eventPlayer.disallowButton(Button.CROUCH)
@@ -132,6 +134,7 @@ def leaveLobby():
         eventPlayer.allowButton(Button.SECONDARY_FIRE)
         eventPlayer.allowButton(Button.ABILITY_1)
         eventPlayer.allowButton(Button.ABILITY_2)
+        eventPlayer.allowButton(Button.MELEE)
     else:
         eventPlayer.disallowButton(Button.ABILITY_1)
 
@@ -580,21 +583,28 @@ rule "Load Stats Page":
     )
 
 
-# Interact picks a button, and so does either fire, which don't shoot in the lobby (Load)
+# Interact picks a button, and so does either fire, which don't shoot in the lobby (Load).
+# Melee closes an open run's info, like the FAQ.
 rule "Select Input":
     @Event eachPlayer
     @Condition (
         eventPlayer.isHoldingButton(Button.INTERACT)
         or eventPlayer.isHoldingButton(Button.PRIMARY_FIRE)
         or eventPlayer.isHoldingButton(Button.SECONDARY_FIRE)
+        or eventPlayer.isHoldingButton(Button.MELEE)
     ) == true
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
     @Condition eventPlayer.isInLobby == true
     @Condition eventPlayer.isLoading == false
-    # Interact closes the FAQ
+    # Either fire turns the FAQ's pages
     @Condition eventPlayer.faqPage == 0
 
-    if eventPlayer.lobbyPage == 1:
+    if eventPlayer.isHoldingButton(Button.MELEE):
+        # Wherever they're looking
+        if eventPlayer.lbInfoRow != 0:
+            eventPlayer.lbInfoRow = 0
+            showRunInfo()
+    elif eventPlayer.lobbyPage == 1:
         eventPlayer.lobbyAim = buttonAimRow(eventPlayer)
         if eventPlayer.lobbyAim == 1:
             newRun()
@@ -610,8 +620,12 @@ rule "Select Input":
         elif eventPlayer.lobbyAim == 3:
             toggleSpectator()
         elif eventPlayer.lobbyAim == 4:
-            # Once Interact is let go, as it closes the FAQ (FAQ: Open)
-            waitUntil(not eventPlayer.isHoldingButton(Button.INTERACT), Math.INFINITY)
+            # Once a fire is let go, as either fire turns the FAQ's pages (FAQ: Open)
+            waitUntil(
+                not eventPlayer.isHoldingButton(Button.PRIMARY_FIRE)
+                and not eventPlayer.isHoldingButton(Button.SECONDARY_FIRE),
+                Math.INFINITY
+            )
             eventPlayer.faqPage = 1
         elif eventPlayer.lobbyAim == 5:
             if isLobbyStatsOn and "{}".format(eventPlayer) == hostPlayerName:
@@ -622,12 +636,8 @@ rule "Select Input":
                 eventPlayer.__languageIndex__ = eventPlayer.lobbyAim - 1
             elif lbRunCount > 0:
                 eventPlayer.lobbyAim = lbAimRow(eventPlayer)
-                # Looking at the open run again hides it, like looking away from the runs.
-                # Interact only ever hides: it's the close key, runs are opened by clicking.
-                if (
-                    eventPlayer.lobbyAim == eventPlayer.lbInfoRow
-                    or eventPlayer.isHoldingButton(Button.INTERACT)
-                ):
+                # Looking at the open run again hides it, like looking away from the runs
+                if eventPlayer.lobbyAim == eventPlayer.lbInfoRow:
                     eventPlayer.lobbyAim = 0
                 if eventPlayer.lobbyAim != eventPlayer.lbInfoRow:
                     eventPlayer.lbInfoRow = eventPlayer.lobbyAim
@@ -676,7 +686,7 @@ def showRunInfo():
         0,
         "{}{}\n{}{}".format(
             lbRunPad[2],
-            _(lobbyHudText[1]).replace("@0", inputBindingString(Button.INTERACT)),
+            _(lobbyHudText[1]).replace("@0", inputBindingString(Button.MELEE)),
             lbRunPad[4],
             lbRunPad[3]
         ),

@@ -11,6 +11,14 @@ macro faqAnswer(faqSlot):
     faqHudText[(localPlayer.faqPage - 1) * FAQ_PAGE_LENGTH + faqSlot]
 
 
+# Either fire, which turn the pages back and forward
+macro isTurningFaqPage(player):
+    (
+        player.isHoldingButton(Button.PRIMARY_FIRE)
+        or player.isHoldingButton(Button.SECONDARY_FIRE)
+    )
+
+
 rule "Open":
     @Event eachPlayer
     @Condition eventPlayer.faqPage > 0
@@ -18,9 +26,11 @@ rule "Open":
     # Controls: FAQ Input opens and closes it. Every eachPlayer rule adds to the server's
     # periodic load, and six of them for the FAQ were enough to close the server, so this one
     # rule does all of it: closing, turning pages, the sky camera, and locking the player in
-    # place. Interact closes the FAQ and Jump turns its page, so it doesn't jump while it's
-    # open, or once it closes until Jump is let go.
+    # place. Melee closes the FAQ and Primary/Secondary Fire turn its pages, and Melee is off
+    # while it's open so it doesn't punch. Jump stays off too, so the player stays put, and
+    # once it closes until Jump is let go.
     eventPlayer.disallowButton(Button.JUMP)
+    eventPlayer.disallowButton(Button.MELEE)
     # Every HUD text but the FAQ's hides while it's open, and so does the hero's own HUD
     eventPlayer.disableHeroHud()
     # Looks up into the sky from high above the player, so the FAQ has a plain background.
@@ -46,15 +56,15 @@ rule "Open":
             eventPlayer.disallowButton(Button.ABILITY_2)
             waitUntil(
                 eventPlayer.faqPage == 0
-                or eventPlayer.isHoldingButton(Button.INTERACT)
-                or eventPlayer.isHoldingButton(Button.JUMP)
+                or eventPlayer.isHoldingButton(Button.MELEE)
+                or isTurningFaqPage(eventPlayer)
                 or eventPlayer.spectating[0],
                 Math.INFINITY
             )
             # A page turn locks them again on the next pass
             if not eventPlayer.spectating[0] and (
-                eventPlayer.isHoldingButton(Button.INTERACT)
-                or not eventPlayer.isHoldingButton(Button.JUMP)
+                eventPlayer.isHoldingButton(Button.MELEE)
+                or not isTurningFaqPage(eventPlayer)
             ):
                 # The lobby holds them still (Lobby: Load)
                 eventPlayer.setMoveSpeed(0 if eventPlayer.isInLobby else 100)
@@ -69,44 +79,59 @@ rule "Open":
                     eventPlayer.allowButton(Button.ABILITY_1)
                     eventPlayer.allowButton(Button.ABILITY_2)
         elif eventPlayer.spectating[2]:
-            # Freecam flies, so it holds still. Reattaching forces the position itself.
+            # Freecam flies, so it holds still, and Jetpack Cat's fires are off so they only
+            # turn pages. Reattaching forces the position itself.
             eventPlayer.startForcingPosition(eventPlayer.getPosition(), false)
+            eventPlayer.disallowButton(Button.PRIMARY_FIRE)
+            eventPlayer.disallowButton(Button.SECONDARY_FIRE)
             waitUntil(
                 eventPlayer.faqPage == 0
-                or eventPlayer.isHoldingButton(Button.INTERACT)
-                or eventPlayer.isHoldingButton(Button.JUMP)
+                or eventPlayer.isHoldingButton(Button.MELEE)
+                or isTurningFaqPage(eventPlayer)
                 or not eventPlayer.spectating[0]
                 or not eventPlayer.spectating[2],
                 Math.INFINITY
             )
-            # Jetpack Cat flies up with Jump, so a page turn keeps holding it
+            # A page turn keeps holding it, with its fires off
             if eventPlayer.spectating[2] and (
-                eventPlayer.isHoldingButton(Button.INTERACT)
-                or not eventPlayer.isHoldingButton(Button.JUMP)
+                eventPlayer.isHoldingButton(Button.MELEE)
+                or not isTurningFaqPage(eventPlayer)
             ):
                 eventPlayer.stopForcingPosition()
+                # Like playing, letting go of Ultimate gives them back in HUD Input
+                if not eventPlayer.isHoldingButton(Button.ULTIMATE):
+                    eventPlayer.allowButton(Button.PRIMARY_FIRE)
+                    eventPlayer.allowButton(Button.SECONDARY_FIRE)
         else:
             # Watching someone already holds them in place
             waitUntil(
                 eventPlayer.faqPage == 0
-                or eventPlayer.isHoldingButton(Button.INTERACT)
-                or eventPlayer.isHoldingButton(Button.JUMP)
+                or eventPlayer.isHoldingButton(Button.MELEE)
+                or isTurningFaqPage(eventPlayer)
                 or not eventPlayer.spectating[0]
                 or eventPlayer.spectating[2],
                 Math.INFINITY
             )
-        if eventPlayer.isHoldingButton(Button.INTERACT):
-            # Closing once Interact is let go, so it doesn't go on to press a lobby button
-            waitUntil(not eventPlayer.isHoldingButton(Button.INTERACT), Math.INFINITY)
+        if eventPlayer.isHoldingButton(Button.MELEE):
+            # Closing once Melee is let go, so with Ultimate held it doesn't open again
+            # (Controls: FAQ Input)
+            waitUntil(not eventPlayer.isHoldingButton(Button.MELEE), Math.INFINITY)
             eventPlayer.faqPage = 0
-        elif eventPlayer.isHoldingButton(Button.JUMP):
-            eventPlayer.faqPage = eventPlayer.faqPage % FAQ_PAGES + 1
-            waitUntil(not eventPlayer.isHoldingButton(Button.JUMP), Math.INFINITY)
+        elif isTurningFaqPage(eventPlayer):
+            # Secondary Fire goes forward and Primary Fire back, both going around between
+            # the last page and page 1
+            if eventPlayer.isHoldingButton(Button.SECONDARY_FIRE):
+                eventPlayer.faqPage = eventPlayer.faqPage % FAQ_PAGES + 1
+            else:
+                eventPlayer.faqPage = (
+                    eventPlayer.faqPage + FAQ_PAGES - 2
+                ) % FAQ_PAGES + 1
+            waitUntil(not isTurningFaqPage(eventPlayer), Math.INFINITY)
     if eventPlayer.spectating[0] and not eventPlayer.spectating[2]:
         # Without a target, Hold Queued Camera takes over
         if eventPlayer.spectating[1] != null:
             startSpectatorCamera()
-        # A held page turn's Jump shouldn't go on to enable freecam
+        # A Jump held while it was open shouldn't go on to enable freecam
         eventPlayer.spectating[9] = true
         waitUntil(not eventPlayer.isHoldingButton(Button.JUMP), Math.INFINITY)
         eventPlayer.spectating[9] = false
@@ -114,6 +139,10 @@ rule "Open":
         eventPlayer.stopCamera()
         waitUntil(not eventPlayer.isHoldingButton(Button.JUMP), Math.INFINITY)
     eventPlayer.allowButton(Button.JUMP)
+    # While Ultimate is held, letting go of it gives Melee back (Controls: HUD Input), and
+    # the lobby keeps it until it's left (Lobby: Leave)
+    if not eventPlayer.isHoldingButton(Button.ULTIMATE) and not eventPlayer.isInLobby:
+        eventPlayer.allowButton(Button.MELEE)
     eventPlayer.enableHeroHud()
     if RULE_CONDITION:
         loop()
@@ -147,112 +176,116 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    # Each answer is its own string, with its question in the BALLKOUR.COM green. The
+    # Each answer is its own string in white, with its question in gold and the game's own
+    # labels (controls, HUD and lobby names) in orange, the ones ballkour.com/faq marks. The
     # answers are English only, with the translated ones at ballkour.com/faq: in all 14
     # languages they made pasting the script take several seconds longer.
     # Page 1
     faqHudText[1] = (
-        "\nWebsite: <fgFFFFFFFF>ballkour.com</fg>"
-        "\nDiscord: <fgFFFFFFFF>ballkour.com/discord</fg>"
-        "\nReport Issues: <fgFFFFFFFF>ballkour.com/issues</fg>"
-        "\nVersion: <fgFFFFFFFF>{}</fg>"
+        "\n<fgE69700FF>Website:</fg> ballkour.com"
+        "\n<fgE69700FF>Discord:</fg> ballkour.com/discord"
+        "\n<fgE69700FF>Report Issues:</fg> ballkour.com/issues"
+        "\n<fgE69700FF>Version:</fg> {}"
     ).format(VERSION)
     faqHudText[2] = (
-        "\n\n<fg00E092FF>What counts as a valid run?</fg>"
+        "\n\n<fgFFD700FF>What counts as a valid run?</fg>"
         "\nYour run is only disqualified if you skip a checkpoint you haven't cleared yet this run."
         "\nGoing back or restarting checkpoints, skipping ahead to cleared checkpoints, and"
-        "\nspectating are fine. Leaving an uncleared checkpoint in Freemode counts as skipping it."
-        "\nDisqualified runs don't count toward the top-10 leaderboard, Lobby Top 3, or Lobby Stats."
+        "\nspectating are fine. Leaving an uncleared checkpoint in <fgE69700FF>Freemode</fg> counts as skipping it."
+        "\nDisqualified runs don't count toward the top-10 leaderboard, <fgE69700FF>Lobby Top 3</fg>, or <fgE69700FF>Lobby Stats</fg>."
     )
     faqHudText[3] = (
-        "\n\n<fg00E092FF>What counts as a mistake?</fg>"
+        "\n\n<fgFFD700FF>What counts as a mistake?</fg>"
         "\nLanding anywhere but the next checkpoint, bhopping twice, missing a bounce checkpoint's"
-        "\njump, falling off the map, or leaving mid-attempt with Prev./Next CP, Reset CP, Freemode,"
-        "\nSpectate, or Lobby/Pause."
+        "\njump, falling off the map, or leaving mid-attempt with <fgE69700FF>Prev.</fg>/<fgE69700FF>Next CP</fg>, <fgE69700FF>Reset CP</fg>, <fgE69700FF>Freemode</fg>,"
+        "\n<fgE69700FF>Spectate</fg>, or <fgE69700FF>Lobby/Pause</fg>."
     )
     faqHudText[4] = (
-        "\n\n<fg00E092FF>When does my run's timer start?</fg>"
+        "\n\n<fgFFD700FF>When does my run's timer start?</fg>"
         "\nWhen you leave the first checkpoint, not when you spawn."
     )
     faqHudText[5] = (
-        "\n\n<fg00E092FF>What pauses my run?</fg>"
-        "\nLobby/Pause and Spectate stop your timer, and Resume Run in the lobby carries on from"
+        "\n\n<fgFFD700FF>What pauses my run?</fg>"
+        "\n<fgE69700FF>Lobby/Pause</fg> and <fgE69700FF>Spectate</fg> stop your timer, and <fgE69700FF>Resume Run</fg> in the lobby carries on from"
         "\nyour checkpoint. Pausing outside your checkpoint counts as a mistake."
     )
     faqHudText[6] = (
-        "\n\n<fg00E092FF>What is Freemode for?</fg>"
+        "\n\n<fgFFD700FF>What is Freemode for?</fg>"
         "\nPractice, with no timer and all your abilities. You can't clear checkpoints in it,"
         "\nand leaving your checkpoint with it on disqualifies your run."
     )
     # Page 2
     faqHudText[7] = (
-        "\n<fg00E092FF>What do Runs and Attempts count?</fg>"
-        "\nRuns counts the runs you've finished or restarted. Attempts counts your mistakes"
+        "\n<fgFFD700FF>What do Runs and Attempts count?</fg>"
+        "\n<fgE69700FF>Runs</fg> counts the runs you've finished or restarted. <fgE69700FF>Attempts</fg> counts your mistakes"
         "\nand clears on this checkpoint, over all your runs."
     )
     faqHudText[8] = (
-        "\n\n<fg00E092FF>What do Attempt and Split mean?</fg>"
-        "\nAttempt is timed from leaving the checkpoint. Split is timed from reaching it, so it"
+        "\n\n<fgFFD700FF>What do Attempt and Split mean?</fg>"
+        "\n<fgE69700FF>Attempt</fg> is timed from leaving the checkpoint. <fgE69700FF>Split</fg> is timed from reaching it, so it"
         "\nincludes your mistakes. Each turns red once it's slower than your best."
         "\nAfter a clear, they show your times for 2 seconds: <fgFFFF00FF>yellow</fg> on your first clear, then"
         "\n<fg00E092FF>green</fg> if faster or <fgFF4646FF>red</fg> if slower than your average. A new best is compared with your old best."
     )
     faqHudText[9] = (
-        "\n\n<fg00E092FF>Are Best and Avg server records?</fg>"
+        "\n\n<fgFFD700FF>Are Best and Avg server records?</fg>"
         "\nNo, they're only your own times on that checkpoint, over all your runs."
         "\nThey reset when you leave or when the server restarts."
     )
     faqHudText[10] = (
-        "\n\n<fg00E092FF>What is Pace?</fg>"
+        "\n\n<fgFFD700FF>What is Pace?</fg>"
         "\nYour estimated finish time, from this run's average split so far. Once your current"
         "\nsplit is slower than that average, it turns <fgFF4646FF>red</fg> and counts up with your time."
     )
     faqHudText[11] = (
-        "\n\n<fg00E092FF>Why are some controls </fg><fg808080FF>grayed out</fg><fg00E092FF>?</fg>"
-        "\nThey can't be used right now: Prev. CP on the first checkpoint, Next CP on the last,"
-        "\nand the player controls while there's nobody to spectate. X-Hair Player also needs Freecam."
+        "\n\n<fgFFD700FF>Why are some controls </fg><fg808080FF>grayed out</fg><fgFFD700FF>?</fg>"
+        "\nThey can't be used right now: <fgE69700FF>Prev. CP</fg> on the first checkpoint, <fgE69700FF>Next CP</fg> on the last,"
+        "\nand the player controls while there's nobody to spectate. <fgE69700FF>X-Hair Player</fg> also needs <fgE69700FF>Freecam</fg>."
     )
     faqHudText[12] = (
-        "\n\n<fg00E092FF>What's on the scorecard?</fg>"
+        "\n\n<fgFFD700FF>What's on the scorecard?</fg>"
         "\nEach runner's checkpoint, time, and mistakes, furthest first, then fastest."
         "\n<fgFF4646FF>Red</fg> runs, marked <fgFF4646FF>×</fg>, are disqualified."
     )
     # Page 3
     faqHudText[13] = (
-        "\n<fg00E092FF>What do the hint colors mean?</fg>"
+        "\n<fgFFD700FF>What do the hint colors mean?</fg>"
         "\n<fgCB87FFFF>Movement</fg>   <fgFFFFFFFF>Jump</fg>   <fgFFD200FF>Grapple</fg>   <fgFF4646FF>Piledrive</fg>   <fg00BEFFFF>Shield Bounce</fg>"
         "\nHints turn on by themselves after 10 mistakes on one checkpoint,"
         "\nand off again when you move on to another."
     )
     faqHudText[14] = (
-        "\n\n<fg00E092FF>How do I get on the leaderboard?</fg>"
+        "\n\n<fgFFD700FF>How do I get on the leaderboard?</fg>"
         "\nFinish a valid run and submit a video of it at ballkour.com."
-        "\nLobby Top 3 only lists the fastest valid runs finished in this lobby."
+        "\n<fgE69700FF>Lobby Top 3</fg> only lists the fastest valid runs finished in this lobby."
     )
     faqHudText[15] = (
-        "\n\n<fg00E092FF>Why are some players tiny?</fg>"
+        "\n\n<fgFFD700FF>Why are some players tiny?</fg>"
         "\nPlayers who haven't moved for 60 seconds shrink, so they're not in anyone's way."
         "\nThey grow back as soon as they move."
     )
     faqHudText[16] = (
-        "\n\n<fg00E092FF>Does the server restart?</fg>"
+        "\n\n<fgFFD700FF>Does the server restart?</fg>"
         "\nYes, about every 4 hours, with warnings from 30 minutes before."
-        "\nRuns, Attempts, Mistakes, Best, Avg, the scorecard, and Lobby Top 3 reset, so nothing"
+        "\n<fgE69700FF>Runs</fg>, <fgE69700FF>Attempts</fg>, <fgE69700FF>Mistakes</fg>, <fgE69700FF>Best</fg>, <fgE69700FF>Avg</fg>, the scorecard, and <fgE69700FF>Lobby Top 3</fg> reset, so nothing"
         "\ncarries over into a new match (a Workshop limitation)."
     )
     faqHudText[17] = (
-        "\n\n<fg00E092FF>Why does it take so long to load a Ballkour game?</fg>"
+        "\n\n<fgFFD700FF>Why does it take so long to load a Ballkour game?</fg>"
         "\nIts Workshop script is big, mostly from its translations into 13 languages,"
         "\nand Overwatch takes a while to load it before the match starts."
     )
     faqHudText[18] = (
-        "\n\n<fg00E092FF>Is something wrong in my language?</fg>"
+        "\n\n<fgFFD700FF>Is something wrong in my language?</fg>"
         "\nThe translations are drafts, so please report mistakes at ballkour.com/issues."
     )
     faqHudText[19] = _("Next Page: <fgFFFFFFFF>@0</fg>")
     faqHudText[20] = _("Close: <fgFFFFFFFF>@0</fg>")
     # Instead of Next Page on the last page, as the same key goes back around
-    faqHudText[22] = _("Back to Page 1: <fgFFFFFFFF>@0</fg>")
+    faqHudText[22] = _("First Page: <fgFFFFFFFF>@0</fg>")
+    faqHudText[23] = _("Prev. Page: <fgFFFFFFFF>@0</fg>")
+    # Instead of Prev. Page on page 1, as it goes back around too
+    faqHudText[24] = _("Last Page: <fgFFFFFFFF>@0</fg>")
     # Each language names itself, e.g. "FAQ auf Deutsch"
     faqHudText[21] = _("FAQ in English: <fgFFFFFFFF>ballkour.com/faq</fg>")
     # A blank line above the title, under BALLKOUR.COM or the run completion text: a blank
@@ -301,20 +334,23 @@ rule "Load HUD":
         ),
         HudPosition.TOP,
         10,
-        rgb(230, 151, 0),
+        Color.WHITE,
         HudReeval.VISIBILITY_AND_STRING
     )
     # The keys are a size bigger than the page, so they're its own HUD text, centered under
     # it. Only this one uses String Replace, which cuts off long strings.
     hudSubtext(
         getAllPlayers().filter(lambda localPlayer: localPlayer.faqPage > 0),
-        "\n{}\n{}".format(
+        "\n{}\n{}\n{}".format(
+            (
+                _(faqHudText[23]) if localPlayer.faqPage > 1 else _(faqHudText[24])
+            ).replace("@0", inputBindingString(Button.PRIMARY_FIRE)),
             (
                 _(faqHudText[19])
                 if localPlayer.faqPage < FAQ_PAGES
                 else _(faqHudText[22])
-            ).replace("@0", inputBindingString(Button.JUMP)),
-            _(faqHudText[20]).replace("@0", inputBindingString(Button.INTERACT))
+            ).replace("@0", inputBindingString(Button.SECONDARY_FIRE)),
+            _(faqHudText[20]).replace("@0", inputBindingString(Button.MELEE))
         ),
         HudPosition.TOP,
         11,
