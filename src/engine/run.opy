@@ -66,10 +66,10 @@ rule "Sync Viewed Runner":
 
 
 rule "Load HUD":
-    # A header, the biggest HUD text. The Q&A keeps the smaller one, as its own header goes
+    # A header, the biggest HUD text. The FAQ keeps the smaller one, as its own header goes
     # under it.
     hudHeader(
-        getAllPlayers().filter(lambda localPlayer: localPlayer.qaPage == 0),
+        getAllPlayers().filter(lambda localPlayer: localPlayer.faqPage == 0),
         "ballkour.com",
         HudPosition.TOP,
         0,
@@ -77,7 +77,7 @@ rule "Load HUD":
         HudReeval.VISIBILITY
     )
     hudSubtext(
-        getAllPlayers().filter(lambda localPlayer: localPlayer.qaPage > 0),
+        getAllPlayers().filter(lambda localPlayer: localPlayer.faqPage > 0),
         "ballkour.com",
         HudPosition.TOP,
         0,
@@ -89,7 +89,7 @@ rule "Load HUD":
     runHudText = _("Controls: <fgFFFFFFFF>@0 (Hold)</fg>")
     hudSubheader(
         getAllPlayers().filter(
-            lambda localPlayer: not localPlayer.isInLobby and localPlayer.qaPage == 0
+            lambda localPlayer: not localPlayer.isInLobby and localPlayer.faqPage == 0
         ),
         _(runHudText).replace("@0", inputBindingString(Button.ULTIMATE)),
         HudPosition.LEFT,
@@ -108,7 +108,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: not localPlayer.isInLobby
             and not localPlayer.spectating[3]
-            and localPlayer.qaPage == 0
+            and localPlayer.faqPage == 0
         ),
         _(counterHudText[0]).replace("@0", localPlayer.viewRunner.runCount),
         HudPosition.RIGHT,
@@ -121,7 +121,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: not localPlayer.isInLobby
             and not localPlayer.spectating[3]
-            and localPlayer.qaPage == 0
+            and localPlayer.faqPage == 0
         ),
         _(counterHudText[1]).replace(
             "@0", localPlayer.viewRunner.cpAttempts[localPlayer.viewRunner.runCurrentCp]
@@ -133,7 +133,7 @@ rule "Load HUD":
     )
     hudSubtext(
         getAllPlayers().filter(
-            lambda localPlayer: not localPlayer.isInLobby and localPlayer.qaPage == 0
+            lambda localPlayer: not localPlayer.isInLobby and localPlayer.faqPage == 0
         ),
         ("{}{} {}/{}\n").format(
             "\n\n\n\n" if localPlayer.spectating[3] else "\n\n",
@@ -151,7 +151,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: not localPlayer.isInLobby
             and not localPlayer.spectating[3]
-            and localPlayer.qaPage == 0
+            and localPlayer.faqPage == 0
         ),
         ("{} {}\n").format(
             iconString(Icon.BOLT),
@@ -170,7 +170,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: not localPlayer.isInLobby
             and not localPlayer.spectating[3]
-            and localPlayer.qaPage == 0
+            and localPlayer.faqPage == 0
         ),
         ("{} {}\n\n").format(
             iconString(Icon.SKULL), localPlayer.viewRunner.runMistakes
@@ -194,7 +194,7 @@ rule "Load HUD":
             lambda localPlayer: controlsVisible(
                 not localPlayer.isScorecardHidden
                 and (scorecardHasRows(localPlayer) or len(topRuns) > 0)
-                and localPlayer.qaPage == 0
+                and localPlayer.faqPage == 0
             )
         ),
         "{}{}{}{}".format(
@@ -233,7 +233,7 @@ rule "Load HUD":
             lambda localPlayer: controlsVisible(
                 localPlayer.isScorecardHidden
                 and (scorecardHasRows(localPlayer) or len(topRuns) > 0)
-                and localPlayer.qaPage == 0
+                and localPlayer.faqPage == 0
             )
         ),
         _(scorecardHudText[1])

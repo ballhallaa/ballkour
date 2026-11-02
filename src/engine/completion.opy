@@ -130,7 +130,7 @@ rule "Run Text":
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
-            and localPlayer.qaPage == 0
+            and localPlayer.faqPage == 0
         ),
         _(completionHudText[0]).replace("@0", localPlayer),
         HudPosition.TOP,
@@ -142,7 +142,7 @@ rule "Run Text":
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
-            and localPlayer.qaPage == 0
+            and localPlayer.faqPage == 0
         ),
         _(completionHudText[1]).replace("@0", localPlayer.runFinalTimeFormatted),
         HudPosition.TOP,
@@ -154,7 +154,7 @@ rule "Run Text":
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
-            and localPlayer.qaPage == 0
+            and localPlayer.faqPage == 0
         ),
         _(completionHudText[2]).replace("@0", timeToBeatFormatted),
         HudPosition.TOP,
@@ -166,7 +166,7 @@ rule "Run Text":
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
-            and localPlayer.qaPage == 0
+            and localPlayer.faqPage == 0
         ),
         _(completionHudText[3]).replace("@0", localPlayer.runFinalMistakes),
         HudPosition.TOP,
@@ -188,7 +188,7 @@ rule "Run Text":
             and localPlayer.runTime > timeToBeat
             and timeToBeat > 0
             and localPlayer.isRunLegit
-            and localPlayer.qaPage == 0
+            and localPlayer.faqPage == 0
         ),
         _(completionHudText[4]),
         HudPosition.TOP,
@@ -203,7 +203,7 @@ rule "Run Text":
             lambda localPlayer: localPlayer.isViewingRunCompletionText
             and (timeToBeat == 0 or localPlayer.runTime <= timeToBeat)
             and localPlayer.isRunLegit
-            and localPlayer.qaPage == 0
+            and localPlayer.faqPage == 0
         ),
         "{}\n{}".format(_(completionHudText[5]), _(completionHudText[4])),
         HudPosition.TOP,
@@ -220,7 +220,7 @@ rule "Run Text":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
             and not localPlayer.isRunLegit
-            and localPlayer.qaPage == 0
+            and localPlayer.faqPage == 0
         ),
         _(completionHudText[6]),
         HudPosition.TOP,

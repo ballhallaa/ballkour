@@ -24,7 +24,7 @@ rule "Mode Input":
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == true
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
     @Condition eventPlayer.spectating[5] == false
-    @Condition eventPlayer.qaPage == 0
+    @Condition eventPlayer.faqPage == 0
 
     toggleSpectator()
 
@@ -61,7 +61,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.spectating[0]
             and localPlayer.spectating[1] == null
-            and localPlayer.qaPage == 0
+            and localPlayer.faqPage == 0
         ),
         _(spectatorHudText[0]),
         HudPosition.LEFT,
@@ -74,7 +74,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.spectating[0]
             and localPlayer.spectating[1] != null
-            and localPlayer.qaPage == 0
+            and localPlayer.faqPage == 0
         ),
         _(spectatorHudText[1]).replace("@0", localPlayer.spectating[1]),
         HudPosition.LEFT,
@@ -87,7 +87,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.spectating[0]
             and localPlayer.spectating[2]
-            and localPlayer.qaPage == 0
+            and localPlayer.faqPage == 0
         ),
         _(spectatorHudText[2]),
         HudPosition.LEFT,
@@ -100,7 +100,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.spectating[0]
             and localPlayer.spectating[3]
-            and localPlayer.qaPage == 0
+            and localPlayer.faqPage == 0
         ),
         _(spectatorHudText[3]),
         HudPosition.LEFT,
@@ -113,7 +113,7 @@ rule "Load HUD":
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.spectating[10] > 0
-            and localPlayer.qaPage == 0
+            and localPlayer.faqPage == 0
         ),
         _(spectatorHudText[4]).replace("@0", localPlayer.spectating[10]),
         HudPosition.LEFT,
@@ -186,7 +186,7 @@ rule "Hold Queued Camera":
     @Event eachPlayer
     @Condition eventPlayer in freecamQueue
     @Condition eventPlayer.spectating[2] == false
-    @Condition eventPlayer.qaPage == 0
+    @Condition eventPlayer.faqPage == 0
 
     # While waiting in Freecam Queue, the camera stays where it was watching from
     eventPlayer.startCamera(eventPlayer.spectating[11], eventPlayer.spectating[12], 0)
@@ -203,7 +203,7 @@ def disableSpectator():
     # nobody sees Wrecking Ball appear where the freecam was. Stop Camera and the teleport onto the
     # checkpoint below share a tick.
     if eventPlayer.getHero() != Hero.WRECKING_BALL and not eventPlayer.isInFreemode:
-        if eventPlayer.qaPage == 0:
+        if eventPlayer.faqPage == 0:
             eventPlayer.startCamera(
                 cps[eventPlayer.spectating[4]][0] + vect(0, 1.7, 0),
                 cps[eventPlayer.spectating[4]][0]
@@ -219,7 +219,7 @@ def disableSpectator():
     eventPlayer.setGravity(100)
     eventPlayer.setMoveSpeed(100)
     eventPlayer.stopForcingPosition()
-    if eventPlayer.qaPage == 0:
+    if eventPlayer.faqPage == 0:
         eventPlayer.stopCamera()
     eventPlayer.setInvisibility(Invis.NONE)
     eventPlayer.allowButton(Button.PRIMARY_FIRE)
@@ -281,7 +281,7 @@ rule "Prev. Player Input":
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == true
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
     @Condition eventPlayer.spectating[0] == true
-    @Condition eventPlayer.qaPage == 0
+    @Condition eventPlayer.faqPage == 0
     @Condition eventPlayer.spectating[5] == false
     @Condition len(spectatablePlayers(eventPlayer)) > 0
     # Only switching from freecam swaps hero
@@ -312,7 +312,7 @@ rule "Next Player Input":
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == true
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
     @Condition eventPlayer.spectating[0] == true
-    @Condition eventPlayer.qaPage == 0
+    @Condition eventPlayer.faqPage == 0
     @Condition eventPlayer.spectating[5] == false
     @Condition len(spectatablePlayers(eventPlayer)) > 0
     @Condition (not eventPlayer.spectating[2] or canSwapHero(eventPlayer)) == true
@@ -349,7 +349,7 @@ rule "Crosshair Player Input":
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
     @Condition eventPlayer.spectating[0] == true
     @Condition eventPlayer.spectating[2] == true
-    @Condition eventPlayer.qaPage == 0
+    @Condition eventPlayer.faqPage == 0
     @Condition eventPlayer.spectating[5] == false
     @Condition len(spectatablePlayers(eventPlayer)) > 0
     @Condition canSwapHero(eventPlayer)
@@ -394,7 +394,7 @@ rule "Enable Freecam Input":
     ) == true
     @Condition eventPlayer.spectating[5] == false
     @Condition eventPlayer.isLoading == false
-    @Condition eventPlayer.qaPage == 0
+    @Condition eventPlayer.faqPage == 0
     @Condition canSwapHero(eventPlayer)
     # Disconnected without freecam means waiting in Freecam Queue
     @Condition eventPlayer.spectating[3] == false
@@ -410,7 +410,7 @@ def enableFreecam():
         playerToEnableFreecam = eventPlayer
     # The player is already Jetpack Cat: callers swap first, so the swap gets its own moment
     playerToEnableFreecam.disableEnvironmentCollision(true)
-    if playerToEnableFreecam.qaPage == 0:
+    if playerToEnableFreecam.faqPage == 0:
         playerToEnableFreecam.stopCamera()
     playerToEnableFreecam.stopForcingPosition()
     if entityExists(playerToEnableFreecam.spectating[1]):
@@ -626,7 +626,7 @@ rule "Reattach Input":
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
     @Condition eventPlayer.spectating[1] != null
     @Condition eventPlayer.spectating[2] == true
-    @Condition eventPlayer.qaPage == 0
+    @Condition eventPlayer.faqPage == 0
     @Condition eventPlayer.spectating[5] == false
     @Condition canSwapHero(eventPlayer)
 
@@ -646,7 +646,7 @@ def reattachToSpectatingTarget():
     )
     eventPlayer.setInvisibility(Invis.ALL)
     eventPlayer.startForcingPosition(eventPlayer.spectating[1].getPosition())
-    if eventPlayer.qaPage == 0:
+    if eventPlayer.faqPage == 0:
         startSpectatorCamera()
     eventPlayer.disallowButton(Button.PRIMARY_FIRE)
     eventPlayer.disallowButton(Button.SECONDARY_FIRE)
@@ -674,7 +674,7 @@ rule "Enable First Person Input":
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
     @Condition eventPlayer.spectating[0] == true
     @Condition eventPlayer.spectating[1] != null
-    @Condition eventPlayer.qaPage == 0
+    @Condition eventPlayer.faqPage == 0
     @Condition eventPlayer.spectating[5] == false
 
     waitUntil(

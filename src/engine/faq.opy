@@ -1,30 +1,30 @@
 #!mainFile "../main.opy"
-#!rulePrefix "Q&A"
+#!rulePrefix "FAQ"
 
 
-# Each page is QA_PAGE_LENGTH answers, which all fit above the hero bar
-macro QA_PAGE_LENGTH = 6
+# Each page is FAQ_PAGE_LENGTH answers, which all fit above the hero bar
+macro FAQ_PAGE_LENGTH = 6
 
 
-# The answer in a slot of the page the player is on, from qaHudText[1]
-macro qaAnswer(qaSlot):
-    qaHudText[(localPlayer.qaPage - 1) * QA_PAGE_LENGTH + qaSlot]
+# The answer in a slot of the page the player is on, from faqHudText[1]
+macro faqAnswer(faqSlot):
+    faqHudText[(localPlayer.faqPage - 1) * FAQ_PAGE_LENGTH + faqSlot]
 
 
 rule "Open":
     @Event eachPlayer
-    @Condition eventPlayer.qaPage > 0
+    @Condition eventPlayer.faqPage > 0
 
     # Controls: FAQ Input opens and closes it. Every eachPlayer rule adds to the server's
-    # periodic load, and six of them for the Q&A were enough to close the server, so this one
+    # periodic load, and six of them for the FAQ were enough to close the server, so this one
     # rule does all of it: closing, turning pages, the sky camera, and locking the player in
-    # place. Interact closes the Q&A and Jump turns its page, so it doesn't jump while it's
+    # place. Interact closes the FAQ and Jump turns its page, so it doesn't jump while it's
     # open, or once it closes until Jump is let go.
     eventPlayer.disallowButton(Button.JUMP)
-    # Every HUD text but the Q&A's hides while it's open, and so does the hero's own HUD
+    # Every HUD text but the FAQ's hides while it's open, and so does the hero's own HUD
     eventPlayer.disableHeroHud()
-    # Looks up into the sky from high above the player, so the Q&A has a plain background.
-    # Spectator mode leaves this camera alone until the Q&A closes.
+    # Looks up into the sky from high above the player, so the FAQ has a plain background.
+    # Spectator mode leaves this camera alone until the FAQ closes.
     eventPlayer.startCamera(
         eventPlayer.getEyePosition() + vect(0, 100, 0),
         eventPlayer.getEyePosition()
@@ -32,9 +32,9 @@ rule "Open":
         + directionFromAngles(eventPlayer.getHorizontalFacingAngle(), -45),
         50
     )
-    # Each pass locks the player for the mode they're in, until the Q&A closes or they
+    # Each pass locks the player for the mode they're in, until the FAQ closes or they
     # switch between playing, watching someone and freecam
-    while eventPlayer.qaPage > 0:
+    while eventPlayer.faqPage > 0:
         if not eventPlayer.spectating[0]:
             # Without Rooted, which would stop mistakes and clears from counting, or
             # forcing their position, which would undo Reset CP's teleport. Momentum
@@ -45,7 +45,7 @@ rule "Open":
             eventPlayer.disallowButton(Button.ABILITY_1)
             eventPlayer.disallowButton(Button.ABILITY_2)
             waitUntil(
-                eventPlayer.qaPage == 0
+                eventPlayer.faqPage == 0
                 or eventPlayer.isHoldingButton(Button.INTERACT)
                 or eventPlayer.isHoldingButton(Button.JUMP)
                 or eventPlayer.spectating[0],
@@ -72,7 +72,7 @@ rule "Open":
             # Freecam flies, so it holds still. Reattaching forces the position itself.
             eventPlayer.startForcingPosition(eventPlayer.getPosition(), false)
             waitUntil(
-                eventPlayer.qaPage == 0
+                eventPlayer.faqPage == 0
                 or eventPlayer.isHoldingButton(Button.INTERACT)
                 or eventPlayer.isHoldingButton(Button.JUMP)
                 or not eventPlayer.spectating[0]
@@ -88,7 +88,7 @@ rule "Open":
         else:
             # Watching someone already holds them in place
             waitUntil(
-                eventPlayer.qaPage == 0
+                eventPlayer.faqPage == 0
                 or eventPlayer.isHoldingButton(Button.INTERACT)
                 or eventPlayer.isHoldingButton(Button.JUMP)
                 or not eventPlayer.spectating[0]
@@ -98,9 +98,9 @@ rule "Open":
         if eventPlayer.isHoldingButton(Button.INTERACT):
             # Closing once Interact is let go, so it doesn't go on to press a lobby button
             waitUntil(not eventPlayer.isHoldingButton(Button.INTERACT), Math.INFINITY)
-            eventPlayer.qaPage = 0
+            eventPlayer.faqPage = 0
         elif eventPlayer.isHoldingButton(Button.JUMP):
-            eventPlayer.qaPage = eventPlayer.qaPage % QA_PAGES + 1
+            eventPlayer.faqPage = eventPlayer.faqPage % FAQ_PAGES + 1
             waitUntil(not eventPlayer.isHoldingButton(Button.JUMP), Math.INFINITY)
     if eventPlayer.spectating[0] and not eventPlayer.spectating[2]:
         # Without a target, Hold Queued Camera takes over
@@ -123,13 +123,13 @@ rule "Load HUD":
     # Under Controls at the top left, and left out of the lobby like it. Without the Hints
     # line under it, it takes a blank line in its place, so the next line doesn't land on
     # the player's name.
-    qaHudText[0] = _("FAQ: <fgFFFFFFFF>@0 + @1</fg>")
+    faqHudText[0] = _("FAQ: <fgFFFFFFFF>@0 + @1</fg>")
     hudSubheader(
         getAllPlayers().filter(
-            lambda localPlayer: not localPlayer.isInLobby and localPlayer.qaPage == 0
+            lambda localPlayer: not localPlayer.isInLobby and localPlayer.faqPage == 0
         ),
         "{}{}".format(
-            _(qaHudText[0])
+            _(faqHudText[0])
             .replace("@0", inputBindingString(Button.ULTIMATE))
             .replace("@1", inputBindingString(Button.MELEE)),
             (
@@ -151,114 +151,114 @@ rule "Load HUD":
     # answers are English only, with the translated ones at ballkour.com/faq: in all 14
     # languages they made pasting the script take several seconds longer.
     # Page 1
-    qaHudText[1] = (
+    faqHudText[1] = (
         "\nWebsite: <fgFFFFFFFF>ballkour.com</fg>"
         "\nDiscord: <fgFFFFFFFF>ballkour.com/discord</fg>"
         "\nReport Issues: <fgFFFFFFFF>ballkour.com/issues</fg>"
         "\nVersion: <fgFFFFFFFF>{}</fg>"
     ).format(VERSION)
-    qaHudText[2] = (
+    faqHudText[2] = (
         "\n\n<fg00E092FF>What counts as a valid run?</fg>"
         "\nYour run is only disqualified if you skip a checkpoint. Going back a checkpoint,"
         "\nrestarting checkpoints, and spectating are allowed for legitimate runs."
         "\nLeaving a checkpoint with freemode on counts as skipping it."
         "\nDisqualified runs are <fg808080FF>grayed out</fg> on the scorecard."
     )
-    qaHudText[3] = (
+    faqHudText[3] = (
         "\n\n<fg00E092FF>What counts as a mistake?</fg>"
         "\nLanding anywhere but the next checkpoint, bhopping twice, missing a bounce checkpoint's"
         "\nbounce, dying, or leaving mid-attempt with Reset CP, Prev./Next CP, Lobby, Freemode"
         "\nor Spectate."
     )
-    qaHudText[4] = (
+    faqHudText[4] = (
         "\n\n<fg00E092FF>When does my run's timer start?</fg>"
         "\nWhen you leave the first checkpoint, not when you spawn."
     )
-    qaHudText[5] = (
+    faqHudText[5] = (
         "\n\n<fg00E092FF>What pauses my run?</fg>"
         "\nLobby/Pause and Spectate stop your timer, and Resume Run in the lobby carries on from"
         "\nyour checkpoint. Pausing away from your checkpoint counts as a mistake."
     )
-    qaHudText[6] = (
+    faqHudText[6] = (
         "\n\n<fg00E092FF>What is freemode for?</fg>"
         "\nPractice, with no timer and all your abilities. You can't clear checkpoints in it,"
         "\nand leaving your checkpoint with it on disqualifies your run."
     )
     # Page 2
-    qaHudText[7] = (
+    faqHudText[7] = (
         "\n<fg00E092FF>What do Runs and Attempts count?</fg>"
         "\nRuns counts the runs you've finished or restarted. Attempts counts your mistakes"
         "\nand clears on this checkpoint, over all your runs."
     )
-    qaHudText[8] = (
+    faqHudText[8] = (
         "\n\n<fg00E092FF>What do Attempt and Split mean?</fg>"
         "\nAttempt is timed from leaving the checkpoint, and Split from reaching it, so it"
         "\nincludes your mistakes. Each turns red once it's slower than your best."
         "\nAfter a clear they show your times for 2 seconds: <fgFFFF00FF>yellow</fg> on your first clear, then"
         "\n<fg00E092FF>green</fg> if faster or <fgFF4646FF>red</fg> if slower than your average. A new best is compared with your old best."
     )
-    qaHudText[9] = (
+    faqHudText[9] = (
         "\n\n<fg00E092FF>Are Best and Avg server records?</fg>"
         "\nNo, they're only your own times on that checkpoint, over all your runs."
         "\nThey reset when you leave or the server restarts."
     )
-    qaHudText[10] = (
+    faqHudText[10] = (
         "\n\n<fg00E092FF>What is Pace?</fg>"
         "\nYour estimated finish time, from this run's average split so far. Once your current"
         "\nsplit is slower than that average, it turns <fgFF4646FF>red</fg> and counts up with your time."
     )
-    qaHudText[11] = (
+    faqHudText[11] = (
         "\n\n<fg00E092FF>Why are some controls </fg><fg808080FF>grayed out</fg><fg00E092FF>?</fg>"
         "\nThey can't be used right now: Prev. CP on the first checkpoint, Next CP on the last,"
         "\nand the player controls while there's nobody to spectate. X-Hair Player also needs freecam."
     )
-    qaHudText[12] = (
+    faqHudText[12] = (
         "\n\n<fg00E092FF>What's on the scorecard?</fg>"
         "\nEach runner's checkpoint, time and mistakes, furthest first, then fastest."
         "\n<fg808080FF>Grayed out</fg> runs are disqualified."
     )
     # Page 3
-    qaHudText[13] = (
+    faqHudText[13] = (
         "\n<fg00E092FF>What do the hint colors mean?</fg>"
         "\n<fgCB87FFFF>Movement</fg>   <fgFFFFFFFF>Jump</fg>   <fgFFD200FF>Grapple</fg>   <fgFF4646FF>Piledrive</fg>   <fg00BEFFFF>Shield Bounce</fg>"
         "\nHints turn on by themselves after 10 mistakes on one checkpoint,"
         "\nand off again when you move on to another."
     )
-    qaHudText[14] = (
+    faqHudText[14] = (
         "\n\n<fg00E092FF>How do I get on the leaderboard?</fg>"
         "\nFinish a valid run and submit a video of it at ballkour.com."
         "\nLobby Top 3 only lists the fastest valid runs finished in this lobby."
     )
-    qaHudText[15] = (
+    faqHudText[15] = (
         "\n\n<fg00E092FF>Why are some players tiny?</fg>"
         "\nPlayers who haven't moved for 60 seconds shrink, so they're not in anyone's way."
         "\nThey grow back as soon as they move."
     )
-    qaHudText[16] = (
+    faqHudText[16] = (
         "\n\n<fg00E092FF>Does the server restart?</fg>"
         "\nYes, about every 4 hours, with warnings from 30 minutes before."
         "\nBest, Avg, Runs and Attempts start over."
     )
-    qaHudText[17] = (
+    faqHudText[17] = (
         "\n\n<fg00E092FF>Why does it take so long to load a Ballkour game?</fg>"
         "\nIts Workshop script is big, mostly from its translations into 13 languages,"
         "\nand Overwatch takes a while to load it before the match starts."
     )
-    qaHudText[18] = (
+    faqHudText[18] = (
         "\n\n<fg00E092FF>Is something wrong in my language?</fg>"
         "\nThe translations are drafts, so please report mistakes at ballkour.com/issues."
     )
-    qaHudText[19] = _("Next Page: <fgFFFFFFFF>@0</fg>")
-    qaHudText[20] = _("Close: <fgFFFFFFFF>@0</fg>")
+    faqHudText[19] = _("Next Page: <fgFFFFFFFF>@0</fg>")
+    faqHudText[20] = _("Close: <fgFFFFFFFF>@0</fg>")
     # Instead of Next Page on the last page, as the same key goes back around
-    qaHudText[22] = _("Back to Page 1: <fgFFFFFFFF>@0</fg>")
+    faqHudText[22] = _("Back to Page 1: <fgFFFFFFFF>@0</fg>")
     # Each language names itself, e.g. "FAQ auf Deutsch"
-    qaHudText[21] = _("FAQ in English: <fgFFFFFFFF>ballkour.com/faq</fg>")
+    faqHudText[21] = _("FAQ in English: <fgFFFFFFFF>ballkour.com/faq</fg>")
     # A blank line above the title, under BALLKOUR.COM or the run completion text: a blank
     # line in the header itself would grow its box. The line is an invisible soft hyphen
     # (U+00AD), like the lobby's padding lines.
     hudSubheader(
-        getAllPlayers().filter(lambda localPlayer: localPlayer.qaPage > 0),
+        getAllPlayers().filter(lambda localPlayer: localPlayer.faqPage > 0),
         "\u00ad",
         HudPosition.TOP,
         7,
@@ -268,8 +268,8 @@ rule "Load HUD":
     # A header, the biggest HUD text, so the page number reads as the title. Its own HUD
     # text, so it centers above the page.
     hudHeader(
-        getAllPlayers().filter(lambda localPlayer: localPlayer.qaPage > 0),
-        "FAQ {}/{}".format(localPlayer.qaPage, QA_PAGES),
+        getAllPlayers().filter(lambda localPlayer: localPlayer.faqPage > 0),
+        "FAQ {}/{}".format(localPlayer.faqPage, FAQ_PAGES),
         HudPosition.TOP,
         8,
         rgb(0, 224, 146),
@@ -279,8 +279,8 @@ rule "Load HUD":
     # answers already are: _() picks the language on each player's screen, which visibility
     # can't check, so this removes the English text ([0] of the stored translations).
     hudSubheader(
-        getAllPlayers().filter(lambda localPlayer: localPlayer.qaPage > 0),
-        _(qaHudText[21]).replace(qaHudText[21][0], ""),
+        getAllPlayers().filter(lambda localPlayer: localPlayer.faqPage > 0),
+        _(faqHudText[21]).replace(faqHudText[21][0], ""),
         HudPosition.TOP,
         9,
         rgb(230, 151, 0),
@@ -289,9 +289,14 @@ rule "Load HUD":
     # A page is one HUD text, as separate HUD texts center against each other while the
     # lines of one left-align
     hudSubheader(
-        getAllPlayers().filter(lambda localPlayer: localPlayer.qaPage > 0),
+        getAllPlayers().filter(lambda localPlayer: localPlayer.faqPage > 0),
         "{}{}{}{}{}{}".format(
-            qaAnswer(1), qaAnswer(2), qaAnswer(3), qaAnswer(4), qaAnswer(5), qaAnswer(6)
+            faqAnswer(1),
+            faqAnswer(2),
+            faqAnswer(3),
+            faqAnswer(4),
+            faqAnswer(5),
+            faqAnswer(6)
         ),
         HudPosition.TOP,
         10,
@@ -301,12 +306,14 @@ rule "Load HUD":
     # The keys are a size bigger than the page, so they're its own HUD text, centered under
     # it. Only this one uses String Replace, which cuts off long strings.
     hudSubtext(
-        getAllPlayers().filter(lambda localPlayer: localPlayer.qaPage > 0),
+        getAllPlayers().filter(lambda localPlayer: localPlayer.faqPage > 0),
         "\n{}\n{}".format(
             (
-                _(qaHudText[19]) if localPlayer.qaPage < QA_PAGES else _(qaHudText[22])
+                _(faqHudText[19])
+                if localPlayer.faqPage < FAQ_PAGES
+                else _(faqHudText[22])
             ).replace("@0", inputBindingString(Button.JUMP)),
-            _(qaHudText[20]).replace("@0", inputBindingString(Button.INTERACT))
+            _(faqHudText[20]).replace("@0", inputBindingString(Button.INTERACT))
         ),
         HudPosition.TOP,
         11,
