@@ -49,7 +49,7 @@ rule "Mode Input":
 
 
 rule "Load HUD":
-    spectatorHudText[0] = _("\n\nSpectating")
+    spectatorHudText[0] = _("\nSpectating")
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.spectating[0]
@@ -62,7 +62,7 @@ rule "Load HUD":
         rgb(255, 70, 70),
         HudReeval.VISIBILITY_AND_STRING
     )
-    spectatorHudText[1] = _("\n\nSpectating @0")
+    spectatorHudText[1] = _("\nSpectating @0")
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.spectating[0]
@@ -102,7 +102,7 @@ rule "Load HUD":
         HudReeval.VISIBILITY_AND_STRING
     )
     # Spectated Player's HUD
-    spectatorHudText[4] = _("\n\nSpectators: @0")
+    spectatorHudText[4] = _("\nSpectators: @0")
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.spectating[10] > 0

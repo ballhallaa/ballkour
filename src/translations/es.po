@@ -13,10 +13,6 @@ msgstr ""
 msgid "{0} | FREEMODE"
 msgstr "{0} | MODO LIBRE"
 
-#. file completion.opy, rule "Load Top Runs HUD"
-msgid "Lobby Top 3"
-msgstr "Top 3 del lobby"
-
 #. file completion.opy, rule "Run Text"
 msgid "Time: @0"
 msgstr "Tiempo: @0"
@@ -250,6 +246,10 @@ msgstr "FAQ en español: <fgFFFFFFFF>ballkour.com/faq</fg>"
 #. file qa.opy, rule "Load HUD"
 msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
 msgstr "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
+
+#. file run.opy, rule "Load HUD"
+msgid "Lobby Top 3"
+msgstr "Top 3 del lobby"
 
 #. file run.opy, rule "Load HUD"
 msgid "Runs: @0"
