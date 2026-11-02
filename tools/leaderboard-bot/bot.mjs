@@ -174,7 +174,7 @@ function message(runs, fresh) {
     const list = new Intl.ListFormat("en", { style: "long", type: "conjunction" }).format(names);
     lines.push(`Congrats ${list} for the new top-10 time${names.length > 1 ? "s" : ""}!`);
   }
-  lines.push("-# Watch every run: <https://ballkour.com/leaderboards>");
+  lines.push("-# Watch every run: [ballkour.com/leaderboards](https://ballkour.com/leaderboards)");
   return { content: lines.join("\n"), users };
 }
 // Text for screen readers (Discord's image description)
