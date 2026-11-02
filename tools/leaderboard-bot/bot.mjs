@@ -175,7 +175,12 @@ async function person(id) {
 
 /* ---------- The message ---------- */
 const mdEscape = (s) => String(s).replace(/([\\*_~`|>#-])/g, "\\$1");
-function message(runs, fresh) {
+// The course's board on the website: ballkour.com/leaderboards/6-dorado opens Dorado's top 10. The website makes
+// the same link from the course's number and name ("King’s Row" → 14-kings-row).
+const slug = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/['’]/g, "").toLowerCase()
+  .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+const boardUrl = (course) => `https://ballkour.com/leaderboards/${course.n}-${slug(course.name)}`;
+function message(course, runs, fresh) {
   const newRuns = runs.filter((r) => fresh.has(r));
   const users = [];
   const names = newRuns.map((r) => {
@@ -189,7 +194,7 @@ function message(runs, fresh) {
     const list = new Intl.ListFormat("en", { style: "long", type: "conjunction" }).format(names);
     lines.push(`Congrats ${list} for the new top-10 time${names.length > 1 ? "s" : ""}!`);
   }
-  lines.push("-# Watch every run: [ballkour.com/leaderboards](https://ballkour.com/leaderboards)");
+  lines.push(`-# Watch every run: [ballkour.com/leaderboards](${boardUrl(course)})`);
   return { content: lines.join("\n"), users };
 }
 // A course with no runs yet: no congrats, no pings, and an invitation instead of the link to watch runs
@@ -266,7 +271,7 @@ for (const { course, list, at, isNew } of jobs) {
     await page.goto(pathToFileURL(htmlFile).href, { waitUntil: "load" });
     await page.evaluate(() => document.fonts.ready);
     const png = await page.locator(".card").screenshot({ path: path.join(OUT, filename) });
-    const { content, users } = runs.length ? message(runs, fresh) : emptyMessage();
+    const { content, users } = runs.length ? message(course, runs, fresh) : emptyMessage();
     fs.writeFileSync(path.join(OUT, `${base}.txt`), content + "\n");
     console.log(`\n${label}\n${content}`);
     if (DRY) continue;
