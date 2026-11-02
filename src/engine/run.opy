@@ -30,6 +30,26 @@ macro scorecardKey(player):
     )
 
 
+# Whether the scorecard lists its rows: not when the only runner listed is the player
+macro scorecardHasRows(player):
+    # TEST: always, for the fake runners
+    (true or len(scorecardRunners.exclude(player)) > 0)
+
+
+# The lines of the scorecard's text under its 2 blank ones: the icons and rows, the Lobby
+# Top 3's blank line, title and rows, and Hide Scores
+macro scorecardLines(player):
+    (
+        (scorecardRows + 1 if scorecardHasRows(player) else 0)
+        + (
+            len(topRuns) + (2 if scorecardHasRows(player) else 1)
+            if len(topRuns) > 0
+            else 0
+        )
+        + 1
+    )
+
+
 # Fills out a scorecard column of 3 digits and its 3-space gap, as a digit is about as wide as 2 spaces
 macro scorecardPad(value):
     "       ".substring(0, 3 + 2 * max(3 - strLen("{}".format(value)), 0))
@@ -65,9 +85,13 @@ rule "Load HUD":
         rgb(0, 224, 146),
         HudReeval.VISIBILITY
     )
-    runHudText = _("\n\n\n\nControls: <fgFFFFFFFF>@0 (Hold)</fg>")
-    hudSubtext(
-        getAllPlayers().filter(lambda localPlayer: localPlayer.qaPage == 0),
+    # At the top left, with FAQ and Hints under it, in the smallest text. The lobby leaves it
+    # out, as its controls are buttons there.
+    runHudText = _("Controls: <fgFFFFFFFF>@0 (Hold)</fg>")
+    hudSubheader(
+        getAllPlayers().filter(
+            lambda localPlayer: not localPlayer.isInLobby and localPlayer.qaPage == 0
+        ),
         _(runHudText).replace("@0", inputBindingString(Button.ULTIMATE)),
         HudPosition.LEFT,
         0,
@@ -80,9 +104,6 @@ rule "Load HUD":
     # Attempts follows the runner's own CP, not viewCp, which syncs a tick later: a clear would
     # show the cleared CP's new count for that tick.
     # They fill the 4 blank lines that were above the CP, which come back when they're hidden.
-    # Below them the CP keeps 2 of its blank lines, which puts it 8px above Controls instead of
-    # level with it: a subheader line is 24px and a text line 28px, and no mix of them makes up
-    # the 40px between the counters and Controls.
     counterHudText[0] = _("Runs: @0")
     hudSubheader(
         getAllPlayers().filter(
@@ -160,34 +181,56 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    # Under Hints, which is under the Q&A line. Its rows are left out when the only runner
+    # Under Hints. Its rows are left out when the only runner
     # listed is the player, as their run is on the right, but its line stays while there's a
     # Top 3 for it to hide.
     # The Lobby Top 3 goes between the rows and the Hide Scores line, in the same HUD text so
-    # they all left-align. With the Controls list open, only the top 5 rows show, to make room.
+    # they all left-align.
     scorecardHudText[0] = _("Hide Scores: <fgFFFFFFFF>@0 + @1</fg>")
     scorecardHudText[1] = _("\nScores: <fgFFFFFFFF>@0 + @1</fg>")
     topRunsHudText = _("Lobby Top 3")
+    # TEST: a fake Lobby Top 3
+    topRuns = [
+        [234.23, "BallMyBloved", 5, "3:54.23"],
+        [1245.81, "Coldskin", 12, "20:45.81"],
+        [4521.96, "WWWWWWWWWWWW", 99, "1:15:21.96"]
+    ]
+    topRunsText = ""
+    for index in range(len(topRuns)):
+        topRunsText = "{}\n{}{}   {}{}{}{}{}</fg>".format(
+            topRunsText,
+            ["<fgFFFF00FF>", "<fgB0C4DEFF>", "<fgC46A30FF>"][index],
+            index + 1,
+            topRuns[index][3],
+            "     " if strLen(topRuns[index][3]) < 8 else "   ",
+            topRuns[index][2],
+            "     " if topRuns[index][2] < 10 else "   ",
+            topRuns[index][1]
+        )
     # The rows stay out of the String Replace, which cuts off long strings, and they're too long for it
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: controlsVisible(
                 not localPlayer.isScorecardHidden
-                and (len(scorecardRunners.exclude(localPlayer)) > 0 or len(topRuns) > 0)
+                and (scorecardHasRows(localPlayer) or len(topRuns) > 0)
                 and localPlayer.qaPage == 0
             )
         ),
-        "{}{}{}".format(
+        "{}{}{}{}".format(
+            # Alone on the left in the lobby, it's centered a third of the way down the
+            # screen, on the 13th of its 24px lines. It still starts clear of the player's
+            # name, from the 6th, as its icons stand taller than a line.
             (
-                "{}\n".format(
-                    scorecardShort if localPlayer.isViewingCtrlsHud else scorecard
+                "\n\n\n\n\n\n\n\n\n\n".substring(
+                    0, max(3, round(10.8 - scorecardLines(localPlayer) / 2))
                 )
-                if len(scorecardRunners.exclude(localPlayer)) > 0
+                if localPlayer.isInLobby
                 else ""
             ),
+            ("{}\n".format(scorecard) if scorecardHasRows(localPlayer) else ""),
             (
                 "{}{}{}\n".format(
-                    "\n" if len(scorecardRunners.exclude(localPlayer)) > 0 else "\n\n",
+                    "\n" if scorecardHasRows(localPlayer) else "\n\n",
                     _(topRunsHudText),
                     topRunsText
                 )
@@ -203,12 +246,11 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    # On its own under Hints, so it's the same size as it
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: controlsVisible(
                 localPlayer.isScorecardHidden
-                and (len(scorecardRunners.exclude(localPlayer)) > 0 or len(topRuns) > 0)
+                and (scorecardHasRows(localPlayer) or len(topRuns) > 0)
                 and localPlayer.qaPage == 0
             )
         ),
@@ -234,6 +276,7 @@ rule "Update Scorecard":
     scorecard = "\n\n{}    {}       {}".format(
         iconString(Icon.FLAG), iconString(Icon.BOLT), iconString(Icon.SKULL)
     )
+    scorecardRows = len(scorecardRunners)
     for index in range(len(scorecardRunners)):
         scorecardTime = scorecardRunners[index].runTimeFormatted.split(".")[0]
         # The time's column fits h:mm:ss. Its padding is by length, since colons are narrower than digits.
@@ -257,9 +300,58 @@ rule "Update Scorecard":
                 else "<fg808080FF>{}</fg>".format(scorecardRow)
             )
         )
-        # The top 5, for when the Controls list is open
-        if index < 5:
-            scorecardShort = scorecard
+    # TEST: 12 fake runners in place of the real ones
+    scorecardRows = 12
+    scorecard = "\n\n{}    {}       {}".format(
+        iconString(Icon.FLAG), iconString(Icon.BOLT), iconString(Icon.SKULL)
+    )
+    for index in range(12):
+        scorecardTime = [
+            "1:23:45",
+            "58:12",
+            "42:07",
+            "31:50",
+            "12:03",
+            "9:41",
+            "7:15",
+            "5:02",
+            "3:33",
+            "2:10",
+            "1:05",
+            "0:42"
+        ][index]
+        scorecardRow = "{}{}{}{}{}{}{}".format(
+            [100, 97, 85, 64, 42, 38, 25, 19, 12, 7, 3, 1][index],
+            scorecardPad([100, 97, 85, 64, 42, 38, 25, 19, 12, 7, 3, 1][index]),
+            scorecardTime,
+            "             ".substring(
+                0, [0, 13, 11, 0, 7, 5, 0, 2][strLen(scorecardTime)]
+            ),
+            [312, 140, 99, 57, 23, 18, 9, 4, 2, 1, 0, 0][index],
+            scorecardPad([312, 140, 99, 57, 23, 18, 9, 4, 2, 1, 0, 0][index]),
+            [
+                "WWWWWWWWWWWW",
+                "Ballhallaa",
+                "Kiriko",
+                "xX_Slayer_Xx",
+                "Mo",
+                "Hammond",
+                "Speedrunner",
+                "Wreck",
+                "Tracer",
+                "ABCDEFGHIJKL",
+                "Lúcio",
+                "Zen"
+            ][index]
+        )
+        scorecard = "{}\n{}".format(
+            scorecard,
+            (
+                "<fg808080FF>{}</fg>".format(scorecardRow)
+                if index in [3, 8]
+                else scorecardRow
+            )
+        )
     # The time column ticks each second, and a change rebuilds it within 0.1s. Rebuilding on
     # the next tick added ~20% to peak server load while Next CP was held with 12 rows.
     wait(0.1)

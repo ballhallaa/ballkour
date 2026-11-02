@@ -165,6 +165,14 @@ msgstr "เริ่มใหม่"
 msgid "Resume Run"
 msgstr "เล่นต่อ"
 
+#. file lobby.opy, rule "Load Buttons"
+msgid "Spectate"
+msgstr "ชม"
+
+#. file lobby.opy, rule "Load Buttons"
+msgid "FAQ"
+msgstr "FAQ"
+
 #. file lobby.opy, rule "Load Languages"
 msgid "Language"
 msgstr "ภาษา"
@@ -232,6 +240,10 @@ msgid "{0} | {1}"
 msgstr "{0} | {1}"
 
 #. file qa.opy, rule "Load HUD"
+msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
+
+#. file qa.opy, rule "Load HUD"
 msgid "Next Page: <fgFFFFFFFF>@0</fg>"
 msgstr "หน้าถัดไป: <fgFFFFFFFF>@0</fg>"
 
@@ -243,13 +255,9 @@ msgstr "กลับไปหน้า 1: <fgFFFFFFFF>@0</fg>"
 msgid "FAQ in English: <fgFFFFFFFF>ballkour.com/faq</fg>"
 msgstr "FAQ ภาษาไทย: <fgFFFFFFFF>ballkour.com/faq</fg>"
 
-#. file qa.opy, rule "Load HUD"
-msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
-
 #. file run.opy, rule "Load HUD"
-msgid "Lobby Top 3"
-msgstr "ท็อป 3 ล็อบบี้"
+msgid "Controls: <fgFFFFFFFF>@0 (Hold)</fg>"
+msgstr "การควบคุม: <fgFFFFFFFF>@0 (กดค้าง)</fg>"
 
 #. file run.opy, rule "Load HUD"
 msgid "Runs: @0"
@@ -264,8 +272,8 @@ msgid "Hide Scores: <fgFFFFFFFF>@0 + @1</fg>"
 msgstr "ซ่อนคะแนน: <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file run.opy, rule "Load HUD"
-msgid "Controls: <fgFFFFFFFF>@0 (Hold)</fg>"
-msgstr "การควบคุม: <fgFFFFFFFF>@0 (กดค้าง)</fg>"
+msgid "Lobby Top 3"
+msgstr "ท็อป 3 ล็อบบี้"
 
 #. file run.opy, rule "Load HUD"
 msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
@@ -291,10 +299,6 @@ msgstr "กำลังชม @0"
 msgid "Spectators: @0"
 msgstr "ผู้ชม: @0"
 
-#. file spectator.opy, rule "Mode Input"
-msgid "SPECTATOR COOLDOWN: {0}s"
-msgstr "คูลดาวน์ผู้ชม: {0} วินาที"
-
 #. file spectator.opy, rule "Subroutine enableFirstPersonSpectator"
 msgid ""
 "{0}<fgE62400FF>HEADS UP</fg>{0}\n"
@@ -310,6 +314,10 @@ msgstr ""
 #. file spectator.opy, rule "Subroutine enableFreecam"
 msgid "{0} | FREECAM"
 msgstr "{0} | กล้องอิสระ"
+
+#. file spectator.opy, rule "Subroutine toggleSpectator"
+msgid "SPECTATOR COOLDOWN: {0}s"
+msgstr "คูลดาวน์ผู้ชม: {0} วินาที"
 
 #. file splits.opy, rule "Load HUD"
 msgid "Attempt: @0"

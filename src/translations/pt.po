@@ -165,6 +165,14 @@ msgstr "Nova partida"
 msgid "Resume Run"
 msgstr "Retomar partida"
 
+#. file lobby.opy, rule "Load Buttons"
+msgid "Spectate"
+msgstr "Assistir"
+
+#. file lobby.opy, rule "Load Buttons"
+msgid "FAQ"
+msgstr "FAQ"
+
 #. file lobby.opy, rule "Load Languages"
 msgid "Language"
 msgstr "Idioma"
@@ -232,6 +240,10 @@ msgid "{0} | {1}"
 msgstr "{0} | {1}"
 
 #. file qa.opy, rule "Load HUD"
+msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
+
+#. file qa.opy, rule "Load HUD"
 msgid "Next Page: <fgFFFFFFFF>@0</fg>"
 msgstr "Próxima página: <fgFFFFFFFF>@0</fg>"
 
@@ -243,13 +255,9 @@ msgstr "Voltar à página 1: <fgFFFFFFFF>@0</fg>"
 msgid "FAQ in English: <fgFFFFFFFF>ballkour.com/faq</fg>"
 msgstr "FAQ em português: <fgFFFFFFFF>ballkour.com/faq</fg>"
 
-#. file qa.opy, rule "Load HUD"
-msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
-
 #. file run.opy, rule "Load HUD"
-msgid "Lobby Top 3"
-msgstr "Top 3 do lobby"
+msgid "Controls: <fgFFFFFFFF>@0 (Hold)</fg>"
+msgstr "Controles: <fgFFFFFFFF>@0 (segurar)</fg>"
 
 #. file run.opy, rule "Load HUD"
 msgid "Runs: @0"
@@ -264,8 +272,8 @@ msgid "Hide Scores: <fgFFFFFFFF>@0 + @1</fg>"
 msgstr "Ocultar placar: <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file run.opy, rule "Load HUD"
-msgid "Controls: <fgFFFFFFFF>@0 (Hold)</fg>"
-msgstr "Controles: <fgFFFFFFFF>@0 (segurar)</fg>"
+msgid "Lobby Top 3"
+msgstr "Top 3 do lobby"
 
 #. file run.opy, rule "Load HUD"
 msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
@@ -291,10 +299,6 @@ msgstr "Assistindo @0"
 msgid "Spectators: @0"
 msgstr "Espectadores: @0"
 
-#. file spectator.opy, rule "Mode Input"
-msgid "SPECTATOR COOLDOWN: {0}s"
-msgstr "RECARGA DE ESPECTADOR: {0} s"
-
 #. file spectator.opy, rule "Subroutine enableFirstPersonSpectator"
 msgid ""
 "{0}<fgE62400FF>HEADS UP</fg>{0}\n"
@@ -310,6 +314,10 @@ msgstr ""
 #. file spectator.opy, rule "Subroutine enableFreecam"
 msgid "{0} | FREECAM"
 msgstr "{0} | CÂMERA LIVRE"
+
+#. file spectator.opy, rule "Subroutine toggleSpectator"
+msgid "SPECTATOR COOLDOWN: {0}s"
+msgstr "RECARGA DE ESPECTADOR: {0} s"
 
 #. file splits.opy, rule "Load HUD"
 msgid "Attempt: @0"

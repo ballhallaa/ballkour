@@ -165,6 +165,14 @@ msgstr "重新開始"
 msgid "Resume Run"
 msgstr "繼續遊戲"
 
+#. file lobby.opy, rule "Load Buttons"
+msgid "Spectate"
+msgstr "觀戰"
+
+#. file lobby.opy, rule "Load Buttons"
+msgid "FAQ"
+msgstr "常見問題"
+
 #. file lobby.opy, rule "Load Languages"
 msgid "Language"
 msgstr "語言"
@@ -232,6 +240,10 @@ msgid "{0} | {1}"
 msgstr "{0} | {1}"
 
 #. file qa.opy, rule "Load HUD"
+msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "常見問題：<fgFFFFFFFF>@0 + @1</fg>"
+
+#. file qa.opy, rule "Load HUD"
 msgid "Next Page: <fgFFFFFFFF>@0</fg>"
 msgstr "下一頁：<fgFFFFFFFF>@0</fg>"
 
@@ -243,13 +255,9 @@ msgstr "返回第1頁：<fgFFFFFFFF>@0</fg>"
 msgid "FAQ in English: <fgFFFFFFFF>ballkour.com/faq</fg>"
 msgstr "中文常見問題：<fgFFFFFFFF>ballkour.com/faq</fg>"
 
-#. file qa.opy, rule "Load HUD"
-msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "常見問題：<fgFFFFFFFF>@0 + @1</fg>"
-
 #. file run.opy, rule "Load HUD"
-msgid "Lobby Top 3"
-msgstr "大廳前三名"
+msgid "Controls: <fgFFFFFFFF>@0 (Hold)</fg>"
+msgstr "操作：<fgFFFFFFFF>@0 (長按)</fg>"
 
 #. file run.opy, rule "Load HUD"
 msgid "Runs: @0"
@@ -264,8 +272,8 @@ msgid "Hide Scores: <fgFFFFFFFF>@0 + @1</fg>"
 msgstr "隱藏成績: <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file run.opy, rule "Load HUD"
-msgid "Controls: <fgFFFFFFFF>@0 (Hold)</fg>"
-msgstr "操作：<fgFFFFFFFF>@0 (長按)</fg>"
+msgid "Lobby Top 3"
+msgstr "大廳前三名"
 
 #. file run.opy, rule "Load HUD"
 msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
@@ -291,10 +299,6 @@ msgstr "正在觀戰：@0"
 msgid "Spectators: @0"
 msgstr "觀眾：@0"
 
-#. file spectator.opy, rule "Mode Input"
-msgid "SPECTATOR COOLDOWN: {0}s"
-msgstr "觀戰冷卻：{0}秒"
-
 #. file spectator.opy, rule "Subroutine enableFirstPersonSpectator"
 msgid ""
 "{0}<fgE62400FF>HEADS UP</fg>{0}\n"
@@ -310,6 +314,10 @@ msgstr ""
 #. file spectator.opy, rule "Subroutine enableFreecam"
 msgid "{0} | FREECAM"
 msgstr "{0} | 自由視角"
+
+#. file spectator.opy, rule "Subroutine toggleSpectator"
+msgid "SPECTATOR COOLDOWN: {0}s"
+msgstr "觀戰冷卻：{0}秒"
 
 #. file splits.opy, rule "Load HUD"
 msgid "Attempt: @0"
