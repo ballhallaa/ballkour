@@ -120,12 +120,20 @@ def leaveLobby():
     eventPlayer.setMoveSpeed(100)
     eventPlayer.setJumpVerticalSpeed(100)
     eventPlayer.setInvisibility(Invis.NONE)
+    # Back to ball form, which Load took them out of. Ability 1 is allowed for the press, as
+    # it's disallowed here. Spectator has swapped them to Jetpack Cat by now, so it's left out.
+    if eventPlayer.getHero() == Hero.WRECKING_BALL:
+        eventPlayer.allowButton(Button.ABILITY_1)
+        eventPlayer.forceButtonPress(Button.ABILITY_1)
+        waitUntil(eventPlayer.isUsingAbility1(), 1)
     # While Ultimate is held, letting go of it gives them back (Controls: HUD Input)
     if not eventPlayer.isHoldingButton(Button.ULTIMATE):
         eventPlayer.allowButton(Button.PRIMARY_FIRE)
         eventPlayer.allowButton(Button.SECONDARY_FIRE)
         eventPlayer.allowButton(Button.ABILITY_1)
         eventPlayer.allowButton(Button.ABILITY_2)
+    else:
+        eventPlayer.disallowButton(Button.ABILITY_1)
 
 
 # The row of a column of texts a player is looking at: 1 for its top one, counting down a
