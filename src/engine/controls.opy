@@ -66,17 +66,15 @@ rule "HUD Input":
 
 
 rule "Load HUD":
-    # In the middle of the screen: HUD text can't go there, so it goes at the top, under the
-    # blank lines of a text of its own. Each line is its own HUD text, centered on its own,
-    # which the padding keeps lined up. The run completion text above it is about as tall as
-    # the blank lines, so it takes their place.
+    # At the top, under a blank line of its own. Each line is its own HUD text, centered on
+    # its own, which the padding keeps lined up.
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: controlsVisible(
                 isViewingCtrlsList(localPlayer) and localPlayer.qaPage == 0
             )
         ),
-        "\n" if localPlayer.isViewingRunCompletionText else "\n\n\n\n\n\n\n\n\n\n\n",
+        "\n",
         HudPosition.TOP,
         10,
         rgb(230, 151, 0),
