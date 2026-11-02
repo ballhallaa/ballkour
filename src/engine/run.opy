@@ -164,7 +164,7 @@ rule "Load HUD":
     # listed is the player, as their run is on the right, but its line stays while there's a
     # Top 3 for it to hide.
     scorecardHudText[0] = _("Hide Scores: <fgFFFFFFFF>@0 + @1</fg>")
-    scorecardHudText[1] = _("\n\nScores: <fgFFFFFFFF>@0 + @1</fg>")
+    scorecardHudText[1] = _("\nScores: <fgFFFFFFFF>@0 + @1</fg>")
     # The rows stay out of the String Replace, which cuts off long strings, and they're too long for it
     hudSubheader(
         getAllPlayers().filter(
@@ -221,7 +221,7 @@ rule "Update Scorecard":
     # One string rebuilt on each change and each second, instead of a HUD text per runner: Overwatch reprocesses every
     # HUD text's definition every 5s (see Translated HUD Text). It starts with a gap above it.
     # A string only shows its first 4 icons, so they head the columns instead of filling each row.
-    scorecard = "\n\n{}    {}       {}".format(
+    scorecard = "\n{}    {}       {}".format(
         iconString(Icon.FLAG), iconString(Icon.BOLT), iconString(Icon.SKULL)
     )
     for index in range(len(scorecardRunners)):

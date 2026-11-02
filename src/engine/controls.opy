@@ -695,7 +695,7 @@ rule "Left CP In Freemode":
 
 
 rule "Load Freemode HUD":
-    freemodeHudText = _("\n\nFreemode On")
+    freemodeHudText = _("\nFreemode On")
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isInFreemode
@@ -787,7 +787,7 @@ rule "Load Hints HUD":
                 and localPlayer.qaPage == 0
             )
         ),
-        ("\n\n{}").format(
+        ("\n{}").format(
             (
                 _(hintsHudText[0])
                 .replace("@0", inputBindingString(Button.ULTIMATE))
