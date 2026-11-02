@@ -120,7 +120,10 @@ rule "Leaves":
 
 rule "Turn Inactive Players Tiny":
     @Event eachPlayer
-    @Condition eventPlayer.getSpeed() == 0
+    # Their input rather than their speed, which an idle ball rarely holds at exactly 0: it
+    # drifts on slopes, and drifting off its checkpoint resets it there (Mistake: Missed
+    # Checkpoint), which started the 60 seconds over each time
+    @Condition eventPlayer.getThrottle() == vect(0, 0, 0)
     @Condition eventPlayer.isInLobby == false
     @Condition eventPlayer.spectating[0] == false
     @Condition eventPlayer.isDummy() == false
@@ -129,7 +132,8 @@ rule "Turn Inactive Players Tiny":
     eventPlayer.isTiny = true
     eventPlayer.startScalingSize(0.1, false)
     waitUntil(
-        eventPlayer.getSpeed() > 0
+        eventPlayer.getThrottle() != vect(0, 0, 0)
+        or eventPlayer.isHoldingButton(Button.JUMP)
         or eventPlayer.isHoldingButton(Button.PRIMARY_FIRE)
         or eventPlayer.isHoldingButton(Button.SECONDARY_FIRE)
         or eventPlayer.isHoldingButton(Button.ABILITY_1)
