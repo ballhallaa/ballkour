@@ -162,12 +162,20 @@ msgid "Next Page: <fgFFFFFFFF>@0</fg>"
 msgstr "次のページ：<fgFFFFFFFF>@0</fg>"
 
 #. file faq.opy, rule "Load HUD"
-msgid "Back to Page 1: <fgFFFFFFFF>@0</fg>"
-msgstr "1ページ目に戻る：<fgFFFFFFFF>@0</fg>"
+msgid "First Page: <fgFFFFFFFF>@0</fg>"
+msgstr "最初のページ：<fgFFFFFFFF>@0</fg>"
 
 #. file faq.opy, rule "Load HUD"
 msgid "FAQ in English: <fgFFFFFFFF>ballkour.com/faq</fg>"
 msgstr "日本語のFAQ：<fgFFFFFFFF>ballkour.com/faq</fg>"
+
+#. file faq.opy, rule "Load HUD"
+msgid "Prev. Page: <fgFFFFFFFF>@0</fg>"
+msgstr "前のページ：<fgFFFFFFFF>@0</fg>"
+
+#. file faq.opy, rule "Load HUD"
+msgid "Last Page: <fgFFFFFFFF>@0</fg>"
+msgstr "最後のページ：<fgFFFFFFFF>@0</fg>"
 
 #. file lobby.opy, rule "Load Buttons"
 msgid "New Run"

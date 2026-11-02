@@ -52,11 +52,11 @@ rule "HUD Input":
                 Math.INFINITY
             )
     eventPlayer.isViewingCtrlsHud = false
-    eventPlayer.allowButton(Button.MELEE)
     # The FAQ keeps them until it closes (FAQ: Open), and the lobby until it's left
-    # (Lobby: Leave)
+    # (Lobby: Leave), Melee too as it's their close key
     if eventPlayer.faqPage > 0 or eventPlayer.isInLobby:
         return
+    eventPlayer.allowButton(Button.MELEE)
     if not eventPlayer.spectating[0] or eventPlayer.spectating[2]:
         eventPlayer.allowButton(Button.PRIMARY_FIRE)
         eventPlayer.allowButton(Button.SECONDARY_FIRE)
@@ -778,9 +778,13 @@ rule "FAQ Input":
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
     @Condition eventPlayer.isHoldingButton(Button.MELEE) == true
     @Condition eventPlayer.spectating[5] == false
+    # Melee alone closes it, Ultimate or not (FAQ: Open)
+    @Condition eventPlayer.faqPage == 0
 
-    # Opens or closes the FAQ, where Jump turns its pages (FAQ: Open)
-    eventPlayer.faqPage = 1 if eventPlayer.faqPage == 0 else 0
+    # Opens the FAQ, where either fire turns its pages, once Melee is let go, so the same
+    # press doesn't close it again at once
+    waitUntil(not eventPlayer.isHoldingButton(Button.MELEE), Math.INFINITY)
+    eventPlayer.faqPage = 1
 
 
 rule "Load Hints HUD":
