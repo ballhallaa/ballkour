@@ -34,6 +34,7 @@ rule "Checkpoint (No Skipping)":
     # A clear ends an attempt too
     eventPlayer.cpAttempts[eventPlayer.runCurrentCp]++
     eventPlayer.runCurrentCp++
+    eventPlayer.runFurthestCp = max(eventPlayer.runFurthestCp, eventPlayer.runCurrentCp)
     syncSpectatorCps()
     showCpNameplate()
     loadCpData()
@@ -135,7 +136,7 @@ rule "Run Text":
         _(completionHudText[0]).replace("@0", localPlayer),
         HudPosition.TOP,
         2,
-        rgb(0, 224, 146),
+        Color.WHITE,
         HudReeval.VISIBILITY_AND_STRING
     )
     completionHudText[1] = _("Time: @0")
@@ -144,7 +145,9 @@ rule "Run Text":
             lambda localPlayer: localPlayer.isViewingRunCompletionText
             and localPlayer.faqPage == 0
         ),
-        _(completionHudText[1]).replace("@0", localPlayer.runFinalTimeFormatted),
+        _(completionHudText[1]).replace(
+            "@0", ("<fgFFFFFFFF>{}</fg>").format(localPlayer.runFinalTimeFormatted)
+        ),
         HudPosition.TOP,
         3,
         rgb(230, 151, 0),
@@ -156,7 +159,9 @@ rule "Run Text":
             lambda localPlayer: localPlayer.isViewingRunCompletionText
             and localPlayer.faqPage == 0
         ),
-        _(completionHudText[2]).replace("@0", timeToBeatFormatted),
+        _(completionHudText[2]).replace(
+            "@0", ("<fgFFFFFFFF>{}</fg>").format(timeToBeatFormatted)
+        ),
         HudPosition.TOP,
         4,
         rgb(230, 151, 0),
@@ -168,7 +173,9 @@ rule "Run Text":
             lambda localPlayer: localPlayer.isViewingRunCompletionText
             and localPlayer.faqPage == 0
         ),
-        _(completionHudText[3]).replace("@0", localPlayer.runFinalMistakes),
+        _(completionHudText[3]).replace(
+            "@0", ("<fgFFFFFFFF>{}</fg>").format(localPlayer.runFinalMistakes)
+        ),
         HudPosition.TOP,
         5,
         rgb(230, 151, 0),
@@ -177,10 +184,10 @@ rule "Run Text":
     # Lines start with a color tag and then their centering spaces: OverPy adds a line's
     # leading spaces to every translation, but spaces after the tag are the translation's own
     completionHudText[4] = _(
-        "<fgFF4646FF>Submit a Video of Your Run</fg>\n"
-        "<fgFF4646FF>                        @</fg>\n"
-        "<fgFF4646FF>              ballkour.com</fg>\n\n"
-        "<fg00E092FF>       Thanks for Playing!</fg>"
+        "<fgFFFFFFFF>Submit a Video of Your Run</fg>\n"
+        "<fgFFFFFFFF>                        @</fg>\n"
+        "<fg00E092FF>              ballkour.com</fg>\n\n"
+        "<fgFFFFFFFF>       Thanks for Playing!</fg>"
     )
     hudSubheader(
         getAllPlayers().filter(
@@ -197,7 +204,7 @@ rule "Run Text":
         HudReeval.VISIBILITY_AND_STRING
     )
     # Goes above completionHudText[4], so the shared lines are only stored once
-    completionHudText[5] = _("<fgE69700FF>                Top-10 Time!</fg>")
+    completionHudText[5] = _("<fgFFD200FF>                Top-10 Time!</fg>")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
@@ -214,7 +221,7 @@ rule "Run Text":
     completionHudText[6] = _(
         "<fgFF4646FF>             Run Not Counted\n"
         "Skipped CPs or Used Freemode</fg>\n\n"
-        "<fg00E092FF>         Thanks for Playing!</fg>"
+        "<fgFFFFFFFF>         Thanks for Playing!</fg>"
     )
     hudSubheader(
         getAllPlayers().filter(

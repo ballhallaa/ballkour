@@ -115,6 +115,8 @@ playervar isRunPaused
 playervar isRunFinished
 playervar isTimerActive
 playervar runCurrentCp
+# The furthest CP cleared this run, which can be skipped back to without losing legitimacy
+playervar runFurthestCp
 playervar runTime
 playervar runTimeFormatted
 playervar runMistakes

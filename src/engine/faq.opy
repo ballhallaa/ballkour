@@ -159,10 +159,10 @@ rule "Load HUD":
     ).format(VERSION)
     faqHudText[2] = (
         "\n\n<fg00E092FF>What counts as a valid run?</fg>"
-        "\nYour run is only disqualified if you skip a checkpoint. Going back a checkpoint,"
-        "\nrestarting checkpoints, and spectating are allowed for legitimate runs."
-        "\nLeaving a checkpoint with freemode on counts as skipping it."
-        "\nDisqualified runs are <fg808080FF>grayed out</fg> on the scorecard."
+        "\nYour run is only disqualified if you skip a checkpoint you haven't cleared yet this run."
+        "\nGoing back or restarting checkpoints, skipping ahead to cleared checkpoints, and"
+        "\nspectating are fine. Leaving an uncleared checkpoint in freemode counts as skipping it."
+        "\nDisqualified runs don't count toward Lobby Top 3 or Lobby Stats."
     )
     faqHudText[3] = (
         "\n\n<fg00E092FF>What counts as a mistake?</fg>"
@@ -215,7 +215,7 @@ rule "Load HUD":
     faqHudText[12] = (
         "\n\n<fg00E092FF>What's on the scorecard?</fg>"
         "\nEach runner's checkpoint, time and mistakes, furthest first, then fastest."
-        "\n<fg808080FF>Grayed out</fg> runs are disqualified."
+        "\n<fgFF4646FF>Red</fg> runs, marked <fgFF4646FF>×</fg>, are disqualified."
     )
     # Page 3
     faqHudText[13] = (

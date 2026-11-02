@@ -516,7 +516,9 @@ rule "Next Checkpoint Input":
     eventPlayer.setSecondaryFireEnabled(false)
     pauseRun()
     if not eventPlayer.spectating[0]:
-        eventPlayer.isRunLegit = false
+        # Only skipping past the furthest CP cleared disqualifies the run
+        if eventPlayer.runCurrentCp >= eventPlayer.runFurthestCp:
+            eventPlayer.isRunLegit = false
         eventPlayer.runCurrentCp++
         syncSpectatorCps()
         showCpNameplate()
@@ -552,6 +554,8 @@ rule "Next Checkpoint Input":
             )
         ):
             if not eventPlayer.spectating[0]:
+                if eventPlayer.runCurrentCp >= eventPlayer.runFurthestCp:
+                    eventPlayer.isRunLegit = false
                 eventPlayer.runCurrentCp++
                 eventPlayer.teleport(cps[eventPlayer.runCurrentCp][0])
                 showCpNameplate()
@@ -687,6 +691,8 @@ rule "Left CP In Freemode":
     @Condition eventPlayer.isInFreemode == true
     @Condition eventPlayer.isRunLegit == true
     @Condition eventPlayer.runCurrentCp < lastCp
+    # Like skipping, leaving a CP already cleared this run is allowed
+    @Condition eventPlayer.runCurrentCp >= eventPlayer.runFurthestCp
     @Condition eventPlayer.spectating[0] == false
     @Condition (
         distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
@@ -710,7 +716,7 @@ rule "Load Freemode HUD":
         _(freemodeHudText),
         HudPosition.LEFT,
         12,
-        rgb(255, 70, 70),
+        rgb(203, 135, 255),
         HudReeval.VISIBILITY_AND_STRING
     )
 
