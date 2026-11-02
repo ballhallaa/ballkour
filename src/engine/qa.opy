@@ -15,11 +15,11 @@ rule "Open":
     @Event eachPlayer
     @Condition eventPlayer.qaPage > 0
 
-    # Lobby Input opens it and turns the pages. Every eachPlayer rule adds to the server's
-    # periodic load, and six of them for the Q&A were enough to close the server, so this
-    # one rule does all of it: closing, turning pages, the sky camera, and locking the
-    # player in place. Interact closes the Q&A and Jump turns its page, so it doesn't jump
-    # while it's open, or once it closes until Jump is let go.
+    # Lobby Input opens and closes it. Every eachPlayer rule adds to the server's periodic
+    # load, and six of them for the Q&A were enough to close the server, so this one rule
+    # does all of it: closing, turning pages, the sky camera, and locking the player in
+    # place. Interact closes the Q&A and Jump turns its page, so it doesn't jump while it's
+    # open, or once it closes until Jump is let go.
     eventPlayer.disallowButton(Button.JUMP)
     # Every HUD text but the Q&A's hides while it's open, and so does the hero's own HUD
     eventPlayer.disableHeroHud()
