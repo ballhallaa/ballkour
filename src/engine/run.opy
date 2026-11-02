@@ -32,12 +32,11 @@ macro scorecardKey(player):
 
 # Whether the scorecard lists its rows: not when the only runner listed is the player
 macro scorecardHasRows(player):
-    # TEST: always, for the fake runners
-    (true or len(scorecardRunners.exclude(player)) > 0)
+    len(scorecardRunners.exclude(player)) > 0
 
 
 # The lines of the scorecard's text under its 2 blank ones: the icons and rows, the Lobby
-# Top 3's blank line, title and rows, and Hide Scores
+# Top 3's title and rows with a blank line between them, and Hide Scores
 macro scorecardLines(player):
     (
         (scorecardRows + 1 if scorecardHasRows(player) else 0)
@@ -184,29 +183,11 @@ rule "Load HUD":
     # Under Hints. Its rows are left out when the only runner
     # listed is the player, as their run is on the right, but its line stays while there's a
     # Top 3 for it to hide.
-    # The Lobby Top 3 goes between the rows and the Hide Scores line, in the same HUD text so
-    # they all left-align.
+    # The Lobby Top 3 goes above the rows, in the same HUD text so they all left-align. At
+    # most 3 rows long, it stays put as runners come and go below it.
     scorecardHudText[0] = _("Hide Scores: <fgFFFFFFFF>@0 + @1</fg>")
     scorecardHudText[1] = _("\nScores: <fgFFFFFFFF>@0 + @1</fg>")
     topRunsHudText = _("Lobby Top 3")
-    # TEST: a fake Lobby Top 3
-    topRuns = [
-        [234.23, "BallMyBloved", 5, "3:54.23"],
-        [1245.81, "Coldskin", 12, "20:45.81"],
-        [4521.96, "WWWWWWWWWWWW", 99, "1:15:21.96"]
-    ]
-    topRunsText = ""
-    for index in range(len(topRuns)):
-        topRunsText = "{}\n{}{}   {}{}{}{}{}</fg>".format(
-            topRunsText,
-            ["<fgFFFF00FF>", "<fgB0C4DEFF>", "<fgC46A30FF>"][index],
-            index + 1,
-            topRuns[index][3],
-            "     " if strLen(topRuns[index][3]) < 8 else "   ",
-            topRuns[index][2],
-            "     " if topRuns[index][2] < 10 else "   ",
-            topRuns[index][1]
-        )
     # The rows stay out of the String Replace, which cuts off long strings, and they're too long for it
     hudSubheader(
         getAllPlayers().filter(
@@ -227,15 +208,16 @@ rule "Load HUD":
                 if localPlayer.isInLobby
                 else ""
             ),
-            ("{}\n".format(scorecard) if scorecardHasRows(localPlayer) else ""),
             (
-                "{}{}{}\n".format(
-                    "\n" if scorecardHasRows(localPlayer) else "\n\n",
-                    _(topRunsHudText),
-                    topRunsText
-                )
+                "\n\n{}{}".format(_(topRunsHudText), topRunsText)
                 if len(topRuns) > 0
                 else ""
+            ),
+            # The rows' own 2 blank lines leave 1 between them and the Top 3
+            (
+                "{}\n".format(scorecard)
+                if scorecardHasRows(localPlayer)
+                else ("\n" if len(topRuns) > 0 else "")
             ),
             _(scorecardHudText[0])
             .replace("@0", inputBindingString(Button.ULTIMATE))
@@ -298,58 +280,6 @@ rule "Update Scorecard":
                 scorecardRow
                 if scorecardRunners[index].isRunLegit
                 else "<fg808080FF>{}</fg>".format(scorecardRow)
-            )
-        )
-    # TEST: 12 fake runners in place of the real ones
-    scorecardRows = 12
-    scorecard = "\n\n{}    {}       {}".format(
-        iconString(Icon.FLAG), iconString(Icon.BOLT), iconString(Icon.SKULL)
-    )
-    for index in range(12):
-        scorecardTime = [
-            "1:23:45",
-            "58:12",
-            "42:07",
-            "31:50",
-            "12:03",
-            "9:41",
-            "7:15",
-            "5:02",
-            "3:33",
-            "2:10",
-            "1:05",
-            "0:42"
-        ][index]
-        scorecardRow = "{}{}{}{}{}{}{}".format(
-            [100, 97, 85, 64, 42, 38, 25, 19, 12, 7, 3, 1][index],
-            scorecardPad([100, 97, 85, 64, 42, 38, 25, 19, 12, 7, 3, 1][index]),
-            scorecardTime,
-            "             ".substring(
-                0, [0, 13, 11, 0, 7, 5, 0, 2][strLen(scorecardTime)]
-            ),
-            [312, 140, 99, 57, 23, 18, 9, 4, 2, 1, 0, 0][index],
-            scorecardPad([312, 140, 99, 57, 23, 18, 9, 4, 2, 1, 0, 0][index]),
-            [
-                "WWWWWWWWWWWW",
-                "Ballhallaa",
-                "Kiriko",
-                "xX_Slayer_Xx",
-                "Mo",
-                "Hammond",
-                "Speedrunner",
-                "Wreck",
-                "Tracer",
-                "ABCDEFGHIJKL",
-                "Lúcio",
-                "Zen"
-            ][index]
-        )
-        scorecard = "{}\n{}".format(
-            scorecard,
-            (
-                "<fg808080FF>{}</fg>".format(scorecardRow)
-                if index in [3, 8]
-                else scorecardRow
             )
         )
     # The time column ticks each second, and a change rebuilds it within 0.1s. Rebuilding on
