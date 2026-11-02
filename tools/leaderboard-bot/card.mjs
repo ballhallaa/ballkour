@@ -75,7 +75,7 @@ body { margin: 0; background: var(--void); }
 .logo img { position: relative; width: 100%; height: 100%; }
 .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 22px; }
 ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
-.run { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto 66px; grid-template-areas: "rank name time miss" "rank dc date ."; align-items: center; align-content: center; gap: 7px 12px;
+.run { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto 66px; grid-template-areas: "rank name time miss" "rank dc date date"; align-items: center; align-content: center; gap: 7px 12px;
   height: 74px; padding: 0 16px; border-radius: 11px; background: rgba(9,15,13,.93); border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
 .rank { grid-area: rank; font: 700 22px/1 var(--mono); color: var(--ink-3); }
 .line { grid-area: name; min-width: 0; display: flex; align-items: center; gap: 9px; }
