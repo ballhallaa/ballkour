@@ -257,7 +257,7 @@ macro addMistake():
 # Workshop text is uppercase and video links aren't, so this overlays progress bar texts,
 # which can show lowercase. They only line up in the Latin font, and one CJK character
 # changes a text's whole font, so the row with the runner's name is its own text (Show Run
-# Info), like the hide line.
+# Info), like the close line.
 # It follows the player's camera: the blank lines (lbRunPad) lift it toward the top of the
 # screen and push its progress bar off the screen. Each run's 3 texts are separate actions,
 # as only literal text is lowercased, so everything they share is kept short: the blank

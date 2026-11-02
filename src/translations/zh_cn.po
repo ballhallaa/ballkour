@@ -161,9 +161,11 @@ msgstr "排行榜"
 msgid "Run Info: <fgFFFFFFFF>Look at a Run + @0</fg>"
 msgstr "记录详情：<fgFFFFFFFF>看向记录 + @0</fg>"
 
-#. file lobby.opy, rule "Load Leaderboard Area"
-msgid "Hide: <fgFFFFFFFF>@0</fg>"
-msgstr "隐藏：<fgFFFFFFFF>@0</fg>"
+#. 2 occurrences:
+#.  - file lobby.opy, rule "Load Leaderboard Area"
+#.  - file qa.opy, rule "Load HUD"
+msgid "Close: <fgFFFFFFFF>@0</fg>"
+msgstr "关闭：<fgFFFFFFFF>@0</fg>"
 
 #. file lobby.opy, rule "Load Resume Run Area"
 msgid "Resume Run"
@@ -224,10 +226,6 @@ msgstr "{0} | {1}"
 #. file qa.opy, rule "Load HUD"
 msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
 msgstr "常见问题：<fgFFFFFFFF>@0 + @1</fg>"
-
-#. file qa.opy, rule "Load HUD"
-msgid "Close: <fgFFFFFFFF>@0</fg>"
-msgstr "关闭：<fgFFFFFFFF>@0</fg>"
 
 #. file qa.opy, rule "Load HUD"
 msgid "Next Page: <fgFFFFFFFF>@0</fg>"
