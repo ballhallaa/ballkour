@@ -33,13 +33,13 @@ rule "Open":
     eventPlayer.disallowButton(Button.MELEE)
     # Every HUD text but the FAQ's hides while it's open, and so does the hero's own HUD
     eventPlayer.disableHeroHud()
-    # Looks up into the sky from high above the player, so the FAQ has a plain background.
-    # Spectator mode leaves this camera alone until the FAQ closes.
+    # Looks out from high above the player, wherever they look, so looking up shows the sky as
+    # a plain background. Spectator mode leaves this camera alone until the FAQ closes.
     eventPlayer.startCamera(
         eventPlayer.getEyePosition() + vect(0, 100, 0),
         eventPlayer.getEyePosition()
         + vect(0, 100, 0)
-        + directionFromAngles(eventPlayer.getHorizontalFacingAngle(), -45),
+        + eventPlayer.getFacingDirection(),
         50
     )
     # Each pass locks the player for the mode they're in, until the FAQ closes or they
@@ -176,7 +176,7 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    # Each answer is its own string in white, with its question in gold and the game's own
+    # Each answer is its own string in white, with its question in light blue and the game's own
     # labels (controls, HUD and lobby names) in orange, the ones ballkour.com/faq marks. The
     # answers are English only, with the translated ones at ballkour.com/faq: in all 14
     # languages they made pasting the script take several seconds longer.
@@ -188,95 +188,95 @@ rule "Load HUD":
         "\n<fgE69700FF>Version:</fg> {}"
     ).format(VERSION)
     faqHudText[2] = (
-        "\n\n<fgFFD700FF>What counts as a valid run?</fg>"
+        "\n\n<fg80D0FFFF>What counts as a valid run?</fg>"
         "\nYour run is only disqualified if you skip a checkpoint you haven't cleared yet this run."
         "\nGoing back or restarting checkpoints, skipping ahead to cleared checkpoints, and"
         "\nspectating are fine. Leaving an uncleared checkpoint in <fgE69700FF>Freemode</fg> counts as skipping it."
         "\nDisqualified runs don't count toward the top-10 leaderboard, <fgE69700FF>Lobby Top 3</fg>, or <fgE69700FF>Lobby Stats</fg>."
     )
     faqHudText[3] = (
-        "\n\n<fgFFD700FF>What counts as a mistake?</fg>"
+        "\n\n<fg80D0FFFF>What counts as a mistake?</fg>"
         "\nLanding anywhere but the next checkpoint, bhopping twice, missing a bounce checkpoint's"
         "\njump, falling off the map, or leaving mid-attempt with <fgE69700FF>Prev.</fg>/<fgE69700FF>Next CP</fg>, <fgE69700FF>Reset CP</fg>, <fgE69700FF>Freemode</fg>,"
         "\n<fgE69700FF>Spectate</fg>, or <fgE69700FF>Lobby/Pause</fg>."
     )
     faqHudText[4] = (
-        "\n\n<fgFFD700FF>When does my run's timer start?</fg>"
+        "\n\n<fg80D0FFFF>When does my run's timer start?</fg>"
         "\nWhen you leave the first checkpoint, not when you spawn."
     )
     faqHudText[5] = (
-        "\n\n<fgFFD700FF>What pauses my run?</fg>"
+        "\n\n<fg80D0FFFF>What pauses my run?</fg>"
         "\n<fgE69700FF>Lobby/Pause</fg> and <fgE69700FF>Spectate</fg> stop your timer, and <fgE69700FF>Resume Run</fg> in the lobby carries on from"
         "\nyour checkpoint. Pausing outside your checkpoint counts as a mistake."
     )
     faqHudText[6] = (
-        "\n\n<fgFFD700FF>What is Freemode for?</fg>"
+        "\n\n<fg80D0FFFF>What is Freemode for?</fg>"
         "\nPractice, with no timer and all your abilities. You can't clear checkpoints in it,"
         "\nand leaving your checkpoint with it on disqualifies your run."
     )
     # Page 2
     faqHudText[7] = (
-        "\n<fgFFD700FF>What do Runs and Attempts count?</fg>"
+        "\n<fg80D0FFFF>What do Runs and Attempts count?</fg>"
         "\n<fgE69700FF>Runs</fg> counts the runs you've finished or restarted. <fgE69700FF>Attempts</fg> counts your mistakes"
         "\nand clears on this checkpoint, over all your runs."
     )
     faqHudText[8] = (
-        "\n\n<fgFFD700FF>What do Attempt and Split mean?</fg>"
+        "\n\n<fg80D0FFFF>What do Attempt and Split mean?</fg>"
         "\n<fgE69700FF>Attempt</fg> is timed from leaving the checkpoint. <fgE69700FF>Split</fg> is timed from reaching it, so it"
         "\nincludes your mistakes. Each turns red once it's slower than your best."
         "\nAfter a clear, they show your times for 2 seconds: <fgFFFF00FF>yellow</fg> on your first clear, then"
         "\n<fg00E092FF>green</fg> if faster or <fgFF4646FF>red</fg> if slower than your average. A new best is compared with your old best."
     )
     faqHudText[9] = (
-        "\n\n<fgFFD700FF>Are Best and Avg server records?</fg>"
+        "\n\n<fg80D0FFFF>Are Best and Avg server records?</fg>"
         "\nNo, they're only your own times on that checkpoint, over all your runs."
         "\nThey reset when you leave or when the server restarts."
     )
     faqHudText[10] = (
-        "\n\n<fgFFD700FF>What is Pace?</fg>"
+        "\n\n<fg80D0FFFF>What is Pace?</fg>"
         "\nYour estimated finish time, from this run's average split so far. Once your current"
         "\nsplit is slower than that average, it turns <fgFF4646FF>red</fg> and counts up with your time."
     )
     faqHudText[11] = (
-        "\n\n<fgFFD700FF>Why are some controls </fg><fg808080FF>grayed out</fg><fgFFD700FF>?</fg>"
+        "\n\n<fg80D0FFFF>Why are some controls </fg><fg808080FF>grayed out</fg><fg80D0FFFF>?</fg>"
         "\nThey can't be used right now: <fgE69700FF>Prev. CP</fg> on the first checkpoint, <fgE69700FF>Next CP</fg> on the last,"
         "\nand the player controls while there's nobody to spectate. <fgE69700FF>X-Hair Player</fg> also needs <fgE69700FF>Freecam</fg>."
     )
     faqHudText[12] = (
-        "\n\n<fgFFD700FF>What's on the scorecard?</fg>"
+        "\n\n<fg80D0FFFF>What's on the scorecard?</fg>"
         "\nEach runner's checkpoint, time, and mistakes, furthest first, then fastest."
         "\n<fgFF4646FF>Red</fg> runs, marked <fgFF4646FF>×</fg>, are disqualified."
     )
     # Page 3
     faqHudText[13] = (
-        "\n<fgFFD700FF>What do the hint colors mean?</fg>"
+        "\n<fg80D0FFFF>What do the hint colors mean?</fg>"
         "\n<fgCB87FFFF>Movement</fg>   <fgFFFFFFFF>Jump</fg>   <fgFFD200FF>Grapple</fg>   <fgFF4646FF>Piledrive</fg>   <fg00BEFFFF>Shield Bounce</fg>"
         "\nHints turn on by themselves after 10 mistakes on one checkpoint,"
         "\nand off again when you move on to another."
     )
     faqHudText[14] = (
-        "\n\n<fgFFD700FF>How do I get on the leaderboard?</fg>"
+        "\n\n<fg80D0FFFF>How do I get on the leaderboard?</fg>"
         "\nFinish a valid run and submit a video of it at ballkour.com."
         "\n<fgE69700FF>Lobby Top 3</fg> only lists the fastest valid runs finished in this lobby."
     )
     faqHudText[15] = (
-        "\n\n<fgFFD700FF>Why are some players tiny?</fg>"
+        "\n\n<fg80D0FFFF>Why are some players tiny?</fg>"
         "\nPlayers who haven't moved for 60 seconds shrink, so they're not in anyone's way."
         "\nThey grow back as soon as they move."
     )
     faqHudText[16] = (
-        "\n\n<fgFFD700FF>Does the server restart?</fg>"
+        "\n\n<fg80D0FFFF>Does the server restart?</fg>"
         "\nYes, about every 4 hours, with warnings from 30 minutes before."
         "\n<fgE69700FF>Runs</fg>, <fgE69700FF>Attempts</fg>, <fgE69700FF>Mistakes</fg>, <fgE69700FF>Best</fg>, <fgE69700FF>Avg</fg>, the scorecard, and <fgE69700FF>Lobby Top 3</fg> reset, so nothing"
         "\ncarries over into a new match (a Workshop limitation)."
     )
     faqHudText[17] = (
-        "\n\n<fgFFD700FF>Why does it take so long to load a Ballkour game?</fg>"
+        "\n\n<fg80D0FFFF>Why does it take so long to load a Ballkour game?</fg>"
         "\nIts Workshop script is big, mostly from its translations into 13 languages,"
         "\nand Overwatch takes a while to load it before the match starts."
     )
     faqHudText[18] = (
-        "\n\n<fgFFD700FF>Is something wrong in my language?</fg>"
+        "\n\n<fg80D0FFFF>Is something wrong in my language?</fg>"
         "\nThe translations are drafts, so please report mistakes at ballkour.com/issues."
     )
     faqHudText[19] = _("Next Page: <fgFFFFFFFF>@0</fg>")
