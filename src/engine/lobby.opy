@@ -224,7 +224,8 @@ def showRunInfo():
     destroyAllProgressBarInWorldTexts()
     # The row and close line of every open run's info. They're the same kind of text with
     # the same number of lines, with only their own line filled in, so they land above and
-    # below the date and link. Each viewer's row and key name need the text reevaluated.
+    # below the date and link. Each viewer's row and key name need the text reevaluated, and
+    # so does who sees it: the row would show "0" for a frame on closing before going.
     createProgressBarInWorldText(
         getAllPlayers().filter(lambda localPlayer: localPlayer.lbInfoRow != 0),
         0,
@@ -238,7 +239,7 @@ def showRunInfo():
         Clip.NONE,
         Color.WHITE,
         rgb(230, 151, 0),
-        ProgressWorldTextReeval.POSITION_AND_VALUES
+        ProgressWorldTextReeval.VISIBILITY_POSITION_AND_VALUES
     )
     createProgressBarInWorldText(
         getAllPlayers().filter(lambda localPlayer: localPlayer.lbInfoRow != 0),
@@ -256,7 +257,7 @@ def showRunInfo():
         Clip.NONE,
         Color.WHITE,
         rgb(230, 151, 0),
-        ProgressWorldTextReeval.POSITION_AND_VALUES
+        ProgressWorldTextReeval.VISIBILITY_POSITION_AND_VALUES
     )
     loadRunInfo()
 
