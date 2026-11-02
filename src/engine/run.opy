@@ -47,8 +47,18 @@ rule "Sync Viewed Runner":
 
 
 rule "Load HUD":
+    # A header, the biggest HUD text. The Q&A keeps the smaller one, as its own header goes
+    # under it.
+    hudHeader(
+        getAllPlayers().filter(lambda localPlayer: localPlayer.qaPage == 0),
+        "ballkour.com",
+        HudPosition.TOP,
+        0,
+        rgb(0, 224, 146),
+        HudReeval.VISIBILITY
+    )
     hudSubtext(
-        getAllPlayers(),
+        getAllPlayers().filter(lambda localPlayer: localPlayer.qaPage > 0),
         "ballkour.com",
         HudPosition.TOP,
         0,
@@ -158,9 +168,11 @@ rule "Load HUD":
     # The rows stay out of the String Replace, which cuts off long strings, and they're too long for it
     hudSubheader(
         getAllPlayers().filter(
-            lambda localPlayer: not localPlayer.isScorecardHidden
-            and (len(scorecardRunners.exclude(localPlayer)) > 0 or len(topRuns) > 0)
-            and localPlayer.qaPage == 0
+            lambda localPlayer: controlsVisible(
+                not localPlayer.isScorecardHidden
+                and (len(scorecardRunners.exclude(localPlayer)) > 0 or len(topRuns) > 0)
+                and localPlayer.qaPage == 0
+            )
         ),
         "{}{}".format(
             (
@@ -184,9 +196,11 @@ rule "Load HUD":
     # On its own under the Q&A line, so it's the same size as it
     hudSubtext(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.isScorecardHidden
-            and (len(scorecardRunners.exclude(localPlayer)) > 0 or len(topRuns) > 0)
-            and localPlayer.qaPage == 0
+            lambda localPlayer: controlsVisible(
+                localPlayer.isScorecardHidden
+                and (len(scorecardRunners.exclude(localPlayer)) > 0 or len(topRuns) > 0)
+                and localPlayer.qaPage == 0
+            )
         ),
         _(scorecardHudText[1])
         .replace("@0", inputBindingString(Button.ULTIMATE))
@@ -261,7 +275,8 @@ def newRun():
     eventPlayer.isLoading = true
     if eventPlayer.spectating[0]:
         disableSpectator()
-    eventPlayer.isInLobby = false
+    if eventPlayer.isInLobby:
+        leaveLobby()
     # A run counts once it ends: here if it's restarted after leaving the first CP, or when it's finished
     if (
         eventPlayer.isRunLoaded

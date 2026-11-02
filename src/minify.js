@@ -3,8 +3,17 @@
 // no comments, indentation or rule names, and variables and subroutines get the shortest names.
 // Dev builds stay readable for the Workshop editor and Inspector.
 
-// The version is in the description, as a dev version ends in -dev
-if (!/-dev \\n\\nLatest Code/.test(content)) {
+// One change to an element, in every build: OverPy gives __languageIndex__ (#!translateWithPlayerVar
+// in ballkour.opy) a starting value in an "Initialize player variables" rule, which only its own
+// language detection needs. Player: Joins does the detection instead, so the rule comes out, as long
+// as that's all it does, which saves an eachPlayer rule.
+content = content.replace(
+    /\n\s*rule \("Initialize player variables"\) \{\s*event \{\s*Ongoing - Each Player;\s*All;\s*All;\s*\}\s*actions \{\s*Set Player Variable\(Event Player, __languageIndex__, 0\.1\);\s*\}\s*\}/,
+    ""
+);
+
+// The version is in the description, as a dev version ends in -dev, before any +tag
+if (!/-dev(\+\S+)? \\n\\nLatest Code/.test(content)) {
     var STRING_OR_NAME = /"[^"\\]*(?:\\.[^"\\]*)*"|[A-Za-z_][A-Za-z0-9_]*/g;
     var COMMENT = /^"[^"\\]*(?:\\.[^"\\]*)*"$/;
     var DECLARATION = /^\d+: (\S+)$/;

@@ -108,11 +108,13 @@ def enableSpectator():
     eventPlayer.isLoading = true
     swapToJetpackCat()
     # Being away from the checkpoint is no mistake in the lobby. Disable drops the player at a
-    # checkpoint, so without a run to resume they get a new one.
+    # checkpoint, so without a run to resume they get a new one. Freecam starts at it too,
+    # instead of up in the lobby's sky.
     if eventPlayer.isInLobby:
-        eventPlayer.isInLobby = false
+        leaveLobby()
         if not eventPlayer.isRunLoaded or eventPlayer.isRunFinished:
             resetRun()
+        eventPlayer.teleport(cps[eventPlayer.runCurrentCp][0])
     elif (
         distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
         > eventPlayer.cpData[1]
@@ -224,9 +226,13 @@ def disableSpectator():
     eventPlayer.isLoading = false
 
 
+# Nobody in the lobby, as they're held invisible up in its sky
 macro spectatablePlayers(player):
     getAllPlayers().filter(
-        lambda p: p != player and p.hasSpawned() and not p.spectating[0]
+        lambda p: p != player
+        and p.hasSpawned()
+        and not p.spectating[0]
+        and not p.isInLobby
     )
 
 
@@ -327,6 +333,7 @@ rule "Crosshair Player Input":
         lambda p: p != eventPlayer
         and p.hasSpawned()
         and not p.spectating[0]
+        and not p.isInLobby
         and angleBetweenVectors(
             eventPlayer.getFacingDirection(),
             directionTowards(eventPlayer.getEyePosition(), p.getEyePosition())
@@ -482,7 +489,7 @@ rule "Environment Death":
 def enableFreecamForSpectators():
     @Name "Enable Freecam For Spectators"
 
-    # For players spectating someone who enables spectator mode or leaves
+    # For players spectating someone who enables spectator mode, goes to the lobby or leaves
     for index in range(len(getAllPlayers())):
         if getAllPlayers()[index].spectating[0] == true:
             if getAllPlayers()[index].spectating[1] == eventPlayer:

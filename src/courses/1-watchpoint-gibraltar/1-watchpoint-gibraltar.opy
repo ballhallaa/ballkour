@@ -11,5 +11,4 @@ settings courseSettings(Watchpoint: Gibraltar, 59W28, 9GTJH, 12, 0, {"watchpoint
 #!include "../../../leaderboards/1-watchpoint-gibraltar.opy"
 #!include "checkpoints.opy"
 #!include "hints.opy"
-#!include "lobby.opy"
 #!include "../../ballkour.opy"

@@ -13,12 +13,49 @@ rule "HUD Input":
     eventPlayer.disallowButton(Button.ABILITY_1)
     eventPlayer.disallowButton(Button.ABILITY_2)
     eventPlayer.disallowButton(Button.MELEE)
-    # Stays open through Lobby/Pause, since the lobby has controls too
-    waitUntil(not eventPlayer.isHoldingButton(Button.ULTIMATE), Math.INFINITY)
+    # Stays open through Lobby/Pause, since the lobby has controls too. Meanwhile Jump and
+    # either fire turn the language back or forward (Prev./Next Language), so its controls
+    # can be read in each one. Jump comes first, as Prev./Next CP leave it alone.
+    while eventPlayer.isHoldingButton(Button.ULTIMATE):
+        waitUntil(
+            not eventPlayer.isHoldingButton(Button.ULTIMATE)
+            or (
+                eventPlayer.isHoldingButton(Button.JUMP)
+                and (
+                    eventPlayer.isHoldingButton(Button.PRIMARY_FIRE)
+                    or eventPlayer.isHoldingButton(Button.SECONDARY_FIRE)
+                )
+            ),
+            Math.INFINITY
+        )
+        # The whole combo, as a hero swap can let go of Ultimate for a moment, which ends
+        # the wait too (seen entering spectator)
+        if (
+            eventPlayer.isHoldingButton(Button.ULTIMATE)
+            and eventPlayer.isHoldingButton(Button.JUMP)
+            and (
+                eventPlayer.isHoldingButton(Button.PRIMARY_FIRE)
+                or eventPlayer.isHoldingButton(Button.SECONDARY_FIRE)
+            )
+        ):
+            eventPlayer.__languageIndex__ = (
+                eventPlayer.__languageIndex__
+                + (
+                    1
+                    if eventPlayer.isHoldingButton(Button.SECONDARY_FIRE)
+                    else LANGUAGES - 1
+                )
+            ) % LANGUAGES
+            waitUntil(
+                not eventPlayer.isHoldingButton(Button.PRIMARY_FIRE)
+                and not eventPlayer.isHoldingButton(Button.SECONDARY_FIRE),
+                Math.INFINITY
+            )
     eventPlayer.isViewingCtrlsHud = false
     eventPlayer.allowButton(Button.MELEE)
-    # The Q&A keeps them until it closes (Q&A: Open)
-    if eventPlayer.qaPage > 0:
+    # The Q&A keeps them until it closes (Q&A: Open), and the lobby until it's left
+    # (Lobby: Leave)
+    if eventPlayer.qaPage > 0 or eventPlayer.isInLobby:
         return
     if not eventPlayer.spectating[0] or eventPlayer.spectating[2]:
         eventPlayer.allowButton(Button.PRIMARY_FIRE)
@@ -32,12 +69,14 @@ rule "Load HUD":
     # The lobby only has New Run and Spectate
     # Each line is one translated string with its padding inside, so a translation can
     # pad its own label. Grayed-out lines take their colors as arguments for the same reason.
-    ctrlsHudText[0] = _("@0Prev. CP:                               @1@2 + @3</fg>")
+    ctrlsHudText[0] = _("@0Prev. CP:                                  @1@2 + @3</fg>")
     hudSubheader(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.isViewingCtrlsHud
-            and not localPlayer.isInLobby
-            and localPlayer.qaPage == 0
+            lambda localPlayer: controlsVisible(
+                localPlayer.isViewingCtrlsHud
+                and not localPlayer.isInLobby
+                and localPlayer.qaPage == 0
+            )
         ),
         _(ctrlsHudText[0])
         .replace("@0", "" if localPlayer.viewCp > 0 else "<fg808080FF>")
@@ -49,12 +88,14 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    ctrlsHudText[1] = _("@0Next CP:                               @1@2 + @3</fg>")
+    ctrlsHudText[1] = _("@0Next CP:                                   @1@2 + @3</fg>")
     hudSubheader(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.isViewingCtrlsHud
-            and not localPlayer.isInLobby
-            and localPlayer.qaPage == 0
+            lambda localPlayer: controlsVisible(
+                localPlayer.isViewingCtrlsHud
+                and not localPlayer.isInLobby
+                and localPlayer.qaPage == 0
+            )
         ),
         _(ctrlsHudText[1])
         .replace("@0", "" if localPlayer.viewCp < lastCp else "<fg808080FF>")
@@ -67,15 +108,17 @@ rule "Load HUD":
         HudReeval.VISIBILITY_AND_STRING
     )
     ctrlsHudText[2] = _(
-        "Reset CP:                           <fgFFFFFFFF>@0 (Hold)</fg>"
+        "Reset CP:                               <fgFFFFFFFF>@0 (Hold)</fg>"
     )
     hudSubheader(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.isViewingCtrlsHud
-            and not localPlayer.isInLobby
-            and not localPlayer.spectating[0]
-            and localPlayer.runCurrentCp < lastCp
-            and localPlayer.qaPage == 0
+            lambda localPlayer: controlsVisible(
+                localPlayer.isViewingCtrlsHud
+                and not localPlayer.isInLobby
+                and not localPlayer.spectating[0]
+                and localPlayer.runCurrentCp < lastCp
+                and localPlayer.qaPage == 0
+            )
         ),
         _(ctrlsHudText[2]).replace("@0", inputBindingString(Button.RELOAD)),
         HudPosition.LEFT,
@@ -83,11 +126,12 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    ctrlsHudText[3] = _("New Run:                 <fgFFFFFFFF>@0 + @1 (Hold)</fg>")
+    ctrlsHudText[3] = _("New Run:                     <fgFFFFFFFF>@0 + @1 (Hold)</fg>")
     hudSubheader(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.isViewingCtrlsHud
-            and localPlayer.qaPage == 0
+            lambda localPlayer: controlsVisible(
+                localPlayer.isViewingCtrlsHud and localPlayer.qaPage == 0
+            )
         ),
         _(ctrlsHudText[3])
         .replace("@0", inputBindingString(Button.ULTIMATE))
@@ -97,14 +141,18 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    ctrlsHudText[4] = _("Freemode:                            <fgFFFFFFFF>@0 + @1</fg>")
+    ctrlsHudText[4] = _(
+        "Freemode:                                <fgFFFFFFFF>@0 + @1</fg>"
+    )
     hudSubheader(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.isViewingCtrlsHud
-            and not localPlayer.isInLobby
-            and not localPlayer.spectating[0]
-            and localPlayer.runCurrentCp < lastCp
-            and localPlayer.qaPage == 0
+            lambda localPlayer: controlsVisible(
+                localPlayer.isViewingCtrlsHud
+                and not localPlayer.isInLobby
+                and not localPlayer.spectating[0]
+                and localPlayer.runCurrentCp < lastCp
+                and localPlayer.qaPage == 0
+            )
         ),
         _(ctrlsHudText[4])
         .replace("@0", inputBindingString(Button.ULTIMATE))
@@ -114,36 +162,56 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    ctrlsHudText[5] = _("Disable Hints:                <fgFFFFFFFF>@0 + @1</fg>")
-    ctrlsHudText[6] = _("Enable Hints:                 <fgFFFFFFFF>@0 + @1</fg>")
+    ctrlsHudText[5] = _(
+        "Disable Hints:                          <fgFFFFFFFF>@0 + @1</fg>"
+    )
+    ctrlsHudText[6] = _(
+        "Enable Hints:                           <fgFFFFFFFF>@0 + @1</fg>"
+    )
     hudSubheader(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.isViewingCtrlsHud
-            and not localPlayer.isInLobby
-            and localPlayer.viewCp < lastCp
-            and len(hintRoutes) > 0
-            and localPlayer.qaPage == 0
+            lambda localPlayer: controlsVisible(
+                localPlayer.isViewingCtrlsHud
+                and not localPlayer.isInLobby
+                and localPlayer.viewCp < lastCp
+                and len(hintRoutes) > 0
+                and localPlayer.qaPage == 0
+            )
         ),
         (
             _(ctrlsHudText[5])
             .replace("@0", inputBindingString(Button.ULTIMATE))
-            .replace("@1", inputBindingString(Button.MELEE))
-            if localPlayer.isHintOn
+            .replace("@1", inputBindingString(Button.ABILITY_2))
+            if allControlsOr(localPlayer.isHintOn)
             else _(ctrlsHudText[6])
             .replace("@0", inputBindingString(Button.ULTIMATE))
-            .replace("@1", inputBindingString(Button.MELEE))
+            .replace("@1", inputBindingString(Button.ABILITY_2))
         ),
         HudPosition.LEFT,
         5,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    ctrlsHudText[7] = _("Spectate:                       <fgFFFFFFFF>@0 + @1</fg>")
+    # One line above shows Disable or Enable, so all the controls need Enable on its own
+    if ALL_CONTROLS:
+        hudSubheader(
+            getAllPlayers().filter(lambda localPlayer: localPlayer.qaPage == 0),
+            _(ctrlsHudText[6])
+            .replace("@0", inputBindingString(Button.ULTIMATE))
+            .replace("@1", inputBindingString(Button.ABILITY_2)),
+            HudPosition.LEFT,
+            5.5,
+            rgb(230, 151, 0),
+            HudReeval.VISIBILITY_AND_STRING
+        )
+    ctrlsHudText[7] = _("Spectate:                           <fgFFFFFFFF>@0 + @1</fg>")
     hudSubheader(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.isViewingCtrlsHud
-            and not localPlayer.spectating[0]
-            and localPlayer.qaPage == 0
+            lambda localPlayer: controlsVisible(
+                localPlayer.isViewingCtrlsHud
+                and not localPlayer.spectating[0]
+                and localPlayer.qaPage == 0
+            )
         ),
         _(ctrlsHudText[7])
         .replace("@0", inputBindingString(Button.ULTIMATE))
@@ -153,13 +221,36 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    ctrlsHudText[8] = _("Lobby/Pause:         <fgFFFFFFFF>@0 + @1 (Hold)</fg>")
+    # Between Spectate and Lobby/Pause, for everyone, as it works anywhere (HUD Input)
+    ctrlsHudText[16] = _(
+        "Prev. Language:   <fgFFFFFFFF>@0 + @1 + @2</fg>"
+        "\nNext Language:   <fgFFFFFFFF>@0 + @1 + @3</fg>"
+    )
     hudSubheader(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.isViewingCtrlsHud
-            and not localPlayer.isInLobby
-            and not localPlayer.spectating[0]
-            and localPlayer.qaPage == 0
+            lambda localPlayer: controlsVisible(
+                localPlayer.isViewingCtrlsHud and localPlayer.qaPage == 0
+            )
+        ),
+        _(ctrlsHudText[16])
+        .replace("@0", inputBindingString(Button.ULTIMATE))
+        .replace("@1", inputBindingString(Button.JUMP))
+        .replace("@2", inputBindingString(Button.PRIMARY_FIRE))
+        .replace("@3", inputBindingString(Button.SECONDARY_FIRE)),
+        HudPosition.LEFT,
+        6.5,
+        rgb(230, 151, 0),
+        HudReeval.VISIBILITY_AND_STRING
+    )
+    ctrlsHudText[8] = _("Lobby/Pause:             <fgFFFFFFFF>@0 + @1 (Hold)</fg>")
+    hudSubheader(
+        getAllPlayers().filter(
+            lambda localPlayer: controlsVisible(
+                localPlayer.isViewingCtrlsHud
+                and not localPlayer.isInLobby
+                and not localPlayer.spectating[0]
+                and localPlayer.qaPage == 0
+            )
         ),
         _(ctrlsHudText[8])
         .replace("@0", inputBindingString(Button.ULTIMATE))
@@ -169,12 +260,16 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    ctrlsHudText[9] = _("Lobby:                      <fgFFFFFFFF>@0 + @1 (Hold)</fg>")
+    ctrlsHudText[9] = _(
+        "Lobby:                          <fgFFFFFFFF>@0 + @1 (Hold)</fg>"
+    )
     hudSubheader(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.isViewingCtrlsHud
-            and localPlayer.spectating[0]
-            and localPlayer.qaPage == 0
+            lambda localPlayer: controlsVisible(
+                localPlayer.isViewingCtrlsHud
+                and localPlayer.spectating[0]
+                and localPlayer.qaPage == 0
+            )
         ),
         _(ctrlsHudText[9])
         .replace("@0", inputBindingString(Button.ULTIMATE))
@@ -187,13 +282,15 @@ rule "Load HUD":
     ctrlsHudText[10] = _(
         "<fg808080FF>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</fg>\n"
         "<fgEC9900FF>        Spectator Controls</fg>\n"
-        "Disable:                         <fgFFFFFFFF>@0 + @1</fg>"
+        "Disable:                             <fgFFFFFFFF>@0 + @1</fg>"
     )
     hudSubheader(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.isViewingCtrlsHud
-            and localPlayer.spectating[0]
-            and localPlayer.qaPage == 0
+            lambda localPlayer: controlsVisible(
+                localPlayer.isViewingCtrlsHud
+                and localPlayer.spectating[0]
+                and localPlayer.qaPage == 0
+            )
         ),
         _(ctrlsHudText[10])
         .replace("@0", inputBindingString(Button.ULTIMATE))
@@ -203,14 +300,16 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    ctrlsHudText[11] = _("Reattach:                      <fgFFFFFFFF>@0 + @1</fg>")
+    ctrlsHudText[11] = _("Reattach:                          <fgFFFFFFFF>@0 + @1</fg>")
     hudSubheader(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.isViewingCtrlsHud
-            and localPlayer.spectating[0]
-            and localPlayer.spectating[1] != null
-            and localPlayer.spectating[2]
-            and localPlayer.qaPage == 0
+            lambda localPlayer: controlsVisible(
+                localPlayer.isViewingCtrlsHud
+                and localPlayer.spectating[0]
+                and localPlayer.spectating[1] != null
+                and localPlayer.spectating[2]
+                and localPlayer.qaPage == 0
+            )
         ),
         _(ctrlsHudText[11])
         .replace("@0", inputBindingString(Button.ABILITY_1))
@@ -220,13 +319,15 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    ctrlsHudText[12] = _("First Person:               <fgFFFFFFFF>@0 + @1</fg>")
+    ctrlsHudText[12] = _("First Person:                   <fgFFFFFFFF>@0 + @1</fg>")
     hudSubheader(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.isViewingCtrlsHud
-            and localPlayer.spectating[0]
-            and localPlayer.spectating[1] != null
-            and localPlayer.qaPage == 0
+            lambda localPlayer: controlsVisible(
+                localPlayer.isViewingCtrlsHud
+                and localPlayer.spectating[0]
+                and localPlayer.spectating[1] != null
+                and localPlayer.qaPage == 0
+            )
         ),
         _(ctrlsHudText[12])
         .replace("@0", inputBindingString(Button.ABILITY_1))
@@ -237,14 +338,16 @@ rule "Load HUD":
         HudReeval.VISIBILITY_AND_STRING
     )
     ctrlsHudText[13] = _(
-        "@0Prev. Player:              @1@2 + @3</fg>"
-        "\n@0Next Player:               @1@2 + @4</fg>"
+        "@0Prev. Player:                  @1@2 + @3</fg>"
+        "\n@0Next Player:                   @1@2 + @4</fg>"
     )
     hudSubheader(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.isViewingCtrlsHud
-            and localPlayer.spectating[0]
-            and localPlayer.qaPage == 0
+            lambda localPlayer: controlsVisible(
+                localPlayer.isViewingCtrlsHud
+                and localPlayer.spectating[0]
+                and localPlayer.qaPage == 0
+            )
         ),
         _(ctrlsHudText[13])
         .replace("@0", "" if localPlayer.spectating[7] else "<fg808080FF>")
@@ -257,13 +360,15 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    ctrlsHudText[14] = _("@0X-Hair Player:     @1@2 + @3</fg>@4")
+    ctrlsHudText[14] = _("@0X-Hair Player:         @1@2 + @3</fg>@4")
     ctrlsHudText[15] = _("\nFreecam:                             <fgFFFFFFFF>Move</fg>")
     hudSubheader(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.isViewingCtrlsHud
-            and localPlayer.spectating[0]
-            and localPlayer.qaPage == 0
+            lambda localPlayer: controlsVisible(
+                localPlayer.isViewingCtrlsHud
+                and localPlayer.spectating[0]
+                and localPlayer.qaPage == 0
+            )
         ),
         # Freecam shares X-Hair Player's text: sort order 12 is taken by Spectating
         _(ctrlsHudText[14])
@@ -285,7 +390,14 @@ rule "Load HUD":
         )
         .replace("@2", inputBindingString(Button.ABILITY_1))
         .replace("@3", inputBindingString(Button.JUMP))
-        .replace("@4", _(ctrlsHudText[15]) if not localPlayer.spectating[2] else ""),
+        .replace(
+            "@4",
+            (
+                _(ctrlsHudText[15])
+                if allControlsOr(not localPlayer.spectating[2])
+                else ""
+            )
+        ),
         HudPosition.LEFT,
         11,
         rgb(230, 151, 0),
@@ -376,6 +488,8 @@ rule "Next Checkpoint Input":
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
     @Condition eventPlayer.isHoldingButton(Button.SECONDARY_FIRE) == true
+    # Next Language (HUD Input)
+    @Condition eventPlayer.isHoldingButton(Button.JUMP) == false
     @Condition eventPlayer.isHoldingButton(Button.RELOAD) == false
     @Condition eventPlayer.isHoldingButton(Button.INTERACT) == false
     @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
@@ -614,11 +728,18 @@ rule "Lobby Input":
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == true
     @Condition eventPlayer.spectating[5] == false
 
-    # A tap opens or closes the Q&A, and Jump turns its pages (Q&A: Open). It shares this
-    # rule with Lobby/Pause because every eachPlayer rule adds to the server's load.
+    # A tap turns hints on or off. It shares this rule with Lobby/Pause because every
+    # eachPlayer rule adds to the server's load.
     waitUntil(not eventPlayer.isHoldingButton(Button.ABILITY_2), 0.35)
     if not eventPlayer.isHoldingButton(Button.ABILITY_2):
-        eventPlayer.qaPage = 1 if eventPlayer.qaPage == 0 else 0
+        if (
+            not eventPlayer.isInLobby
+            and eventPlayer.viewCp < lastCp
+            and eventPlayer.qaPage == 0
+        ):
+            eventPlayer.isHintOn = not eventPlayer.isHintOn
+            # Toggled by hand, so moving to another CP doesn't turn them off
+            eventPlayer.isHintAutoOn = false
         return
     # Holding goes to Lobby/Pause, unless another button joined in or the Q&A is open
     if eventPlayer.isInLobby or eventPlayer.qaPage > 0 or not RULE_CONDITION:
@@ -633,7 +754,7 @@ rule "Lobby Input":
     eventPlayer.isLoading = false
 
 
-rule "Hints Input":
+rule "FAQ Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
     @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
@@ -646,13 +767,9 @@ rule "Hints Input":
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
     @Condition eventPlayer.isHoldingButton(Button.MELEE) == true
     @Condition eventPlayer.spectating[5] == false
-    @Condition eventPlayer.isInLobby == false
-    @Condition eventPlayer.viewCp < lastCp
-    @Condition eventPlayer.qaPage == 0
 
-    eventPlayer.isHintOn = not eventPlayer.isHintOn
-    # Toggled by hand, so moving to another CP doesn't turn them off
-    eventPlayer.isHintAutoOn = false
+    # Opens or closes the Q&A, where Jump turns its pages (Q&A: Open)
+    eventPlayer.qaPage = 1 if eventPlayer.qaPage == 0 else 0
 
 
 rule "Load Hints HUD":
@@ -663,17 +780,19 @@ rule "Load Hints HUD":
     hintsHudText[2] = _("No Hint For This CP")
     hudSubtext(
         getAllPlayers().filter(
-            lambda localPlayer: not localPlayer.isInLobby
-            and localPlayer.viewCp < lastCp
-            and len(hintRoutes) > 0
-            and localPlayer.qaPage == 0
+            lambda localPlayer: controlsVisible(
+                not localPlayer.isInLobby
+                and localPlayer.viewCp < lastCp
+                and len(hintRoutes) > 0
+                and localPlayer.qaPage == 0
+            )
         ),
         ("\n\n{}").format(
             (
                 _(hintsHudText[0])
                 .replace("@0", inputBindingString(Button.ULTIMATE))
-                .replace("@1", inputBindingString(Button.MELEE))
-                if not localPlayer.isHintOn
+                .replace("@1", inputBindingString(Button.ABILITY_2))
+                if allControlsOr(not localPlayer.isHintOn)
                 else (
                     _(hintsHudText[1])
                     if len(hintRoutes[localPlayer.viewCp]) > 1

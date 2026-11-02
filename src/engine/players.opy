@@ -16,6 +16,36 @@ rule "Joins":
         else:
             lobbyStats[1]++
     waitUntil(eventPlayer.hasSpawned(), Math.INFINITY)
+    # Their game's language, for the translations (#!translateWithPlayerVar): their client
+    # turns them 10° per language, by its name for Ilios Ruins, and the server reads it back
+    eventPlayer.startFacing(
+        directionFromAngles(
+            10
+            * __overpyTranslationHelper__.index(
+                updateEveryFrame(Map.ILIOS_RUINS).split([])
+            ),
+            5
+        ),
+        Math.INFINITY,
+        Relativity.TO_WORLD,
+        FacingReeval.DIRECTION_AND_TURN_RATE
+    )
+    # To within 1/100 of a degree, for precision errors
+    waitUntil(
+        not (round(eventPlayer.getHorizontalFacingAngle() * 100) % 1000)
+        and abs(eventPlayer.getVerticalFacingAngle() - 5) < 0.01,
+        15
+    )
+    # 0 is English, which a language it can't tell gets too
+    eventPlayer.__languageIndex__ = (
+        max(
+            1,
+            (abs(eventPlayer.getVerticalFacingAngle() - 5) < 0.01)
+            * round(eventPlayer.getHorizontalFacingAngle() / 10)
+        )
+        - 1
+    )
+    eventPlayer.stopFacing()
     eventPlayer.disableGamemodeHud()
     eventPlayer.disableKillFeed()
     eventPlayer.disableGamemodeInWorldUi()
@@ -54,12 +84,12 @@ rule "Joins":
     while (
         angleBetweenVectors(
             eventPlayer.getFacingDirection(),
-            directionTowards(eventPlayer.getEyePosition(), lobbyData[1])
+            directionTowards(eventPlayer.getEyePosition(), lobbyPos[0])
         )
         > 1
     ):
         eventPlayer.setFacing(
-            directionTowards(eventPlayer.getEyePosition(), lobbyData[1]),
+            directionTowards(eventPlayer.getEyePosition(), lobbyPos[0]),
             Relativity.TO_WORLD
         )
         wait()
