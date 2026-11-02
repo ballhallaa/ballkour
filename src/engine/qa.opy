@@ -262,10 +262,10 @@ rule "Load HUD":
     )
     # Its own HUD text too, so it centers under the title. Blank in English, where the
     # answers already are: _() picks the language on each player's screen, which visibility
-    # can't check, so this removes the English text ([1] of the stored translations).
+    # can't check, so this removes the English text ([0] of the stored translations).
     hudSubheader(
         getAllPlayers().filter(lambda localPlayer: localPlayer.qaPage > 0),
-        _(qaHudText[21]).replace(qaHudText[21][1], ""),
+        _(qaHudText[21]).replace(qaHudText[21][0], ""),
         HudPosition.TOP,
         9,
         rgb(230, 151, 0),
