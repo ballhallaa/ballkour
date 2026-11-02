@@ -591,8 +591,8 @@ rule "Select Input":
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
     @Condition eventPlayer.isInLobby == true
     @Condition eventPlayer.isLoading == false
-    # Interact closes the Q&A
-    @Condition eventPlayer.qaPage == 0
+    # Interact closes the FAQ
+    @Condition eventPlayer.faqPage == 0
 
     if eventPlayer.lobbyPage == 1:
         eventPlayer.lobbyAim = buttonAimRow(eventPlayer)
@@ -610,9 +610,9 @@ rule "Select Input":
         elif eventPlayer.lobbyAim == 3:
             toggleSpectator()
         elif eventPlayer.lobbyAim == 4:
-            # Once Interact is let go, as it closes the Q&A (Q&A: Open)
+            # Once Interact is let go, as it closes the FAQ (FAQ: Open)
             waitUntil(not eventPlayer.isHoldingButton(Button.INTERACT), Math.INFINITY)
-            eventPlayer.qaPage = 1
+            eventPlayer.faqPage = 1
         elif eventPlayer.lobbyAim == 5:
             if isLobbyStatsOn and "{}".format(eventPlayer) == hostPlayerName:
                 eventPlayer.lobbyPage = 2

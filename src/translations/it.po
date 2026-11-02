@@ -157,6 +157,22 @@ msgstr "@0Giocatore mirato:          @1@2 + @3</fg>@4"
 msgid "Freecam:                             <fgFFFFFFFF>Move</fg>"
 msgstr "Telecamera libera:                      <fgFFFFFFFF>Muoviti</fg>"
 
+#. file faq.opy, rule "Load HUD"
+msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
+
+#. file faq.opy, rule "Load HUD"
+msgid "Next Page: <fgFFFFFFFF>@0</fg>"
+msgstr "Pagina successiva: <fgFFFFFFFF>@0</fg>"
+
+#. file faq.opy, rule "Load HUD"
+msgid "Back to Page 1: <fgFFFFFFFF>@0</fg>"
+msgstr "Torna a pagina 1: <fgFFFFFFFF>@0</fg>"
+
+#. file faq.opy, rule "Load HUD"
+msgid "FAQ in English: <fgFFFFFFFF>ballkour.com/faq</fg>"
+msgstr "FAQ in italiano: <fgFFFFFFFF>ballkour.com/faq</fg>"
+
 #. file lobby.opy, rule "Load Buttons"
 msgid "New Run"
 msgstr "Nuova partita"
@@ -179,7 +195,7 @@ msgstr "Lingua"
 
 #. 2 occurrences:
 #.  - file lobby.opy, rule "Load Leaderboard"
-#.  - file qa.opy, rule "Load HUD"
+#.  - file faq.opy, rule "Load HUD"
 msgid "Close: <fgFFFFFFFF>@0</fg>"
 msgstr "Chiudi: <fgFFFFFFFF>@0</fg>"
 
@@ -238,22 +254,6 @@ msgstr ""
 #. file players.opy, rule "Subroutine showCpNameplate"
 msgid "{0} | {1}"
 msgstr "{0} | {1}"
-
-#. file qa.opy, rule "Load HUD"
-msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
-
-#. file qa.opy, rule "Load HUD"
-msgid "Next Page: <fgFFFFFFFF>@0</fg>"
-msgstr "Pagina successiva: <fgFFFFFFFF>@0</fg>"
-
-#. file qa.opy, rule "Load HUD"
-msgid "Back to Page 1: <fgFFFFFFFF>@0</fg>"
-msgstr "Torna a pagina 1: <fgFFFFFFFF>@0</fg>"
-
-#. file qa.opy, rule "Load HUD"
-msgid "FAQ in English: <fgFFFFFFFF>ballkour.com/faq</fg>"
-msgstr "FAQ in italiano: <fgFFFFFFFF>ballkour.com/faq</fg>"
 
 #. file run.opy, rule "Load HUD"
 msgid "Controls: <fgFFFFFFFF>@0 (Hold)</fg>"

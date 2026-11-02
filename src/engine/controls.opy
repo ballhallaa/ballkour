@@ -53,9 +53,9 @@ rule "HUD Input":
             )
     eventPlayer.isViewingCtrlsHud = false
     eventPlayer.allowButton(Button.MELEE)
-    # The Q&A keeps them until it closes (Q&A: Open), and the lobby until it's left
+    # The FAQ keeps them until it closes (FAQ: Open), and the lobby until it's left
     # (Lobby: Leave)
-    if eventPlayer.qaPage > 0 or eventPlayer.isInLobby:
+    if eventPlayer.faqPage > 0 or eventPlayer.isInLobby:
         return
     if not eventPlayer.spectating[0] or eventPlayer.spectating[2]:
         eventPlayer.allowButton(Button.PRIMARY_FIRE)
@@ -71,7 +71,7 @@ rule "Load HUD":
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: controlsVisible(
-                isViewingCtrlsList(localPlayer) and localPlayer.qaPage == 0
+                isViewingCtrlsList(localPlayer) and localPlayer.faqPage == 0
             )
         ),
         "\n",
@@ -86,7 +86,7 @@ rule "Load HUD":
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: controlsVisible(
-                isViewingCtrlsList(localPlayer) and localPlayer.qaPage == 0
+                isViewingCtrlsList(localPlayer) and localPlayer.faqPage == 0
             )
         ),
         _(ctrlsHudText[0])
@@ -103,7 +103,7 @@ rule "Load HUD":
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: controlsVisible(
-                isViewingCtrlsList(localPlayer) and localPlayer.qaPage == 0
+                isViewingCtrlsList(localPlayer) and localPlayer.faqPage == 0
             )
         ),
         _(ctrlsHudText[1])
@@ -125,7 +125,7 @@ rule "Load HUD":
                 isViewingCtrlsList(localPlayer)
                 and not localPlayer.spectating[0]
                 and localPlayer.runCurrentCp < lastCp
-                and localPlayer.qaPage == 0
+                and localPlayer.faqPage == 0
             )
         ),
         _(ctrlsHudText[2]).replace("@0", inputBindingString(Button.RELOAD)),
@@ -138,7 +138,7 @@ rule "Load HUD":
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: controlsVisible(
-                isViewingCtrlsList(localPlayer) and localPlayer.qaPage == 0
+                isViewingCtrlsList(localPlayer) and localPlayer.faqPage == 0
             )
         ),
         _(ctrlsHudText[3])
@@ -158,7 +158,7 @@ rule "Load HUD":
                 isViewingCtrlsList(localPlayer)
                 and not localPlayer.spectating[0]
                 and localPlayer.runCurrentCp < lastCp
-                and localPlayer.qaPage == 0
+                and localPlayer.faqPage == 0
             )
         ),
         _(ctrlsHudText[4])
@@ -181,7 +181,7 @@ rule "Load HUD":
                 isViewingCtrlsList(localPlayer)
                 and localPlayer.viewCp < lastCp
                 and len(hintRoutes) > 0
-                and localPlayer.qaPage == 0
+                and localPlayer.faqPage == 0
             )
         ),
         (
@@ -201,7 +201,7 @@ rule "Load HUD":
     # One line above shows Disable or Enable, so all the controls need Enable on its own
     if ALL_CONTROLS:
         hudSubheader(
-            getAllPlayers().filter(lambda localPlayer: localPlayer.qaPage == 0),
+            getAllPlayers().filter(lambda localPlayer: localPlayer.faqPage == 0),
             _(ctrlsHudText[6])
             .replace("@0", inputBindingString(Button.ULTIMATE))
             .replace("@1", inputBindingString(Button.ABILITY_2)),
@@ -216,7 +216,7 @@ rule "Load HUD":
             lambda localPlayer: controlsVisible(
                 isViewingCtrlsList(localPlayer)
                 and not localPlayer.spectating[0]
-                and localPlayer.qaPage == 0
+                and localPlayer.faqPage == 0
             )
         ),
         _(ctrlsHudText[7])
@@ -235,7 +235,7 @@ rule "Load HUD":
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: controlsVisible(
-                isViewingCtrlsList(localPlayer) and localPlayer.qaPage == 0
+                isViewingCtrlsList(localPlayer) and localPlayer.faqPage == 0
             )
         ),
         _(ctrlsHudText[16])
@@ -254,7 +254,7 @@ rule "Load HUD":
             lambda localPlayer: controlsVisible(
                 isViewingCtrlsList(localPlayer)
                 and not localPlayer.spectating[0]
-                and localPlayer.qaPage == 0
+                and localPlayer.faqPage == 0
             )
         ),
         _(ctrlsHudText[8])
@@ -273,7 +273,7 @@ rule "Load HUD":
             lambda localPlayer: controlsVisible(
                 isViewingCtrlsList(localPlayer)
                 and localPlayer.spectating[0]
-                and localPlayer.qaPage == 0
+                and localPlayer.faqPage == 0
             )
         ),
         _(ctrlsHudText[9])
@@ -294,7 +294,7 @@ rule "Load HUD":
             lambda localPlayer: controlsVisible(
                 isViewingCtrlsList(localPlayer)
                 and localPlayer.spectating[0]
-                and localPlayer.qaPage == 0
+                and localPlayer.faqPage == 0
             )
         ),
         _(ctrlsHudText[10])
@@ -313,7 +313,7 @@ rule "Load HUD":
                 and localPlayer.spectating[0]
                 and localPlayer.spectating[1] != null
                 and localPlayer.spectating[2]
-                and localPlayer.qaPage == 0
+                and localPlayer.faqPage == 0
             )
         ),
         _(ctrlsHudText[11])
@@ -331,7 +331,7 @@ rule "Load HUD":
                 isViewingCtrlsList(localPlayer)
                 and localPlayer.spectating[0]
                 and localPlayer.spectating[1] != null
-                and localPlayer.qaPage == 0
+                and localPlayer.faqPage == 0
             )
         ),
         _(ctrlsHudText[12])
@@ -351,7 +351,7 @@ rule "Load HUD":
             lambda localPlayer: controlsVisible(
                 isViewingCtrlsList(localPlayer)
                 and localPlayer.spectating[0]
-                and localPlayer.qaPage == 0
+                and localPlayer.faqPage == 0
             )
         ),
         _(ctrlsHudText[13])
@@ -372,7 +372,7 @@ rule "Load HUD":
             lambda localPlayer: controlsVisible(
                 isViewingCtrlsList(localPlayer)
                 and localPlayer.spectating[0]
-                and localPlayer.qaPage == 0
+                and localPlayer.faqPage == 0
             )
         ),
         # Freecam shares X-Hair Player's text
@@ -428,7 +428,7 @@ rule "Prev. Checkpoint Input":
     ) == true
     @Condition eventPlayer.isInLobby == false
     @Condition (eventPlayer.hasSpawned() and not eventPlayer.isLoading) == true
-    @Condition eventPlayer.qaPage == 0
+    @Condition eventPlayer.faqPage == 0
 
     eventPlayer.isLoading = true
     # Watching someone, this switches to freecam, whose swap to Jetpack Cat finishes first
@@ -507,7 +507,7 @@ rule "Next Checkpoint Input":
     ) == true
     @Condition eventPlayer.isInLobby == false
     @Condition (eventPlayer.hasSpawned() and not eventPlayer.isLoading) == true
-    @Condition eventPlayer.qaPage == 0
+    @Condition eventPlayer.faqPage == 0
 
     eventPlayer.isLoading = true
     # Like Prev. Checkpoint Input
@@ -578,7 +578,7 @@ rule "Reset Checkpoint Input":
     @Condition eventPlayer.runCurrentCp < lastCp
     @Condition eventPlayer.isInLobby == false
     @Condition (eventPlayer.hasSpawned() and not eventPlayer.isLoading) == true
-    @Condition eventPlayer.qaPage == 0
+    @Condition eventPlayer.faqPage == 0
 
     waitUntil(not eventPlayer.isHoldingButton(Button.RELOAD), 0.15)
     if (
@@ -608,7 +608,7 @@ rule "New Run Input":
     @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
-    @Condition eventPlayer.qaPage == 0
+    @Condition eventPlayer.faqPage == 0
 
     waitUntil(
         not (
@@ -647,7 +647,7 @@ rule "Freemode Input":
     @Condition eventPlayer.spectating[5] == false
     @Condition eventPlayer.isInLobby == false
     @Condition eventPlayer.runCurrentCp < lastCp
-    @Condition eventPlayer.qaPage == 0
+    @Condition eventPlayer.faqPage == 0
 
     eventPlayer.disallowButton(Button.MELEE)
     if not eventPlayer.isInFreemode:
@@ -705,7 +705,7 @@ rule "Load Freemode HUD":
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isInFreemode
             and not localPlayer.spectating[0]
-            and localPlayer.qaPage == 0
+            and localPlayer.faqPage == 0
         ),
         _(freemodeHudText),
         HudPosition.LEFT,
@@ -740,14 +740,14 @@ rule "Lobby Input":
         if (
             not eventPlayer.isInLobby
             and eventPlayer.viewCp < lastCp
-            and eventPlayer.qaPage == 0
+            and eventPlayer.faqPage == 0
         ):
             eventPlayer.isHintOn = not eventPlayer.isHintOn
             # Toggled by hand, so moving to another CP doesn't turn them off
             eventPlayer.isHintAutoOn = false
         return
-    # Holding goes to Lobby/Pause, unless another button joined in or the Q&A is open
-    if eventPlayer.isInLobby or eventPlayer.qaPage > 0 or not RULE_CONDITION:
+    # Holding goes to Lobby/Pause, unless another button joined in or the FAQ is open
+    if eventPlayer.isInLobby or eventPlayer.faqPage > 0 or not RULE_CONDITION:
         return
     eventPlayer.isLoading = true
     if eventPlayer.spectating[0]:
@@ -773,15 +773,15 @@ rule "FAQ Input":
     @Condition eventPlayer.isHoldingButton(Button.MELEE) == true
     @Condition eventPlayer.spectating[5] == false
 
-    # Opens or closes the Q&A, where Jump turns its pages (Q&A: Open)
-    eventPlayer.qaPage = 1 if eventPlayer.qaPage == 0 else 0
+    # Opens or closes the FAQ, where Jump turns its pages (FAQ: Open)
+    eventPlayer.faqPage = 1 if eventPlayer.faqPage == 0 else 0
 
 
 rule "Load Hints HUD":
-    # Under FAQ at the top left, which leaves a blank line when it's hidden (Q&A: Load HUD).
+    # Under FAQ at the top left, which leaves a blank line when it's hidden (FAQ: Load HUD).
     # While hints are off, the same spot shows how to turn them on
     hintsHudText[0] = _("Hints: <fgFFFFFFFF>@0 + @1</fg>")
-    # The colors are explained in the Q&A
+    # The colors are explained in the FAQ
     hintsHudText[1] = _("Hints On")
     hintsHudText[2] = _("No Hint For This CP")
     hudSubheader(
@@ -790,7 +790,7 @@ rule "Load Hints HUD":
                 not localPlayer.isInLobby
                 and localPlayer.viewCp < lastCp
                 and len(hintRoutes) > 0
-                and localPlayer.qaPage == 0
+                and localPlayer.faqPage == 0
             )
         ),
         (

@@ -89,7 +89,7 @@ globalvar completionHudText = []
 globalvar scorecardHudText = []
 globalvar topRunsHudText
 globalvar lobbyHudText = []
-globalvar qaHudText = []
+globalvar faqHudText = []
 
 globalvar index 127
 
@@ -190,10 +190,10 @@ playervar timeFormatted
 
 # Controls
 playervar isViewingCtrlsHud
-# The Q&A page being read (1 to QA_PAGES), or 0 while it's closed
-playervar qaPage
-# Q&A: Open turns the pages, so they're counted here
-macro QA_PAGES = 3
+# The FAQ page being read (1 to FAQ_PAGES), or 0 while it's closed
+playervar faqPage
+# FAQ: Open turns the pages, so they're counted here
+macro FAQ_PAGES = 3
 # The languages in #!translations (ballkour.opy), which __languageIndex__ counts from 0
 macro LANGUAGES = 14
 playervar isInFreemode
@@ -267,9 +267,9 @@ macro isViewingCtrlsList(player):
 
 
 # Who a control's text shows for: who it normally does, or with ALL_CONTROLS, everyone,
-# whatever they're doing, apart from in the Q&A
+# whatever they're doing, apart from in the FAQ
 macro controlsVisible(normally):
-    (localPlayer.qaPage == 0 if ALL_CONTROLS else (normally))
+    (localPlayer.faqPage == 0 if ALL_CONTROLS else (normally))
 
 
 # Whether a control picks the text that names its keys. Builds without ALL_CONTROLS compile
