@@ -66,7 +66,7 @@ rule "Load HUD":
         _(spectatorHudText[0]),
         HudPosition.LEFT,
         12,
-        rgb(255, 70, 70),
+        rgb(0, 190, 255),
         HudReeval.VISIBILITY_AND_STRING
     )
     spectatorHudText[1] = _("\nSpectating @0")
@@ -79,7 +79,7 @@ rule "Load HUD":
         _(spectatorHudText[1]).replace("@0", localPlayer.spectating[1]),
         HudPosition.LEFT,
         12,
-        rgb(255, 70, 70),
+        rgb(0, 190, 255),
         HudReeval.VISIBILITY_AND_STRING
     )
     spectatorHudText[2] = _("Freecam On")
@@ -231,7 +231,7 @@ def disableSpectator():
     eventPlayer.allowButton(Button.ABILITY_2)
     eventPlayer.setAbility2Enabled(true)
     eventPlayer.spectating[0] = false
-    if eventPlayer.spectating[4] > eventPlayer.runCurrentCp:
+    if eventPlayer.spectating[4] > eventPlayer.runFurthestCp:
         eventPlayer.isRunLegit = false
     # Landing back on the CP they left keeps its mistake count
     if eventPlayer.spectating[4] != eventPlayer.runCurrentCp:

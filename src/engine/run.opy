@@ -198,12 +198,31 @@ rule "Load HUD":
             and not localPlayer.spectating[3]
             and localPlayer.faqPage == 0
         ),
-        ("{} {}\n\n").format(
-            iconString(Icon.SKULL), localPlayer.viewRunner.runMistakes
+        # Disqualified brings its own blank lines, so these are left out while it shows
+        ("{} {}{}").format(
+            iconString(Icon.SKULL),
+            localPlayer.viewRunner.runMistakes,
+            "\n\n" if localPlayer.viewRunner.isRunLegit else ""
         ),
         HudPosition.RIGHT,
         5,
         rgb(230, 151, 0),
+        HudReeval.VISIBILITY_AND_STRING
+    )
+    # Its own HUD text, as a wider line in the mistakes' one would shift them left. A blank
+    # line above and below sets it apart, so the splits move down a line while it shows.
+    counterHudText[3] = _("\nDisqualified\n")
+    hudSubtext(
+        getAllPlayers().filter(
+            lambda localPlayer: not localPlayer.isInLobby
+            and not localPlayer.spectating[3]
+            and not localPlayer.viewRunner.isRunLegit
+            and localPlayer.faqPage == 0
+        ),
+        _(counterHudText[3]),
+        HudPosition.RIGHT,
+        5.5,
+        rgb(255, 70, 70),
         HudReeval.VISIBILITY_AND_STRING
     )
     # Under Hints. Its rows are left out when the only runner
@@ -299,13 +318,14 @@ rule "Update Scorecard":
             scorecardPad(scorecardRunners[index].runMistakes),
             scorecardRunners[index]
         )
-        # Runs that skipped checkpoints are grayed out, as their CP wasn't earned
+        # Disqualified runs are red, like Disqualified under the run's mistakes, with an ×
+        # after the name for anyone who can't tell red from orange
         scorecard = "{}\n{}".format(
             scorecard,
             (
                 scorecardRow
                 if scorecardRunners[index].isRunLegit
-                else "<fg808080FF>{}</fg>".format(scorecardRow)
+                else "<fgFF4646FF>{} ×</fg>".format(scorecardRow)
             )
         )
     # The time column ticks each second, and a change rebuilds it within 0.1s. Rebuilding on
@@ -362,6 +382,7 @@ def resetRun():
     eventPlayer.isRunFinished = false
     eventPlayer.isRunLegit = true
     eventPlayer.runCurrentCp = 0
+    eventPlayer.runFurthestCp = 0
     eventPlayer.runTime = 0
     eventPlayer.runTimeFormatted = "0.00"
     eventPlayer.runMistakes = 0
