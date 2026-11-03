@@ -196,7 +196,7 @@ playervar isViewingCtrlsHud
 # The FAQ page being read (1 to FAQ_PAGES), or 0 while it's closed
 playervar faqPage
 # FAQ: Open turns the pages, so they're counted here
-macro FAQ_PAGES = 3
+macro FAQ_PAGES = 4
 # The languages in #!translations (ballkour.opy), which __languageIndex__ counts from 0
 macro LANGUAGES = 14
 playervar isInFreemode
