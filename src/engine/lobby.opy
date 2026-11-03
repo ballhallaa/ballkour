@@ -12,21 +12,30 @@
 macro LOBBY_HEIGHT = 100
 macro LOBBY_DISTANCE = 10
 # The buttons, with the leaderboard under them. Players arrive looking at LOOK_ANGLE, the
-# 5th row, from where all of it fits on screen between BALLKOUR.COM and their guns.
-macro BUTTON_ANGLE = -56.5
+# 5th row, from where all of it fits on screen between BALLKOUR.COM and their guns. It's as
+# high as it goes, so looking straight up from anywhere shows some of it: players can't
+# look up past 89°, and the top button is at 88° with Lobby Stats on.
+macro BUTTON_ANGLE = -84.5
 macro BUTTON_SPACING = 3.1
-macro TITLE_ANGLE = -43.5
-macro ROW_ANGLE = -39.3
+macro TITLE_ANGLE = -71.5
+macro ROW_ANGLE = -67.3
 macro ROW_SPACING = 3
 macro LOOK_ANGLE = ROW_ANGLE + ROW_SPACING * 4
 # The languages, in a column this many degrees to the right of the leaderboard as seen
 # from LOOK_ANGLE, a row every LANGUAGE_SPACING from ROW_ANGLE down
 macro LANGUAGE_ACROSS = 30
 macro LANGUAGE_SPACING = 2.3
-# How far to either side of a button or row a player can look and still pick it
-macro BUTTON_WIDTH = 18
-macro ROW_WIDTH = 21
+# How far to either side of a button or row a player can look and still pick it, across
+# the page as seen from LOOK_ANGLE (pageAcross)
+macro BUTTON_WIDTH = 11
+macro ROW_WIDTH = 18
 macro LANGUAGE_WIDTH = 8
+# How far from LOOK_ANGLE a player can look before an arrow and an eye show them the way
+# back to the page (Load Buttons). Past this, its middle is off-screen at the widest field
+# of view. The arrow sits MARKER_OFFSET from their crosshair, close enough to stay above
+# their guns.
+macro MARKER_ANGLE = 55
+macro MARKER_OFFSET = 15
 # The texts' sizes, which the angles above are spaced for
 macro TITLE_SIZE = 1.5
 macro BUTTON_SIZE = 1.6
@@ -34,6 +43,7 @@ macro ROW_SIZE = 1.15
 macro HINT_SIZE = 0.9
 macro LANGUAGE_TITLE_SIZE = 1.5
 macro LANGUAGE_SIZE = 1
+macro MARKER_SIZE = 4
 
 
 macro lobbyAt(angle):
@@ -44,6 +54,43 @@ macro lobbyAt(angle):
 macro lobbyForward = directionFromAngles(lobbyAngle, LOOK_ANGLE)
 macro lobbyUp = directionFromAngles(lobbyAngle, LOOK_ANGLE - 90)
 macro lobbyRight = directionFromAngles(lobbyAngle - 90, 0)
+
+
+# Left and up on a player's screen, wherever they look
+macro screenLeft(player):
+    worldVector(Vector.LEFT, player, Transform.ROTATION)
+
+
+macro screenUp(player):
+    directionFromAngles(
+        player.getHorizontalFacingAngle(), player.getVerticalFacingAngle() - 90
+    )
+
+
+# How far the page is to the left of a player's view (negative is right), and above it
+# (negative is below)
+macro pageLeft(player):
+    dotProduct(lobbyForward, screenLeft(player))
+
+
+macro pageUp(player):
+    dotProduct(lobbyForward, screenUp(player))
+
+
+macro isPageSideways(player):
+    abs(pageLeft(player)) > abs(pageUp(player))
+
+
+# Whether a player in the lobby has looked far enough from the page to be shown the way
+# back to it (Load Buttons)
+macro isPageLost(player):
+    (
+        player.isInLobby
+        and not player.isLoading
+        and player.faqPage == 0
+        and angleBetweenVectors(player.getFacingDirection(), lobbyForward)
+        > MARKER_ANGLE
+    )
 
 
 # A spot in the languages' column. A column at one horizontal angle would lean outward
@@ -139,31 +186,36 @@ def leaveLobby():
         eventPlayer.disallowButton(Button.ABILITY_1)
 
 
-# The row of a column of texts a player is looking at: 1 for its top one, counting down a
-# row every spacing degrees, or 0 if they aren't looking across the column. Rows past the
-# last wrap to 0. It compares how far up they're aiming with how far up the top row is from
-# their eyes, which their crosshair looks out from. Vertical Angle Towards picked no row
-# in-game, so it isn't used.
-macro lobbyAimRow(player, top, spacing, rows, width):
+# Where a player is looking on the page, as seen from LOOK_ANGLE, where their eyes are:
+# the vertical angle it lines up with (negative is up), and how far right of the page's
+# middle it is. Measured from the page, not the horizon, as near straight up a small turn
+# is a big horizontal angle.
+macro pageAngle(player):
     (
-        max(
-            0,
-            min(
-                round(
-                    (
-                        player.getVerticalFacingAngle()
-                        - verticalAngleOfDirection(
-                            directionTowards(player.getEyePosition(), top)
-                        )
-                    )
-                    / spacing
-                )
-                + 1,
-                rows + 1
-            )
+        LOOK_ANGLE
+        - atan2Deg(
+            dotProduct(player.getFacingDirection(), lobbyUp),
+            dotProduct(player.getFacingDirection(), lobbyForward)
         )
+    )
+
+
+macro pageAcross(player):
+    atan2Deg(
+        dotProduct(player.getFacingDirection(), lobbyRight),
+        dotProduct(player.getFacingDirection(), lobbyForward)
+    )
+
+
+# The row of a column of texts a player is looking at: 1 for its top one at the vertical
+# angle top, counting down a row every spacing degrees, or 0 if they aren't looking across
+# the column, which is across degrees right of the page's middle. Rows past the last wrap
+# to 0.
+macro lobbyAimRow(player, top, spacing, rows, across, width):
+    (
+        max(0, min(round((pageAngle(player) - top) / spacing) + 1, rows + 1))
         % (rows + 1)
-        if abs(horizontalAngleTowards(player, top)) <= width
+        if abs(pageAcross(player) - across) <= width
         else 0
     )
 
@@ -171,50 +223,32 @@ macro lobbyAimRow(player, top, spacing, rows, width):
 # The button a player is looking at (lobbyPos[1] to [5]), or 0
 macro buttonAimRow(player):
     lobbyAimRow(
-        player, lobbyPos[1], BUTTON_SPACING, (5 if isLobbyStatsOn else 4), BUTTON_WIDTH
+        player,
+        BUTTON_ANGLE - (BUTTON_SPACING if isLobbyStatsOn else 0),
+        BUTTON_SPACING,
+        (5 if isLobbyStatsOn else 4),
+        0,
+        BUTTON_WIDTH
     )
 
 
 macro isAimingAtBack(player):
-    lobbyAimRow(player, lobbyPos[6], BUTTON_SPACING, 1, BUTTON_WIDTH) == 1
+    (
+        lobbyAimRow(
+            player, ROW_ANGLE + ROW_SPACING * 9, BUTTON_SPACING, 1, 0, BUTTON_WIDTH
+        )
+        == 1
+    )
 
 
 macro lbAimRow(player):
-    lobbyAimRow(player, lbPos[1], ROW_SPACING, lbRunCount, ROW_WIDTH)
+    lobbyAimRow(player, ROW_ANGLE, ROW_SPACING, lbRunCount, 0, ROW_WIDTH)
 
 
-# Like lobbyAimRow, but for the languages' column, measured against the view from
-# LOOK_ANGLE that its plane is upright in (languageAt)
+# The languages' column, which is upright as seen from LOOK_ANGLE (languageAt)
 macro langAimRow(player):
-    (
-        max(
-            0,
-            min(
-                round(
-                    (
-                        LOOK_ANGLE
-                        - atan2Deg(
-                            dotProduct(player.getFacingDirection(), lobbyUp),
-                            dotProduct(player.getFacingDirection(), lobbyForward)
-                        )
-                        - ROW_ANGLE
-                    )
-                    / LANGUAGE_SPACING
-                )
-                + 1,
-                LANGUAGES + 1
-            )
-        )
-        % (LANGUAGES + 1)
-        if abs(
-            atan2Deg(
-                dotProduct(player.getFacingDirection(), lobbyRight),
-                dotProduct(player.getFacingDirection(), lobbyForward)
-            )
-            - LANGUAGE_ACROSS
-        )
-        <= LANGUAGE_WIDTH
-        else 0
+    lobbyAimRow(
+        player, ROW_ANGLE, LANGUAGE_SPACING, LANGUAGES, LANGUAGE_ACROSS, LANGUAGE_WIDTH
     )
 
 
@@ -243,6 +277,53 @@ rule "Load Buttons":
         )
     # Lobby Stats' Back, where the 10th row is
     lobbyPos[6] = lobbyAt(ROW_ANGLE + ROW_SPACING * 9)
+    # An arrow by the crosshair pointing back to the page, for players who looked away and
+    # only see sky. It shows once the page's middle is off their screen, so it never covers
+    # the page, and points left, right, up or down, whichever way the page is furthest.
+    # Icons can't be resized, so it's text.
+    createInWorldText(
+        getAllPlayers().filter(lambda localPlayer: isPageLost(localPlayer)),
+        (
+            (
+                iconString(Icon.ARROW_LEFT)
+                if pageLeft(localPlayer) > 0
+                else iconString(Icon.ARROW_RIGHT)
+            )
+            if isPageSideways(localPlayer)
+            else (
+                iconString(Icon.ARROW_UP)
+                if pageUp(localPlayer) > 0
+                else iconString(Icon.ARROW_DOWN)
+            )
+        ),
+        updateEveryFrame(
+            lobbyCam
+            + normalize(
+                localPlayer.getFacingDirection()
+                + normalize(
+                    screenLeft(localPlayer) * pageLeft(localPlayer)
+                    if isPageSideways(localPlayer)
+                    else screenUp(localPlayer) * pageUp(localPlayer)
+                )
+                * tanDeg(MARKER_OFFSET)
+            )
+            * LOBBY_DISTANCE
+        ),
+        MARKER_SIZE,
+        Clip.NONE,
+        WorldTextReeval.VISIBILITY_POSITION_AND_STRING,
+        rgb(230, 151, 0)
+    )
+    # With an eye on the page's middle, which clings to the edge of their screen on the
+    # page's side, as close to the page as the screen goes
+    createIcon(
+        getAllPlayers().filter(lambda localPlayer: isPageLost(localPlayer)),
+        lobbyPos[0],
+        Icon.EYE,
+        IconReeval.VISIBILITY,
+        rgb(230, 151, 0),
+        true
+    )
     lobbyHudText[0] = _("New Run")
     createInWorldText(
         getAllPlayers().filter(lambda localPlayer: localPlayer.lobbyPage == 1),
@@ -376,7 +457,7 @@ rule "Load Leaderboard":
     createInWorldText(
         getAllPlayers().filter(lambda localPlayer: localPlayer.lobbyPage == 2),
         lobbyButton(_(lobbyHudText[4]), isAimingAtBack(localPlayer)),
-        lobbyPos[4],
+        lobbyPos[6],
         BUTTON_SIZE,
         Clip.NONE,
         WorldTextReeval.VISIBILITY_AND_STRING,

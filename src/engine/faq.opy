@@ -247,8 +247,8 @@ rule "Load HUD":
     )
     faqHudText[12] = (
         "\n\n<fg80D0FFFF>What's on the scorecard?</fg>"
-        "\nEach runner's checkpoint, time, and mistakes, furthest first, then fastest."
-        "\n<fgFF4646FF>Red</fg> runs, marked <fgFF4646FF>×</fg>, are disqualified."
+        "\nEach runner's checkpoint, time, and mistakes, sorted by furthest and then fastest."
+        "\nDisqualified runs are <fgFF4646FF>red</fg> and marked <fgFF4646FF>×</fg>."
     )
     faqHudText[13] = (
         "\n\n<fg80D0FFFF>What is a </fg><fg00BEFFFF>shield bounce</fg><fg80D0FFFF>?</fg>"
