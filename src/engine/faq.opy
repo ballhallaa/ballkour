@@ -177,7 +177,9 @@ rule "Load HUD":
         HudReeval.VISIBILITY_AND_STRING
     )
     # Each answer is its own string in white, with its question in light blue and the game's own
-    # labels (controls, HUD and lobby names) in orange, the ones ballkour.com/faq marks. The
+    # labels (controls, HUD and lobby names) in orange, in questions too, the ones
+    # ballkour.com/faq marks. Color tags can't nest, so a label in a question closes the light
+    # blue and opens it again after. The
     # answers are English only, with the translated ones at ballkour.com/faq: in all 14
     # languages they made pasting the script take several seconds longer.
     # Page 1
@@ -211,29 +213,29 @@ rule "Load HUD":
     )
     # Page 2
     faqHudText[6] = (
-        "\n<fg80D0FFFF>What is Freemode for?</fg>"
+        "\n<fg80D0FFFF>What is </fg><fgE69700FF>Freemode</fg><fg80D0FFFF> for?</fg>"
         "\nPractice, with no timer and all your abilities. You can't clear checkpoints in it,"
         "\nand leaving your checkpoint with it on disqualifies your run."
     )
     faqHudText[7] = (
-        "\n\n<fg80D0FFFF>What do Runs and Attempts count?</fg>"
+        "\n\n<fg80D0FFFF>What do </fg><fgE69700FF>Runs</fg><fg80D0FFFF> and </fg><fgE69700FF>Attempts</fg><fg80D0FFFF> count?</fg>"
         "\n<fgE69700FF>Runs</fg> counts the runs you've finished or restarted. <fgE69700FF>Attempts</fg> counts your mistakes"
         "\nand clears on this checkpoint, over all your runs."
     )
     faqHudText[8] = (
-        "\n\n<fg80D0FFFF>What do Attempt and Split mean?</fg>"
+        "\n\n<fg80D0FFFF>What do </fg><fgE69700FF>Attempt</fg><fg80D0FFFF> and </fg><fgE69700FF>Split</fg><fg80D0FFFF> mean?</fg>"
         "\n<fgE69700FF>Attempt</fg> is timed from leaving the checkpoint. <fgE69700FF>Split</fg> is timed from reaching it, so it"
         "\nincludes your mistakes. Each turns red once it's slower than your best."
         "\nAfter a clear, they show your times for 2 seconds: <fgFFFF00FF>yellow</fg> on your first clear, then"
         "\n<fg00E092FF>green</fg> if faster or <fgFF4646FF>red</fg> if slower than your average. A new best is compared with your old best."
     )
     faqHudText[9] = (
-        "\n\n<fg80D0FFFF>Are Best and Avg server records?</fg>"
+        "\n\n<fg80D0FFFF>Are </fg><fgE69700FF>Best</fg><fg80D0FFFF> and </fg><fgE69700FF>Avg</fg><fg80D0FFFF> server records?</fg>"
         "\nNo, they're only your own times on that checkpoint, over all your runs."
         "\nThey reset when you leave or when the server restarts."
     )
     faqHudText[10] = (
-        "\n\n<fg80D0FFFF>What is Pace?</fg>"
+        "\n\n<fg80D0FFFF>What is </fg><fgE69700FF>Pace</fg><fg80D0FFFF>?</fg>"
         "\nYour estimated finish time, from this run's average split so far. Once your current"
         "\nsplit is slower than that average, it turns <fgFF4646FF>red</fg> and counts up with your time."
     )
