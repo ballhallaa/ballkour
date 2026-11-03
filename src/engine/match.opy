@@ -2,6 +2,10 @@
 #!rulePrefix "Match"
 
 
+# The most Disruptive Environment Destructors spawned at once
+macro DED_BATCH_SIZE = 4
+
+
 # Logs before Initialize turns the Inspector off
 rule "Info":
     logToInspector("Latest source code: ballkour.com/github")
@@ -66,9 +70,16 @@ rule "Spawn Disruptive Environment Destructors (DEDs)":
     # ded[i]: [0]nextDedInNewBatch [1]batchSize [2]currentDed [3]dedEntity [4]slot
     ded = [1, 0, 0, 0, 0]
     while ded[0] < len(dedBots):
+        # Each bot counts as a player for every eachPlayer rule and HUD text, so filling
+        # every free slot at once, on top of the match's own start, closed Paraíso's server
+        # with its 31 bots. A few at a time instead, each batch once the load has settled.
+        waitUntil(getServerLoad() < 50, 2)
         ded[1] = min(
-            getNumberOfSlots(dedBots[0]) - len(getPlayers(dedBots[0])),
-            len(dedBots) - ded[0]
+            min(
+                getNumberOfSlots(dedBots[0]) - len(getPlayers(dedBots[0])),
+                len(dedBots) - ded[0]
+            ),
+            DED_BATCH_SIZE
         )
         if ded[1] <= 0:
             wait(1)
