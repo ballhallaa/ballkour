@@ -216,8 +216,10 @@ msgid "Click on a Run to View More Info"
 msgstr "記録をクリックで詳細を表示"
 
 # TODO: check if all occurrences have the same translation
-#. 2 occurrences:
+#. 4 occurrences:
 #.  - file lobby.opy, rule "Subroutine loadLobby"
+#.  - file spectator.opy, rule "Subroutine disableSpectator"
+#.  - file spectator.opy, rule "Subroutine reattachToSpectatingTarget"
 #.  - file spectator.opy, rule "Subroutine reattachToSpectatingTarget"
 #, hasMultipleOccurrencesNotification
 msgid "{0}"

@@ -198,11 +198,13 @@ def disableSpectator():
     eventPlayer.isLoading = true
     if not eventPlayer.spectating[3] and eventPlayer.spectating[1] != null:
         eventPlayer.spectating[4] = eventPlayer.spectating[1].runCurrentCp
-    # Leaving freecam, the camera already shows the checkpoint the player lands on while the swap finishes,
-    # and the player is invisible (the swap keeps it, and it hides them from their own camera too), so
-    # nobody sees Wrecking Ball appear where the freecam was. Stop Camera and the teleport onto the
-    # checkpoint below share a tick.
-    if eventPlayer.getHero() != Hero.WRECKING_BALL and not eventPlayer.isInFreemode:
+    # The server closes have come on the way out, not going in. Going in, Jetpack Cat spawns
+    # where the ball was, on the course, but Wrecking Ball spawned wherever the freecam was,
+    # which can be inside a wall, under the floor or up in the sky. So the player is first held
+    # on the checkpoint they land on, and Wrecking Ball spawns there. The camera already shows
+    # it, and they're invisible (the swap keeps it, and it hides them from their own camera
+    # too) and nameless, so nobody sees them move. Freemode leaves them where they are instead.
+    if not eventPlayer.isInFreemode:
         if eventPlayer.faqPage == 0:
             eventPlayer.startCamera(
                 cps[eventPlayer.spectating[4]][0] + vect(0, 1.7, 0),
@@ -212,13 +214,17 @@ def disableSpectator():
                 0
             )
         eventPlayer.setInvisibility(Invis.ALL)
+        eventPlayer.nameplate = _("{}").format("")
+        eventPlayer.startForcingPosition(cps[eventPlayer.spectating[4]][0], false)
         # The camera gets its own tick too, so the swap still happens alone
         wait()
     swapToWreckingBall()
+    # The rest is spread over two ticks instead of landing on one: the player first, then the
+    # run, where ending spectating switches back on the per-player rules it kept off (timers,
+    # mistakes, movement, bounces). The hold on the checkpoint lasts until the run's teleport.
     eventPlayer.enableEnvironmentCollision()
     eventPlayer.setGravity(100)
     eventPlayer.setMoveSpeed(100)
-    eventPlayer.stopForcingPosition()
     if eventPlayer.faqPage == 0:
         eventPlayer.stopCamera()
     eventPlayer.setInvisibility(Invis.NONE)
@@ -230,6 +236,8 @@ def disableSpectator():
     eventPlayer.setAbility1Enabled(true)
     eventPlayer.allowButton(Button.ABILITY_2)
     eventPlayer.setAbility2Enabled(true)
+    wait()
+    eventPlayer.stopForcingPosition()
     eventPlayer.spectating[0] = false
     if eventPlayer.spectating[4] > eventPlayer.runFurthestCp:
         eventPlayer.isRunLegit = false
@@ -636,7 +644,16 @@ rule "Reattach Input":
 def reattachToSpectatingTarget():
     @Name "Reattach"
 
-    # Watching someone as Jetpack Cat would play its sounds at their position
+    # Watching someone as Jetpack Cat would play its sounds at their position. Out of freecam,
+    # the camera goes to the target first, and Wrecking Ball spawns on the checkpoint being
+    # viewed rather than wherever the freecam is (see Disable), with the player hidden and nameless.
+    if eventPlayer.getHero() != Hero.WRECKING_BALL:
+        if eventPlayer.faqPage == 0:
+            startSpectatorCamera()
+        eventPlayer.setInvisibility(Invis.ALL)
+        eventPlayer.nameplate = _("{}").format("")
+        eventPlayer.startForcingPosition(cps[eventPlayer.spectating[4]][0], false)
+        wait()
     swapToWreckingBall()
     eventPlayer.applyImpulse(
         eventPlayer.getVelocity() * -0.001,
