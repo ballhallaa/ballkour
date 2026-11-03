@@ -297,8 +297,9 @@ rule "Update Scorecard":
         getAllPlayers().filter(lambda p: isOnScorecard(p)),
         lambda p: p.runTime - p.runCurrentCp * 100000
     )
-    # One string rebuilt on each change and each second, instead of a HUD text per runner: Overwatch reprocesses every
-    # HUD text's definition every 5s (see Translated HUD Text). It starts with a gap above it.
+    # One string rebuilt on each change and each runner's second, instead of a HUD text per runner:
+    # Overwatch reprocesses every HUD text's definition every 5s (see Translated HUD Text). It
+    # starts with a gap above it.
     # A string only shows its first 4 icons, so they head the columns instead of filling each row.
     scorecard = "\n\n{}    {}       {}".format(
         iconString(Icon.FLAG), iconString(Icon.BOLT), iconString(Icon.SKULL)
@@ -328,10 +329,10 @@ rule "Update Scorecard":
                 else "<fgFF4646FF>{} ×</fg>".format(scorecardRow)
             )
         )
-    # The time column ticks each second, and a change rebuilds it within 0.1s. Rebuilding on
-    # the next tick added ~20% to peak server load while Next CP was held with 12 rows.
+    # A change or a runner's next second (see Update Run Format) rebuilds it within 0.1s. Rebuilding
+    # on the next tick added ~20% to peak server load while Next CP was held with 12 rows.
     wait(0.1)
-    waitUntil(scorecardDirty == true, 0.9)
+    waitUntil(scorecardDirty == true, Math.INFINITY)
     loop()
 
 
@@ -385,6 +386,9 @@ def resetRun():
     eventPlayer.runFurthestCp = 0
     eventPlayer.runTime = 0
     eventPlayer.runTimeFormatted = "0.00"
+    # A restart that leaves the row's CP and mistakes as they were still clears its time
+    eventPlayer.scorecardSecond = 0
+    scorecardDirty = true
     eventPlayer.runMistakes = 0
     # A delta still showing from the last run's clear would hide the new run's live times
     eventPlayer.isShowingSplitDelta = false
