@@ -132,13 +132,29 @@ def enableSpectator():
     # Loading keeps mistakes from counting while the swap finishes
     eventPlayer.isLoading = true
     swapToJetpackCat()
+    # Like Disable, the rest is spread over ticks instead of landing on one, as a server closed
+    # going in too: first the run and the flags, as starting spectating switches off the
+    # per-player rules (timers, mistakes, movement, bounces) before the player moves, then the
+    # lobby, then freecam, then the players watching them.
     # Being away from the checkpoint is no mistake in the lobby. Disable drops the player at a
-    # checkpoint, so without a run to resume they get a new one. Freecam starts at it too,
-    # instead of up in the lobby's sky, facing the next checkpoint rather than the lobby's pages.
+    # checkpoint, so without a run to resume they get a new one.
+    if not eventPlayer.isInLobby:
+        if (
+            distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
+            > eventPlayer.cpData[1]
+        ):
+            addMistake()
+    elif not eventPlayer.isRunLoaded or eventPlayer.isRunFinished:
+        resetRun()
+    eventPlayer.spectating[0] = true
+    eventPlayer.spectating[1] = null
+    eventPlayer.spectating[3] = true
+    eventPlayer.spectating[4] = eventPlayer.runCurrentCp
+    wait()
+    # Freecam starts at the checkpoint, instead of up in the lobby's sky, facing the next
+    # checkpoint rather than the lobby's pages
     if eventPlayer.isInLobby:
         leaveLobby()
-        if not eventPlayer.isRunLoaded or eventPlayer.isRunFinished:
-            resetRun()
         eventPlayer.teleport(cps[eventPlayer.runCurrentCp][0])
         eventPlayer.setFacing(
             directionTowards(
@@ -146,16 +162,9 @@ def enableSpectator():
             ),
             Relativity.TO_WORLD
         )
-    elif (
-        distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
-        > eventPlayer.cpData[1]
-    ):
-        addMistake()
-    eventPlayer.spectating[0] = true
-    eventPlayer.spectating[1] = null
-    eventPlayer.spectating[3] = true
-    eventPlayer.spectating[4] = eventPlayer.runCurrentCp
+        wait()
     enableFreecam()
+    wait()
     enableFreecamForSpectators()
     eventPlayer.isLoading = false
 
@@ -204,12 +213,12 @@ def disableSpectator():
     eventPlayer.isLoading = true
     if not eventPlayer.spectating[3] and eventPlayer.spectating[1] != null:
         eventPlayer.spectating[4] = eventPlayer.spectating[1].runCurrentCp
-    # The server closes have come on the way out, not going in. Going in, Jetpack Cat spawns
-    # where the ball was, on the course, but Wrecking Ball spawned wherever the freecam was,
-    # which can be inside a wall, under the floor or up in the sky. So the player is first held
-    # on the checkpoint they land on, and Wrecking Ball spawns there. The camera already shows
-    # it, and they're invisible (the swap keeps it, and it hides them from their own camera
-    # too) and nameless, so nobody sees them move. Freemode leaves them where they are instead.
+    # Going in, Jetpack Cat spawns where the ball was, on the course, but Wrecking Ball spawned
+    # wherever the freecam was, which can be inside a wall, under the floor or up in the sky.
+    # So the player is first held on the checkpoint they land on, and Wrecking Ball spawns
+    # there. The camera already shows it, and they're invisible (the swap keeps it, and it
+    # hides them from their own camera too) and nameless, so nobody sees them move. Freemode
+    # leaves them where they are instead.
     if not eventPlayer.isInFreemode:
         if eventPlayer.faqPage == 0:
             eventPlayer.startCamera(
