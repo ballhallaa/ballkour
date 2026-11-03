@@ -134,12 +134,18 @@ def enableSpectator():
     swapToJetpackCat()
     # Being away from the checkpoint is no mistake in the lobby. Disable drops the player at a
     # checkpoint, so without a run to resume they get a new one. Freecam starts at it too,
-    # instead of up in the lobby's sky.
+    # instead of up in the lobby's sky, facing the next checkpoint rather than the lobby's pages.
     if eventPlayer.isInLobby:
         leaveLobby()
         if not eventPlayer.isRunLoaded or eventPlayer.isRunFinished:
             resetRun()
         eventPlayer.teleport(cps[eventPlayer.runCurrentCp][0])
+        eventPlayer.setFacing(
+            directionTowards(
+                eventPlayer.getEyePosition(), cps[eventPlayer.runCurrentCp][7]
+            ),
+            Relativity.TO_WORLD
+        )
     elif (
         distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
         > eventPlayer.cpData[1]
