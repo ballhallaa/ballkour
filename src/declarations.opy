@@ -202,6 +202,7 @@ macro LANGUAGES = 14
 playervar isInFreemode
 playervar isScorecardHidden
 playervar scorecardKey
+playervar scorecardSecond
 
 # Spectating
 playervar spectating

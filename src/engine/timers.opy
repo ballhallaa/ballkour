@@ -36,6 +36,10 @@ rule "Update Run Format":
         eventPlayer.timeToFormat = eventPlayer.runTime
         formatTime()
         eventPlayer.runTimeFormatted = eventPlayer.timeFormatted
+        # The scorecard's time column ticks with each runner's own seconds
+        if floor(eventPlayer.timeToFormat) != eventPlayer.scorecardSecond:
+            eventPlayer.scorecardSecond = floor(eventPlayer.timeToFormat)
+            scorecardDirty = true
         eventPlayer.timeToFormat = eventPlayer.runTime - eventPlayer.splitStart
         formatTime()
         eventPlayer.splitTimeFormatted = eventPlayer.timeFormatted
