@@ -113,11 +113,15 @@ ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 .run.empty .name, .run.empty .time { color: var(--ink-3); }
 .tag { flex: none; padding: 3px 6px; border-radius: 5px; font: 700 11px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--volt); background: rgba(0,230,151,.12); border: 1px solid rgba(0,230,151,.4); }
 /* Course number on the left, the board's link in the middle (centered on the card), the note on the right.
-   The labels match the lines under the title; the legacy note is a sentence, so it stays in the body font. */
+   The labels match the lines under the title; the legacy note is a sentence, so it stays in the body font.
+   An empty board invites the first time in volt instead, or, when the course is broken and no times can be set,
+   says so in coral. */
 .foot { margin-top: 18px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: baseline; gap: 20px; font: 600 13px/1.3 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
 .foot b { color: var(--ink-2); font-weight: 600; }
 .foot .url { font-size: 14px; color: var(--ink-2); letter-spacing: .02em; text-transform: none; }
 .foot .note { text-align: right; }
+.foot .cta { color: var(--volt); }
+.foot .broken { color: var(--coral); }
 .foot .prose { font: 500 14px/1.3 var(--body); letter-spacing: normal; text-transform: none; }
 </style>
 <div class="card">
@@ -136,7 +140,9 @@ ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
   </div>
   <div class="foot"><span>Course <b>${course.n}</b></span><span class="url">ballkour.com/leaderboards/${course.n}${legacy ? "/legacy" : ""}</span>` +
     (legacy ? `<span class="note prose">These runs weren’t verified with videos.</span>`
-      : `<span class="note">${runs.length ? "Dates: <b>YYYY-MM-DD (UTC)</b>" : ""}</span>`) + `</div>
+      : runs.length ? `<span class="note">Dates: <b>YYYY-MM-DD (UTC)</b></span>`
+      : course.broken ? `<span class="note broken">Broken</span>`
+      : `<span class="note cta">Be the first to set a time</span>`) + `</div>
 </div>
 <script>
 // Names too long for their row shrink to fit instead of being cut off
