@@ -200,7 +200,7 @@ PQZDY
 </tr>
 </table>
 
-<sub>Struck-through codes have been broken since Overwatch's August 2026 patch.</sub>
+<sub>Struck-through courses haven't worked since Overwatch's August 2026 map updates.</sub>
 
 ## Leaderboards
 
