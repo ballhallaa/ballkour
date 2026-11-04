@@ -163,8 +163,11 @@ async function person(id) {
   try {
     member = await api("GET", `/guilds/${GUILD}/members/${id}`);
     user = member.user;
-  } catch {
-    try { user = await api("GET", `/users/${id}`); } catch { user = null; } // left the server
+  } catch (e) {
+    try { user = await api("GET", `/users/${id}`); } catch (e2) { // left the server, or Discord refused both lookups
+      user = null;
+      console.warn(`Couldn't look up Discord user ${id}, so their name and picture are left out:\n  ${e.message}\n  ${e2.message}`);
+    }
   }
   let found = null;
   if (user) {
