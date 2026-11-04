@@ -210,10 +210,11 @@ function message(course, runs, fresh) {
 // A legacy board: nobody is new on it, so it's posted as just the picture, with no text
 const legacyMessage = () => ({ content: "", users: [] });
 // A course with no runs yet: no congrats, no pings, and an invitation instead of the link to watch runs. While the
-// course's code is broken nobody can take up the invitation, so it's struck through with a note saying why.
+// course's route is broken nobody can take up the invitation, so it's struck through with a note saying why. Each
+// line of the note needs its own "-#", since Discord's subtext only covers the line it starts.
 const emptyMessage = (course) => ({
   content: course.broken
-    ? "No times yet. ~~Be the first to set one!~~\n-# This course's code is broken, so no new times can be set for now."
+    ? "No times yet. ~~Be the first to set one!~~\n-# This course's route no longer works due to Overwatch's map updates.\n-# No new times can be set for now."
     : "No times yet. Be the first to set one!",
   users: [],
 });
