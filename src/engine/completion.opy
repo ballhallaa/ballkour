@@ -135,7 +135,7 @@ rule "Run Text":
         ),
         _(completionHudText[0]).replace("@0", localPlayer),
         HudPosition.TOP,
-        2,
+        1,
         Color.WHITE,
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -149,7 +149,7 @@ rule "Run Text":
             "@0", ("<fgFFFFFFFF>{}</fg>").format(localPlayer.runFinalTimeFormatted)
         ),
         HudPosition.TOP,
-        3,
+        1.1,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -163,7 +163,7 @@ rule "Run Text":
             "@0", ("<fgFFFFFFFF>{}</fg>").format(timeToBeatFormatted)
         ),
         HudPosition.TOP,
-        4,
+        1.2,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -177,7 +177,7 @@ rule "Run Text":
             "@0", ("<fgFFFFFFFF>{}</fg>").format(localPlayer.runFinalMistakes)
         ),
         HudPosition.TOP,
-        5,
+        1.3,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -199,7 +199,7 @@ rule "Run Text":
         ),
         _(completionHudText[4]),
         HudPosition.TOP,
-        6,
+        1.4,
         Color.WHITE,
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -214,7 +214,7 @@ rule "Run Text":
         ),
         "{}\n{}".format(_(completionHudText[5]), _(completionHudText[4])),
         HudPosition.TOP,
-        6,
+        1.4,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -231,7 +231,7 @@ rule "Run Text":
         ),
         _(completionHudText[6]),
         HudPosition.TOP,
-        6,
+        1.4,
         Color.WHITE,
         HudReeval.VISIBILITY_AND_STRING
     )

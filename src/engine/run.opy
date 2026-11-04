@@ -135,7 +135,7 @@ rule "Load HUD":
             )
         ),
         HudPosition.RIGHT,
-        1,
+        0.1,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -153,7 +153,7 @@ rule "Load HUD":
             )
         ),
         HudPosition.RIGHT,
-        2,
+        0.2,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -168,7 +168,7 @@ rule "Load HUD":
             lastCp
         ),
         HudPosition.RIGHT,
-        3,
+        1,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -188,7 +188,7 @@ rule "Load HUD":
             )
         ),
         HudPosition.RIGHT,
-        4,
+        1.1,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -205,7 +205,7 @@ rule "Load HUD":
             "\n\n" if localPlayer.viewRunner.isRunLegit else ""
         ),
         HudPosition.RIGHT,
-        5,
+        1.2,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -221,7 +221,7 @@ rule "Load HUD":
         ),
         _(counterHudText[3]),
         HudPosition.RIGHT,
-        5.5,
+        1.3,
         rgb(255, 70, 70),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -269,7 +269,7 @@ rule "Load HUD":
             .replace("@1", inputBindingString(Button.CROUCH))
         ),
         HudPosition.LEFT,
-        17,
+        3,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -285,7 +285,7 @@ rule "Load HUD":
         .replace("@0", inputBindingString(Button.ULTIMATE))
         .replace("@1", inputBindingString(Button.CROUCH)),
         HudPosition.LEFT,
-        17,
+        3,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )

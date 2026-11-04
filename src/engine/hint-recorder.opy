@@ -199,7 +199,7 @@ rule "Load HUD":
             )
         ),
         HudPosition.TOP,
-        3,
+        2,
         Color.LIGHT_VIOLET,
         HudReeval.VISIBILITY_AND_STRING
     )

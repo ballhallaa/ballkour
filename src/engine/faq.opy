@@ -306,7 +306,7 @@ rule "Load HUD":
         getAllPlayers().filter(lambda localPlayer: localPlayer.faqPage > 0),
         "\u00ad",
         HudPosition.TOP,
-        7,
+        3,
         Color.WHITE,
         HudReeval.VISIBILITY
     )
@@ -316,7 +316,7 @@ rule "Load HUD":
         getAllPlayers().filter(lambda localPlayer: localPlayer.faqPage > 0),
         "FAQ {}/{}".format(localPlayer.faqPage, FAQ_PAGES),
         HudPosition.TOP,
-        8,
+        3.1,
         rgb(0, 224, 146),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -327,7 +327,7 @@ rule "Load HUD":
         getAllPlayers().filter(lambda localPlayer: localPlayer.faqPage > 0),
         _(faqHudText[21]).replace(faqHudText[21][0], ""),
         HudPosition.TOP,
-        9,
+        3.2,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -349,7 +349,7 @@ rule "Load HUD":
             faqAnswer(5)
         ),
         HudPosition.TOP,
-        10,
+        3.3,
         Color.WHITE,
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -369,7 +369,7 @@ rule "Load HUD":
             _(faqHudText[26]).replace("@0", inputBindingString(Button.MELEE))
         ),
         HudPosition.TOP,
-        11,
+        3.4,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
