@@ -129,7 +129,7 @@ ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
     <ol>${slots.slice(0, 5).map((r, i) => row(r, i)).join("")}</ol>
     <ol>${slots.slice(5, 10).map((r, i) => row(r, i + 5)).join("")}</ol>
   </div>
-  <div class="foot"><span class="url">ballkour.com/leaderboards</span>${legacy ? "<span>These runs weren’t verified with videos.</span>"
+  <div class="foot"><span class="url">ballkour.com/leaderboards/${course.n}${legacy ? "/legacy" : ""}</span>${legacy ? "<span>These runs weren’t verified with videos.</span>"
     : runs.length ? "<span>Dates (YYYY-MM-DD) are when the run was submitted, in UTC.</span>" : ""}</div>
 </div>
 <script>
