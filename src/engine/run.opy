@@ -231,7 +231,7 @@ rule "Load HUD":
     # The Lobby Top 3 goes above the rows, in the same HUD text so they all left-align. At
     # most 3 rows long, it stays put as runners come and go below it.
     scorecardHudText[0] = _("Hide Scores: <fgFFFFFFFF>@0 + @1</fg>")
-    scorecardHudText[1] = _("\nScores: <fgFFFFFFFF>@0 + @1</fg>")
+    scorecardHudText[1] = _("\nShow Scores: <fgFFFFFFFF>@0 + @1</fg>")
     topRunsHudText = _("Lobby Top 3")
     # The rows stay out of the String Replace, which cuts off long strings, and they're too long for it
     hudSubheader(

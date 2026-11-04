@@ -162,16 +162,16 @@ msgid "First Page: <fgFFFFFFFF>@0</fg>"
 msgstr "最初のページ：<fgFFFFFFFF>@0</fg>"
 
 #. file faq.opy, rule "Load HUD"
-msgid "FAQ in English: <fgFFFFFFFF>ballkour.com/faq</fg>"
-msgstr "日本語のFAQ：<fgFFFFFFFF>ballkour.com/faq</fg>"
-
-#. file faq.opy, rule "Load HUD"
 msgid "Prev. Page: <fgFFFFFFFF>@0</fg>"
 msgstr "前のページ：<fgFFFFFFFF>@0</fg>"
 
 #. file faq.opy, rule "Load HUD"
 msgid "Last Page: <fgFFFFFFFF>@0</fg>"
 msgstr "最後のページ：<fgFFFFFFFF>@0</fg>"
+
+#. file faq.opy, rule "Load HUD"
+msgid "FAQ in English: <fgFFFFFFFF>ballkour.com/faq</fg>"
+msgstr "日本語のFAQ：<fgFFFFFFFF>ballkour.com/faq</fg>"
 
 #. file lobby.opy, rule "Load Buttons"
 msgid "New Run"
@@ -284,8 +284,8 @@ msgid "Lobby Top 3"
 msgstr "ロビートップ3"
 
 #. file run.opy, rule "Load HUD"
-msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "スコア: <fgFFFFFFFF>@0 + @1</fg>"
+msgid "Show Scores: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "スコア表示: <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file run.opy, rule "Load HUD"
 msgid "Disqualified"
