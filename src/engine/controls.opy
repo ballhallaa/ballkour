@@ -76,7 +76,7 @@ rule "Load HUD":
         ),
         "\n",
         HudPosition.TOP,
-        10,
+        4,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -95,7 +95,7 @@ rule "Load HUD":
         .replace("@2", inputBindingString(Button.ULTIMATE))
         .replace("@3", inputBindingString(Button.PRIMARY_FIRE)),
         HudPosition.TOP,
-        11,
+        4.01,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -112,7 +112,7 @@ rule "Load HUD":
         .replace("@2", inputBindingString(Button.ULTIMATE))
         .replace("@3", inputBindingString(Button.SECONDARY_FIRE)),
         HudPosition.TOP,
-        12,
+        4.02,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -130,7 +130,7 @@ rule "Load HUD":
         ),
         _(ctrlsHudText[2]).replace("@0", inputBindingString(Button.RELOAD)),
         HudPosition.TOP,
-        13,
+        4.03,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -145,7 +145,7 @@ rule "Load HUD":
         .replace("@0", inputBindingString(Button.ULTIMATE))
         .replace("@1", inputBindingString(Button.RELOAD)),
         HudPosition.TOP,
-        14,
+        4.04,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -165,7 +165,7 @@ rule "Load HUD":
         .replace("@0", inputBindingString(Button.ULTIMATE))
         .replace("@1", inputBindingString(Button.INTERACT)),
         HudPosition.TOP,
-        15,
+        4.05,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -194,7 +194,7 @@ rule "Load HUD":
             .replace("@1", inputBindingString(Button.ABILITY_2))
         ),
         HudPosition.TOP,
-        15,
+        4.06,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -206,7 +206,7 @@ rule "Load HUD":
             .replace("@0", inputBindingString(Button.ULTIMATE))
             .replace("@1", inputBindingString(Button.ABILITY_2)),
             HudPosition.TOP,
-            15.5,
+            4.07,
             rgb(230, 151, 0),
             HudReeval.VISIBILITY_AND_STRING
         )
@@ -223,7 +223,7 @@ rule "Load HUD":
         .replace("@0", inputBindingString(Button.ULTIMATE))
         .replace("@1", inputBindingString(Button.ABILITY_1)),
         HudPosition.TOP,
-        16,
+        4.08,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -244,7 +244,7 @@ rule "Load HUD":
         .replace("@2", inputBindingString(Button.PRIMARY_FIRE))
         .replace("@3", inputBindingString(Button.SECONDARY_FIRE)),
         HudPosition.TOP,
-        16.5,
+        4.09,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -261,7 +261,7 @@ rule "Load HUD":
         .replace("@0", inputBindingString(Button.ULTIMATE))
         .replace("@1", inputBindingString(Button.ABILITY_2)),
         HudPosition.TOP,
-        17,
+        4.10,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -280,7 +280,7 @@ rule "Load HUD":
         .replace("@0", inputBindingString(Button.ULTIMATE))
         .replace("@1", inputBindingString(Button.ABILITY_2)),
         HudPosition.TOP,
-        17,
+        4.11,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -301,7 +301,7 @@ rule "Load HUD":
         .replace("@0", inputBindingString(Button.ULTIMATE))
         .replace("@1", inputBindingString(Button.ABILITY_1)),
         HudPosition.TOP,
-        17,
+        4.12,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -320,7 +320,7 @@ rule "Load HUD":
         .replace("@0", inputBindingString(Button.ABILITY_1))
         .replace("@1", inputBindingString(Button.RELOAD)),
         HudPosition.TOP,
-        18,
+        4.13,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -338,7 +338,7 @@ rule "Load HUD":
         .replace("@0", inputBindingString(Button.ABILITY_1))
         .replace("@1", inputBindingString(Button.INTERACT)),
         HudPosition.TOP,
-        19,
+        4.14,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -361,7 +361,7 @@ rule "Load HUD":
         .replace("@3", inputBindingString(Button.PRIMARY_FIRE))
         .replace("@4", inputBindingString(Button.SECONDARY_FIRE)),
         HudPosition.TOP,
-        20,
+        4.15,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -404,7 +404,7 @@ rule "Load HUD":
             )
         ),
         HudPosition.TOP,
-        21,
+        4.16,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -715,7 +715,7 @@ rule "Load Freemode HUD":
         ),
         _(freemodeHudText),
         HudPosition.LEFT,
-        12,
+        1,
         rgb(203, 135, 255),
         HudReeval.VISIBILITY_AND_STRING
     )

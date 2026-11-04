@@ -65,7 +65,7 @@ rule "Load HUD":
         ),
         _(spectatorHudText[0]),
         HudPosition.LEFT,
-        12,
+        2,
         rgb(0, 190, 255),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -78,7 +78,7 @@ rule "Load HUD":
         ),
         _(spectatorHudText[1]).replace("@0", localPlayer.spectating[1]),
         HudPosition.LEFT,
-        12,
+        2,
         rgb(0, 190, 255),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -91,7 +91,7 @@ rule "Load HUD":
         ),
         _(spectatorHudText[2]),
         HudPosition.LEFT,
-        13,
+        2.1,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -104,11 +104,11 @@ rule "Load HUD":
         ),
         _(spectatorHudText[3]),
         HudPosition.LEFT,
-        14,
+        2.2,
         Color.WHITE,
         HudReeval.VISIBILITY_AND_STRING
     )
-    # Spectated Player's HUD, under Freemode On (12) so it moves only when the player toggles
+    # Spectated Player's HUD, under Freemode On (1) so it moves only when the player toggles
     # freemode, not Freemode On whenever spectators come and go
     spectatorHudText[4] = _("\nSpectators: @0")
     hudSubtext(
@@ -118,7 +118,7 @@ rule "Load HUD":
         ),
         _(spectatorHudText[4]).replace("@0", localPlayer.spectating[10]),
         HudPosition.LEFT,
-        12.5,
+        1.1,
         rgb(0, 190, 255),
         HudReeval.VISIBILITY_AND_STRING
     )
