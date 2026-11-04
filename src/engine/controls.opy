@@ -812,12 +812,10 @@ rule "FAQ Input":
 
 
 rule "Load Hints HUD":
-    # Under FAQ at the top left. While hints are off, or can't be turned on (grayed out), the
-    # same spot shows how to turn them on
+    # Under FAQ at the top left, grayed out when hints can't be turned on or off. While hints
+    # are on at a CP without one, the same spot says so instead
     hintsHudText[0] = _("@0Hints: @1@2 + @3</fg>")
-    # The colors are explained in the FAQ
-    hintsHudText[1] = _("Hints On")
-    hintsHudText[2] = _("No Hint For This CP")
+    hintsHudText[1] = _("No Hint For This CP")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: controlsVisible(
@@ -832,13 +830,11 @@ rule "Load Hints HUD":
                 .replace("@2", inputBindingString(Button.ULTIMATE))
                 .replace("@3", inputBindingString(Button.ABILITY_2))
                 if allControlsOr(
-                    not localPlayer.isHintOn or not canToggleHints(localPlayer)
+                    not localPlayer.isHintOn
+                    or not canToggleHints(localPlayer)
+                    or len(hintRoutes[localPlayer.viewCp]) > 1
                 )
-                else (
-                    _(hintsHudText[1])
-                    if len(hintRoutes[localPlayer.viewCp]) > 1
-                    else _(hintsHudText[2])
-                )
+                else _(hintsHudText[1])
             )
         ),
         HudPosition.LEFT,
