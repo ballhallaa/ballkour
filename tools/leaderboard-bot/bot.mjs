@@ -10,6 +10,8 @@
 //   LEGACY=1           post the legacy boards (the runs from before May 2026 in history.json) to each course's
 //                      legacyChannel instead: all of them, or only FORCE_COURSE's. No pings, and history.json
 //                      isn't changed, so it doesn't affect which boards count as new.
+//   NO_CONGRATS=1      leave out the "Congrats …" line, so nobody is pinged: for posting boards again with new
+//                      pictures without pinging their runners a second time.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -39,6 +41,7 @@ function forced(spec) {
 }
 const FORCE = forced(process.env.FORCE_COURSE);
 const LEGACY = !!process.env.LEGACY;
+const NO_CONGRATS = !!process.env.NO_CONGRATS;
 const API = "https://discord.com/api/v10";
 const { guild: GUILD, courses: COURSES } = JSON.parse(fs.readFileSync(path.join(HERE, "courses.json"), "utf8"));
 
@@ -188,7 +191,7 @@ const slug = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/
   .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 const boardUrl = (course) => `https://ballkour.com/leaderboards/${course.n}-${slug(course.name)}`;
 function message(course, runs, fresh) {
-  const newRuns = runs.filter((r) => fresh.has(r));
+  const newRuns = NO_CONGRATS ? [] : runs.filter((r) => fresh.has(r));
   const users = [];
   const names = newRuns.map((r) => {
     const id = DISCORD_ID.test(r.discord) ? r.discord : "";
@@ -206,8 +209,14 @@ function message(course, runs, fresh) {
 }
 // A legacy board: nobody is new on it, so it's posted as just the picture, with no text
 const legacyMessage = () => ({ content: "", users: [] });
-// A course with no runs yet: no congrats, no pings, and an invitation instead of the link to watch runs
-const emptyMessage = () => ({ content: "No times yet. Be the first to set one!", users: [] });
+// A course with no runs yet: no congrats, no pings, and an invitation instead of the link to watch runs. While the
+// course's code is broken nobody can take up the invitation, so it's struck through with a note saying why.
+const emptyMessage = (course) => ({
+  content: course.broken
+    ? "~~No times yet. Be the first to set one!~~\n-# Until this course works again, this leaderboard will not be updated"
+    : "No times yet. Be the first to set one!",
+  users: [],
+});
 // Text for screen readers (Discord's image description)
 const altText = (course, board, runs, legacy) => runs.length
   ? `${course.name} ${legacy ? "legacy top 10, before May 2026" : `top 10, board ${board}`}: ` + runs.map((r, i) => `${i + 1}. ${r.name} ${r.time}, ${r.mistakes} mistakes`).join("; ")
@@ -291,7 +300,7 @@ for (const { course, list, at, isNew, legacy, channel } of jobs) {
     await page.goto(pathToFileURL(htmlFile).href, { waitUntil: "load" });
     await page.evaluate(() => document.fonts.ready);
     const png = await page.locator(".card").screenshot({ path: path.join(OUT, filename) });
-    const { content, users } = legacy ? legacyMessage() : runs.length ? message(course, runs, fresh) : emptyMessage();
+    const { content, users } = legacy ? legacyMessage() : runs.length ? message(course, runs, fresh) : emptyMessage(course);
     fs.writeFileSync(path.join(OUT, `${base}.txt`), content + "\n");
     console.log(`\n${label}\n${content}`);
     if (DRY) continue;
