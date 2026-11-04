@@ -166,9 +166,9 @@ rule "Load HUD":
     )
     # Each answer is its own string in white, with its question in light blue and the game's own
     # labels (controls, HUD and lobby names) in orange, in questions too, the ones
-    # ballkour.com/faq marks. Color tags can't nest, so a label in a question closes the light
-    # blue and opens it again after. The
-    # answers are English only, with the translated ones at ballkour.com/faq: in all 14
+    # ballkour.com/faq marks. A mode or HUD text keeps its own HUD's color instead (Freemode
+    # violet, Spectator blue, (DISCONNECTED) white). Color tags can't nest, so a label in a
+    # question closes the light blue and opens it again after. The answers are English only, with the translated ones at ballkour.com/faq: in all 14
     # languages they made pasting the script take several seconds longer.
     # Page 1
     faqHudText[1] = (
@@ -181,7 +181,7 @@ rule "Load HUD":
         "\n\n<fg80D0FFFF>What counts as a valid run?</fg>"
         "\nYour run is only disqualified if you skip a checkpoint you haven't cleared yet this run."
         "\nGoing back or restarting checkpoints, skipping ahead to cleared checkpoints, and"
-        "\nspectating are fine. Leaving an uncleared checkpoint in <fgE69700FF>Freemode</fg> counts as skipping it."
+        "\nspectating are fine. Leaving an uncleared checkpoint in <fgCB87FFFF>Freemode</fg> counts as skipping it."
         "\nDisqualified runs don't count toward the top-10 leaderboard, <fgE69700FF>Lobby Top 3</fg>, or <fgE69700FF>Lobby Stats</fg>."
     )
     faqHudText[3] = (
@@ -201,7 +201,7 @@ rule "Load HUD":
     )
     # Page 2
     faqHudText[6] = (
-        "\n<fg80D0FFFF>What is </fg><fgE69700FF>Freemode</fg><fg80D0FFFF> for?</fg>"
+        "\n<fg80D0FFFF>What is </fg><fgCB87FFFF>Freemode</fg><fg80D0FFFF> for?</fg>"
         "\nPractice, with no timer and all your abilities. You can't clear checkpoints in it,"
         "\nand leaving your checkpoint with it on disqualifies your run."
     )
@@ -218,8 +218,8 @@ rule "Load HUD":
         "\n<fg00E092FF>green</fg> if faster or <fgFF4646FF>red</fg> if slower than your average. A new best is compared with your old best."
     )
     faqHudText[9] = (
-        "\n\n<fg80D0FFFF>Are </fg><fgE69700FF>Best</fg><fg80D0FFFF> and </fg><fgE69700FF>Avg</fg><fg80D0FFFF> server records?</fg>"
-        "\nNo, they're only your own times on that checkpoint, over all your runs."
+        "\n\n<fg80D0FFFF>What are </fg><fgE69700FF>Best</fg><fg80D0FFFF> and </fg><fgE69700FF>Avg</fg><fg80D0FFFF>?</fg>"
+        "\nThey are your own times on that checkpoint, over all your runs."
         "\nThey reset when you leave or when the server restarts."
     )
     faqHudText[10] = (
@@ -232,6 +232,7 @@ rule "Load HUD":
         "\n<fg80D0FFFF>Why are some controls </fg><fg808080FF>grayed out</fg><fg80D0FFFF>?</fg>"
         "\nThey can't be used right now: <fgE69700FF>Prev. CP</fg> on the first checkpoint, <fgE69700FF>Next CP</fg> on the last,"
         "\nand the player controls while there's nobody to spectate. <fgE69700FF>X-Hair Player</fg> also needs <fgE69700FF>Freecam</fg>."
+        "\n<fgE69700FF>Reattach</fg> needs <fgE69700FF>Freecam</fg> and a player you were watching."
     )
     faqHudText[12] = (
         "\n\n<fg80D0FFFF>What's on the scorecard?</fg>"
@@ -242,7 +243,7 @@ rule "Load HUD":
         "\n\n<fg80D0FFFF>What is a </fg><fg00BEFFFF>shield bounce</fg><fg80D0FFFF>?</fg>"
         "\nAdaptive Shield (Button: @0) bounces you up and forward. The faster you're going,"
         "\nthe less it lifts you. You get one each time you leave the checkpoint, on checkpoints"
-        "\nthat allow it, and as many as you like in <fgE69700FF>Freemode</fg>."
+        "\nthat allow it, and as many as you like in <fgCB87FFFF>Freemode</fg>."
     )
     faqHudText[14] = (
         "\n\n<fg80D0FFFF>What do the hint colors mean?</fg>"
@@ -276,8 +277,13 @@ rule "Load HUD":
         "\n\n<fg80D0FFFF>Is something wrong in my language?</fg>"
         "\nThe translations are drafts, so please report mistakes at ballkour.com/issues."
     )
-    # The last page's spare slot, blank so it shows nothing (an unset one would show "0")
-    faqHudText[20] = ""
+    faqHudText[20] = (
+        "\n\n<fg80D0FFFF>What does </fg><fgFFFFFFFF>(DISCONNECTED)</fg><fg80D0FFFF> mean in </fg><fg00BEFFFF>Spectator</fg><fg80D0FFFF> mode?</fg>"
+        "\nYou aren't following anyone's run, so the HUD only shows the checkpoint you'll return to"
+        "\nwhen you leave <fg00BEFFFF>Spectate</fg>. You disconnect when you enter <fg00BEFFFF>Spectate</fg> or use <fgE69700FF>Prev.</fg>/<fgE69700FF>Next CP</fg>,"
+        "\nor when the player you're watching enters <fg00BEFFFF>Spectate</fg>, goes to the lobby, or leaves the game."
+        "\nUse <fgE69700FF>Reattach</fg>, <fgE69700FF>Prev.</fg>/<fgE69700FF>Next Player</fg>, or <fgE69700FF>X-Hair Player</fg> to follow someone again."
+    )
     faqHudText[25] = _("Next Page: <fgFFFFFFFF>@0</fg>")
     faqHudText[26] = _("Close: <fgFFFFFFFF>@0</fg>")
     # Instead of Next Page on the last page, as the same key goes back around
