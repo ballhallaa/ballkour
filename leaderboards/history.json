@@ -2,8 +2,8 @@
   "1": {
     "course": "Watchpoint: Gibraltar",
     "legacy": [
-      {"name": "BLACKMILES", "time": "4:30.--", "mistakes": 4},
-      {"name": "USE1355", "time": "4:39.--", "mistakes": 9},
+      {"name": "BLACKMILES", "discord": "206866465025032193", "time": "4:30.--", "mistakes": 4},
+      {"name": "USE1355", "discord": "175372497720573953", "time": "4:39.--", "mistakes": 9},
       {"name": "KAMONIC", "time": "4:49.--", "mistakes": 8},
       {"name": "BOOPYDOOPY", "time": "4:59.--", "mistakes": 7},
       {"name": "MOISTKLEENEX", "time": "5:01.--", "mistakes": 11},
@@ -245,7 +245,7 @@
   "2": {
     "course": "Blizzard World (Winter)",
     "legacy": [
-      {"name": "BLACKMILES", "time": "5:43.--", "mistakes": 6},
+      {"name": "BLACKMILES", "discord": "206866465025032193", "time": "5:43.--", "mistakes": 6},
       {"name": "MIDSHIVA", "time": "5:58.--", "mistakes": 10},
       {"name": "BLINKZ", "time": "6:14.--", "mistakes": 14},
       {"name": "PH-6310G", "time": "6:27.--", "mistakes": 14},
@@ -265,7 +265,7 @@
   "3": {
     "course": "Paraíso",
     "legacy": [
-      {"name": "BLACKMILES", "time": "7:17.--", "mistakes": 12},
+      {"name": "BLACKMILES", "discord": "206866465025032193", "time": "7:17.--", "mistakes": 12},
       {"name": "FLATO", "time": "7:49.--", "mistakes": 10},
       {"name": "LEG1ON", "time": "11:25.--", "mistakes": 47},
       {"name": "CHRIS90123", "time": "12:36.--", "mistakes": 85},
@@ -280,7 +280,7 @@
   "4": {
     "course": "Eichenwalde",
     "legacy": [
-      {"name": "BLACKMILES", "time": "7:07.--", "mistakes": 12},
+      {"name": "BLACKMILES", "discord": "206866465025032193", "time": "7:07.--", "mistakes": 12},
       {"name": "SENTENTIAL", "time": "7:30.--", "mistakes": 21},
       {"name": "FARTYPANTS", "time": "9:31.--", "mistakes": 40},
       {"name": "FLATO", "time": "13:54.--", "mistakes": 87},
@@ -295,7 +295,7 @@
   "5": {
     "course": "Practice Range",
     "legacy": [
-      {"name": "BLACKMILES", "time": "6:05.--", "mistakes": 7},
+      {"name": "BLACKMILES", "discord": "206866465025032193", "time": "6:05.--", "mistakes": 7},
       {"name": "BLINKZ", "time": "6:06.--", "mistakes": 1},
       {"name": "BESII", "time": "7:30.--", "mistakes": 35},
       {"name": "SPIZ", "time": "8:14.--", "mistakes": 26},

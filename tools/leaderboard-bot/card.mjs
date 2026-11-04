@@ -24,9 +24,15 @@ function fontFaces(fonts) {
 /**
  * course: { name, flag, code }, board: board number, date: "YYYY-MM-DD",
  * runs: [{ name, time, mistakes, date }] (up to 10), fresh: Set of the runs that are new,
- * people: Map of run → { name, avatar } from Discord, logo: data URI or ""
+ * people: Map of run → { name, avatar } from Discord, logo: data URI or "",
+ * legacy: true for the board from before May 2026, whose times have no hundredths ("4:30.--")
  */
-export function cardHtml({ course, board, date, runs, fresh, people, logo, fonts }) {
+export function cardHtml({ course, board, date, runs, fresh, people, logo, fonts, legacy = false }) {
+  // A legacy time's missing hundredths are dimmed, as on the website
+  const timeHtml = (t) => {
+    const m = /^(.*?)(\.--)$/.exec(t);
+    return m ? `<span>${esc(m[1])}<span class="na">.--</span></span>` : esc(t); // one span, so the gap stays by the icon
+  };
   const row = (r, i) => {
     if (!r) {
       return `<li class="run empty"><span class="rank">${i + 1}</span><span class="line"><span class="name">---</span></span>` +
@@ -38,14 +44,16 @@ export function cardHtml({ course, board, date, runs, fresh, people, logo, fonts
     return `<li class="run${i < 3 ? " p" + (i + 1) : ""}${isNew ? " fresh" : ""}">` +
       `<span class="rank">${i + 1}</span>` +
       `<span class="line"><span class="name">${esc(r.name)}</span>${isNew ? '<span class="tag">New</span>' : ""}</span>` +
-      `<span class="time">${BOLT}${esc(r.time)}</span>` +
+      `<span class="time">${BOLT}${timeHtml(r.time)}</span>` +
       `<span class="miss">${SKULL}${r.mistakes}</span>` +
       (who ? `<span class="dc">${pfp}<span>${esc(who.name)}</span></span>` : "") +
       `<span class="date">${esc(r.date || "")}</span>` +
       `</li>`;
   };
   const slots = Array.from({ length: 10 }, (_, i) => runs[i] || null);
-  const sub = ["Top 10", course.code ? `Code <b>${esc(course.code)}</b>` : "", board ? `Board ${board}` : "", date].filter(Boolean)
+  // A legacy board was set on an older version of the course, so today's code isn't shown with it
+  const sub = (legacy ? ["Legacy top 10", "Before May 2026"]
+    : ["Top 10", course.code ? `Code <b>${esc(course.code)}</b>` : "", board ? `Board ${board}` : "", date]).filter(Boolean)
     .map((s) => `<span>${s}</span>`).join("<span>·</span>");
 
   return `<!doctype html><meta charset="utf-8"><style>
@@ -95,6 +103,7 @@ ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 .run.p2 { --tier: var(--silver); } .run.p3 { --tier: var(--bronze); }
 .run.p1 .rank, .run.p1 .name, .run.p2 .rank, .run.p2 .name, .run.p3 .rank, .run.p3 .name { color: var(--tier); }
 .run.fresh { border-color: rgba(0,230,151,.55); box-shadow: inset 3px 0 0 var(--volt), 0 0 22px -6px rgba(0,230,151,.45); }
+.time .na { color: var(--ink-3); }
 .run.empty { opacity: .38; }
 .run.empty .name, .run.empty .time { color: var(--ink-3); }
 .tag { flex: none; padding: 3px 6px; border-radius: 5px; font: 700 11px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--volt); background: rgba(0,230,151,.12); border: 1px solid rgba(0,230,151,.4); }
@@ -114,7 +123,8 @@ ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
     <ol>${slots.slice(0, 5).map((r, i) => row(r, i)).join("")}</ol>
     <ol>${slots.slice(5, 10).map((r, i) => row(r, i + 5)).join("")}</ol>
   </div>
-  <div class="foot"><span class="url">ballkour.com/leaderboards</span>${runs.length ? "<span>Dates (YYYY-MM-DD) are when the run was submitted, in UTC.</span>" : ""}</div>
+  <div class="foot"><span class="url">ballkour.com/leaderboards</span>${legacy ? "<span>These runs weren’t verified with videos.</span>"
+    : runs.length ? "<span>Dates (YYYY-MM-DD) are when the run was submitted, in UTC.</span>" : ""}</div>
 </div>
 <script>
 // Names too long for their row shrink to fit instead of being cut off

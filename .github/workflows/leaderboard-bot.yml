@@ -2,6 +2,8 @@
 # leaderboards/history.json. Run it by hand (Actions → Leaderboard bot → Run workflow) for a dry run that
 # only draws the pictures, or to post courses' newest boards again (an empty top 10 for a course with no runs).
 #   gh workflow run leaderboard-bot.yml --ref develop -f dry_run=false -f course=3-12
+# With legacy, it posts the boards from before May 2026 to each course's legacy channel instead (course picks which):
+#   gh workflow run leaderboard-bot.yml --ref develop -f dry_run=false -f legacy=true
 name: Leaderboard bot
 
 on:
@@ -20,6 +22,10 @@ on:
         description: "Post these courses' newest boards again: 3, 3,5,7, 3-12 or all (optional)"
         type: string
         required: false
+      legacy:
+        description: "Post the legacy boards (before May 2026) to the legacy channels instead"
+        type: boolean
+        default: false
 
 # One run at a time, so two quick updates can't post the same board twice
 concurrency:
@@ -61,6 +67,7 @@ jobs:
           DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
           DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
           FORCE_COURSE: ${{ inputs.course }}
+          LEGACY: ${{ inputs.legacy && '1' || '' }}
         run: node bot.mjs
 
       - name: Keep the pictures
