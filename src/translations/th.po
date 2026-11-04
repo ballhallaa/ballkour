@@ -162,16 +162,16 @@ msgid "First Page: <fgFFFFFFFF>@0</fg>"
 msgstr "หน้าแรก: <fgFFFFFFFF>@0</fg>"
 
 #. file faq.opy, rule "Load HUD"
-msgid "FAQ in English: <fgFFFFFFFF>ballkour.com/faq</fg>"
-msgstr "FAQ ภาษาไทย: <fgFFFFFFFF>ballkour.com/faq</fg>"
-
-#. file faq.opy, rule "Load HUD"
 msgid "Prev. Page: <fgFFFFFFFF>@0</fg>"
 msgstr "หน้าก่อนหน้า: <fgFFFFFFFF>@0</fg>"
 
 #. file faq.opy, rule "Load HUD"
 msgid "Last Page: <fgFFFFFFFF>@0</fg>"
 msgstr "หน้าสุดท้าย: <fgFFFFFFFF>@0</fg>"
+
+#. file faq.opy, rule "Load HUD"
+msgid "FAQ in English: <fgFFFFFFFF>ballkour.com/faq</fg>"
+msgstr "FAQ ภาษาไทย: <fgFFFFFFFF>ballkour.com/faq</fg>"
 
 #. file lobby.opy, rule "Load Buttons"
 msgid "New Run"
@@ -284,8 +284,8 @@ msgid "Lobby Top 3"
 msgstr "ท็อป 3 ล็อบบี้"
 
 #. file run.opy, rule "Load HUD"
-msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "คะแนน: <fgFFFFFFFF>@0 + @1</fg>"
+msgid "Show Scores: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "แสดงคะแนน: <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file run.opy, rule "Load HUD"
 msgid "Disqualified"
