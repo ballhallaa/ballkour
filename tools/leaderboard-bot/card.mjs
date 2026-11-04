@@ -113,7 +113,7 @@ ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 .run.empty .name, .run.empty .time { color: var(--ink-3); }
 .tag { flex: none; padding: 3px 6px; border-radius: 5px; font: 700 11px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--volt); background: rgba(0,230,151,.12); border: 1px solid rgba(0,230,151,.4); }
 /* Course number on the left, the board's link in the middle (centered on the card), the note on the right.
-   The labels match the lines under the title. A legacy board notes that its runs weren't checked with videos; the
+   The labels match the lines under the title. A legacy board notes that videos weren't required for its runs; the
    note is kept short so it fits on one line in caps beside the longer /legacy link. An empty board invites the first time in volt instead, or, when the course is broken and no times can be set,
    says so in coral. */
 .foot { margin-top: 18px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: baseline; gap: 20px; font: 600 13px/1.3 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
@@ -138,7 +138,7 @@ ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
     <ol>${slots.slice(5, 10).map((r, i) => row(r, i + 5)).join("")}</ol>
   </div>
   <div class="foot"><span>Course <b>${course.n}</b></span><span class="url">ballkour.com/leaderboards/${course.n}${legacy ? "/legacy" : ""}</span>` +
-    (legacy ? `<span class="note">Not verified with videos</span>`
+    (legacy ? `<span class="note">Videos weren’t required</span>`
       : runs.length ? `<span class="note">Dates: <b>YYYY-MM-DD (UTC)</b></span>`
       : course.broken ? `<span class="note broken">Broken</span>`
       : `<span class="note cta">Be the first to set a time</span>`) + `</div>
