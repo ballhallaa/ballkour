@@ -770,8 +770,11 @@ rule "Lobby Input":
             and eventPlayer.faqPage == 0
         ):
             eventPlayer.isHintOn = not eventPlayer.isHintOn
-            # Toggled by hand, so moving to another CP doesn't turn them off
+            # Toggled by hand, so moving to another CP doesn't turn them off, and turning them
+            # off stops mistakes from turning them on again
             eventPlayer.isHintAutoOn = false
+            if not eventPlayer.isHintOn:
+                eventPlayer.isHintAutoOff = true
         return
     # Holding goes to Lobby/Pause, unless another button joined in or the FAQ is open
     if eventPlayer.isInLobby or eventPlayer.faqPage > 0 or not RULE_CONDITION:
