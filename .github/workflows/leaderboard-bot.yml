@@ -4,6 +4,8 @@
 #   gh workflow run leaderboard-bot.yml --ref develop -f dry_run=false -f course=3-12
 # With legacy, it posts the boards from before May 2026 to each course's legacy channel instead (course picks which):
 #   gh workflow run leaderboard-bot.yml --ref develop -f dry_run=false -f legacy=true
+# With no_congrats, boards go out without the "Congrats …" line, so nobody is pinged again for a board they're already on:
+#   gh workflow run leaderboard-bot.yml --ref develop -f dry_run=false -f course=all -f no_congrats=true
 name: Leaderboard bot
 
 on:
@@ -24,6 +26,10 @@ on:
         required: false
       legacy:
         description: "Post the legacy boards (before May 2026) to the legacy channels instead"
+        type: boolean
+        default: false
+      no_congrats:
+        description: "Leave out the \"Congrats …\" line, so nobody is pinged"
         type: boolean
         default: false
 
@@ -68,6 +74,7 @@ jobs:
           DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
           FORCE_COURSE: ${{ inputs.course }}
           LEGACY: ${{ inputs.legacy && '1' || '' }}
+          NO_CONGRATS: ${{ inputs.no_congrats && '1' || '' }}
         run: node bot.mjs
 
       - name: Keep the pictures

@@ -22,7 +22,7 @@ function fontFaces(fonts) {
 }
 
 /**
- * course: { name, flag, code }, board: board number, date: "YYYY-MM-DD",
+ * course: { name, flag, code, by, remaker, legacyCode } from courses.json, board: board number, date: "YYYY-MM-DD",
  * runs: [{ name, time, mistakes, date }] (up to 10), fresh: Set of the runs that are new,
  * people: Map of run → { name, avatar } from Discord, logo: data URI or "",
  * legacy: true for the board from before May 2026, whose times have no hundredths ("4:30.--")
@@ -51,10 +51,14 @@ export function cardHtml({ course, board, date, runs, fresh, people, logo, fonts
       `</li>`;
   };
   const slots = Array.from({ length: 10 }, (_, i) => runs[i] || null);
-  // A legacy board was set on an older version of the course, so today's code isn't shown with it
-  const sub = (legacy ? ["Legacy top 10", "Before May 2026"]
-    : ["Top 10", course.code ? `Code <b>${esc(course.code)}</b>` : "", board ? `Board ${board}` : "", date]).filter(Boolean)
-    .map((s) => `<span>${s}</span>`).join("<span>·</span>");
+  // Two lines under the title: which board this is, then the course's code and who made it. A broken code is shown
+  // like any other. A legacy board was set on the original course, so it shows that course's code (legacyCode) and
+  // no remaker.
+  const line = (parts) => parts.filter(Boolean).map((s) => `<span>${s}</span>`).join("<span>·</span>");
+  const field = (label, value) => (value ? `${label} <b>${esc(value)}</b>` : "");
+  const sub = legacy ? line(["Legacy top 10", "Before May 2026"]) : line(["Top 10", date, board ? `Board ${board}` : ""]);
+  const credits = line([field("Code", legacy ? course.legacyCode : course.code), field("Creator", course.by),
+    legacy ? "" : field("Remaker", course.remaker)]);
 
   return `<!doctype html><meta charset="utf-8"><style>
 ${fontFaces(fonts)}
@@ -78,6 +82,7 @@ body { margin: 0; background: var(--void); }
 .flag { font: 400 40px/1 var(--emoji); text-shadow: none; }
 .sub { margin-top: 12px; display: flex; gap: 10px; font: 600 15px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
 .sub b { color: var(--ink-2); font-weight: 600; }
+.sub + .sub { margin-top: 9px; }
 .logo { position: relative; width: 104px; height: 104px; flex: none; }
 .logo::before { content: ""; position: absolute; inset: -12%; border-radius: 50%; background: conic-gradient(#ff4b3e, #ff9a2e, #ffd23f, #00e697, #33c6ff, #5a6bff, #a54bd8, #ff4b3e); filter: blur(18px); opacity: .5; }
 .logo img { position: relative; width: 100%; height: 100%; }
@@ -116,6 +121,7 @@ ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
     <div>
       <h1 class="title"><span class="flag">${course.flag || ""}</span>${esc(course.name)}</h1>
       <div class="sub">${sub}</div>
+      ${credits ? `<div class="sub">${credits}</div>` : ""}
     </div>
     ${logo ? `<div class="logo"><img src="${logo}" alt=""></div>` : ""}
   </div>
