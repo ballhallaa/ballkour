@@ -12,6 +12,8 @@
 //                      isn't changed, so it doesn't affect which boards count as new.
 //   NO_CONGRATS=1      leave out the "Congrats …" line, so nobody is pinged: for posting boards again with new
 //                      pictures without pinging their runners a second time.
+//   NOT_NEW=1          draw the pictures without the NEW chip and green border on new runs. The "Congrats …"
+//                      line is unchanged (NO_CONGRATS leaves that out).
 
 import fs from "node:fs";
 import path from "node:path";
@@ -42,6 +44,7 @@ function forced(spec) {
 const FORCE = forced(process.env.FORCE_COURSE);
 const LEGACY = !!process.env.LEGACY;
 const NO_CONGRATS = !!process.env.NO_CONGRATS;
+const NOT_NEW = !!process.env.NOT_NEW;
 const API = "https://discord.com/api/v10";
 const { guild: GUILD, courses: COURSES } = JSON.parse(fs.readFileSync(path.join(HERE, "courses.json"), "utf8"));
 
@@ -296,7 +299,7 @@ for (const { course, list, at, isNew, legacy, channel } of jobs) {
     const base = legacy ? `${slug}-legacy` : board ? `${slug}-board-${board}` : `${slug}-empty`;
     const filename = `${base}.png`;
     const htmlFile = path.join(OUT, `${base}.html`);
-    fs.writeFileSync(htmlFile, cardHtml({ course, board, date: boardDate(runs), runs, fresh, people, logo, fonts: fontUrls, legacy }));
+    fs.writeFileSync(htmlFile, cardHtml({ course, board, date: boardDate(runs), runs, fresh: NOT_NEW ? new Set() : fresh, people, logo, fonts: fontUrls, legacy }));
     await page.goto(pathToFileURL(htmlFile).href, { waitUntil: "load" });
     await page.evaluate(() => document.fonts.ready);
     const png = await page.locator(".card").screenshot({ path: path.join(OUT, filename) });
