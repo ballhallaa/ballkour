@@ -122,31 +122,48 @@ rule "Load Run Text":
     @Event eachPlayer
     @Condition eventPlayer.isViewingRunCompletionText == true
 
-    wait(30)
+    # Stays open until Interact closes it. Interact alone does nothing else on the last CP, and
+    # the FAQ hides the text, so it can't close it unseen there.
+    waitUntil(
+        eventPlayer.isHoldingButton(Button.INTERACT) and eventPlayer.faqPage == 0,
+        Math.INFINITY
+    )
     eventPlayer.isViewingRunCompletionText = false
 
 
 rule "Run Text":
-    completionHudText[0] = _("\n\nCongrats, @0!\n")
-    hudSubheader(
+    # A size up from the lines under it, with the name in the Top-10 Time! gold. The blank
+    # lines and icons stay out of the translation, so its msgid is unchanged.
+    completionHudText[0] = _("Congrats, @0!")
+    hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
             and localPlayer.faqPage == 0
         ),
-        _(completionHudText[0]).replace("@0", localPlayer),
+        "\n\n{0} {1} {0}\n".format(
+            iconString(Icon.ASTERISK),
+            _(completionHudText[0]).replace(
+                "@0", ("<fgFFD200FF>{}</fg>").format(localPlayer)
+            )
+        ),
         HudPosition.TOP,
         1,
         Color.WHITE,
         HudReeval.VISIBILITY_AND_STRING
     )
+    # Bolt and Skull, like the time and mistakes counters on the right, and Fire for the
+    # time to beat
     completionHudText[1] = _("Time: @0")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
             and localPlayer.faqPage == 0
         ),
-        _(completionHudText[1]).replace(
-            "@0", ("<fgFFFFFFFF>{}</fg>").format(localPlayer.runFinalTimeFormatted)
+        "{} {}".format(
+            iconString(Icon.BOLT),
+            _(completionHudText[1]).replace(
+                "@0", ("<fgFFFFFFFF>{}</fg>").format(localPlayer.runFinalTimeFormatted)
+            )
         ),
         HudPosition.TOP,
         1.1,
@@ -159,8 +176,11 @@ rule "Run Text":
             lambda localPlayer: localPlayer.isViewingRunCompletionText
             and localPlayer.faqPage == 0
         ),
-        _(completionHudText[2]).replace(
-            "@0", ("<fgFFFFFFFF>{}</fg>").format(timeToBeatFormatted)
+        "{} {}".format(
+            iconString(Icon.FIRE),
+            _(completionHudText[2]).replace(
+                "@0", ("<fgFFFFFFFF>{}</fg>").format(timeToBeatFormatted)
+            )
         ),
         HudPosition.TOP,
         1.2,
@@ -173,8 +193,11 @@ rule "Run Text":
             lambda localPlayer: localPlayer.isViewingRunCompletionText
             and localPlayer.faqPage == 0
         ),
-        _(completionHudText[3]).replace(
-            "@0", ("<fgFFFFFFFF>{}</fg>").format(localPlayer.runFinalMistakes)
+        "{} {}".format(
+            iconString(Icon.SKULL),
+            _(completionHudText[3]).replace(
+                "@0", ("<fgFFFFFFFF>{}</fg>").format(localPlayer.runFinalMistakes)
+            )
         ),
         HudPosition.TOP,
         1.3,
@@ -233,6 +256,20 @@ rule "Run Text":
         HudPosition.TOP,
         1.4,
         Color.WHITE,
+        HudReeval.VISIBILITY_AND_STRING
+    )
+    # Reuses the FAQ's close line, so its translations are only stored once
+    hudSubheader(
+        getAllPlayers().filter(
+            lambda localPlayer: localPlayer.isViewingRunCompletionText
+            and localPlayer.faqPage == 0
+        ),
+        "\n\n{}".format(
+            _(faqHudText[26]).replace("@0", inputBindingString(Button.INTERACT))
+        ),
+        HudPosition.TOP,
+        1.5,
+        rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
 
