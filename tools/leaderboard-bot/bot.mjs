@@ -201,8 +201,8 @@ function message(course, runs, fresh) {
   lines.push(`-# Watch every run: [ballkour.com/leaderboards](${boardUrl(course)})`);
   return { content: lines.join("\n"), users };
 }
-// A legacy board: nobody is new on it, so it only points to it on the website
-const legacyMessage = (course) => ({ content: `-# Also on [ballkour.com/leaderboards](${boardUrl(course)}), under Legacy`, users: [] });
+// A legacy board: nobody is new on it, so it's posted as just the picture, with no text
+const legacyMessage = () => ({ content: "", users: [] });
 // A course with no runs yet: no congrats, no pings, and an invitation instead of the link to watch runs
 const emptyMessage = () => ({ content: "No times yet. Be the first to set one!", users: [] });
 // Text for screen readers (Discord's image description)
@@ -288,7 +288,7 @@ for (const { course, list, at, isNew, legacy, channel } of jobs) {
     await page.goto(pathToFileURL(htmlFile).href, { waitUntil: "load" });
     await page.evaluate(() => document.fonts.ready);
     const png = await page.locator(".card").screenshot({ path: path.join(OUT, filename) });
-    const { content, users } = legacy ? legacyMessage(course) : runs.length ? message(course, runs, fresh) : emptyMessage();
+    const { content, users } = legacy ? legacyMessage() : runs.length ? message(course, runs, fresh) : emptyMessage();
     fs.writeFileSync(path.join(OUT, `${base}.txt`), content + "\n");
     console.log(`\n${label}\n${content}`);
     if (DRY) continue;
