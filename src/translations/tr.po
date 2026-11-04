@@ -14,6 +14,10 @@ msgid "{0} | FREEMODE"
 msgstr "{0} | SERBEST MOD"
 
 #. file completion.opy, rule "Run Text"
+msgid "Congrats, @0!"
+msgstr "Tebrikler, @0!"
+
+#. file completion.opy, rule "Run Text"
 msgid "Time: @0"
 msgstr "Süre: @0"
 
@@ -50,10 +54,6 @@ msgstr ""
 "CP atlandı veya serbest mod kullanıldı</fg>\n"
 "\n"
 "<fgFFFFFFFF>           Oynadığın için teşekkürler!</fg>"
-
-#. file completion.opy, rule "Run Text"
-msgid "Congrats, @0!"
-msgstr "Tebrikler, @0!"
 
 #. file controls.opy, rule "Load Freemode HUD"
 msgid "Freemode On"
@@ -275,17 +275,19 @@ msgstr "Denemeler: @0"
 msgid "Attempts: @0"
 msgstr "Girişimler: @0"
 
+#. 2 occurrences:
+#.  - file run.opy, rule "Load HUD"
+#.  - file run.opy, rule "Load HUD"
+msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "Skorlar: <fgFFFFFFFF>@0 + @1</fg>"
+
 #. file run.opy, rule "Load HUD"
-msgid "Hide Scores: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "Skorları gizle: <fgFFFFFFFF>@0 + @1</fg>"
+msgid "All-Time Top 3"
+msgstr "Tüm Zamanların İlk 3'ü"
 
 #. file run.opy, rule "Load HUD"
 msgid "Lobby Top 3"
 msgstr "Lobi İlk 3"
-
-#. file run.opy, rule "Load HUD"
-msgid "Show Scores: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "Skorları göster: <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file run.opy, rule "Load HUD"
 msgid "Disqualified"

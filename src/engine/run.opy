@@ -35,17 +35,23 @@ macro scorecardHasRows(player):
     len(scorecardRunners.exclude(player)) > 0
 
 
-# The lines of the scorecard's text under its 2 blank ones: the icons and rows, the Lobby
-# Top 3's title and rows with a blank line between them, and Hide Scores
+# How many runs the All-Time Top 3 lists: up to the leaderboard's first 3
+macro allTimeRuns = min(lbRunCount, 3)
+
+
+# Whether the scorecard shows at all: while any of its Top 3s or rows do
+macro scorecardHasLines(player):
+    (allTimeRuns > 0 or len(topRuns) > 0 or scorecardHasRows(player))
+
+
+# The lines of the scorecard's text under its 2 blank ones: the All-Time Top 3's title and
+# rows, the Lobby Top 3's and the icons and rows, each with a blank line above it but the
+# first, and Hide Scores
 macro scorecardLines(player):
     (
-        (scorecardRows + 1 if scorecardHasRows(player) else 0)
-        + (
-            len(topRuns) + (2 if scorecardHasRows(player) else 1)
-            if len(topRuns) > 0
-            else 0
-        )
-        + 1
+        (allTimeRuns + 2 if allTimeRuns > 0 else 0)
+        + (len(topRuns) + 2 if len(topRuns) > 0 else 0)
+        + (scorecardRows + 2 if scorecardHasRows(player) else 0)
     )
 
 
@@ -225,27 +231,28 @@ rule "Load HUD":
         rgb(255, 70, 70),
         HudReeval.VISIBILITY_AND_STRING
     )
-    # Under Hints. Its rows are left out when the only runner
-    # listed is the player, as their run is on the right, but its line stays while there's a
-    # Top 3 for it to hide.
-    # The Lobby Top 3 goes above the rows, in the same HUD text so they all left-align. At
-    # most 3 rows long, it stays put as runners come and go below it.
-    scorecardHudText[0] = _("Hide Scores: <fgFFFFFFFF>@0 + @1</fg>")
-    scorecardHudText[1] = _("\nShow Scores: <fgFFFFFFFF>@0 + @1</fg>")
+    # Under Hints. Its rows are left out when the only runner listed is the player, as their
+    # run is on the right, but its line stays while there's a Top 3 for it to hide.
+    # The All-Time Top 3, then the Lobby Top 3, go above the rows, in the same HUD text so
+    # they all left-align. At most 3 rows long each, they stay put as runners come and go
+    # below them.
+    scorecardHudText[0] = _("Scores: <fgFFFFFFFF>@0 + @1</fg>")
+    scorecardHudText[1] = _("\nScores: <fgFFFFFFFF>@0 + @1</fg>")
+    allTimeRunsHudText = _("All-Time Top 3")
     topRunsHudText = _("Lobby Top 3")
     # The rows stay out of the String Replace, which cuts off long strings, and they're too long for it
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: controlsVisible(
                 not localPlayer.isScorecardHidden
-                and (scorecardHasRows(localPlayer) or len(topRuns) > 0)
+                and scorecardHasLines(localPlayer)
                 and localPlayer.faqPage == 0
             )
         ),
-        "{}{}{}{}".format(
+        "{}{}{}{}{}".format(
             # Alone on the left in the lobby, it's centered a third of the way down the
             # screen, on the 13th of its 24px lines. It still starts clear of the player's
-            # name, from the 6th, as its icons stand taller than a line.
+            # name, from the 6th.
             (
                 "\n\n\n\n\n\n\n\n\n\n".substring(
                     0, max(3, round(10.8 - scorecardLines(localPlayer) / 2))
@@ -254,16 +261,18 @@ rule "Load HUD":
                 else ""
             ),
             (
+                "\n\n{}{}".format(_(allTimeRunsHudText), allTimeRunsText)
+                if allTimeRuns > 0
+                else ""
+            ),
+            # A blank line between it and the All-Time Top 3
+            (
                 "\n\n{}{}".format(_(topRunsHudText), topRunsText)
                 if len(topRuns) > 0
                 else ""
             ),
-            # The rows' own 2 blank lines leave 1 between them and the Top 3
-            (
-                "{}\n".format(scorecard)
-                if scorecardHasRows(localPlayer)
-                else ("\n" if len(topRuns) > 0 else "")
-            ),
+            # The rows' own 2 blank lines leave 1 between them and the Top 3s
+            ("{}\n".format(scorecard) if scorecardHasRows(localPlayer) else "\n"),
             _(scorecardHudText[0])
             .replace("@0", inputBindingString(Button.ULTIMATE))
             .replace("@1", inputBindingString(Button.CROUCH))
@@ -273,11 +282,12 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    hudSubtext(
+    # A subheader, the same size as the Scores line it stands in for
+    hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: controlsVisible(
                 localPlayer.isScorecardHidden
-                and (scorecardHasRows(localPlayer) or len(topRuns) > 0)
+                and scorecardHasLines(localPlayer)
                 and localPlayer.faqPage == 0
             )
         ),

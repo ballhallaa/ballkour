@@ -14,6 +14,10 @@ msgid "{0} | FREEMODE"
 msgstr "{0} | 自由模式"
 
 #. file completion.opy, rule "Run Text"
+msgid "Congrats, @0!"
+msgstr "恭喜，@0！"
+
+#. file completion.opy, rule "Run Text"
 msgid "Time: @0"
 msgstr "用时：@0"
 
@@ -50,10 +54,6 @@ msgstr ""
 "跳过了CP或使用了自由模式</fg>\n"
 "\n"
 "<fgFFFFFFFF>             感谢游玩！</fg>"
-
-#. file completion.opy, rule "Run Text"
-msgid "Congrats, @0!"
-msgstr "恭喜，@0！"
 
 #. file controls.opy, rule "Load Freemode HUD"
 msgid "Freemode On"
@@ -275,17 +275,19 @@ msgstr "游戏次数：@0"
 msgid "Attempts: @0"
 msgstr "尝试次数：@0"
 
+#. 2 occurrences:
+#.  - file run.opy, rule "Load HUD"
+#.  - file run.opy, rule "Load HUD"
+msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "成绩: <fgFFFFFFFF>@0 + @1</fg>"
+
 #. file run.opy, rule "Load HUD"
-msgid "Hide Scores: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "隐藏成绩: <fgFFFFFFFF>@0 + @1</fg>"
+msgid "All-Time Top 3"
+msgstr "历史前三名"
 
 #. file run.opy, rule "Load HUD"
 msgid "Lobby Top 3"
 msgstr "大厅前三名"
-
-#. file run.opy, rule "Load HUD"
-msgid "Show Scores: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "显示成绩: <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file run.opy, rule "Load HUD"
 msgid "Disqualified"

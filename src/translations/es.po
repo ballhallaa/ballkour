@@ -14,6 +14,10 @@ msgid "{0} | FREEMODE"
 msgstr "{0} | MODO LIBRE"
 
 #. file completion.opy, rule "Run Text"
+msgid "Congrats, @0!"
+msgstr "¡Felicidades, @0!"
+
+#. file completion.opy, rule "Run Text"
 msgid "Time: @0"
 msgstr "Tiempo: @0"
 
@@ -50,10 +54,6 @@ msgstr ""
 "CP saltados o modo libre usado</fg>\n"
 "\n"
 "<fgFFFFFFFF>            ¡Gracias por jugar!</fg>"
-
-#. file completion.opy, rule "Run Text"
-msgid "Congrats, @0!"
-msgstr "¡Felicidades, @0!"
 
 #. file controls.opy, rule "Load Freemode HUD"
 msgid "Freemode On"
@@ -275,17 +275,19 @@ msgstr "Partidas: @0"
 msgid "Attempts: @0"
 msgstr "Intentos: @0"
 
+#. 2 occurrences:
+#.  - file run.opy, rule "Load HUD"
+#.  - file run.opy, rule "Load HUD"
+msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "Marcador: <fgFFFFFFFF>@0 + @1</fg>"
+
 #. file run.opy, rule "Load HUD"
-msgid "Hide Scores: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "Ocultar marcador: <fgFFFFFFFF>@0 + @1</fg>"
+msgid "All-Time Top 3"
+msgstr "Top 3 histórico"
 
 #. file run.opy, rule "Load HUD"
 msgid "Lobby Top 3"
 msgstr "Top 3 del lobby"
-
-#. file run.opy, rule "Load HUD"
-msgid "Show Scores: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "Mostrar marcador: <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file run.opy, rule "Load HUD"
 msgid "Disqualified"

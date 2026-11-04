@@ -14,6 +14,10 @@ msgid "{0} | FREEMODE"
 msgstr "{0} | СВОБОДНЫЙ РЕЖИМ"
 
 #. file completion.opy, rule "Run Text"
+msgid "Congrats, @0!"
+msgstr "Поздравляем, @0!"
+
+#. file completion.opy, rule "Run Text"
 msgid "Time: @0"
 msgstr "Время: @0"
 
@@ -50,10 +54,6 @@ msgstr ""
 "Пропущены CP или свободный режим</fg>\n"
 "\n"
 "<fgFFFFFFFF>                   Спасибо за игру!</fg>"
-
-#. file completion.opy, rule "Run Text"
-msgid "Congrats, @0!"
-msgstr "Поздравляем, @0!"
 
 #. file controls.opy, rule "Load Freemode HUD"
 msgid "Freemode On"
@@ -275,17 +275,19 @@ msgstr "Забеги: @0"
 msgid "Attempts: @0"
 msgstr "Попытки: @0"
 
+#. 2 occurrences:
+#.  - file run.opy, rule "Load HUD"
+#.  - file run.opy, rule "Load HUD"
+msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "Результаты: <fgFFFFFFFF>@0 + @1</fg>"
+
 #. file run.opy, rule "Load HUD"
-msgid "Hide Scores: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "Скрыть результаты: <fgFFFFFFFF>@0 + @1</fg>"
+msgid "All-Time Top 3"
+msgstr "Топ-3 за всё время"
 
 #. file run.opy, rule "Load HUD"
 msgid "Lobby Top 3"
 msgstr "Топ-3 лобби"
-
-#. file run.opy, rule "Load HUD"
-msgid "Show Scores: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "Показать результаты: <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file run.opy, rule "Load HUD"
 msgid "Disqualified"

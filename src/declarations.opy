@@ -67,6 +67,7 @@ globalvar scorecardTime
 globalvar topRuns = []
 globalvar topRunsScratch
 globalvar topRunsText
+globalvar allTimeRunsText
 
 # Spectating
 globalvar playerToEnableFreecam
@@ -88,6 +89,7 @@ globalvar spectatorHudText = []
 globalvar completionHudText = []
 globalvar scorecardHudText = []
 globalvar topRunsHudText
+globalvar allTimeRunsHudText
 globalvar lobbyHudText = []
 globalvar faqHudText = []
 
