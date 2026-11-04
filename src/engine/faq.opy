@@ -249,7 +249,7 @@ rule "Load HUD":
         "\n\n<fg80D0FFFF>What do the hint colors mean?</fg>"
         "\n<fgCB87FFFF>Movement</fg>   <fgFFFFFFFF>Jump</fg>   <fgFFD200FF>Grapple</fg>   <fgFF4646FF>Piledrive</fg>   <fg00BEFFFF>Shield Bounce</fg>"
         "\nHints turn on by themselves after 10 mistakes on one checkpoint,"
-        "\nand off again when you move on to another."
+        "\nand off again when you move on to another, until you turn them off yourself."
     )
     faqHudText[15] = (
         "\n\n<fg80D0FFFF>How do I get on the leaderboard?</fg>"

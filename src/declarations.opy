@@ -163,6 +163,7 @@ playervar paceSplitClears
 # Hint Playback
 playervar isHintOn
 playervar isHintAutoOn
+playervar isHintAutoOff
 playervar isHintPlaying
 playervar hintPlayCp
 playervar hintKeyframes

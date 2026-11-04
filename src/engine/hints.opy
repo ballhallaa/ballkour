@@ -74,8 +74,9 @@ rule "Load Objects":
 rule "Enable After Mistakes":
     @Event eachPlayer
     # Hints start off and turn on after 10 mistakes on one CP, until the player moves to another
-    # CP. Turning them off again sticks until then, since this only fires when the count reaches 10
+    # CP. Once the player turns them off by hand, they never turn on by themselves again
     @Condition eventPlayer.runMistakes - eventPlayer.cpStartMistakes >= 10
+    @Condition eventPlayer.isHintAutoOff == false
 
     # Hints the player turned on stay on when the CP changes
     if not eventPlayer.isHintOn:
