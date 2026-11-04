@@ -6,6 +6,8 @@
 #   gh workflow run leaderboard-bot.yml --ref develop -f dry_run=false -f legacy=true
 # With no_congrats, boards go out without the "Congrats …" line, so nobody is pinged again for a board they're already on:
 #   gh workflow run leaderboard-bot.yml --ref develop -f dry_run=false -f course=all -f no_congrats=true
+# With not_new, the pictures have no NEW chip or green border on new runs (add no_congrats to also skip the pings):
+#   gh workflow run leaderboard-bot.yml --ref develop -f dry_run=false -f course=all -f no_congrats=true -f not_new=true
 name: Leaderboard bot
 
 on:
@@ -30,6 +32,10 @@ on:
         default: false
       no_congrats:
         description: "Leave out the \"Congrats …\" line, so nobody is pinged"
+        type: boolean
+        default: false
+      not_new:
+        description: "Draw the pictures without the NEW chip and green border on new runs"
         type: boolean
         default: false
 
@@ -75,6 +81,7 @@ jobs:
           FORCE_COURSE: ${{ inputs.course }}
           LEGACY: ${{ inputs.legacy && '1' || '' }}
           NO_CONGRATS: ${{ inputs.no_congrats && '1' || '' }}
+          NOT_NEW: ${{ inputs.not_new && '1' || '' }}
         run: node bot.mjs
 
       - name: Keep the pictures
