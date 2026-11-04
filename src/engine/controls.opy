@@ -65,6 +65,18 @@ rule "HUD Input":
         eventPlayer.allowButton(Button.ABILITY_2)
 
 
+# Whether Reset CP and Freemode work: on the course, before the last CP. Their lines are
+# grayed out otherwise.
+macro canUseCpControls(player):
+    (not player.spectating[0] and player.runCurrentCp < lastCp)
+
+
+# Whether the hint toggle works: before the last CP, on a course with hints. Its lines are
+# grayed out otherwise.
+macro canToggleHints(player):
+    (player.viewCp < lastCp and len(hintRoutes) > 0)
+
+
 rule "Load HUD":
     # At the top, under a blank line of its own. Each line is its own HUD text, centered on
     # its own, which the padding keeps lined up.
@@ -116,19 +128,17 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    ctrlsHudText[2] = _(
-        "Reset CP:                               <fgFFFFFFFF>@0 (Hold)</fg>"
-    )
+    ctrlsHudText[2] = _("@0Reset CP:                               @1@2 (Hold)</fg>")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: controlsVisible(
-                isViewingCtrlsList(localPlayer)
-                and not localPlayer.spectating[0]
-                and localPlayer.runCurrentCp < lastCp
-                and localPlayer.faqPage == 0
+                isViewingCtrlsList(localPlayer) and localPlayer.faqPage == 0
             )
         ),
-        _(ctrlsHudText[2]).replace("@0", inputBindingString(Button.RELOAD)),
+        _(ctrlsHudText[2])
+        .replace("@0", "" if canUseCpControls(localPlayer) else "<fg808080FF>")
+        .replace("@1", "<fgFFFFFFFF>" if canUseCpControls(localPlayer) else "")
+        .replace("@2", inputBindingString(Button.RELOAD)),
         HudPosition.TOP,
         4.03,
         rgb(230, 151, 0),
@@ -149,49 +159,43 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    ctrlsHudText[4] = _(
-        "Freemode:                                <fgFFFFFFFF>@0 + @1</fg>"
-    )
+    ctrlsHudText[4] = _("@0Freemode:                                @1@2 + @3</fg>")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: controlsVisible(
-                isViewingCtrlsList(localPlayer)
-                and not localPlayer.spectating[0]
-                and localPlayer.runCurrentCp < lastCp
-                and localPlayer.faqPage == 0
+                isViewingCtrlsList(localPlayer) and localPlayer.faqPage == 0
             )
         ),
         _(ctrlsHudText[4])
-        .replace("@0", inputBindingString(Button.ULTIMATE))
-        .replace("@1", inputBindingString(Button.INTERACT)),
+        .replace("@0", "" if canUseCpControls(localPlayer) else "<fg808080FF>")
+        .replace("@1", "<fgFFFFFFFF>" if canUseCpControls(localPlayer) else "")
+        .replace("@2", inputBindingString(Button.ULTIMATE))
+        .replace("@3", inputBindingString(Button.INTERACT)),
         HudPosition.TOP,
         4.05,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    ctrlsHudText[5] = _(
-        "Disable Hints:                          <fgFFFFFFFF>@0 + @1</fg>"
-    )
-    ctrlsHudText[6] = _(
-        "Enable Hints:                           <fgFFFFFFFF>@0 + @1</fg>"
-    )
+    ctrlsHudText[5] = _("@0Disable Hints:                          @1@2 + @3</fg>")
+    ctrlsHudText[6] = _("@0Enable Hints:                           @1@2 + @3</fg>")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: controlsVisible(
-                isViewingCtrlsList(localPlayer)
-                and localPlayer.viewCp < lastCp
-                and len(hintRoutes) > 0
-                and localPlayer.faqPage == 0
+                isViewingCtrlsList(localPlayer) and localPlayer.faqPage == 0
             )
         ),
         (
             _(ctrlsHudText[5])
-            .replace("@0", inputBindingString(Button.ULTIMATE))
-            .replace("@1", inputBindingString(Button.ABILITY_2))
+            .replace("@0", "" if canToggleHints(localPlayer) else "<fg808080FF>")
+            .replace("@1", "<fgFFFFFFFF>" if canToggleHints(localPlayer) else "")
+            .replace("@2", inputBindingString(Button.ULTIMATE))
+            .replace("@3", inputBindingString(Button.ABILITY_2))
             if allControlsOr(localPlayer.isHintOn)
             else _(ctrlsHudText[6])
-            .replace("@0", inputBindingString(Button.ULTIMATE))
-            .replace("@1", inputBindingString(Button.ABILITY_2))
+            .replace("@0", "" if canToggleHints(localPlayer) else "<fg808080FF>")
+            .replace("@1", "<fgFFFFFFFF>" if canToggleHints(localPlayer) else "")
+            .replace("@2", inputBindingString(Button.ULTIMATE))
+            .replace("@3", inputBindingString(Button.ABILITY_2))
         ),
         HudPosition.TOP,
         4.06,
@@ -203,8 +207,10 @@ rule "Load HUD":
         hudSubheader(
             getAllPlayers().filter(lambda localPlayer: localPlayer.faqPage == 0),
             _(ctrlsHudText[6])
-            .replace("@0", inputBindingString(Button.ULTIMATE))
-            .replace("@1", inputBindingString(Button.ABILITY_2)),
+            .replace("@0", "" if canToggleHints(localPlayer) else "<fg808080FF>")
+            .replace("@1", "<fgFFFFFFFF>" if canToggleHints(localPlayer) else "")
+            .replace("@2", inputBindingString(Button.ULTIMATE))
+            .replace("@3", inputBindingString(Button.ABILITY_2)),
             HudPosition.TOP,
             4.07,
             rgb(230, 151, 0),
@@ -305,38 +311,53 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    ctrlsHudText[11] = _("Reattach:                          <fgFFFFFFFF>@0 + @1</fg>")
+    ctrlsHudText[11] = _("@0Reattach:                          @1@2 + @3</fg>")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: controlsVisible(
                 isViewingCtrlsList(localPlayer)
                 and localPlayer.spectating[0]
-                and localPlayer.spectating[1] != null
-                and localPlayer.spectating[2]
                 and localPlayer.faqPage == 0
             )
         ),
         _(ctrlsHudText[11])
-        .replace("@0", inputBindingString(Button.ABILITY_1))
-        .replace("@1", inputBindingString(Button.RELOAD)),
+        .replace(
+            "@0",
+            (
+                ""
+                if localPlayer.spectating[1] != null and localPlayer.spectating[2]
+                else "<fg808080FF>"
+            )
+        )
+        .replace(
+            "@1",
+            (
+                "<fgFFFFFFFF>"
+                if localPlayer.spectating[1] != null and localPlayer.spectating[2]
+                else ""
+            )
+        )
+        .replace("@2", inputBindingString(Button.ABILITY_1))
+        .replace("@3", inputBindingString(Button.RELOAD)),
         HudPosition.TOP,
         4.13,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    ctrlsHudText[12] = _("First Person:                   <fgFFFFFFFF>@0 + @1</fg>")
+    ctrlsHudText[12] = _("@0First Person:                   @1@2 + @3</fg>")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: controlsVisible(
                 isViewingCtrlsList(localPlayer)
                 and localPlayer.spectating[0]
-                and localPlayer.spectating[1] != null
                 and localPlayer.faqPage == 0
             )
         ),
         _(ctrlsHudText[12])
-        .replace("@0", inputBindingString(Button.ABILITY_1))
-        .replace("@1", inputBindingString(Button.INTERACT)),
+        .replace("@0", "" if localPlayer.spectating[1] != null else "<fg808080FF>")
+        .replace("@1", "<fgFFFFFFFF>" if localPlayer.spectating[1] != null else "")
+        .replace("@2", inputBindingString(Button.ABILITY_1))
+        .replace("@3", inputBindingString(Button.INTERACT)),
         HudPosition.TOP,
         4.14,
         rgb(230, 151, 0),
@@ -788,27 +809,28 @@ rule "FAQ Input":
 
 
 rule "Load Hints HUD":
-    # Under FAQ at the top left, which leaves a blank line when it's hidden (FAQ: Load HUD).
-    # While hints are off, the same spot shows how to turn them on
-    hintsHudText[0] = _("Hints: <fgFFFFFFFF>@0 + @1</fg>")
+    # Under FAQ at the top left. While hints are off, or can't be turned on (grayed out), the
+    # same spot shows how to turn them on
+    hintsHudText[0] = _("@0Hints: @1@2 + @3</fg>")
     # The colors are explained in the FAQ
     hintsHudText[1] = _("Hints On")
     hintsHudText[2] = _("No Hint For This CP")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: controlsVisible(
-                not localPlayer.isInLobby
-                and localPlayer.viewCp < lastCp
-                and len(hintRoutes) > 0
-                and localPlayer.faqPage == 0
+                not localPlayer.isInLobby and localPlayer.faqPage == 0
             )
         ),
         (
             (
                 _(hintsHudText[0])
-                .replace("@0", inputBindingString(Button.ULTIMATE))
-                .replace("@1", inputBindingString(Button.ABILITY_2))
-                if allControlsOr(not localPlayer.isHintOn)
+                .replace("@0", "" if canToggleHints(localPlayer) else "<fg808080FF>")
+                .replace("@1", "<fgFFFFFFFF>" if canToggleHints(localPlayer) else "")
+                .replace("@2", inputBindingString(Button.ULTIMATE))
+                .replace("@3", inputBindingString(Button.ABILITY_2))
+                if allControlsOr(
+                    not localPlayer.isHintOn or not canToggleHints(localPlayer)
+                )
                 else (
                     _(hintsHudText[1])
                     if len(hintRoutes[localPlayer.viewCp]) > 1
