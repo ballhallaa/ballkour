@@ -64,10 +64,6 @@ msgid "@0Hints: @1@2 + @3</fg>"
 msgstr "@0Indices : @1@2 + @3</fg>"
 
 #. file controls.opy, rule "Load Hints HUD"
-msgid "Hints On"
-msgstr "Indices activés"
-
-#. file controls.opy, rule "Load Hints HUD"
 msgid "No Hint For This CP"
 msgstr "Pas d'indice pour ce CP"
 

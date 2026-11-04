@@ -64,10 +64,6 @@ msgid "@0Hints: @1@2 + @3</fg>"
 msgstr "@0힌트: @1@2 + @3</fg>"
 
 #. file controls.opy, rule "Load Hints HUD"
-msgid "Hints On"
-msgstr "힌트 켜짐"
-
-#. file controls.opy, rule "Load Hints HUD"
 msgid "No Hint For This CP"
 msgstr "이 CP에는 힌트가 없습니다"
 

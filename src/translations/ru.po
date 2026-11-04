@@ -64,10 +64,6 @@ msgid "@0Hints: @1@2 + @3</fg>"
 msgstr "@0Подсказки: @1@2 + @3</fg>"
 
 #. file controls.opy, rule "Load Hints HUD"
-msgid "Hints On"
-msgstr "Подсказки включены"
-
-#. file controls.opy, rule "Load Hints HUD"
 msgid "No Hint For This CP"
 msgstr "Нет подсказки для этого CP"
 
