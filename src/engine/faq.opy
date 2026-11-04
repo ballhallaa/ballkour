@@ -149,28 +149,16 @@ rule "Open":
 
 
 rule "Load HUD":
-    # Under Controls at the top left, and left out of the lobby like it. Without the Hints
-    # line under it, it takes a blank line in its place, so the next line doesn't land on
-    # the player's name.
+    # Under Controls at the top left, and left out of the lobby like it, with the Hints line
+    # under it
     faqHudText[0] = _("FAQ: <fgFFFFFFFF>@0 + @1</fg>")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: not localPlayer.isInLobby and localPlayer.faqPage == 0
         ),
-        "{}{}".format(
-            _(faqHudText[0])
-            .replace("@0", inputBindingString(Button.ULTIMATE))
-            .replace("@1", inputBindingString(Button.MELEE)),
-            (
-                ""
-                if controlsVisible(
-                    not localPlayer.isInLobby
-                    and localPlayer.viewCp < lastCp
-                    and len(hintRoutes) > 0
-                )
-                else "\n"
-            )
-        ),
+        _(faqHudText[0])
+        .replace("@0", inputBindingString(Button.ULTIMATE))
+        .replace("@1", inputBindingString(Button.MELEE)),
         HudPosition.LEFT,
         0.1,
         rgb(230, 151, 0),
