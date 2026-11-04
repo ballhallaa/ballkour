@@ -214,7 +214,7 @@ const legacyMessage = () => ({ content: "", users: [] });
 // line of the note needs its own "-#", since Discord's subtext only covers the line it starts.
 const emptyMessage = (course) => ({
   content: course.broken
-    ? "No times yet. ~~Be the first to set one!~~\n-# This course's route no longer works due to Overwatch's map updates.\n-# No new times can be set for now."
+    ? "No times yet. ~~Be the first to set one!~~\n-# This course no longer works due to Overwatch's map updates.\n-# No new times can be set for now."
     : "No times yet. Be the first to set one!",
   users: [],
 });
