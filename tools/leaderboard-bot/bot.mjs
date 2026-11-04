@@ -213,7 +213,7 @@ const legacyMessage = () => ({ content: "", users: [] });
 // course's code is broken nobody can take up the invitation, so it's struck through with a note saying why.
 const emptyMessage = (course) => ({
   content: course.broken
-    ? "~~No times yet. Be the first to set one!~~\n-# Until this course works again, this leaderboard will not be updated"
+    ? "No times yet. ~~Be the first to set one!~~\n-# Until this course works again, this leaderboard will not be updated"
     : "No times yet. Be the first to set one!",
   users: [],
 });
