@@ -7,6 +7,9 @@
 //   DRY_RUN=1          draw the pictures into out/ and print the messages, but don't post or change history.json
 //   FORCE_COURSE=…     post these courses' newest boards again, even if they haven't changed: a course number (3),
 //                      a list (3,5,7), a range (3-12), or all. A course with no runs yet posts an empty top 10.
+//   LEGACY=1           post the legacy boards (the runs from before May 2026 in history.json) to each course's
+//                      legacyChannel instead: all of them, or only FORCE_COURSE's. No pings, and history.json
+//                      isn't changed, so it doesn't affect which boards count as new.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -35,6 +38,7 @@ function forced(spec) {
   return ns;
 }
 const FORCE = forced(process.env.FORCE_COURSE);
+const LEGACY = !!process.env.LEGACY;
 const API = "https://discord.com/api/v10";
 const { guild: GUILD, courses: COURSES } = JSON.parse(fs.readFileSync(path.join(HERE, "courses.json"), "utf8"));
 
@@ -197,11 +201,13 @@ function message(course, runs, fresh) {
   lines.push(`-# Watch every run: [ballkour.com/leaderboards](${boardUrl(course)})`);
   return { content: lines.join("\n"), users };
 }
+// A legacy board: nobody is new on it, so it only points to it on the website
+const legacyMessage = (course) => ({ content: `-# Also on [ballkour.com/leaderboards](${boardUrl(course)}), under Legacy`, users: [] });
 // A course with no runs yet: no congrats, no pings, and an invitation instead of the link to watch runs
 const emptyMessage = () => ({ content: "No times yet. Be the first to set one!", users: [] });
 // Text for screen readers (Discord's image description)
-const altText = (course, board, runs) => runs.length
-  ? `${course.name} top 10, board ${board}: ` + runs.map((r, i) => `${i + 1}. ${r.name} ${r.time}, ${r.mistakes} mistakes`).join("; ")
+const altText = (course, board, runs, legacy) => runs.length
+  ? `${course.name} ${legacy ? "legacy top 10, before May 2026" : `top 10, board ${board}`}: ` + runs.map((r, i) => `${i + 1}. ${r.name} ${r.time}, ${r.mistakes} mistakes`).join("; ")
   : `${course.name} top 10: no times yet`;
 
 /* ---------- Fonts and logo for the picture ---------- */
@@ -224,23 +230,33 @@ function fonts() {
 /* ---------- Main ---------- */
 const history = JSON.parse(fs.readFileSync(HISTORY, "utf8"));
 const jobs = [];
-for (const course of COURSES) {
+for (const course of LEGACY ? COURSES : []) {
+  const runs = history[course.n] && Array.isArray(history[course.n].legacy) ? history[course.n].legacy : [];
+  if (!runs.length || (FORCE && FORCE !== "all" && !FORCE.has(course.n))) continue;
+  if (!course.legacyChannel) {
+    console.warn(`${course.n} ${course.name} has a legacy board but no legacyChannel in courses.json, so it's skipped`);
+    continue;
+  }
+  jobs.push({ course, list: [runs], at: 0, isNew: false, legacy: true, channel: course.legacyChannel });
+}
+for (const course of LEGACY ? [] : COURSES) {
   const archived = (history[course.n] && Array.isArray(history[course.n].boards)) ? history[course.n].boards : [];
   const live = liveBoard(course);
   if (FORCE) {
     if (FORCE !== "all" && !FORCE.has(course.n)) continue;
     // The newest posted board, or the live one if none was posted yet, or an empty board if there are no runs
     const list = archived.length ? archived : live && live.length ? [live] : [[]];
-    jobs.push({ course, list, at: list.length - 1, isNew: false });
+    jobs.push({ course, list, at: list.length - 1, isNew: false, channel: course.channel });
     continue;
   }
   if (!live || !live.length) continue;
   if (archived.length && sameBoard(live, archived[archived.length - 1])) continue;
-  jobs.push({ course, list: [...archived, live], at: archived.length, isNew: true });
+  jobs.push({ course, list: [...archived, live], at: archived.length, isNew: true, channel: course.channel });
 }
 if (!jobs.length) {
-  console.log(FORCE ? "None of those course numbers exist." : "No leaderboard changed since the last posted board.");
-  process.exit(FORCE ? 1 : 0);
+  console.log(LEGACY ? "None of those courses have a legacy board to post."
+    : FORCE ? "None of those course numbers exist." : "No leaderboard changed since the last posted board.");
+  process.exit(FORCE || LEGACY ? 1 : 0);
 }
 
 fs.mkdirSync(OUT, { recursive: true });
@@ -252,11 +268,12 @@ const channelTypes = new Map();
 const archivedNow = [];
 let failed = false;
 
-for (const { course, list, at, isNew } of jobs) {
+for (const { course, list, at, isNew, legacy, channel } of jobs) {
   const runs = list[at];
-  const board = runs.length ? at + 1 : 0; // 0: no runs yet, so no board number
-  const fresh = freshRuns(runs, at > 0 ? list[at - 1] : []);
-  const label = board ? `${course.n} ${course.name}, board ${board}` : `${course.n} ${course.name}, no runs yet`;
+  const board = runs.length && !legacy ? at + 1 : 0; // 0: no runs yet or a legacy board, so no board number
+  const fresh = legacy ? new Set() : freshRuns(runs, at > 0 ? list[at - 1] : []);
+  const label = legacy ? `${course.n} ${course.name}, legacy board`
+    : board ? `${course.n} ${course.name}, board ${board}` : `${course.n} ${course.name}, no runs yet`;
   try {
     const people = new Map();
     for (const r of runs) {
@@ -264,14 +281,14 @@ for (const { course, list, at, isNew } of jobs) {
       if (who) people.set(r, who);
     }
     const slug = path.basename(course.file).replace(/\.[^.]+$/, "").normalize("NFD").replace(/[^\w-]+/g, "");
-    const base = board ? `${slug}-board-${board}` : `${slug}-empty`;
+    const base = legacy ? `${slug}-legacy` : board ? `${slug}-board-${board}` : `${slug}-empty`;
     const filename = `${base}.png`;
     const htmlFile = path.join(OUT, `${base}.html`);
-    fs.writeFileSync(htmlFile, cardHtml({ course, board, date: boardDate(runs), runs, fresh, people, logo, fonts: fontUrls }));
+    fs.writeFileSync(htmlFile, cardHtml({ course, board, date: boardDate(runs), runs, fresh, people, logo, fonts: fontUrls, legacy }));
     await page.goto(pathToFileURL(htmlFile).href, { waitUntil: "load" });
     await page.evaluate(() => document.fonts.ready);
     const png = await page.locator(".card").screenshot({ path: path.join(OUT, filename) });
-    const { content, users } = runs.length ? message(course, runs, fresh) : emptyMessage();
+    const { content, users } = legacy ? legacyMessage(course) : runs.length ? message(course, runs, fresh) : emptyMessage();
     fs.writeFileSync(path.join(OUT, `${base}.txt`), content + "\n");
     console.log(`\n${label}\n${content}`);
     if (DRY) continue;
@@ -280,17 +297,17 @@ for (const { course, list, at, isNew } of jobs) {
     form.append("payload_json", JSON.stringify({
       content,
       allowed_mentions: { parse: [], users }, // ping only the new runners
-      attachments: [{ id: 0, filename, description: altText(course, board, runs).slice(0, 1024) }],
+      attachments: [{ id: 0, filename, description: altText(course, board, runs, legacy).slice(0, 1024) }],
       flags: 4, // no link previews
     }));
     form.append("files[0]", new Blob([png], { type: "image/png" }), filename);
-    const posted = await api("POST", `/channels/${course.channel}/messages`, form);
+    const posted = await api("POST", `/channels/${channel}/messages`, form);
     console.log(`Posted ${label}`);
 
     // In an announcement channel, publish it so servers following the channel get it too
-    if (!channelTypes.has(course.channel)) channelTypes.set(course.channel, (await api("GET", `/channels/${course.channel}`)).type);
-    if (channelTypes.get(course.channel) === 5) {
-      await api("POST", `/channels/${course.channel}/messages/${posted.id}/crosspost`).catch((e) => console.warn(`Couldn't publish ${label}: ${e.message}`));
+    if (!channelTypes.has(channel)) channelTypes.set(channel, (await api("GET", `/channels/${channel}`)).type);
+    if (channelTypes.get(channel) === 5) {
+      await api("POST", `/channels/${channel}/messages/${posted.id}/crosspost`).catch((e) => console.warn(`Couldn't publish ${label}: ${e.message}`));
     }
 
     if (isNew) {
