@@ -14,6 +14,10 @@ msgid "{0} | FREEMODE"
 msgstr "{0} | FREIER MODUS"
 
 #. file completion.opy, rule "Run Text"
+msgid "Congrats, @0!"
+msgstr "Glückwunsch, @0!"
+
+#. file completion.opy, rule "Run Text"
 msgid "Time: @0"
 msgstr "Zeit: @0"
 
@@ -50,10 +54,6 @@ msgstr ""
 "CPs übersprungen oder freier Modus</fg>\n"
 "\n"
 "<fgFFFFFFFF>                  Danke fürs Spielen!</fg>"
-
-#. file completion.opy, rule "Run Text"
-msgid "Congrats, @0!"
-msgstr "Glückwunsch, @0!"
 
 #. file controls.opy, rule "Load Freemode HUD"
 msgid "Freemode On"
@@ -275,17 +275,19 @@ msgstr "Läufe: @0"
 msgid "Attempts: @0"
 msgstr "Versuche: @0"
 
+#. 2 occurrences:
+#.  - file run.opy, rule "Load HUD"
+#.  - file run.opy, rule "Load HUD"
+msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "Wertung: <fgFFFFFFFF>@0 + @1</fg>"
+
 #. file run.opy, rule "Load HUD"
-msgid "Hide Scores: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "Wertung ausblenden: <fgFFFFFFFF>@0 + @1</fg>"
+msgid "All-Time Top 3"
+msgstr "Allzeit-Top 3"
 
 #. file run.opy, rule "Load HUD"
 msgid "Lobby Top 3"
 msgstr "Lobby-Top 3"
-
-#. file run.opy, rule "Load HUD"
-msgid "Show Scores: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "Wertung einblenden: <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file run.opy, rule "Load HUD"
 msgid "Disqualified"

@@ -185,76 +185,77 @@ rule "Load HUD":
         "\nDisqualified runs don't count toward the top-10 leaderboard, <fgE69700FF>Lobby Top 3</fg>, or <fgE69700FF>Lobby Stats</fg>."
     )
     faqHudText[3] = (
+        "\n\n<fg80D0FFFF>How do I get on the leaderboard?</fg>"
+        "\nFinish a valid run and submit a video of it at ballkour.com."
+        "\n<fgE69700FF>All-Time Top 3</fg> shows the leaderboard's 3 fastest runs."
+        "\n<fgE69700FF>Lobby Top 3</fg> only lists the fastest valid runs finished in this lobby."
+    )
+    faqHudText[4] = (
         "\n\n<fg80D0FFFF>What counts as a mistake?</fg>"
         "\nLanding anywhere but the next checkpoint, bhopping twice, missing a bounce checkpoint's"
         "\njump, falling off the map, or leaving mid-attempt with <fgE69700FF>Prev.</fg>/<fgE69700FF>Next CP</fg>, <fgE69700FF>Reset CP</fg>, <fgE69700FF>Freemode</fg>,"
         "\n<fgE69700FF>Spectate</fg>, or <fgE69700FF>Lobby/Pause</fg>."
     )
-    faqHudText[4] = (
+    faqHudText[5] = (
         "\n\n<fg80D0FFFF>When does my run's timer start?</fg>"
         "\nWhen you leave the first checkpoint, not when you spawn."
     )
-    faqHudText[5] = (
-        "\n\n<fg80D0FFFF>What pauses my run?</fg>"
+    # Page 2
+    faqHudText[6] = (
+        "\n<fg80D0FFFF>What pauses my run?</fg>"
         "\n<fgE69700FF>Lobby/Pause</fg> and <fgE69700FF>Spectate</fg> stop your timer, and <fgE69700FF>Resume Run</fg> in the lobby carries on from"
         "\nyour checkpoint. Pausing outside your checkpoint counts as a mistake."
     )
-    # Page 2
-    faqHudText[6] = (
-        "\n<fg80D0FFFF>What is </fg><fgCB87FFFF>Freemode</fg><fg80D0FFFF> for?</fg>"
+    faqHudText[7] = (
+        "\n\n<fg80D0FFFF>What is </fg><fgCB87FFFF>Freemode</fg><fg80D0FFFF> for?</fg>"
         "\nPractice, with no timer and all your abilities. You can't clear checkpoints in it,"
         "\nand leaving your checkpoint with it on disqualifies your run."
     )
-    faqHudText[7] = (
+    faqHudText[8] = (
         "\n\n<fg80D0FFFF>What do </fg><fgE69700FF>Runs</fg><fg80D0FFFF> and </fg><fgE69700FF>Attempts</fg><fg80D0FFFF> count?</fg>"
         "\n<fgE69700FF>Runs</fg> counts the runs you've finished or restarted. <fgE69700FF>Attempts</fg> counts your mistakes"
         "\nand clears on this checkpoint, over all your runs."
     )
-    faqHudText[8] = (
+    faqHudText[9] = (
         "\n\n<fg80D0FFFF>What do </fg><fgE69700FF>Attempt</fg><fg80D0FFFF> and </fg><fgE69700FF>Split</fg><fg80D0FFFF> mean?</fg>"
         "\n<fgE69700FF>Attempt</fg> is timed from leaving the checkpoint. <fgE69700FF>Split</fg> is timed from reaching it, so it"
         "\nincludes your mistakes. Each turns red once it's slower than your best."
         "\nAfter a clear, they show your times for 2 seconds: <fgFFFF00FF>yellow</fg> on your first clear, then"
         "\n<fg00E092FF>green</fg> if faster or <fgFF4646FF>red</fg> if slower than your average. A new best is compared with your old best."
     )
-    faqHudText[9] = (
+    faqHudText[10] = (
         "\n\n<fg80D0FFFF>What are </fg><fgE69700FF>Best</fg><fg80D0FFFF> and </fg><fgE69700FF>Avg</fg><fg80D0FFFF>?</fg>"
         "\nThey are your own times on that checkpoint, over all your runs."
         "\nThey reset when you leave or when the server restarts."
     )
-    faqHudText[10] = (
-        "\n\n<fg80D0FFFF>What is </fg><fgE69700FF>Pace</fg><fg80D0FFFF>?</fg>"
+    # Page 3
+    faqHudText[11] = (
+        "\n<fg80D0FFFF>What is </fg><fgE69700FF>Pace</fg><fg80D0FFFF>?</fg>"
         "\nYour estimated finish time, from this run's average split so far. Once your current"
         "\nsplit is slower than that average, it turns <fgFF4646FF>red</fg> and counts up with your time."
     )
-    # Page 3
-    faqHudText[11] = (
-        "\n<fg80D0FFFF>Why are some controls </fg><fg808080FF>grayed out</fg><fg80D0FFFF>?</fg>"
+    faqHudText[12] = (
+        "\n\n<fg80D0FFFF>Why are some controls </fg><fg808080FF>grayed out</fg><fg80D0FFFF>?</fg>"
         "\nThey can't be used right now: <fgE69700FF>Prev. CP</fg> on the first checkpoint, <fgE69700FF>Next CP</fg> on the last,"
         "\nand the player controls while there's nobody to spectate. <fgE69700FF>X-Hair Player</fg> also needs <fgE69700FF>Freecam</fg>."
         "\n<fgE69700FF>Reattach</fg> needs <fgE69700FF>Freecam</fg> and a player you were watching."
     )
-    faqHudText[12] = (
+    faqHudText[13] = (
         "\n\n<fg80D0FFFF>What's on the scorecard?</fg>"
         "\nEach runner's checkpoint, time, and mistakes, sorted by furthest and then fastest."
         "\nDisqualified runs are <fgFF4646FF>red</fg> and marked <fgFF4646FF>×</fg>."
     )
-    faqHudText[13] = (
+    faqHudText[14] = (
         "\n\n<fg80D0FFFF>What is a </fg><fg00BEFFFF>shield bounce</fg><fg80D0FFFF>?</fg>"
         "\nAdaptive Shield (Button: @0) bounces you up and forward. The faster you're going,"
         "\nthe less it lifts you. You get one each time you leave the checkpoint, on checkpoints"
         "\nthat allow it, and as many as you like in <fgCB87FFFF>Freemode</fg>."
     )
-    faqHudText[14] = (
+    faqHudText[15] = (
         "\n\n<fg80D0FFFF>What do the hint colors mean?</fg>"
         "\n<fgCB87FFFF>Movement</fg>   <fgFFFFFFFF>Jump</fg>   <fgFFD200FF>Grapple</fg>   <fgFF4646FF>Piledrive</fg>   <fg00BEFFFF>Shield Bounce</fg>"
         "\nHints turn on by themselves after 10 mistakes on one checkpoint,"
         "\nand off again when you move on to another, until you turn them off yourself."
-    )
-    faqHudText[15] = (
-        "\n\n<fg80D0FFFF>How do I get on the leaderboard?</fg>"
-        "\nFinish a valid run and submit a video of it at ballkour.com."
-        "\n<fgE69700FF>Lobby Top 3</fg> only lists the fastest valid runs finished in this lobby."
     )
     # Page 4
     faqHudText[16] = (
@@ -326,7 +327,7 @@ rule "Load HUD":
         HudReeval.VISIBILITY_AND_STRING
     )
     # A page is one HUD text, as separate HUD texts center against each other while the
-    # lines of one left-align. The shield bounce answer (faqHudText[13], page 3's third)
+    # lines of one left-align. The shield bounce answer (faqHudText[14], page 3's fourth)
     # names the player's Adaptive Shield key, which only a HUD can read, in place of its
     # @0. String Replace cuts off long strings, so it only runs on that answer.
     hudSubheader(
@@ -334,12 +335,12 @@ rule "Load HUD":
         "{}{}{}{}{}".format(
             faqAnswer(1),
             faqAnswer(2),
+            faqAnswer(3),
             (
-                faqAnswer(3).replace("@0", inputBindingString(Button.ABILITY_2))
+                faqAnswer(4).replace("@0", inputBindingString(Button.ABILITY_2))
                 if localPlayer.faqPage == 3
-                else faqAnswer(3)
+                else faqAnswer(4)
             ),
-            faqAnswer(4),
             faqAnswer(5)
         ),
         HudPosition.TOP,

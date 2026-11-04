@@ -402,6 +402,7 @@ rule "Load Leaderboard":
     # lb[0] is unused, so this is -1 without runs
     lbRunCount = len(lb) - 1
     lbRunText = []
+    allTimeRunsText = ""
     # 1st-9th Position Placeholder"
     lb[11] = "---, -:--.--, -, '                                               '"
     # 10th Position Placeholder"
@@ -452,6 +453,21 @@ rule "Load Leaderboard":
             WorldTextReeval.VISIBILITY,
             rgb(230, 151, 0)
         )
+        # The first 3 runs are also the scorecard's All-Time Top 3 (Load HUD), laid out like
+        # its Lobby Top 3 (Record Top Run)
+        if index <= allTimeRuns:
+            lbObj[1] = lbObj[1].replace(" ", "")
+            lbObj[2] = lbObj[2].replace(" ", "")
+            allTimeRunsText = "{}\n{}{}   {}{}{}{}{}</fg>".format(
+                allTimeRunsText,
+                lbObj[4],
+                index,
+                lbObj[1],
+                "     " if strLen(lbObj[1]) < 8 else "   ",
+                lbObj[2],
+                "     " if strLen(lbObj[2]) < 2 else "   ",
+                lbObj[0]
+            )
     # Lobby Stats' way back to the buttons and leaderboard
     lobbyHudText[4] = _("Back")
     createInWorldText(
