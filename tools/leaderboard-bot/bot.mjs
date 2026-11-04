@@ -188,11 +188,8 @@ async function person(id) {
 
 /* ---------- The message ---------- */
 const mdEscape = (s) => String(s).replace(/([\\*_~`|>#-])/g, "\\$1");
-// The course's board on the website: ballkour.com/leaderboards/6-dorado opens Dorado's top 10. The website makes
-// the same link from the course's number and name ("King’s Row" → 14-kings-row).
-const slug = (s) => s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/['’]/g, "").toLowerCase()
-  .replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
-const boardUrl = (course) => `https://ballkour.com/leaderboards/${course.n}-${slug(course.name)}`;
+// The course's board on the website: ballkour.com/leaderboards/6 opens Dorado's top 10
+const boardLink = (course) => `ballkour.com/leaderboards/${course.n}`;
 function message(course, runs, fresh) {
   const newRuns = NO_CONGRATS ? [] : runs.filter((r) => fresh.has(r));
   const users = [];
@@ -207,7 +204,7 @@ function message(course, runs, fresh) {
     const list = new Intl.ListFormat("en", { style: "long", type: "conjunction" }).format(names);
     lines.push(`Congrats ${list} for the new top-10 time${names.length > 1 ? "s" : ""}!`);
   }
-  lines.push(`-# Watch every run: [ballkour.com/leaderboards](${boardUrl(course)})`);
+  lines.push(`-# Watch every run: [${boardLink(course)}](https://${boardLink(course)})`);
   return { content: lines.join("\n"), users };
 }
 // A legacy board: nobody is new on it, so it's posted as just the picture, with no text
