@@ -61,7 +61,7 @@ globalvar tinyNameplateObjs
 globalvar scorecard
 globalvar scorecardRows
 globalvar scorecardDirty
-globalvar scorecardRunners
+globalvar scorecardPlayers
 globalvar scorecardRow
 globalvar scorecardTime
 globalvar topRuns = []
