@@ -275,9 +275,7 @@ msgstr "遊戲次數：@0"
 msgid "Attempts: @0"
 msgstr "嘗試次數：@0"
 
-#. 2 occurrences:
-#.  - file run.opy, rule "Load HUD"
-#.  - file run.opy, rule "Load HUD"
+#. file run.opy, rule "Load HUD"
 msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
 msgstr "成績: <fgFFFFFFFF>@0 + @1</fg>"
 
