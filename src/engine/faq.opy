@@ -196,8 +196,8 @@ rule "Load HUD":
     )
     faqHudText[5] = (
         "\n\n<fg80D0FFFF>What counts as a mistake?</fg>"
-        "\nLanding anywhere but the next checkpoint, bhopping twice, missing a bounce checkpoint's"
-        "\njump, falling off the map, or leaving mid-attempt with <fgE69700FF>Prev.</fg>/<fgE69700FF>Next CP</fg>, <fgE69700FF>Reset CP</fg>, <fgE69700FF>Freemode</fg>,"
+        "\nLanding anywhere but the next checkpoint, bhopping twice, missing a checkpoint's orb,"
+        "\nfalling off the map, or leaving mid-attempt with <fgE69700FF>Prev.</fg>/<fgE69700FF>Next CP</fg>, <fgE69700FF>Reset CP</fg>, <fgE69700FF>Freemode</fg>,"
         "\n<fgE69700FF>Spectate</fg>, or <fgE69700FF>Lobby/Pause</fg>."
     )
     # Page 2

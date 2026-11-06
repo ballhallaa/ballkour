@@ -1,14 +1,15 @@
 #!mainFile "1-watchpoint-gibraltar.opy"
 
 rule "Checkpoints":
-    # cpDefaults[i]: [0]cpSize [1]bounceSize [2]nextCpSize
+    # cpDefaults[i]: [0]cpSize [1]orbSize [2]nextCpSize
     cpDefaults = []
     cpDefaults[0] = 2.5
-    cpDefaults[1] = 2.5
+    cpDefaults[1] = 1
     cpDefaults[2] = 2.5
     # cps is one compressed vector array, which Expand Data unpacks. Each line is a checkpoint:
     # its location, vect(isGrappleAllowed, isShieldBounceAllowed, isPiledriverAllowed), and its
-    # bounce location, or vect(0, 0, 0) without a bounce. The final checkpoint only has its location.
+    # orb location, or vect(0, 0, 0) without an orb. Orbs are only grabbed in the air, so put one
+    # where the jump takes the player. The final checkpoint only has its location.
     # Sizes come from cpDefaults. compress() keeps 2 decimals.
     cps = compress(
         [
@@ -85,18 +86,18 @@ rule "Checkpoints":
             vect(33.417, 4.01, -86.09), vect(1, 1, 1), vect(0, 0, 0),
             vect(44.14, 4.03, -131.19), vect(0, 0, 1), vect(0, 0, 0),
             vect(35.776, 5, -144.535), vect(1, 0, 1), vect(0, 0, 0),
-            vect(16.589, -2, -133.052), vect(1, 0, 1), vect(21.742, -1.91, -129.95),
+            vect(13.49, -1.07, -134.63), vect(1, 0, 1), vect(25.58, 1.66, -128.57),
             vect(37.649, 4.01, -124.211), vect(1, 1, 1), vect(0, 0, 0),
-            vect(61.452, -7.192, -141.705), vect(1, 0, 1), vect(64.37, -6.31, -131.28),
-            vect(60.992, 1, -115.213), vect(1, 0, 1), vect(36.918, 0.092, -95.332),
+            vect(61.452, -7.192, -141.705), vect(1, 0, 1), vect(64.38, -2.63, -130.08),
+            vect(60.992, 1, -115.213), vect(1, 0, 1), vect(35.44, 3.72, -92.09),
             vect(27.284, 3.013, -84.642), vect(0, 0, 1), vect(0, 0, 0),
-            vect(16.503, -5, -70.262), vect(1, 0, 1), vect(23.858, -5.068, -82.402),
+            vect(16.503, -5, -70.262), vect(1, 0, 1), vect(25.47, -1.45, -83.09),
             vect(29.458, 6.938, -90.962), vect(1, 1, 1), vect(0, 0, 0),
-            vect(38.373, -5.02, -77.208), vect(1, 0, 1), vect(44.188, -5.058, -60.366),
+            vect(38.373, -5.02, -77.208), vect(1, 0, 1), vect(46.62, -1.54, -56.82),
             vect(56.069, 3, -52.942), vect(1, 0, 1), vect(0, 0, 0),
-            vect(47.966, -5, -68.898), vect(1, 0, 1), vect(41.762, -5.059, -62.347),
+            vect(47.966, -5, -68.898), vect(1, 0, 1), vect(39.47, -1.49, -56.87),
             vect(36.26, -0.26, -47.19), vect(1, 1, 1), vect(0, 0, 0),
-            vect(62.694, -3.003, -16.511), vect(1, 0, 1), vect(74.99, -2.09, -9.26),
+            vect(62.694, -3.003, -16.511), vect(1, 0, 1), vect(76.28, 1.58, -7.94),
             vect(83.645, 6, 1.309), vect(0, 0, 1), vect(0, 0, 0),
             vect(97.81, 1, 12.53), vect(1, 1, 1), vect(0, 0, 0),
             vect(82.13, 10.36, 14.07), vect(0, 0, 1), vect(0, 0, 0),
@@ -111,7 +112,21 @@ rule "Checkpoints":
             vect(79.799, 9, 21.207), vect(1, 1, 1), vect(0, 0, 0),
             vect(86.008, -3.141, -1.915), vect(0, 0, 1), vect(0, 0, 0),
             vect(83.375, 6, 0.473), vect(0, 0, 1), vect(0, 0, 0),
-            vect(90.713, -3.045, -5.413), vect(1, 0, 1), vect(85.5, -3.15, -1.5),
+            vect(90.713, -3.045, -5.413), vect(1, 0, 1), vect(84.82, 0.4, -1.01),
             vect(83.375, 6, 0.473)
+        ]
+    )
+    # More orbs, for checkpoints with several: the checkpoint's number, then the orb. All of a
+    # checkpoint's orbs have to be grabbed, and the last one in the air.
+    cpExtraOrbs = compress(
+        [
+            vect(73, 0, 0), vect(20.58, -1, -130.11),
+            vect(75, 0, 0), vect(63.03, -6.19, -135.44),
+            vect(76, 0, 0), vect(46.93, 1, -103.86),
+            vect(78, 0, 0), vect(21.39, -4.16, -77.67),
+            vect(80, 0, 0), vect(42.74, -4.12, -66.65),
+            vect(82, 0, 0), vect(42.91, -4.15, -63.56),
+            vect(84, 0, 0), vect(69.84, -2.17, -12.66),
+            vect(99, 0, 0), vect(79.19, 8.5, -2.83)
         ]
     )

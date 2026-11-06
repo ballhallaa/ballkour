@@ -5,21 +5,11 @@
 rule "Missed Checkpoint":
     @Event eachPlayer
     @Condition eventPlayer.isInFreemode == false
+    # An orb checkpoint allows the ground from its grapple until every orb is grabbed
     @Condition (
         eventPlayer.cpData[5] == null
         or (not eventPlayer.cpData[12] and not eventPlayer.cpData[13])
-        or (
-            eventPlayer.cpData[16]
-            and distance(
-                vect(
-                    eventPlayer.getPosition().x,
-                    eventPlayer.cpData[5].y,
-                    eventPlayer.getPosition().z
-                ),
-                eventPlayer.cpData[5]
-            )
-            > eventPlayer.cpData[6]
-        )
+        or hasAllOrbs(eventPlayer)
     ) == true
     @Condition (
         eventPlayer.isOnGround() or eventPlayer.cpData[9] and eventPlayer.cpData[11]

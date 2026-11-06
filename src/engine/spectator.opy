@@ -118,7 +118,7 @@ def enableSpectator():
     swapToJetpackCat()
     # Like Disable, the rest is spread over ticks instead of landing on one, as a server closed
     # going in too: first the run and the flags, as starting spectating switches off the
-    # per-player rules (timers, mistakes, movement, bounces) before the player moves, then the
+    # per-player rules (timers, mistakes, movement, orbs) before the player moves, then the
     # lobby, then freecam, then the players watching them.
     # Being away from the checkpoint is no mistake in the lobby. Disable drops the player at a
     # checkpoint, so without a run to resume they get a new one.
@@ -220,7 +220,7 @@ def disableSpectator():
     swapToWreckingBall()
     # The rest is spread over two ticks instead of landing on one: the player first, then the
     # run, where ending spectating switches back on the per-player rules it kept off (timers,
-    # mistakes, movement, bounces). The hold on the checkpoint lasts until the run's teleport.
+    # mistakes, movement, orbs). The hold on the checkpoint lasts until the run's teleport.
     eventPlayer.enableEnvironmentCollision()
     eventPlayer.setGravity(100)
     eventPlayer.setMoveSpeed(100)

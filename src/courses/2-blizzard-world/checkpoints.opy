@@ -1,14 +1,15 @@
 #!mainFile "2-blizzard-world.opy"
 
 rule "Checkpoints":
-    # cpDefaults[i]: [0]cpSize [1]bounceSize [2]nextCpSize
+    # cpDefaults[i]: [0]cpSize [1]orbSize [2]nextCpSize
     cpDefaults = []
     cpDefaults[0] = 2.5
-    cpDefaults[1] = 2.5
+    cpDefaults[1] = 1
     cpDefaults[2] = 2.5
     # cps is one compressed vector array, which Expand Data unpacks. Each line is a checkpoint:
     # its location, vect(isGrappleAllowed, isShieldBounceAllowed, isPiledriverAllowed), and its
-    # bounce location, or vect(0, 0, 0) without a bounce. The final checkpoint only has its location.
+    # orb location, or vect(0, 0, 0) without an orb. Orbs are only grabbed in the air, so put one
+    # where the jump takes the player. The final checkpoint only has its location.
     # Sizes come from cpDefaults. compress() keeps 2 decimals.
     cps = compress(
         [
@@ -112,15 +113,15 @@ rule "Checkpoints":
             vect(-97.889, 4.747, 143.351), vect(1, 1, 1), vect(0, 0, 0),
             vect(-76.435, 0.747, 139.58), vect(1, 1, 1), vect(0, 0, 0),
             vect(-81.98, 6.772, 104.388), vect(0, 0, 1), vect(0, 0, 0),
-            vect(-71.238, 0.793, 114.628), vect(1, 0, 1), vect(-61.63, 0.79, 118.97),
+            vect(-71.238, 0.793, 114.628), vect(1, 0, 1), vect(-54.38, 4.39, 122.54),
             vect(-42.78, 3.797, 129.447), vect(1, 1, 1), vect(0, 0, 0),
             vect(-10.367, 1.9, 86.273), vect(0, 0, 1), vect(0, 0, 0),
             vect(-0.622, 6.034, 81.12), vect(0, 0, 1), vect(0, 0, 0),
-            vect(8.636, 1.9, 74.911), vect(1, 0, 1), vect(-5.36, 1.9, 74.68),
+            vect(8.636, 1.9, 74.911), vect(1, 0, 1), vect(-8.42, 5.49, 75.7),
             vect(-0.685, 6.504, 81.114), vect(1, 0, 1), vect(0, 0, 0),
             vect(-1.234, 1.173, 60.973), vect(1, 1, 1), vect(0, 0, 0),
             vect(3.214, -0.097, 30.035), vect(1, 1, 1), vect(0, 0, 0),
-            vect(-7.198, -4, -16.403), vect(1, 0, 1), vect(0.56, -4, -9.23),
+            vect(-7.198, -4, -16.403), vect(1, 0, 1), vect(2.18, -0.37, -7.37),
             vect(2.854, 0, 7.195), vect(0, 0, 1), vect(0, 0, 0),
             vect(2.966, -1.85, -6.891)
         ]
