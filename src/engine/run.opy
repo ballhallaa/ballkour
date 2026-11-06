@@ -312,8 +312,7 @@ rule "Update Scorecard":
     for index in range(len(scorecardPlayers)):
         scorecardTime = scorecardPlayers[index].runTimeFormatted.split(".")[0]
         # The time's column fits h:mm:ss. Its padding is by length, since colons are narrower than digits.
-        # Disqualified runs get an × after the name, for anyone who can't tell their color from orange.
-        scorecardRow = "{}{}{}{}{}{}{}{}".format(
+        scorecardRow = "{}{}{}{}{}{}{}".format(
             scorecardPlayers[index].runCurrentCp,
             scorecardPad(scorecardPlayers[index].runCurrentCp),
             scorecardTime,
@@ -322,13 +321,13 @@ rule "Update Scorecard":
             ),
             scorecardPlayers[index].runMistakes,
             scorecardPad(scorecardPlayers[index].runMistakes),
-            scorecardPlayers[index],
-            "" if scorecardPlayers[index].isRunLegit else " ×"
+            scorecardPlayers[index]
         )
         # Players spectating are blue, like Spectating, and in freemode violet, like Freemode
         # On, disqualified or not. Disqualified runners are red, like Disqualified at the
-        # top left.
-        scorecard = "{}\n{}".format(
+        # top left. Disqualified runs also get a red × after the name, outside the row's color
+        # so it's red on blue and violet rows too, and for anyone who can't tell red from orange.
+        scorecard = "{}\n{}{}".format(
             scorecard,
             (
                 "<fg00BEFFFF>{}</fg>".format(scorecardRow)
@@ -342,7 +341,8 @@ rule "Update Scorecard":
                         else "<fgFF4646FF>{}</fg>".format(scorecardRow)
                     )
                 )
-            )
+            ),
+            "" if scorecardPlayers[index].isRunLegit else " <fgFF4646FF>×</fg>"
         )
     # A change or a runner's next second (see Update Run Format) rebuilds it within 0.1s. Rebuilding
     # on the next tick added ~20% to peak server load while Next CP was held with 12 rows.
