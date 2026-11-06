@@ -817,14 +817,25 @@ rule "Left CP In Freemode":
 
 
 rule "Load Freemode HUD":
-    freemodeHudText = _("\nFreemode On")
+    # Under Disqualified (0.9), with a blank line above it unless Disqualified, which brings
+    # its own, is showing
+    freemodeHudText = _("Freemode On")
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isInFreemode
             and not localPlayer.spectating[0]
             and localPlayer.faqPage == 0
         ),
-        _(freemodeHudText),
+        "{}{}".format(
+            (
+                "\n"
+                if localPlayer.isInLobby
+                or localPlayer.spectating[3]
+                or localPlayer.viewRunner.isRunLegit
+                else ""
+            ),
+            _(freemodeHudText)
+        ),
         HudPosition.LEFT,
         1,
         rgb(203, 135, 255),
