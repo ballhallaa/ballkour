@@ -45,12 +45,6 @@ macro scorecardHasRows(player):
 macro allTimeRuns = min(lbRunCount, 3)
 
 
-# The lines of the scorecard's text under its 2 blank ones: the icons, rows and Scores line,
-# or the Scores line alone while the rows are hidden
-macro scorecardLines(player):
-    (scorecardRows + 2 if not player.isScorecardHidden else 1)
-
-
 # Fills out a scorecard column of 3 digits and its 3-space gap, as a digit is about as wide as 2 spaces
 macro scorecardPad(value):
     "       ".substring(0, 3 + 2 * max(3 - strLen("{}".format(value)), 0))
@@ -282,16 +276,9 @@ rule "Load HUD":
             )
         ),
         "{}\n\n{}{}".format(
-            # Alone on the left in the lobby, it's centered a third of the way down the
-            # screen, on the 13th of its 24px lines. It still starts clear of the player's
-            # name, from the 6th.
-            (
-                "\n\n\n\n\n\n\n\n\n\n".substring(
-                    0, max(3, round(10.8 - scorecardLines(localPlayer) / 2))
-                )
-                if localPlayer.isInLobby
-                else ""
-            ),
+            # The lobby hides Controls, FAQ and Hints, so 3 blank lines stand in for them and
+            # it starts on the 6th line there too, without moving when the player leaves
+            ("\n\n\n" if localPlayer.isInLobby else ""),
             ("" if localPlayer.isScorecardHidden else "{}\n".format(scorecard)),
             _(scorecardHudText[0])
             .replace("@0", inputBindingString(Button.ULTIMATE))
