@@ -7,9 +7,11 @@
 # without them all is a mistake too (Completion: Checkpoint (No Skipping)).
 
 
-# The orbs not grabbed yet, and of those, the ones the player is touching: within the orb's
-# radius plus 0.7 m of a point 0.7 m up the ball, or of its eyes, the way Fasteroid's fork of
-# the Giga editor checks
+# The orbs not grabbed yet, and of those, the ones the ball is touching. The ball's centre is
+# 0.7 m up from its position, and in-game a size-1 orb visibly touches the ball 1.24 m from
+# there. The reach is a touch more forgiving than that: the orb's radius plus 0.3 m. Unlike
+# Fasteroid's fork of the Giga editor, the eyes aren't checked: in ball form they sit 1.83 m
+# up, above the ball.
 macro orbsLeft(player):
     player.cpData[5].filter(lambda orb, i: not hasGrabbedOrb(player, i))
 
@@ -17,8 +19,7 @@ macro orbsLeft(player):
 macro orbsTouched(player):
     orbsLeft(player).filter(
         lambda orb: distance(player.getPosition() + vect(0, 0.7, 0), orb)
-        <= player.cpData[6] + 0.7
-        or distance(player.getEyePosition(), orb) <= player.cpData[6] + 0.7
+        <= player.cpData[6] + 0.3
     )
 
 
