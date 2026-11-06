@@ -453,8 +453,8 @@ rule "Load Leaderboard":
             WorldTextReeval.VISIBILITY,
             rgb(230, 151, 0)
         )
-        # The first 3 runs are also the scorecard's All-Time Top 3 (Load HUD), laid out like
-        # its Lobby Top 3 (Record Top Run)
+        # The first 3 runs are also the All-Time Top 3 (Run's Load HUD), laid out like the
+        # Lobby Top 3 (Record Top Run)
         if index <= allTimeRuns:
             lbObj[1] = lbObj[1].replace(" ", "")
             lbObj[2] = lbObj[2].replace(" ", "")

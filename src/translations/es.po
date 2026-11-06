@@ -275,9 +275,7 @@ msgstr "Partidas: @0"
 msgid "Attempts: @0"
 msgstr "Intentos: @0"
 
-#. 2 occurrences:
-#.  - file run.opy, rule "Load HUD"
-#.  - file run.opy, rule "Load HUD"
+#. file run.opy, rule "Load HUD"
 msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
 msgstr "Marcador: <fgFFFFFFFF>@0 + @1</fg>"
 
