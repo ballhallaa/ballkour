@@ -8,8 +8,8 @@
 //   DISCORD_BOT_TOKEN  the bot's token. Without it, the ratings are only printed.
 //   DRY_RUN=1          print what would change, but don't create or give out any roles
 //
-// The roles are found by name, so keep their names as they are (their color and place in the list can change). Any
-// that are missing are made, with no permissions. The bot needs Manage Roles, its own role has to be above the rating
+// The roles are found by name, so keep the words of their names as they are. Emojis or symbols around them are fine
+// ("🥇 Top 10%"), and so are their color and place in the list. Any that are missing are made, with no permissions. The bot needs Manage Roles, its own role has to be above the rating
 // roles in Server Settings → Roles, and it needs the Server Members Intent (Developer Portal → Bot) to see who has a
 // rating role now. Without the intent, it only checks the rated players.
 import { GUILD, loadCourses } from "./boards.mjs";
@@ -42,7 +42,9 @@ const existing = await api("GET", `/guilds/${GUILD}/roles`);
 const roleOf = new Map(); // tier (null for Rated) → role ID
 for (const tier of [...TIERS, null]) {
   const name = roleName(tier);
-  const found = existing.find((r) => r.name === name);
+  // Its name without emojis or symbols around it: "🥇 Top 10%" is the Top 10% role
+  const bare = (s) => s.replace(/^[^\p{L}\p{N}]+|(?<=%|[\p{L}\p{N}])[^\p{L}\p{N}%]+$/gu, "");
+  const found = existing.find((r) => bare(r.name) === name);
   if (found) { roleOf.set(tier, found.id); continue; }
   if (DRY) { console.log(`Would make the ${name} role`); roleOf.set(tier, `new ${name}`); continue; }
   try {
