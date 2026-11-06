@@ -239,7 +239,8 @@ rule "Load HUD":
     faqHudText[12] = (
         "\n\n<fg80D0FFFF>What's on the scorecard?</fg>"
         "\nEach runner's checkpoint, time, and mistakes, sorted by furthest and then fastest."
-        "\nDisqualified runs are <fgFF4646FF>red</fg> and marked <fgFF4646FF>×</fg>."
+        "\nBelow them, players in <fgCB87FFFF>Freemode</fg> are <fgCB87FFFF>purple</fg>, and players in <fg00BEFFFF>Spectate</fg> are <fg00BEFFFF>blue</fg>."
+        "\nDisqualified runs are marked <fgFF4646FF>×</fg>, and <fgFF4646FF>red</fg> among the runners."
     )
     faqHudText[13] = (
         "\n\n<fg80D0FFFF>What is a </fg><fg00BEFFFF>shield bounce</fg><fg80D0FFFF>?</fg>"

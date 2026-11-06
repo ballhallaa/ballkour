@@ -8,15 +8,19 @@ macro viewedRunner(player):
     (player.spectating[1] if player.spectating[0] else player)
 
 
-# A finished run stays listed, even though finishing turns on freemode
+# Everyone with a run out on the course: runners, then players in freemode or spectating
 macro isOnScorecard(player):
-    (
-        not player.isDummy()
-        and player.isRunLoaded
-        and not player.isInLobby
-        and not player.spectating[0]
-        and (player.isRunFinished or not player.isInFreemode)
-    )
+    (not player.isDummy() and player.isRunLoaded and not player.isInLobby)
+
+
+# Listed above the players in freemode, which finishing turns on, and spectating
+macro isRunningOnScorecard(player):
+    (not player.isInFreemode and not player.spectating[0])
+
+
+# The scorecard's order within runners and within the rest: furthest, then fastest
+macro scorecardOrder(player):
+    (player.runTime - player.runCurrentCp * 100000)
 
 
 # Everything a player's scorecard row shows but the time, so a change to it can refresh the
@@ -27,12 +31,14 @@ macro scorecardKey(player):
         + player.runMistakes * 1000
         + player.isRunLegit * 0.5
         + isOnScorecard(player) * 0.25
+        + player.isInFreemode * 0.125
+        + player.spectating[0] * 0.0625
     )
 
 
-# Whether the scorecard lists its rows: not when the only runner listed is the player
+# Whether the scorecard lists its rows: not when the only player listed is the viewer
 macro scorecardHasRows(player):
-    len(scorecardRunners.exclude(player)) > 0
+    len(scorecardPlayers.exclude(player)) > 0
 
 
 # How many runs the All-Time Top 3 lists: up to the leaderboard's first 3
@@ -231,10 +237,10 @@ rule "Load HUD":
         rgb(255, 70, 70),
         HudReeval.VISIBILITY_AND_STRING
     )
-    # Under Hints. Its rows are left out when the only runner listed is the player, as their
+    # Under Hints. Its rows are left out when the only player listed is the viewer, as their
     # run is on the right, but its line stays while there's a Top 3 for it to hide.
     # The All-Time Top 3, then the Lobby Top 3, go above the rows, in the same HUD text so
-    # they all left-align. At most 3 rows long each, they stay put as runners come and go
+    # they all left-align. At most 3 rows long each, they stay put as players come and go
     # below them.
     scorecardHudText[0] = _("Scores: <fgFFFFFFFF>@0 + @1</fg>")
     scorecardHudText[1] = _("\nScores: <fgFFFFFFFF>@0 + @1</fg>")
@@ -303,9 +309,17 @@ rule "Load HUD":
 
 rule "Update Scorecard":
     scorecardDirty = false
-    scorecardRunners = sorted(
-        getAllPlayers().filter(lambda p: isOnScorecard(p)),
-        lambda p: p.runTime - p.runCurrentCp * 100000
+    # Two sorts joined, instead of one with an offset that would cost the times' precision
+    scorecardPlayers = sorted(
+        getAllPlayers().filter(lambda p: isOnScorecard(p) and isRunningOnScorecard(p)),
+        lambda p: scorecardOrder(p)
+    ).concat(
+        sorted(
+            getAllPlayers().filter(
+                lambda p: isOnScorecard(p) and not isRunningOnScorecard(p)
+            ),
+            lambda p: scorecardOrder(p)
+        )
     )
     # One string rebuilt on each change and each runner's second, instead of a HUD text per runner:
     # Overwatch reprocesses every HUD text's definition every 5s (see Translated HUD Text). It
@@ -314,29 +328,40 @@ rule "Update Scorecard":
     scorecard = "\n\n{}    {}       {}".format(
         iconString(Icon.FLAG), iconString(Icon.BOLT), iconString(Icon.SKULL)
     )
-    scorecardRows = len(scorecardRunners)
-    for index in range(len(scorecardRunners)):
-        scorecardTime = scorecardRunners[index].runTimeFormatted.split(".")[0]
+    scorecardRows = len(scorecardPlayers)
+    for index in range(len(scorecardPlayers)):
+        scorecardTime = scorecardPlayers[index].runTimeFormatted.split(".")[0]
         # The time's column fits h:mm:ss. Its padding is by length, since colons are narrower than digits.
-        scorecardRow = "{}{}{}{}{}{}{}".format(
-            scorecardRunners[index].runCurrentCp,
-            scorecardPad(scorecardRunners[index].runCurrentCp),
+        # Disqualified runs get an × after the name, for anyone who can't tell their color from orange.
+        scorecardRow = "{}{}{}{}{}{}{}{}".format(
+            scorecardPlayers[index].runCurrentCp,
+            scorecardPad(scorecardPlayers[index].runCurrentCp),
             scorecardTime,
             "             ".substring(
                 0, [0, 13, 11, 0, 7, 5, 0, 2][strLen(scorecardTime)]
             ),
-            scorecardRunners[index].runMistakes,
-            scorecardPad(scorecardRunners[index].runMistakes),
-            scorecardRunners[index]
+            scorecardPlayers[index].runMistakes,
+            scorecardPad(scorecardPlayers[index].runMistakes),
+            scorecardPlayers[index],
+            "" if scorecardPlayers[index].isRunLegit else " ×"
         )
-        # Disqualified runs are red, like Disqualified under the run's mistakes, with an ×
-        # after the name for anyone who can't tell red from orange
+        # Players spectating are blue, like Spectating, and in freemode violet, like Freemode
+        # On, disqualified or not. Disqualified runners are red, like Disqualified under the
+        # run's mistakes.
         scorecard = "{}\n{}".format(
             scorecard,
             (
-                scorecardRow
-                if scorecardRunners[index].isRunLegit
-                else "<fgFF4646FF>{} ×</fg>".format(scorecardRow)
+                "<fg00BEFFFF>{}</fg>".format(scorecardRow)
+                if scorecardPlayers[index].spectating[0]
+                else (
+                    "<fgCB87FFFF>{}</fg>".format(scorecardRow)
+                    if scorecardPlayers[index].isInFreemode
+                    else (
+                        scorecardRow
+                        if scorecardPlayers[index].isRunLegit
+                        else "<fgFF4646FF>{}</fg>".format(scorecardRow)
+                    )
+                )
             )
         )
     # A change or a runner's next second (see Update Run Format) rebuilds it within 0.1s. Rebuilding
