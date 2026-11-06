@@ -12,7 +12,8 @@ export const HISTORY = path.join(REPO, "leaderboards/history.json");
 //   { "runs": { "1": [run, …], … }, "removed": { "1": [{ "name", "discord", "time" }, …], … } }
 // Runs are like the .json files'. A removed run never comes back, even from an old board in history.json.
 export const RUNS = path.join(REPO, "leaderboards/runs.json");
-export const { guild: GUILD, courses: COURSES } = JSON.parse(fs.readFileSync(path.join(HERE, "courses.json"), "utf8"));
+// The server, the Top 10 and Former Top 10 roles' IDs (roles.mjs gives them out), and the courses
+export const { guild: GUILD, roles: ROLES = {}, courses: COURSES } = JSON.parse(fs.readFileSync(path.join(HERE, "courses.json"), "utf8"));
 
 export const TIME = /^(\d{1,2}:)?\d{1,2}:\d{2}\.\d{2}$/;
 export const DISCORD_ID = /^\d{17,20}$/;

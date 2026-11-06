@@ -24,7 +24,7 @@ const byTime = (a, b) => seconds(a.time) - seconds(b.time) || a.mistakes - b.mis
 // hides the BattleTag number), so a name only stands for a player on runs with no ID.
 export const playerKey = (r) => (r.discord ? "d:" + r.discord : "n:" + r.name.toUpperCase());
 // The same run: same time, and the same player (their Discord ID when both have one, and their name otherwise)
-const sameRun = (a, b) => a.time === b.time && (a.discord && b.discord ? a.discord === b.discord : a.name.toUpperCase() === b.name.toUpperCase());
+export const sameRun = (a, b) => a.time === b.time && (a.discord && b.discord ? a.discord === b.discord : a.name.toUpperCase() === b.name.toUpperCase());
 // One run per player, their fastest, fastest first. Ties keep the order the runs came in.
 function bestEach(runs) {
   const best = new Map();
