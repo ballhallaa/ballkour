@@ -7,7 +7,7 @@ msgstr ""
 # TODO: check if all occurrences have the same translation
 #. 3 occurrences:
 #.  - file completion.opy, rule "Final Checkpoint Reached"
-#.  - file controls.opy, rule "Freemode Input"
+#.  - file controls.opy, rule "Subroutine freemodeInput"
 #.  - file spectator.opy, rule "Subroutine disableSpectator"
 #, hasMultipleOccurrencesNotification
 msgid "{0} | FREEMODE"

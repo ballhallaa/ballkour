@@ -431,25 +431,157 @@ rule "Load HUD":
     )
 
 
-rule "Prev. Checkpoint Input":
+# The buttons held besides Ultimate, one bit each, so each input's combination of buttons is
+# one number
+macro heldButtons(player):
+    (
+        player.isHoldingButton(Button.PRIMARY_FIRE)
+        + player.isHoldingButton(Button.SECONDARY_FIRE) * 2
+        + player.isHoldingButton(Button.JUMP) * 4
+        + player.isHoldingButton(Button.RELOAD) * 8
+        + player.isHoldingButton(Button.INTERACT) * 16
+        + player.isHoldingButton(Button.CROUCH) * 32
+        + player.isHoldingButton(Button.ABILITY_1) * 64
+        + player.isHoldingButton(Button.ABILITY_2) * 128
+    )
+
+
+# Ultimate + each one, alone. Melee gets its own bit (256) above them in ultInputKey, as
+# only the FAQ needs it, while the others don't mind it being held.
+macro ULT_PREV_CP = 1
+macro ULT_NEXT_CP = 2
+macro ULT_NEW_RUN = 8
+macro ULT_FREEMODE = 16
+macro ULT_SCORECARD = 32
+macro ULT_SPECTATE = 64
+macro ULT_LOBBY = 128
+macro ULT_FAQ = 256
+
+
+macro ultInputKeyNow():
+    (heldButtons(eventPlayer) + eventPlayer.isHoldingButton(Button.MELEE) * 256)
+
+
+# Whether ultInputKey is Ultimate + this button alone, with or without Melee
+macro ultInputIs(ultCombo):
+    (eventPlayer.ultInputKey % 256 == ultCombo)
+
+
+# Prev./Next CP: not already on the first or last CP, theirs on the course or the one being
+# spectated
+macro canGoToPrevCp(player):
+    (
+        (player.runCurrentCp > 0 and not player.spectating[0])
+        or (player.spectating[4] > 0 and player.spectating[0])
+    )
+
+
+macro canGoToNextCp(player):
+    (
+        (player.runCurrentCp < lastCp and not player.spectating[0])
+        or (player.spectating[4] < lastCp and player.spectating[0])
+    )
+
+
+# The inputs that need the player out of the lobby: Freemode, Prev. and Next CP
+macro ultCourseInputReady():
+    (
+        not eventPlayer.isInLobby
+        and (
+            (
+                ultInputIs(ULT_FREEMODE)
+                and not eventPlayer.spectating[0]
+                and eventPlayer.runCurrentCp < lastCp
+            )
+            or (
+                eventPlayer.hasSpawned()
+                and not eventPlayer.isLoading
+                and (
+                    (ultInputIs(ULT_PREV_CP) and canGoToPrevCp(eventPlayer))
+                    or (ultInputIs(ULT_NEXT_CP) and canGoToNextCp(eventPlayer))
+                )
+            )
+        )
+    )
+
+
+# Whether the input for the buttons in ultInputKey can run now, and hasn't yet for this
+# press. Each input's checks are the ones its own rule had, with the shared ones pulled out:
+# New Run works anywhere but the FAQ, Scorecard and Lobby/Pause anywhere but first person,
+# and the rest need the FAQ closed too.
+macro ultInputReady():
+    (
+        not eventPlayer.ultInputDone
+        and (
+            (ultInputIs(ULT_NEW_RUN) and eventPlayer.faqPage == 0)
+            or (
+                not eventPlayer.spectating[5]
+                and (
+                    ultInputIs(ULT_SCORECARD)
+                    or ultInputIs(ULT_LOBBY)
+                    or (
+                        eventPlayer.faqPage == 0
+                        and (
+                            eventPlayer.ultInputKey == ULT_FAQ
+                            or ultInputIs(ULT_SPECTATE)
+                            or ultCourseInputReady()
+                        )
+                    )
+                )
+            )
+        )
+    )
+
+
+rule "Ultimate Input":
     @Event eachPlayer
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
-    @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == true
-    @Condition eventPlayer.isHoldingButton(Button.SECONDARY_FIRE) == false
-    @Condition eventPlayer.isHoldingButton(Button.JUMP) == false
-    @Condition eventPlayer.isHoldingButton(Button.RELOAD) == false
-    @Condition eventPlayer.isHoldingButton(Button.INTERACT) == false
-    @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
-    @Condition eventPlayer.spectating[5] == false
-    @Condition (
-        (eventPlayer.runCurrentCp > 0 and not eventPlayer.spectating[0])
-        or (eventPlayer.spectating[4] > 0 and eventPlayer.spectating[0])
-    ) == true
-    @Condition eventPlayer.isInLobby == false
-    @Condition (eventPlayer.hasSpawned() and not eventPlayer.isLoading) == true
-    @Condition eventPlayer.faqPage == 0
+
+    # Every Ultimate + button input, in one rule instead of one each, since every eachPlayer
+    # rule and condition adds to the per-player load that closes the server. An input runs
+    # once per press, like a rule of its own would: when its buttons are held, or later
+    # while they still are, once it can (say, after loading).
+    eventPlayer.ultInputKey = -1
+    while eventPlayer.isHoldingButton(Button.ULTIMATE):
+        waitUntil(
+            not eventPlayer.isHoldingButton(Button.ULTIMATE)
+            or ultInputKeyNow() != eventPlayer.ultInputKey
+            or ultInputReady(),
+            Math.INFINITY
+        )
+        eventPlayer.ultInputLastKey = eventPlayer.ultInputKey
+        eventPlayer.ultInputKey = ultInputKeyNow()
+        if eventPlayer.ultInputKey != eventPlayer.ultInputLastKey:
+            # A new press, so its input can run, at once if it's ready (the wait passes)
+            eventPlayer.ultInputDone = false
+        elif eventPlayer.isHoldingButton(Button.ULTIMATE):
+            # With the same buttons still held, the wait only passed because the input can
+            # run. The code after a wait runs in the tick it passes (tested), so that still
+            # holds.
+            eventPlayer.ultInputDone = true
+            if eventPlayer.ultInputKey == ULT_FAQ:
+                # Opens the FAQ, where either fire turns its pages, once Melee is let go, so
+                # the same press doesn't close it again at once
+                waitUntil(not eventPlayer.isHoldingButton(Button.MELEE), Math.INFINITY)
+                eventPlayer.faqPage = 1
+            elif ultInputIs(ULT_PREV_CP):
+                prevCpInput()
+            elif ultInputIs(ULT_NEXT_CP):
+                nextCpInput()
+            elif ultInputIs(ULT_NEW_RUN):
+                newRunInput()
+            elif ultInputIs(ULT_FREEMODE):
+                freemodeInput()
+            elif ultInputIs(ULT_SCORECARD):
+                eventPlayer.isScorecardHidden = not eventPlayer.isScorecardHidden
+            elif ultInputIs(ULT_SPECTATE):
+                toggleSpectator()
+            elif ultInputIs(ULT_LOBBY):
+                lobbyInput()
+
+
+def prevCpInput():
+    @Name "Prev. Checkpoint"
 
     eventPlayer.isLoading = true
     # Watching someone, this switches to freecam, whose swap to Jetpack Cat finishes first
@@ -509,29 +641,11 @@ rule "Prev. Checkpoint Input":
     eventPlayer.isLoading = false
 
 
-rule "Next Checkpoint Input":
-    @Event eachPlayer
-    @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
-    @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
-    @Condition eventPlayer.isHoldingButton(Button.SECONDARY_FIRE) == true
-    # Next Language (HUD Input)
-    @Condition eventPlayer.isHoldingButton(Button.JUMP) == false
-    @Condition eventPlayer.isHoldingButton(Button.RELOAD) == false
-    @Condition eventPlayer.isHoldingButton(Button.INTERACT) == false
-    @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
-    @Condition eventPlayer.spectating[5] == false
-    @Condition (
-        (eventPlayer.runCurrentCp < lastCp and not eventPlayer.spectating[0])
-        or (eventPlayer.spectating[4] < lastCp and eventPlayer.spectating[0])
-    ) == true
-    @Condition eventPlayer.isInLobby == false
-    @Condition (eventPlayer.hasSpawned() and not eventPlayer.isLoading) == true
-    @Condition eventPlayer.faqPage == 0
+def nextCpInput():
+    @Name "Next Checkpoint"
 
     eventPlayer.isLoading = true
-    # Like Prev. Checkpoint Input
+    # Like Prev. Checkpoint
     if eventPlayer.spectating[0] and not eventPlayer.spectating[2]:
         swapToJetpackCat()
     eventPlayer.setSecondaryFireEnabled(false)
@@ -622,18 +736,8 @@ rule "Reset Checkpoint Input":
     eventPlayer.isLoading = false
 
 
-rule "New Run Input":
-    @Event eachPlayer
-    @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
-    @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
-    @Condition eventPlayer.isHoldingButton(Button.SECONDARY_FIRE) == false
-    @Condition eventPlayer.isHoldingButton(Button.JUMP) == false
-    @Condition eventPlayer.isHoldingButton(Button.RELOAD) == true
-    @Condition eventPlayer.isHoldingButton(Button.INTERACT) == false
-    @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
-    @Condition eventPlayer.faqPage == 0
+def newRunInput():
+    @Name "New Run"
 
     waitUntil(
         not (
@@ -657,22 +761,8 @@ rule "New Run Input":
     eventPlayer.isLoading = false
 
 
-rule "Freemode Input":
-    @Event eachPlayer
-    @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
-    @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
-    @Condition eventPlayer.isHoldingButton(Button.SECONDARY_FIRE) == false
-    @Condition eventPlayer.isHoldingButton(Button.JUMP) == false
-    @Condition eventPlayer.isHoldingButton(Button.RELOAD) == false
-    @Condition eventPlayer.isHoldingButton(Button.INTERACT) == true
-    @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
-    @Condition eventPlayer.spectating[0] == false
-    @Condition eventPlayer.spectating[5] == false
-    @Condition eventPlayer.isInLobby == false
-    @Condition eventPlayer.runCurrentCp < lastCp
-    @Condition eventPlayer.faqPage == 0
+def freemodeInput():
+    @Name "Freemode"
 
     eventPlayer.disallowButton(Button.MELEE)
     if not eventPlayer.isInFreemode:
@@ -747,21 +837,10 @@ rule "Load Freemode HUD":
 #!include "spectator.opy"
 
 
-rule "Lobby Input":
-    @Event eachPlayer
-    @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
-    @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
-    @Condition eventPlayer.isHoldingButton(Button.SECONDARY_FIRE) == false
-    @Condition eventPlayer.isHoldingButton(Button.JUMP) == false
-    @Condition eventPlayer.isHoldingButton(Button.RELOAD) == false
-    @Condition eventPlayer.isHoldingButton(Button.INTERACT) == false
-    @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == true
-    @Condition eventPlayer.spectating[5] == false
+def lobbyInput():
+    @Name "Lobby"
 
-    # A tap turns hints on or off. It shares this rule with Lobby/Pause because every
-    # eachPlayer rule adds to the server's load.
+    # A tap turns hints on or off, sharing Ultimate + Ability 2 with Lobby/Pause
     waitUntil(not eventPlayer.isHoldingButton(Button.ABILITY_2), 0.35)
     if not eventPlayer.isHoldingButton(Button.ABILITY_2):
         if (
@@ -777,7 +856,15 @@ rule "Lobby Input":
                 eventPlayer.isHintAutoOff = true
         return
     # Holding goes to Lobby/Pause, unless another button joined in or the FAQ is open
-    if eventPlayer.isInLobby or eventPlayer.faqPage > 0 or not RULE_CONDITION:
+    if (
+        eventPlayer.isInLobby
+        or eventPlayer.faqPage > 0
+        or not (
+            eventPlayer.isHoldingButton(Button.ULTIMATE)
+            and heldButtons(eventPlayer) == ULT_LOBBY
+            and not eventPlayer.spectating[5]
+        )
+    ):
         return
     eventPlayer.isLoading = true
     if eventPlayer.spectating[0]:
@@ -787,28 +874,6 @@ rule "Lobby Input":
     eventPlayer.isViewingRunCompletionText = false
     loadLobby()
     eventPlayer.isLoading = false
-
-
-rule "FAQ Input":
-    @Event eachPlayer
-    @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
-    @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
-    @Condition eventPlayer.isHoldingButton(Button.SECONDARY_FIRE) == false
-    @Condition eventPlayer.isHoldingButton(Button.JUMP) == false
-    @Condition eventPlayer.isHoldingButton(Button.RELOAD) == false
-    @Condition eventPlayer.isHoldingButton(Button.INTERACT) == false
-    @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
-    @Condition eventPlayer.isHoldingButton(Button.MELEE) == true
-    @Condition eventPlayer.spectating[5] == false
-    # Melee alone closes it, Ultimate or not (FAQ: Open)
-    @Condition eventPlayer.faqPage == 0
-
-    # Opens the FAQ, where either fire turns its pages, once Melee is let go, so the same
-    # press doesn't close it again at once
-    waitUntil(not eventPlayer.isHoldingButton(Button.MELEE), Math.INFINITY)
-    eventPlayer.faqPage = 1
 
 
 rule "Load Hints HUD":
@@ -842,19 +907,3 @@ rule "Load Hints HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-
-
-rule "Scorecard Input":
-    @Event eachPlayer
-    @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
-    @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
-    @Condition eventPlayer.isHoldingButton(Button.SECONDARY_FIRE) == false
-    @Condition eventPlayer.isHoldingButton(Button.JUMP) == false
-    @Condition eventPlayer.isHoldingButton(Button.RELOAD) == false
-    @Condition eventPlayer.isHoldingButton(Button.INTERACT) == false
-    @Condition eventPlayer.isHoldingButton(Button.CROUCH) == true
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == false
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
-    @Condition eventPlayer.spectating[5] == false
-
-    eventPlayer.isScorecardHidden = not eventPlayer.isScorecardHidden
