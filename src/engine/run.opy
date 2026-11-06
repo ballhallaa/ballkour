@@ -194,20 +194,17 @@ rule "Load HUD":
             and not localPlayer.spectating[3]
             and localPlayer.faqPage == 0
         ),
-        # Disqualified brings its own blank lines, so these are left out while it shows
-        ("{} {}{}").format(
-            iconString(Icon.SKULL),
-            localPlayer.viewRunner.runMistakes,
-            "\n\n" if localPlayer.viewRunner.isRunLegit else ""
+        ("{} {}\n\n").format(
+            iconString(Icon.SKULL), localPlayer.viewRunner.runMistakes
         ),
         HudPosition.RIGHT,
         1.2,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    # Its own HUD text, as a wider line in the mistakes' one would shift them left. A blank
-    # line above and below sets it apart, so the splits move down a line while it shows.
-    counterHudText[3] = _("\nDisqualified\n")
+    # At the top left, under Hints and above Freemode On, with a blank line above it like
+    # Freemode On. Freemode On drops its own blank line while it shows, so the two sit together.
+    counterHudText[3] = _("\nDisqualified")
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: not localPlayer.isInLobby
@@ -216,15 +213,15 @@ rule "Load HUD":
             and localPlayer.faqPage == 0
         ),
         _(counterHudText[3]),
-        HudPosition.RIGHT,
-        1.3,
+        HudPosition.LEFT,
+        0.9,
         rgb(255, 70, 70),
         HudReeval.VISIBILITY_AND_STRING
     )
     # The All-Time Top 3, then the Lobby Top 3, at the bottom of the right column, under the
     # splits, in one HUD text so they left-align. Hiding the scorecard leaves them up. The
-    # splits end without blank lines, so they bring 2; without the splits, Mistakes or
-    # Disqualified above already end in blank lines, and the CP while spectating ends in 1.
+    # splits end without blank lines, so they bring 2; without the splits, Mistakes above
+    # already ends in blank lines, and the CP while spectating ends in 1.
     # In the lobby, with nothing above them, they start at the top.
     allTimeRunsHudText = _("All-Time Top 3")
     topRunsHudText = _("Lobby Top 3")
@@ -329,8 +326,8 @@ rule "Update Scorecard":
             "" if scorecardPlayers[index].isRunLegit else " ×"
         )
         # Players spectating are blue, like Spectating, and in freemode violet, like Freemode
-        # On, disqualified or not. Disqualified runners are red, like Disqualified under the
-        # run's mistakes.
+        # On, disqualified or not. Disqualified runners are red, like Disqualified at the
+        # top left.
         scorecard = "{}\n{}".format(
             scorecard,
             (
