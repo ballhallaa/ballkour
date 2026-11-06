@@ -8,6 +8,8 @@
 #   gh workflow run leaderboard-bot.yml --ref develop -f dry_run=false -f course=all -f no_congrats=true
 # With not_new, the pictures have no NEW chip or green border on new runs (add no_congrats to also skip the pings):
 #   gh workflow run leaderboard-bot.yml --ref develop -f dry_run=false -f course=all -f no_congrats=true -f not_new=true
+# After posting, it gives every rated player their rating role on Discord, Top 0.1% … Top 90% or Rated (roles.mjs), and
+# it does that once a day too.
 name: Leaderboard bot
 
 on:
@@ -16,6 +18,9 @@ on:
     paths:
       - "leaderboards/**"
       - "!leaderboards/history.json"
+  # Once a day, so people who joined the server since get their Top % role (see tools/leaderboard-bot/roles.mjs)
+  schedule:
+    - cron: "17 6 * * *"
   workflow_dispatch:
     inputs:
       dry_run:
@@ -55,9 +60,13 @@ jobs:
     steps:
       # With the LEADERBOARD_DEPLOY_KEY secret set, history.json updates are pushed with that deploy key, which can
       # be allowed past develop's rules; without it, the workflow's own token is used
+      # Always develop as it is now, not the commit that started the run: runs sent from the website can land while
+      # another run is posting, and this way each run sees the boards the one before it posted, so nobody is
+      # congratulated twice. (The daily run would start on the default branch, main, otherwise.)
       - uses: actions/checkout@v5
         with:
           ssh-key: ${{ secrets.LEADERBOARD_DEPLOY_KEY }}
+          ref: develop
 
       - uses: actions/setup-node@v5
         with:
@@ -83,6 +92,15 @@ jobs:
           NO_CONGRATS: ${{ inputs.no_congrats && '1' || '' }}
           NOT_NEW: ${{ inputs.not_new && '1' || '' }}
         run: node bot.mjs
+
+      # One rating role per rated player (Top 0.1% … Top 90%, or Rated), even when no board changed. Not for legacy boards.
+      - name: Give out the rating roles
+        if: ${{ !cancelled() && !inputs.legacy }}
+        working-directory: tools/leaderboard-bot
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
+        run: node roles.mjs
 
       - name: Keep the pictures
         if: always()

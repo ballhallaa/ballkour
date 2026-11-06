@@ -1,6 +1,7 @@
 // Posts each course's leaderboard to its Discord channel when it changes: a picture of the top 10 and a
 // "Congrats @X, @Y, and @Z for the new top-10 times!" line that pings only the new runners. Then it adds the
-// new board to leaderboards/history.json, which is also how it knows what it has already posted.
+// new board to leaderboards/history.json, which is also how it knows what it has already posted. A board is the
+// course's file and the runs sent from the website (leaderboards/runs.json) together: see ratings.mjs.
 //
 // Run by .github/workflows/leaderboard-bot.yml. Settings come from the environment:
 //   DISCORD_BOT_TOKEN  the bot's token (without it, names and pictures from Discord are left out)
@@ -17,15 +18,14 @@
 
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { pathToFileURL } from "node:url";
 import { chromium } from "playwright";
 import { cardHtml } from "./card.mjs";
+import { HERE, HISTORY, GUILD, COURSES, DISCORD_ID, loadCourses } from "./boards.mjs";
+import { TOKEN, api } from "./discord.mjs";
+import { standings } from "./ratings.mjs";
 
-const HERE = path.dirname(fileURLToPath(import.meta.url));
-const REPO = process.env.REPO_ROOT ? path.resolve(process.env.REPO_ROOT) : path.resolve(HERE, "../..");
-const HISTORY = path.join(REPO, "leaderboards/history.json");
 const OUT = path.join(HERE, "out");
-const TOKEN = process.env.DISCORD_BOT_TOKEN || "";
 const DRY = !!process.env.DRY_RUN;
 // "3", "3,5,7", "3-12" or "all" → the set of course numbers, or null when nothing is forced
 function forced(spec) {
@@ -45,64 +45,6 @@ const FORCE = forced(process.env.FORCE_COURSE);
 const LEGACY = !!process.env.LEGACY;
 const NO_CONGRATS = !!process.env.NO_CONGRATS;
 const NOT_NEW = !!process.env.NOT_NEW;
-const API = "https://discord.com/api/v10";
-const { guild: GUILD, courses: COURSES } = JSON.parse(fs.readFileSync(path.join(HERE, "courses.json"), "utf8"));
-
-/* ---------- Reading the boards ---------- */
-const TIME = /^(\d{1,2}:)?\d{1,2}:\d{2}\.\d{2}$/;
-const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
-// "YYYY-MM-DD" stays as it is; "Mon D, YYYY" becomes YYYY-MM-DD
-function isoDate(s) {
-  const str = String(s || "").trim();
-  if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
-  const m = /^([A-Za-z]{3})[a-z]*\.?\s+(\d{1,2}),\s*(\d{4})$/.exec(str);
-  const mi = m ? MONTHS.indexOf(m[1].toLowerCase()) : -1;
-  return mi >= 0 ? `${m[3]}-${String(mi + 1).padStart(2, "0")}-${m[2].padStart(2, "0")}` : "";
-}
-const toSeconds = (t) => t.split(":").reduce((sum, part) => sum * 60 + Number(part), 0);
-
-const DISCORD_ID = /^\d{17,20}$/;
-// lb[i] = "NAME, M:SS.cc, MISTAKES, '...'"  # discord: ID
-// and lbRunInfo(rank, "YYYY-MM-DD", "host/path"), the same as the website reads
-function parseOpy(text) {
-  if (!/\blb\s*=\s*\[\s*\]/.test(text)) return null; // file layout changed: don't guess
-  const rows = [];
-  for (const m of text.matchAll(/lb\[(\d+)\]\s*=\s*"([^"]*)"(?:[ \t]*#[ \t]*discord:[ \t]*(\d{17,20})\b)?/g)) {
-    const [name, time, miss] = m[2].split(",").map((s) => s.trim());
-    if (name && TIME.test(time) && /^\d+$/.test(miss)) rows[Number(m[1])] = { name, discord: m[3] || "", time, mistakes: Number(miss), date: "", video: "" };
-  }
-  for (const m of text.matchAll(/lbRunInfo\(\s*(\d+)\s*,\s*"([^"]*)"\s*,\s*"([^"]*)"\s*\)/g)) {
-    const r = rows[Number(m[1])];
-    if (!r) continue;
-    r.date = isoDate(m[2]);
-    if (/^[a-z0-9.-]+\.[a-z]{2,}(\/[^\s"'<>]*)?$/i.test(m[3])) r.video = "https://" + m[3];
-  }
-  return rows.filter(Boolean).slice(0, 10);
-}
-// [{ "name", "discord", "time", "mistakes", "date", "video" }], the classic courses' files
-function parseJson(text) {
-  let runs;
-  try { runs = JSON.parse(text); } catch { return null; }
-  if (!Array.isArray(runs)) return null;
-  return runs
-    .filter((r) => r && typeof r.name === "string" && r.name.trim() && TIME.test(r.time) && Number.isInteger(r.mistakes) && r.mistakes >= 0)
-    .map((r) => ({
-      name: r.name.trim(),
-      discord: DISCORD_ID.test(r.discord) ? r.discord : "",
-      time: r.time,
-      mistakes: r.mistakes,
-      date: isoDate(r.date),
-      video: typeof r.video === "string" && /^https:\/\/[^\s"'<>]+$/.test(r.video) ? r.video : "",
-    }))
-    .sort((a, b) => toSeconds(a.time) - toSeconds(b.time) || a.mistakes - b.mistakes)
-    .slice(0, 10);
-}
-function liveBoard(course) {
-  const file = path.join(REPO, course.file);
-  if (!fs.existsSync(file)) return null;
-  const text = fs.readFileSync(file, "utf8");
-  return course.file.endsWith(".opy") ? parseOpy(text) : parseJson(text);
-}
 
 /* ---------- History ---------- */
 // The player is their Discord ID when both runs have one, and their name otherwise
@@ -132,25 +74,6 @@ function dumpHistory(data) {
 }
 
 /* ---------- Discord ---------- */
-const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-async function api(method, route, body) {
-  for (let attempt = 0; attempt < 4; attempt++) {
-    const isForm = body instanceof FormData;
-    const res = await fetch(API + route, {
-      method,
-      headers: { Authorization: `Bot ${TOKEN}`, ...(body && !isForm ? { "Content-Type": "application/json" } : {}) },
-      body: isForm ? body : body ? JSON.stringify(body) : undefined,
-    });
-    if (res.status === 429) { // rate limited: wait as long as Discord asks
-      const wait = (await res.json().catch(() => ({}))).retry_after || 1;
-      await sleep(wait * 1000 + 250);
-      continue;
-    }
-    if (!res.ok) throw new Error(`${method} ${route} → ${res.status} ${await res.text()}`);
-    return res.status === 204 ? null : res.json();
-  }
-  throw new Error(`${method} ${route} → still rate limited`);
-}
 async function dataUri(url) {
   try {
     const res = await fetch(url);
@@ -244,7 +167,8 @@ function fonts() {
 const history = JSON.parse(fs.readFileSync(HISTORY, "utf8"));
 const jobs = [];
 for (const course of LEGACY ? COURSES : []) {
-  const runs = history[course.n] && Array.isArray(history[course.n].legacy) ? history[course.n].legacy : [];
+  // The legacy top 10 (history.json keeps every legacy run, so the website can show them all)
+  const runs = history[course.n] && Array.isArray(history[course.n].legacy) ? history[course.n].legacy.slice(0, 10) : [];
   if (!runs.length || (FORCE && FORCE !== "all" && !FORCE.has(course.n))) continue;
   if (!course.legacyChannel) {
     console.warn(`${course.n} ${course.name} has a legacy board but no legacyChannel in courses.json, so it's skipped`);
@@ -252,9 +176,12 @@ for (const course of LEGACY ? COURSES : []) {
   }
   jobs.push({ course, list: [runs], at: 0, isNew: false, legacy: true, channel: course.legacyChannel });
 }
+// Each course's top 10: its file and the runs sent from the website, together (see ratings.mjs)
+const boards = new Map(loadCourses().map((c) => [c.n, c]));
 for (const course of LEGACY ? [] : COURSES) {
   const archived = (history[course.n] && Array.isArray(history[course.n].boards)) ? history[course.n].boards : [];
-  const live = liveBoard(course);
+  const data = boards.get(course.n);
+  const live = data.ok ? standings(data).top : null;
   if (FORCE) {
     if (FORCE !== "all" && !FORCE.has(course.n)) continue;
     // The newest posted board, or the live one if none was posted yet, or an empty board if there are no runs
