@@ -68,7 +68,7 @@ rule "Format Elapsed Time":
 rule "Spawn Disruptive Environment Destructors (DEDs)":
     waitUntil(hostPlayer.hasSpawned(), Math.INFINITY)
     # ded[i]: [0]nextDedInNewBatch [1]batchSize [2]currentDed [3]dedEntity [4]slot
-    ded = [1, 0, 0, 0, 0]
+    ded = [0, 0, 0, 0, 0]
     while ded[0] < len(dedBots):
         # Each bot counts as a player for every eachPlayer rule and HUD text, so filling
         # every free slot at once, on top of the match's own start, closed Paraíso's server
@@ -76,7 +76,7 @@ rule "Spawn Disruptive Environment Destructors (DEDs)":
         waitUntil(getServerLoad() < 50, 2)
         ded[1] = min(
             min(
-                getNumberOfSlots(dedBots[0]) - len(getPlayers(dedBots[0])),
+                getNumberOfSlots(PLAYER_TEAM) - len(getPlayers(PLAYER_TEAM)),
                 len(dedBots) - ded[0]
             ),
             DED_BATCH_SIZE
@@ -85,12 +85,12 @@ rule "Spawn Disruptive Environment Destructors (DEDs)":
             wait(1)
         else:
             ded[2] = 0
-            ded[4] = getNumberOfSlots(dedBots[0]) - 1
+            ded[4] = getNumberOfSlots(PLAYER_TEAM) - 1
             while ded[2] < ded[1] and ded[4] >= 0:
-                if getPlayersInSlot(ded[4], dedBots[0]) == null:
+                if getPlayersInSlot(ded[4], PLAYER_TEAM) == null:
                     createDummy(
                         Hero.LUCIO,
-                        dedBots[0],
+                        PLAYER_TEAM,
                         ded[4],
                         dedBots[ded[0] + ded[2]][0],
                         directionTowards(
@@ -99,7 +99,9 @@ rule "Spawn Disruptive Environment Destructors (DEDs)":
                     )
                     ded[3] = getLastCreatedEntity()
                     ded[3].startForcingName(
-                        "Disruptive Environment Destructor {}".format(ded[0] + ded[2])
+                        "Disruptive Environment Destructor {}".format(
+                            ded[0] + ded[2] + 1
+                        )
                     )
                     ded[2] = ded[2] + 1
                 ded[4] = ded[4] - 1
