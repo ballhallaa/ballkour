@@ -179,6 +179,11 @@ rule "Hide Delta":
     while getTotalTimeElapsed() < eventPlayer.splitDelta[4]:
         wait(eventPlayer.splitDelta[4] - getTotalTimeElapsed())
     eventPlayer.isShowingSplitDelta = false
+    # A clear in this same tick sets it back to true without starting this rule again, which
+    # left the delta showing until the next run, so check again next tick
+    wait()
+    if RULE_CONDITION:
+        loop()
 
 
 def recordSplit():
