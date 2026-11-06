@@ -27,6 +27,9 @@ globalvar cps
 # -1 until Checkpoint: Expand Data sets it, so nobody counts as being on the final checkpoint
 globalvar lastCp = -1
 globalvar cpDefaults
+# Orbs past each checkpoint line's own, as pairs: vect(checkpoint, 0, 0), then the orb
+globalvar cpExtraOrbs
+globalvar cpOrbScratch
 
 # Hints
 globalvar hintData

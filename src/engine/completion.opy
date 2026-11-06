@@ -25,6 +25,13 @@ rule "Checkpoint (No Skipping)":
         <= eventPlayer.cpData[8]
     )
 
+    # An orb checkpoint only clears with all its orbs, so landing here without them is a mistake
+    if eventPlayer.cpData[5] != null and not hasAllOrbs(eventPlayer):
+        eventPlayer.isLoading = true
+        addMistake()
+        cpResetPlayer()
+        eventPlayer.isLoading = false
+        return
     stopChasingVariable(eventPlayer.cpTime)
     recordSplit()
     if isHintRecorderOn and eventPlayer == hostPlayer:

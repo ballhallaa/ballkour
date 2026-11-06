@@ -22,7 +22,7 @@
 #!include "engine/splits.opy"
 #!include "engine/movement.opy"
 #!include "engine/mistakes.opy"
-#!include "engine/bounce-checkpoints.opy"
+#!include "engine/orb-checkpoints.opy"
 #!include "engine/completion.opy"
 #!include "engine/controls.opy"
 #!include "engine/faq.opy"

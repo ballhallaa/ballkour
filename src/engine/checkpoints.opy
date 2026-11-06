@@ -4,24 +4,36 @@
 
 rule "Expand Data":
     # Unpacks each map's cps and fills in what it leaves out, so cps[i] becomes:
-    # [0]cpLocation [1]cpSize [2]isGrappleAllowed [3]isShieldBounceAllowed [4]isPiledriverAllowed [5]bounceLocation [6]bounceSize [7]nextCpLocation [8]nextCpSize
+    # [0]cpLocation [1]cpSize [2]isGrappleAllowed [3]isShieldBounceAllowed [4]isPiledriverAllowed [5]orbLocations [6]orbSize [7]nextCpLocation [8]nextCpSize
     # and the final checkpoint becomes [0]cpLocation [1]cpSize
+    # orbLocations is the line's orb, then the map's cpExtraOrbs for it, or null without any
+    cpOrbScratch = []
+    if cpExtraOrbs:
+        hintScratch = cpExtraOrbs
+        decompressScratch()
+        cpOrbScratch = hintScratch
     hintScratch = cps
     decompressScratch()
     lastCp = (len(hintScratch) - 1) / 3
     cps = []
     for index in range(lastCp):
+        # The orbs first, so the list can be checked for being empty
+        cps[index] = (
+            [hintScratch[index * 3 + 2]]
+            if hintScratch[index * 3 + 2] != vect(0, 0, 0)
+            else []
+        ).concat(
+            cpOrbScratch.filter(
+                lambda orb, i: i % 2 == 1 and cpOrbScratch[i - 1].x == index
+            )
+        )
         cps[index] = [
             hintScratch[index * 3],
             cpDefaults[0],
             hintScratch[index * 3 + 1].x != 0,
             hintScratch[index * 3 + 1].y != 0,
             hintScratch[index * 3 + 1].z != 0,
-            (
-                hintScratch[index * 3 + 2]
-                if hintScratch[index * 3 + 2] != vect(0, 0, 0)
-                else null
-            ),
+            cps[index] if len(cps[index]) > 0 else null,
             cpDefaults[1],
             hintScratch[(index + 1) * 3],
             cpDefaults[2]
@@ -32,9 +44,11 @@ rule "Expand Data":
 def loadCpData():
     @Name "Load Data"
 
-    # eventPlayer.cpData[i]: [0]cpLocation [1]cpSize [2]isGrappleAllowed [3]isShieldBounceAllowed [4]isPiledriverAllowed [5]bounceLocation [6]bounceSize [7]nextCpLocation [8]nextCpSize [9]isJumping [10]hasJumped [11]hasBhopped [12]isGrappling [13]hasUsedGrapple [14]hasShieldBounced [15]isPiledriving [16]hasUsedBounceJump
-    # Copying the checkpoint leaves [9] onwards unset, which reads as false
+    # eventPlayer.cpData[i]: [0]cpLocation [1]cpSize [2]isGrappleAllowed [3]isShieldBounceAllowed [4]isPiledriverAllowed [5]orbLocations [6]orbSize [7]nextCpLocation [8]nextCpSize [9]isJumping [10]hasJumped [11]hasBhopped [12]isGrappling [13]hasUsedGrapple [14]hasShieldBounced [15]isPiledriving [16]grabbedOrbs
+    # Copying the checkpoint leaves [9] onwards unset, which reads as false. [16] starts at 0
+    # since the Grab Orb rule adds to it.
     eventPlayer.cpData = cps[eventPlayer.runCurrentCp]
+    eventPlayer.cpData[16] = 0
     eventPlayer.cpTime = 0
     eventPlayer.splitStart = eventPlayer.runTime
     # The run can be paused here (after a go-back or skip), which stops the formatting loop
@@ -100,6 +114,24 @@ macro isViewingCp(player):
     (not player.isInLobby and player.viewCp != lastCp)
 
 
+# cpData[16] keeps one bit per orb of the checkpoint: 1 for the first, 2 for the second...
+macro hasGrabbedOrb(player, orbIndex):
+    (floor(player.cpData[16] / 2**orbIndex) % 2 == 1)
+
+
+macro hasAllOrbs(player):
+    (player.cpData[16] == 2 ** len(player.cpData[5]) - 1)
+
+
+# Until the runner being viewed (the player, unless spectating) grabs it
+macro isViewingOrb(player, orbIndex):
+    (
+        isViewingCp(player)
+        and cps[player.viewCp][5][orbIndex] != null
+        and not hasGrabbedOrb(player.viewRunner, orbIndex)
+    )
+
+
 rule "Load Objects":
     createEffect(
         getAllPlayers().filter(lambda localPlayer: isViewingCp(localPlayer)),
@@ -109,28 +141,19 @@ rule "Load Objects":
         cps[localPlayer.viewCp][1],
         EffectReeval.VISIBILITY_POSITION_AND_RADIUS
     )
-    createEffect(
-        getAllPlayers().filter(
-            lambda localPlayer: isViewingCp(localPlayer)
-            and cps[localPlayer.viewCp][5] != null
-        ),
-        Effect.RING,
-        Color.ORANGE,
-        cps[localPlayer.viewCp][5],
-        cps[localPlayer.viewCp][6],
-        EffectReeval.VISIBILITY_POSITION_AND_RADIUS
-    )
-    createIcon(
-        getAllPlayers().filter(
-            lambda localPlayer: isViewingCp(localPlayer)
-            and cps[localPlayer.viewCp][5] != null
-        ),
-        cps[localPlayer.viewCp][5],
-        Icon.ARROW_UP,
-        IconReeval.VISIBILITY_AND_POSITION,
-        Color.YELLOW,
-        false
-    )
+    # The orbs look like the ones in Fasteroid's fork of the Giga editor (orange), without
+    # their arrow. One effect per orb slot, as many as the checkpoint with the most orbs needs.
+    for index in range(sorted(cps.map(lambda cp: len(cp[5]))).last()):
+        createEffect(
+            getAllPlayers().filter(
+                lambda localPlayer: isViewingOrb(localPlayer, evalOnce(index))
+            ),
+            Effect.ORB,
+            Color.ORANGE,
+            cps[localPlayer.viewCp][5][evalOnce(index)],
+            cps[localPlayer.viewCp][6],
+            EffectReeval.VISIBILITY_POSITION_AND_RADIUS
+        )
     createEffect(
         getAllPlayers().filter(lambda localPlayer: isViewingCp(localPlayer)),
         Effect.RING,

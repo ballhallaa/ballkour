@@ -1,14 +1,15 @@
 #!mainFile "3-paraíso.opy"
 
 rule "Checkpoints":
-    # cpDefaults[i]: [0]cpSize [1]bounceSize [2]nextCpSize
+    # cpDefaults[i]: [0]cpSize [1]orbSize [2]nextCpSize
     cpDefaults = []
     cpDefaults[0] = 2.5
-    cpDefaults[1] = 2.5
+    cpDefaults[1] = 1
     cpDefaults[2] = 2.5
     # cps is one compressed vector array, which Expand Data unpacks. Each line is a checkpoint:
     # its location, vect(isGrappleAllowed, isShieldBounceAllowed, isPiledriverAllowed), and its
-    # bounce location, or vect(0, 0, 0) without a bounce. The final checkpoint only has its location.
+    # orb location, or vect(0, 0, 0) without an orb. Orbs are only grabbed in the air, so put one
+    # where the jump takes the player. The final checkpoint only has its location.
     # Sizes come from cpDefaults. compress() keeps 2 decimals.
     cps = compress(
         [
