@@ -12,24 +12,7 @@ macro canSwapHero(player):
     getTotalTimeElapsed() - player.heroSwapTime >= SWAP_COOLDOWN
 
 
-rule "Mode Input":
-    @Event eachPlayer
-    @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == true
-    @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
-    @Condition eventPlayer.isHoldingButton(Button.SECONDARY_FIRE) == false
-    @Condition eventPlayer.isHoldingButton(Button.JUMP) == false
-    @Condition eventPlayer.isHoldingButton(Button.RELOAD) == false
-    @Condition eventPlayer.isHoldingButton(Button.INTERACT) == false
-    @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == true
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
-    @Condition eventPlayer.spectating[5] == false
-    @Condition eventPlayer.faqPage == 0
-
-    toggleSpectator()
-
-
-# Mode Input, and the lobby's Spectate button
+# Controls: Ultimate Input, and the lobby's Spectate button
 def toggleSpectator():
     @Name "Toggle"
 
@@ -293,23 +276,89 @@ rule "Track If Anyone Is Spectatable":
     eventPlayer.spectating[7] = not eventPlayer.spectating[7]
 
 
-rule "Prev. Player Input":
+# Ability 1 + each one, alone, without Ultimate, which is a bit above them (256) in
+# watchInputKey, like Melee (512), which they don't mind
+macro WATCH_PREV_PLAYER = 65
+macro WATCH_NEXT_PLAYER = 66
+macro WATCH_CROSSHAIR_PLAYER = 68
+macro WATCH_REATTACH = 72
+
+
+macro watchInputKeyNow():
+    (
+        heldButtons(eventPlayer)
+        + eventPlayer.isHoldingButton(Button.ULTIMATE) * 256
+        + eventPlayer.isHoldingButton(Button.MELEE) * 512
+    )
+
+
+# Like ultInputReady (Controls). Only switching from freecam swaps hero, hence canSwapHero.
+macro watchInputReady():
+    (
+        not eventPlayer.watchInputDone
+        and eventPlayer.faqPage == 0
+        and not eventPlayer.spectating[5]
+        and (
+            (
+                (
+                    eventPlayer.watchInputKey % 512 == WATCH_PREV_PLAYER
+                    or eventPlayer.watchInputKey % 512 == WATCH_NEXT_PLAYER
+                )
+                and eventPlayer.spectating[7]
+                and (not eventPlayer.spectating[2] or canSwapHero(eventPlayer))
+            )
+            or (
+                eventPlayer.watchInputKey % 512 == WATCH_CROSSHAIR_PLAYER
+                and eventPlayer.spectating[2]
+                and eventPlayer.spectating[7]
+                and canSwapHero(eventPlayer)
+            )
+            or (
+                eventPlayer.watchInputKey % 512 == WATCH_REATTACH
+                and eventPlayer.spectating[1] != null
+                and eventPlayer.spectating[2]
+                and canSwapHero(eventPlayer)
+            )
+        )
+    )
+
+
+rule "Watch Input":
     @Event eachPlayer
-    @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
-    @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == true
-    @Condition eventPlayer.isHoldingButton(Button.SECONDARY_FIRE) == false
-    @Condition eventPlayer.isHoldingButton(Button.JUMP) == false
-    @Condition eventPlayer.isHoldingButton(Button.RELOAD) == false
-    @Condition eventPlayer.isHoldingButton(Button.INTERACT) == false
-    @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
     @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == true
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
     @Condition eventPlayer.spectating[0] == true
-    @Condition eventPlayer.faqPage == 0
-    @Condition eventPlayer.spectating[5] == false
-    @Condition len(spectatablePlayers(eventPlayer)) > 0
-    # Only switching from freecam swaps hero
-    @Condition (not eventPlayer.spectating[2] or canSwapHero(eventPlayer)) == true
+
+    # Prev./Next Player, X-Hair Player and Reattach, in one rule like Controls: Ultimate Input
+    eventPlayer.watchInputKey = -1
+    while eventPlayer.isHoldingButton(Button.ABILITY_1) and eventPlayer.spectating[0]:
+        waitUntil(
+            not eventPlayer.isHoldingButton(Button.ABILITY_1)
+            or not eventPlayer.spectating[0]
+            or watchInputKeyNow() != eventPlayer.watchInputKey
+            or watchInputReady(),
+            Math.INFINITY
+        )
+        eventPlayer.watchInputLastKey = eventPlayer.watchInputKey
+        eventPlayer.watchInputKey = watchInputKeyNow()
+        if eventPlayer.watchInputKey != eventPlayer.watchInputLastKey:
+            eventPlayer.watchInputDone = false
+        elif (
+            eventPlayer.isHoldingButton(Button.ABILITY_1) and eventPlayer.spectating[0]
+        ):
+            # Like Ultimate Input, the input can run
+            eventPlayer.watchInputDone = true
+            if eventPlayer.watchInputKey % 512 == WATCH_PREV_PLAYER:
+                prevPlayerInput()
+            elif eventPlayer.watchInputKey % 512 == WATCH_NEXT_PLAYER:
+                nextPlayerInput()
+            elif eventPlayer.watchInputKey % 512 == WATCH_CROSSHAIR_PLAYER:
+                crosshairPlayerInput()
+            elif eventPlayer.watchInputKey % 512 == WATCH_REATTACH:
+                reattachToSpectatingTarget()
+
+
+def prevPlayerInput():
+    @Name "Prev. Player"
 
     if not (eventPlayer.spectating[2] and eventPlayer.spectating[3]):
         eventPlayer.spectating[1].spectating[10]--
@@ -324,22 +373,8 @@ rule "Prev. Player Input":
     eventPlayer.spectating[4] = eventPlayer.spectating[1].runCurrentCp
 
 
-rule "Next Player Input":
-    @Event eachPlayer
-    @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
-    @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
-    @Condition eventPlayer.isHoldingButton(Button.SECONDARY_FIRE) == true
-    @Condition eventPlayer.isHoldingButton(Button.JUMP) == false
-    @Condition eventPlayer.isHoldingButton(Button.RELOAD) == false
-    @Condition eventPlayer.isHoldingButton(Button.INTERACT) == false
-    @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == true
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
-    @Condition eventPlayer.spectating[0] == true
-    @Condition eventPlayer.faqPage == 0
-    @Condition eventPlayer.spectating[5] == false
-    @Condition len(spectatablePlayers(eventPlayer)) > 0
-    @Condition (not eventPlayer.spectating[2] or canSwapHero(eventPlayer)) == true
+def nextPlayerInput():
+    @Name "Next Player"
 
     if not (eventPlayer.spectating[2] and eventPlayer.spectating[3]):
         eventPlayer.spectating[1].spectating[10]--
@@ -360,23 +395,8 @@ rule "Next Player Input":
     eventPlayer.spectating[4] = eventPlayer.spectating[1].runCurrentCp
 
 
-rule "Crosshair Player Input":
-    @Event eachPlayer
-    @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
-    @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
-    @Condition eventPlayer.isHoldingButton(Button.SECONDARY_FIRE) == false
-    @Condition eventPlayer.isHoldingButton(Button.JUMP) == true
-    @Condition eventPlayer.isHoldingButton(Button.RELOAD) == false
-    @Condition eventPlayer.isHoldingButton(Button.INTERACT) == false
-    @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == true
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
-    @Condition eventPlayer.spectating[0] == true
-    @Condition eventPlayer.spectating[2] == true
-    @Condition eventPlayer.faqPage == 0
-    @Condition eventPlayer.spectating[5] == false
-    @Condition len(spectatablePlayers(eventPlayer)) > 0
-    @Condition canSwapHero(eventPlayer)
+def crosshairPlayerInput():
+    @Name "Crosshair Player"
 
     eventPlayer.spectating[8] = getAllPlayers().filter(
         lambda p: p != eventPlayer
@@ -635,26 +655,6 @@ def syncSpectatorCps():
     getAllPlayers().filter(
         lambda p: p.spectating[1] == eventPlayer and not p.spectating[3]
     ).spectating[4] = eventPlayer.runCurrentCp
-
-
-rule "Reattach Input":
-    @Event eachPlayer
-    @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
-    @Condition eventPlayer.isHoldingButton(Button.PRIMARY_FIRE) == false
-    @Condition eventPlayer.isHoldingButton(Button.SECONDARY_FIRE) == false
-    @Condition eventPlayer.isHoldingButton(Button.JUMP) == false
-    @Condition eventPlayer.isHoldingButton(Button.RELOAD) == true
-    @Condition eventPlayer.isHoldingButton(Button.INTERACT) == false
-    @Condition eventPlayer.isHoldingButton(Button.CROUCH) == false
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_1) == true
-    @Condition eventPlayer.isHoldingButton(Button.ABILITY_2) == false
-    @Condition eventPlayer.spectating[1] != null
-    @Condition eventPlayer.spectating[2] == true
-    @Condition eventPlayer.faqPage == 0
-    @Condition eventPlayer.spectating[5] == false
-    @Condition canSwapHero(eventPlayer)
-
-    reattachToSpectatingTarget()
 
 
 def reattachToSpectatingTarget():

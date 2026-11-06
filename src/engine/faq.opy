@@ -23,12 +23,12 @@ rule "Open":
     @Event eachPlayer
     @Condition eventPlayer.faqPage > 0
 
-    # Controls: FAQ Input opens and closes it. Every eachPlayer rule adds to the server's
-    # periodic load, and six of them for the FAQ were enough to close the server, so this one
-    # rule does all of it: closing, turning pages, the sky camera, and locking the player in
-    # place. Melee closes the FAQ and Primary/Secondary Fire turn its pages, and Melee is off
-    # while it's open so it doesn't punch. Jump stays off too, so the player stays put, and
-    # once it closes until Jump is let go.
+    # Controls: Ultimate Input opens and closes it. Every eachPlayer rule adds to the
+    # server's periodic load, and six of them for the FAQ were enough to close the server, so
+    # this one rule does all of it: closing, turning pages, the sky camera, and locking the
+    # player in place. Melee closes the FAQ and Primary/Secondary Fire turn its pages, and
+    # Melee is off while it's open so it doesn't punch. Jump stays off too, so the player
+    # stays put, and once it closes until Jump is let go.
     eventPlayer.disallowButton(Button.JUMP)
     eventPlayer.disallowButton(Button.MELEE)
     # Every HUD text but the FAQ's hides while it's open, and so does the hero's own HUD
@@ -114,7 +114,7 @@ rule "Open":
             )
         if eventPlayer.isHoldingButton(Button.MELEE):
             # Closing once Melee is let go, so with Ultimate held it doesn't open again
-            # (Controls: FAQ Input)
+            # (Controls: Ultimate Input)
             waitUntil(not eventPlayer.isHoldingButton(Button.MELEE), Math.INFINITY)
             eventPlayer.faqPage = 0
         elif isTurningFaqPage(eventPlayer):

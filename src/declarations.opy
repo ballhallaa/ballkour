@@ -206,6 +206,14 @@ playervar isInFreemode
 playervar isScorecardHidden
 playervar scorecardKey
 playervar scorecardSecond
+# Ultimate Input / Watch Input: the buttons held (heldButtons) and the ones before, and
+# whether that combination's input already ran, so holding it doesn't run it again
+playervar ultInputKey
+playervar ultInputLastKey
+playervar ultInputDone
+playervar watchInputKey
+playervar watchInputLastKey
+playervar watchInputDone
 
 # Spectating
 playervar spectating
@@ -254,7 +262,17 @@ subroutine resetCpMistakes
 # Time Formatting
 subroutine formatTime
 
+# Controls
+subroutine prevCpInput
+subroutine nextCpInput
+subroutine newRunInput
+subroutine freemodeInput
+subroutine lobbyInput
+
 # Spectating
+subroutine prevPlayerInput
+subroutine nextPlayerInput
+subroutine crosshairPlayerInput
 subroutine toggleSpectator
 subroutine enableSpectator
 subroutine disableSpectator
