@@ -1,9 +1,5 @@
 {
   "runs": {},
-  "pending": {
-    "1": [
-      {"name": "BALLMYBLOVED", "discord": "175372497720573953", "time": "1:23.45", "mistakes": 1, "date": "2026-11-07", "video": "https://youtube.com/hi", "id": "EGZSpfdn"}
-    ]
-  },
+  "pending": {},
   "removed": {}
 }
