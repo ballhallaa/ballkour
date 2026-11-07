@@ -23,7 +23,7 @@ import { chromium } from "playwright";
 import { cardHtml } from "./card.mjs";
 import { HERE, HISTORY, GUILD, COURSES, DISCORD_ID, loadCourses } from "./boards.mjs";
 import { TOKEN, api } from "./discord.mjs";
-import { standings } from "./ratings.mjs";
+import { standings, rate, playerKey } from "./ratings.mjs";
 
 const OUT = path.join(HERE, "out");
 const DRY = !!process.env.DRY_RUN;
@@ -178,6 +178,8 @@ for (const course of LEGACY ? COURSES : []) {
 }
 // Each course's top 10: its file and the runs sent from the website, together (see ratings.mjs)
 const boards = new Map(loadCourses().map((c) => [c.n, c]));
+// Each player's rating over every course, shown on their rows (not on legacy boards, which don't count toward it)
+const ratingOf = new Map(rate([...boards.values()]).players.map((p) => [p.key, p.rating]));
 for (const course of LEGACY ? [] : COURSES) {
   const archived = (history[course.n] && Array.isArray(history[course.n].boards)) ? history[course.n].boards : [];
   const data = boards.get(course.n);
@@ -224,7 +226,8 @@ for (const { course, list, at, isNew, legacy, channel } of jobs) {
     const base = legacy ? `${slug}-legacy` : board ? `${slug}-board-${board}` : `${slug}-empty`;
     const filename = `${base}.png`;
     const htmlFile = path.join(OUT, `${base}.html`);
-    fs.writeFileSync(htmlFile, cardHtml({ course, board, date: boardDate(runs), runs, fresh: NOT_NEW ? new Set() : fresh, people, logo, fonts: fontUrls, legacy }));
+    fs.writeFileSync(htmlFile, cardHtml({ course, board, date: boardDate(runs), runs, fresh: NOT_NEW ? new Set() : fresh, people, logo, fonts: fontUrls, legacy,
+      ratings: legacy ? new Map() : new Map(runs.filter((r) => ratingOf.has(playerKey(r))).map((r) => [r, ratingOf.get(playerKey(r))])) }));
     await page.goto(pathToFileURL(htmlFile).href, { waitUntil: "load" });
     await page.evaluate(() => document.fonts.ready);
     const png = await page.locator(".card").screenshot({ path: path.join(OUT, filename) });
