@@ -4,7 +4,11 @@
       {"name": "BALLMYBLOVED", "discord": "175372497720573953", "time": "1:23:45.67", "mistakes": 21, "date": "2026-11-08", "video": "https://youtu.be/oHg5SJYRHA0", "id": "vfv45xqD", "sentAt": "2026-11-08T22:00:11Z"}
     ]
   },
-  "pending": {},
+  "pending": {
+    "1": [
+      {"name": "BALLMYBLOVED", "discord": "175372497720573953", "time": "1:23.45", "mistakes": 21, "date": "2026-11-08", "video": "https://youtu.be/oHg5SJYRHA0", "id": "g3PMR6wq", "sentAt": "2026-11-08T22:02:16Z"}
+    ]
+  },
   "declined": {},
   "removed": {}
 }
