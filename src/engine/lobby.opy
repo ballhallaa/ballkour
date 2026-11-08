@@ -13,11 +13,11 @@ macro LOBBY_HEIGHT = 100
 macro LOBBY_DISTANCE = 10
 # The buttons, with the leaderboard under them. Players arrive looking at LOOK_ANGLE, the
 # 5th row, from where all of it fits on screen between BALLKOUR.COM and their guns. The top
-# button is as high as it goes while staying clear of BALLKOUR.COM, so looking straight up
+# button sits about a button's gap under BALLKOUR.COM, high enough that looking straight up
 # from anywhere shows some of it (players can't look up past 89°), and the 5th is a
 # button's spacing above the leaderboard's title.
-macro BUTTON_ANGLE = -86
-macro BUTTON_SPACING = 2.9
+macro BUTTON_ANGLE = -84.5
+macro BUTTON_SPACING = 2.6
 macro TITLE_ANGLE = -71.5
 macro ROW_ANGLE = -67.3
 macro ROW_SPACING = 3
