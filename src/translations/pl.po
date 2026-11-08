@@ -3,6 +3,9 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Language: pl\n"
 "X-Generator: OverPy\n"
+"PO-Revision-Date: 2026-11-08 00:56+0000\n"
+"Plural-Forms: nplurals=3; plural=n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"Content-Transfer-Encoding: 8bit\n"
 
 # TODO: check if all occurrences have the same translation
 #. 3 occurrences:
@@ -201,7 +204,7 @@ msgstr "Zamknij: <fgFFFFFFFF>@0</fg>"
 
 #. file lobby.opy, rule "Load Leaderboard"
 msgid "Leaderboard"
-msgstr "Ranking"
+msgstr "Tabela wyników"
 
 #. file lobby.opy, rule "Load Leaderboard"
 msgid "Back"
