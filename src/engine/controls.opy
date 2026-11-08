@@ -780,6 +780,8 @@ def freemodeInput():
         eventPlayer.isInFreemode = true
     else:
         eventPlayer.isLoading = true
+        # Freemode can't clear CPs, and turning it off away from the CP puts the player back
+        # on it, so it doesn't disqualify the run
         if (
             distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
             > eventPlayer.cpData[1]
@@ -790,30 +792,6 @@ def freemodeInput():
         showCpNameplate()
         eventPlayer.isLoading = false
     eventPlayer.allowButton(Button.MELEE)
-
-
-rule "Left CP In Freemode":
-    @Event eachPlayer
-    @Condition (
-        eventPlayer.hasSpawned()
-        and not eventPlayer.isLoading
-        and not eventPlayer.isInLobby
-    ) == true
-    @Condition eventPlayer.isInFreemode == true
-    @Condition eventPlayer.isRunLegit == true
-    @Condition eventPlayer.runCurrentCp < lastCp
-    # Like skipping, leaving a CP already cleared this run is allowed
-    @Condition eventPlayer.runCurrentCp >= eventPlayer.runFurthestCp
-    @Condition eventPlayer.spectating[0] == false
-    @Condition (
-        distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
-        > eventPlayer.cpData[1]
-    )
-
-    # Freemode can't clear CPs, but it can be used to practice the ones ahead, so a run only
-    # stops counting once the player is away from their CP with freemode on.
-    # Turning it on mid-attempt counts too, as the player is already away from the CP.
-    eventPlayer.isRunLegit = false
 
 
 rule "Load Freemode HUD":

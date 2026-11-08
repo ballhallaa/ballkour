@@ -222,9 +222,9 @@ rule "Run Text":
     # Goes above completionHudText[4], so the shared lines are only stored once
     completionHudText[5] = _("<fgFFD200FF>                Top-10 Time!</fg>")
     completionHudText[6] = _(
-        "<fgFF4646FF>             Run Not Counted\n"
-        "Skipped CPs or Used Freemode</fg>\n\n"
-        "<fgFFFFFFFF>         Thanks for Playing!</fg>"
+        "<fgFF4646FF>   Run Not Counted</fg>\n"
+        "<fgFF4646FF>          Skipped CPs</fg>\n\n"
+        "<fgFFFFFFFF>Thanks for Playing!</fg>"
     )
     # One text for the three endings, as texts are capped at 128 per server, HUD texts
     # included (Lobby: Load Buttons). Every line has its own color, so the text's is unseen.
