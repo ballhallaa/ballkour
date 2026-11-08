@@ -176,46 +176,26 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    ctrlsHudText[5] = _("@0Disable Hints:                          @1@2 + @3</fg>")
-    ctrlsHudText[6] = _("@0Enable Hints:                           @1@2 + @3</fg>")
+    # Toggles them either way, so it's one line whether they're on or off
+    ctrlsHudText[5] = _(
+        "@0Hints:                                         @1@2 + @3</fg>"
+    )
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: controlsVisible(
                 isViewingCtrlsList(localPlayer) and localPlayer.faqPage == 0
             )
         ),
-        (
-            _(ctrlsHudText[5])
-            .replace("@0", "" if canToggleHints(localPlayer) else "<fg808080FF>")
-            .replace("@1", "<fgFFFFFFFF>" if canToggleHints(localPlayer) else "")
-            .replace("@2", inputBindingString(Button.ULTIMATE))
-            .replace("@3", inputBindingString(Button.ABILITY_2))
-            if allControlsOr(localPlayer.isHintOn)
-            else _(ctrlsHudText[6])
-            .replace("@0", "" if canToggleHints(localPlayer) else "<fg808080FF>")
-            .replace("@1", "<fgFFFFFFFF>" if canToggleHints(localPlayer) else "")
-            .replace("@2", inputBindingString(Button.ULTIMATE))
-            .replace("@3", inputBindingString(Button.ABILITY_2))
-        ),
+        _(ctrlsHudText[5])
+        .replace("@0", "" if canToggleHints(localPlayer) else "<fg808080FF>")
+        .replace("@1", "<fgFFFFFFFF>" if canToggleHints(localPlayer) else "")
+        .replace("@2", inputBindingString(Button.ULTIMATE))
+        .replace("@3", inputBindingString(Button.ABILITY_2)),
         HudPosition.TOP,
         4.06,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    # One line above shows Disable or Enable, so all the controls need Enable on its own
-    if ALL_CONTROLS:
-        hudSubheader(
-            getAllPlayers().filter(lambda localPlayer: localPlayer.faqPage == 0),
-            _(ctrlsHudText[6])
-            .replace("@0", "" if canToggleHints(localPlayer) else "<fg808080FF>")
-            .replace("@1", "<fgFFFFFFFF>" if canToggleHints(localPlayer) else "")
-            .replace("@2", inputBindingString(Button.ULTIMATE))
-            .replace("@3", inputBindingString(Button.ABILITY_2)),
-            HudPosition.TOP,
-            4.07,
-            rgb(230, 151, 0),
-            HudReeval.VISIBILITY_AND_STRING
-        )
     ctrlsHudText[7] = _("Spectate:                           <fgFFFFFFFF>@0 + @1</fg>")
     hudSubheader(
         getAllPlayers().filter(
@@ -233,27 +213,6 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    # Between Spectate and Lobby/Pause, for everyone, as it works anywhere (HUD Input)
-    ctrlsHudText[16] = _(
-        "Prev. Language:   <fgFFFFFFFF>@0 + @1 + @2</fg>"
-        "\nNext Language:   <fgFFFFFFFF>@0 + @1 + @3</fg>"
-    )
-    hudSubheader(
-        getAllPlayers().filter(
-            lambda localPlayer: controlsVisible(
-                isViewingCtrlsList(localPlayer) and localPlayer.faqPage == 0
-            )
-        ),
-        _(ctrlsHudText[16])
-        .replace("@0", inputBindingString(Button.ULTIMATE))
-        .replace("@1", inputBindingString(Button.JUMP))
-        .replace("@2", inputBindingString(Button.PRIMARY_FIRE))
-        .replace("@3", inputBindingString(Button.SECONDARY_FIRE)),
-        HudPosition.TOP,
-        4.09,
-        rgb(230, 151, 0),
-        HudReeval.VISIBILITY_AND_STRING
-    )
     ctrlsHudText[8] = _("Lobby/Pause:             <fgFFFFFFFF>@0 + @1 (Hold)</fg>")
     hudSubheader(
         getAllPlayers().filter(
@@ -267,7 +226,7 @@ rule "Load HUD":
         .replace("@0", inputBindingString(Button.ULTIMATE))
         .replace("@1", inputBindingString(Button.ABILITY_2)),
         HudPosition.TOP,
-        4.10,
+        4.09,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -286,7 +245,47 @@ rule "Load HUD":
         .replace("@0", inputBindingString(Button.ULTIMATE))
         .replace("@1", inputBindingString(Button.ABILITY_2)),
         HudPosition.TOP,
+        4.10,
+        rgb(230, 151, 0),
+        HudReeval.VISIBILITY_AND_STRING
+    )
+    # Under Lobby/Pause (or Lobby), for everyone, as it works anywhere but first person,
+    # where the list doesn't show (HUD Input)
+    ctrlsHudText[6] = _(
+        "FAQ:                                     <fgFFFFFFFF>@0 + @1</fg>"
+    )
+    hudSubheader(
+        getAllPlayers().filter(
+            lambda localPlayer: controlsVisible(
+                isViewingCtrlsList(localPlayer) and localPlayer.faqPage == 0
+            )
+        ),
+        _(ctrlsHudText[6])
+        .replace("@0", inputBindingString(Button.ULTIMATE))
+        .replace("@1", inputBindingString(Button.MELEE)),
+        HudPosition.TOP,
         4.11,
+        rgb(230, 151, 0),
+        HudReeval.VISIBILITY_AND_STRING
+    )
+    # Under FAQ, for everyone, as it works anywhere (HUD Input)
+    ctrlsHudText[16] = _(
+        "Prev. Language:   <fgFFFFFFFF>@0 + @1 + @2</fg>"
+        "\nNext Language:   <fgFFFFFFFF>@0 + @1 + @3</fg>"
+    )
+    hudSubheader(
+        getAllPlayers().filter(
+            lambda localPlayer: controlsVisible(
+                isViewingCtrlsList(localPlayer) and localPlayer.faqPage == 0
+            )
+        ),
+        _(ctrlsHudText[16])
+        .replace("@0", inputBindingString(Button.ULTIMATE))
+        .replace("@1", inputBindingString(Button.JUMP))
+        .replace("@2", inputBindingString(Button.PRIMARY_FIRE))
+        .replace("@3", inputBindingString(Button.SECONDARY_FIRE)),
+        HudPosition.TOP,
+        4.12,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -307,7 +306,7 @@ rule "Load HUD":
         .replace("@0", inputBindingString(Button.ULTIMATE))
         .replace("@1", inputBindingString(Button.ABILITY_1)),
         HudPosition.TOP,
-        4.12,
+        4.13,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -340,7 +339,7 @@ rule "Load HUD":
         .replace("@2", inputBindingString(Button.ABILITY_1))
         .replace("@3", inputBindingString(Button.RELOAD)),
         HudPosition.TOP,
-        4.13,
+        4.14,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -359,7 +358,7 @@ rule "Load HUD":
         .replace("@2", inputBindingString(Button.ABILITY_1))
         .replace("@3", inputBindingString(Button.INTERACT)),
         HudPosition.TOP,
-        4.14,
+        4.15,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -382,7 +381,7 @@ rule "Load HUD":
         .replace("@3", inputBindingString(Button.PRIMARY_FIRE))
         .replace("@4", inputBindingString(Button.SECONDARY_FIRE)),
         HudPosition.TOP,
-        4.15,
+        4.16,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -425,7 +424,7 @@ rule "Load HUD":
             )
         ),
         HudPosition.TOP,
-        4.16,
+        4.17,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )

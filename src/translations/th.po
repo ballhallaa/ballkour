@@ -88,24 +88,12 @@ msgid "@0Freemode:                                @1@2 + @3</fg>"
 msgstr "@0โหมดอิสระ:                                        @1@2 + @3</fg>"
 
 #. file controls.opy, rule "Load HUD"
-msgid "@0Disable Hints:                          @1@2 + @3</fg>"
-msgstr "@0ปิดคำใบ้:                                          @1@2 + @3</fg>"
-
-#. file controls.opy, rule "Load HUD"
-msgid "@0Enable Hints:                           @1@2 + @3</fg>"
-msgstr "@0เปิดคำใบ้:                                          @1@2 + @3</fg>"
+msgid "@0Hints:                                         @1@2 + @3</fg>"
+msgstr "@0คำใบ้:                                                @1@2 + @3</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid "Spectate:                           <fgFFFFFFFF>@0 + @1</fg>"
 msgstr "ชม:                                         <fgFFFFFFFF>@0 + @1</fg>"
-
-#. file controls.opy, rule "Load HUD"
-msgid ""
-"Prev. Language:   <fgFFFFFFFF>@0 + @1 + @2</fg>\n"
-"Next Language:   <fgFFFFFFFF>@0 + @1 + @3</fg>"
-msgstr ""
-"ภาษาก่อนหน้า:                  <fgFFFFFFFF>@0 + @1 + @2</fg>\n"
-"ภาษาถัดไป:                      <fgFFFFFFFF>@0 + @1 + @3</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid "Lobby/Pause:             <fgFFFFFFFF>@0 + @1 (Hold)</fg>"
@@ -114,6 +102,18 @@ msgstr "ล็อบบี้/หยุดชั่วคราว:             
 #. file controls.opy, rule "Load HUD"
 msgid "Lobby:                          <fgFFFFFFFF>@0 + @1 (Hold)</fg>"
 msgstr "ล็อบบี้:                                  <fgFFFFFFFF>@0 + @1 (กดค้าง)</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "FAQ:                                     <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "FAQ:                                                 <fgFFFFFFFF>@0 + @1</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid ""
+"Prev. Language:   <fgFFFFFFFF>@0 + @1 + @2</fg>\n"
+"Next Language:   <fgFFFFFFFF>@0 + @1 + @3</fg>"
+msgstr ""
+"ภาษาก่อนหน้า:                  <fgFFFFFFFF>@0 + @1 + @2</fg>\n"
+"ภาษาถัดไป:                      <fgFFFFFFFF>@0 + @1 + @3</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid ""
@@ -276,16 +276,16 @@ msgid "Attempts: @0"
 msgstr "จำนวนครั้งที่ลอง: @0"
 
 #. file run.opy, rule "Load HUD"
-msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "คะแนน: <fgFFFFFFFF>@0 + @1</fg>"
-
-#. file run.opy, rule "Load HUD"
 msgid "All-Time Top 3"
 msgstr "ท็อป 3 ตลอดกาล"
 
 #. file run.opy, rule "Load HUD"
 msgid "Lobby Top 3"
 msgstr "ท็อป 3 ล็อบบี้"
+
+#. file run.opy, rule "Load HUD"
+msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "คะแนน: <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file run.opy, rule "Load HUD"
 msgid "Disqualified"
