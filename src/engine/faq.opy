@@ -184,7 +184,7 @@ rule "Load HUD":
         "\n\n<fg80D0FFFF>What counts as a valid run?</fg>"
         "\nYour run is only <fgFF4646FF>disqualified</fg> if you skip a checkpoint you haven't cleared yet this run."
         "\nGoing back or restarting checkpoints, skipping ahead to cleared checkpoints, and"
-        "\nspectating are fine. Leaving an uncleared checkpoint in <fgCB87FFFF>Freemode</fg> counts as skipping it."
+        "\n<fg00BEFFFF>spectating</fg> are fine. Leaving an uncleared checkpoint in <fgCB87FFFF>Freemode</fg> counts as skipping it."
         "\n<fgFF4646FF>Disqualified</fg> runs don't count toward the top-10 leaderboard, <fgE69700FF>Lobby Top 3</fg>, or <fgE69700FF>Lobby Stats</fg>."
     )
     faqHudText[3] = (
@@ -236,7 +236,7 @@ rule "Load HUD":
     faqHudText[11] = (
         "\n<fg80D0FFFF>Why are some controls </fg><fg808080FF>grayed out</fg><fg80D0FFFF>?</fg>"
         "\nThey can't be used right now: <fgE69700FF>Prev. CP</fg> on the first checkpoint, <fgE69700FF>Next CP</fg> on the last,"
-        "\nand the spectator controls while there's nobody to spectate."
+        "\nand the <fg00BEFFFF>spectator controls</fg> while there's nobody to <fg00BEFFFF>spectate</fg>."
         "\n<fgE69700FF>Reattach</fg> needs <fgE69700FF>Freecam</fg> while watching a player. <fgE69700FF>X-Hair Player</fg> needs <fgE69700FF>Freecam</fg>."
     )
     faqHudText[12] = (
