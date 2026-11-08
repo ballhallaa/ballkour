@@ -170,7 +170,7 @@ rule "Load HUD":
     # Each answer is its own string in white, with its question in light blue and the game's own
     # labels (controls, HUD and lobby names) in orange, in questions too, the ones
     # ballkour.com/faq marks. A mode or HUD text keeps its own HUD's color instead (Freemode
-    # violet, Spectator blue, (DISCONNECTED) white). Color tags can't nest, so a label in a
+    # violet, Spectator blue, (DISCONNECTED) white, disqualified red). Color tags can't nest, so a label in a
     # question closes the light blue and opens it again after. The answers are English only, with the translated ones at ballkour.com/faq: in all 14
     # languages they made pasting the script take several seconds longer.
     # Page 1
@@ -182,10 +182,10 @@ rule "Load HUD":
     ).format(VERSION)
     faqHudText[2] = (
         "\n\n<fg80D0FFFF>What counts as a valid run?</fg>"
-        "\nYour run is only disqualified if you skip a checkpoint you haven't cleared yet this run."
+        "\nYour run is only <fgFF4646FF>disqualified</fg> if you skip a checkpoint you haven't cleared yet this run."
         "\nGoing back or restarting checkpoints, skipping ahead to cleared checkpoints, and"
         "\nspectating are fine. Leaving an uncleared checkpoint in <fgCB87FFFF>Freemode</fg> counts as skipping it."
-        "\nDisqualified runs don't count toward the top-10 leaderboard, <fgE69700FF>Lobby Top 3</fg>, or <fgE69700FF>Lobby Stats</fg>."
+        "\n<fgFF4646FF>Disqualified</fg> runs don't count toward the top-10 leaderboard, <fgE69700FF>Lobby Top 3</fg>, or <fgE69700FF>Lobby Stats</fg>."
     )
     faqHudText[3] = (
         "\n\n<fg80D0FFFF>How do I get on the leaderboard?</fg>"
@@ -243,7 +243,7 @@ rule "Load HUD":
         "\n\n<fg80D0FFFF>What's on the scorecard?</fg>"
         "\nEach runner's checkpoint, time, and mistakes, sorted by furthest and then fastest."
         "\nBelow them, players in <fgCB87FFFF>Freemode</fg> are <fgCB87FFFF>purple</fg>, and players in <fg00BEFFFF>Spectate</fg> are <fg00BEFFFF>blue</fg>."
-        "\nDisqualified runs are marked <fgFF4646FF>×</fg>, and <fgFF4646FF>red</fg> among the runners."
+        "\n<fgFF4646FF>Disqualified</fg> runs are marked <fgFF4646FF>×</fg>, and <fgFF4646FF>red</fg> among the runners."
     )
     faqHudText[13] = (
         "\n\n<fg80D0FFFF>What is a </fg><fg00BEFFFF>shield bounce</fg><fg80D0FFFF>?</fg>"
@@ -260,7 +260,7 @@ rule "Load HUD":
     faqHudText[15] = (
         "\n\n<fg80D0FFFF>What is </fg><fgCB87FFFF>Freemode</fg><fg80D0FFFF> for?</fg>"
         "\nPractice, with no timer and all your abilities. You can't clear checkpoints in it,"
-        "\nand leaving your checkpoint with it on disqualifies your run."
+        "\nand leaving your checkpoint with it on <fgFF4646FF>disqualifies</fg> your run."
     )
     # Page 4
     faqHudText[16] = (
