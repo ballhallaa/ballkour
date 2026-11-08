@@ -352,6 +352,8 @@ macro HUD_LOBBY_TOP = 25
 macro HUD_LINES = 26
 # The lobby page that turns them on and off (lobbyPage)
 macro HUD_PAGE = 3
+# The made-up spectator count the HUD shows on the HUD page, so Spectators has a number
+macro HUD_PAGE_SPECTATORS = 2
 
 
 macro isHudPage(player):

@@ -96,7 +96,8 @@ rule "Load HUD":
         HudReeval.VISIBILITY_AND_STRING
     )
     # Spectated Player's HUD, under Freemode On (1) so it moves only when the player toggles
-    # freemode, not Freemode On whenever spectators come and go
+    # freemode, not Freemode On whenever spectators come and go. Only the number is white, like
+    # the HUD's other numbers, so the label stays blue.
     spectatorHudText[4] = _("\nSpectators: @0")
     hudSubtext(
         getAllPlayers().filter(
@@ -106,7 +107,14 @@ rule "Load HUD":
             and localPlayer.faqPage == 0
             and isHudLineOn(localPlayer, HUD_SPECTATORS)
         ),
-        _(spectatorHudText[4]).replace("@0", localPlayer.spectating[10]),
+        _(spectatorHudText[4]).replace(
+            "@0",
+            "<fgFFFFFFFF>{}</fg>".format(
+                HUD_PAGE_SPECTATORS
+                if isHudPage(localPlayer)
+                else localPlayer.spectating[10]
+            )
+        ),
         HudPosition.LEFT,
         1.1,
         rgb(0, 190, 255),
