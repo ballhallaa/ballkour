@@ -197,6 +197,14 @@ msgstr "常見問題"
 msgid "Customize HUD"
 msgstr "自訂介面"
 
+#. file lobby.opy, rule "Load Buttons"
+msgid "Hide All"
+msgstr "全部隱藏"
+
+#. file lobby.opy, rule "Load Buttons"
+msgid "Show All"
+msgstr "全部顯示"
+
 #. file lobby.opy, rule "Load Languages"
 msgid "Language"
 msgstr "語言"
@@ -222,14 +230,6 @@ msgstr "點擊紀錄查看詳情"
 #. file lobby.opy, rule "Show HUD Page"
 msgid "Scores"
 msgstr "成績"
-
-#. file lobby.opy, rule "Show HUD Page"
-msgid "Hide All"
-msgstr "全部隱藏"
-
-#. file lobby.opy, rule "Show HUD Page"
-msgid "Show All"
-msgstr "全部顯示"
 
 # TODO: check if all occurrences have the same translation
 #. 4 occurrences:

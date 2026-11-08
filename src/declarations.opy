@@ -56,6 +56,9 @@ globalvar hudLeftPos
 globalvar hudRightPos
 # The HUD page's texts, which only exist while someone's on it (Lobby: Show HUD Page)
 globalvar hudPageTexts
+# Whether the HUD page's own texts exist yet, which the main page's texts it borrows wait for
+# (Lobby: Show HUD Page)
+globalvar isHudPageReady
 # Disqualified's row, as its spot in hudLeftPos holds the arrows' parking spot instead
 globalvar hudDisqualifiedPos
 # The lobby players Pull Back or Release is turning, for the tick it runs
@@ -353,6 +356,13 @@ macro HUD_PAGE = 3
 
 macro isHudPage(player):
     (player.lobbyPage == HUD_PAGE)
+
+
+# Whether the main page's texts that are also the HUD page's (Lobby: Load Buttons, Load
+# Languages) show a player either page: on the HUD page, only once its own texts exist, so
+# its two sides show up together
+macro isLobbyPageShown(player):
+    (player.lobbyPage == 1 or isHudPage(player) and isHudPageReady)
 
 
 # Whether a player sees the course's HUD: off the lobby, and on the HUD page, so they can see

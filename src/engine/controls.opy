@@ -213,39 +213,23 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
+    # Lobby/Pause, or just Lobby while spectating. One text for both, as texts are capped at
+    # 128 per server, HUD texts included (Lobby: Load Buttons).
     ctrlsHudText[8] = _("Lobby/Pause:             <fgFFFFFFFF>@0 + @1 (Hold)</fg>")
-    hudSubheader(
-        getAllPlayers().filter(
-            lambda localPlayer: controlsVisible(
-                isViewingCtrlsList(localPlayer)
-                and not localPlayer.spectating[0]
-                and localPlayer.faqPage == 0
-            )
-        ),
-        _(ctrlsHudText[8])
-        .replace("@0", inputBindingString(Button.ULTIMATE))
-        .replace("@1", inputBindingString(Button.ABILITY_2)),
-        HudPosition.TOP,
-        4.09,
-        rgb(230, 151, 0),
-        HudReeval.VISIBILITY_AND_STRING
-    )
     ctrlsHudText[9] = _(
         "Lobby:                          <fgFFFFFFFF>@0 + @1 (Hold)</fg>"
     )
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: controlsVisible(
-                isViewingCtrlsList(localPlayer)
-                and localPlayer.spectating[0]
-                and localPlayer.faqPage == 0
+                isViewingCtrlsList(localPlayer) and localPlayer.faqPage == 0
             )
         ),
-        _(ctrlsHudText[9])
+        (_(ctrlsHudText[9]) if localPlayer.spectating[0] else _(ctrlsHudText[8]))
         .replace("@0", inputBindingString(Button.ULTIMATE))
         .replace("@1", inputBindingString(Button.ABILITY_2)),
         HudPosition.TOP,
-        4.10,
+        4.09,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )

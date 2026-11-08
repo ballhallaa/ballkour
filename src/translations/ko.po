@@ -197,6 +197,14 @@ msgstr "FAQ"
 msgid "Customize HUD"
 msgstr "HUD 사용자 지정"
 
+#. file lobby.opy, rule "Load Buttons"
+msgid "Hide All"
+msgstr "모두 숨기기"
+
+#. file lobby.opy, rule "Load Buttons"
+msgid "Show All"
+msgstr "모두 표시"
+
 #. file lobby.opy, rule "Load Languages"
 msgid "Language"
 msgstr "언어"
@@ -222,14 +230,6 @@ msgstr "기록을 클릭해 자세히 보기"
 #. file lobby.opy, rule "Show HUD Page"
 msgid "Scores"
 msgstr "점수"
-
-#. file lobby.opy, rule "Show HUD Page"
-msgid "Hide All"
-msgstr "모두 숨기기"
-
-#. file lobby.opy, rule "Show HUD Page"
-msgid "Show All"
-msgstr "모두 표시"
 
 # TODO: check if all occurrences have the same translation
 #. 4 occurrences:
