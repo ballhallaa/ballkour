@@ -658,14 +658,30 @@ rule "Load Leaderboard":
     )
 
 
-# A line's own text with its white values and keys in the text's color instead
-macro hudPageText(text):
-    text.replace("<fgFFFFFFFF>", "").replace("</fg>", "")
+# The white of a HUD page row's values and keys, as the HUD has them, gray with the rest of
+# the row while its line is off, as a row's color can't reach the colors inside its text
+macro hudPageWhite(hudLine):
+    ("<fg808080FF>" if localPlayer.hudHidden[hudLine] else "<fgFFFFFFFF>")
+
+
+# A line's own text, its white values and keys gray while the line is off
+macro hudPageText(text, hudLine):
+    text.replace("<fgFFFFFFFF>", hudPageWhite(hudLine))
+
+
+# A value in white, like the HUD's numbers, gray while the line is off
+macro hudPageValue(hudLine, value):
+    "{}{}</fg>".format(hudPageWhite(hudLine), value)
 
 
 # Best and Avg, which the HUD stacks, side by side to fit a row
-macro hudPageStats(text):
-    hudPageText(text).replace("\n", "   ").replace("@0", "--").replace("@1", "--")
+macro hudPageStats(text, hudLine):
+    (
+        hudPageText(text, hudLine)
+        .replace("\n", "   ")
+        .replace("@0", "--")
+        .replace("@1", "--")
+    )
 
 
 # A language's row, which is also the HUD page's right column's row at the same place in
@@ -733,19 +749,31 @@ rule "Load Languages":
     langPos[0] = langPos[1] + vect(0, -1000, 0)
     # The languages are also the HUD page's right column, which has as many rows (see
     # languageRow), and their arrows are its arrows
-    languageRow(1, HUD_RUNS, _(counterHudText[0]).replace("@0", localPlayer.runCount))
+    languageRow(
+        1,
+        HUD_RUNS,
+        _(counterHudText[0]).replace(
+            "@0", hudPageValue(HUD_RUNS, localPlayer.runCount)
+        )
+    )
     languageRow(
         2,
         HUD_ATTEMPTS,
         _(counterHudText[1]).replace(
-            "@0", localPlayer.cpAttempts[localPlayer.runCurrentCp]
+            "@0",
+            hudPageValue(
+                HUD_ATTEMPTS, localPlayer.cpAttempts[localPlayer.runCurrentCp]
+            )
         )
     )
     languageRow(
         3,
         HUD_CP_MISTAKES,
         _(counterHudText[2]).replace(
-            "@0", localPlayer.cpMistakes[localPlayer.runCurrentCp]
+            "@0",
+            hudPageValue(
+                HUD_CP_MISTAKES, localPlayer.cpMistakes[localPlayer.runCurrentCp]
+            )
         )
     )
     languageRow(
@@ -761,19 +789,29 @@ rule "Load Languages":
         7, HUD_SPLIT_CP, "{} {}".format(iconString(Icon.FLAG), localPlayer.viewCp)
     )
     languageRow(
-        8, HUD_ATTEMPT, _(splitsHudText[0]).replace("@0", localPlayer.cpTimeFormatted)
+        8,
+        HUD_ATTEMPT,
+        _(splitsHudText[0]).replace(
+            "@0", hudPageValue(HUD_ATTEMPT, localPlayer.cpTimeFormatted)
+        )
     )
-    languageRow(9, HUD_ATTEMPT_STATS, hudPageStats(_(splitsHudText[1])))
     languageRow(
-        10, HUD_SPLIT, _(splitsHudText[2]).replace("@0", localPlayer.splitTimeFormatted)
+        9, HUD_ATTEMPT_STATS, hudPageStats(_(splitsHudText[1]), HUD_ATTEMPT_STATS)
     )
-    languageRow(11, HUD_SPLIT_STATS, hudPageStats(_(splitsHudText[3])))
+    languageRow(
+        10,
+        HUD_SPLIT,
+        _(splitsHudText[2]).replace(
+            "@0", hudPageValue(HUD_SPLIT, localPlayer.splitTimeFormatted)
+        )
+    )
+    languageRow(11, HUD_SPLIT_STATS, hudPageStats(_(splitsHudText[3]), HUD_SPLIT_STATS))
     languageRow(
         12,
         HUD_PACE,
         _(splitsHudText[4])
         .replace("\n", "")
-        .replace("@0", localPlayer.paceEtaFormatted)
+        .replace("@0", hudPageValue(HUD_PACE, localPlayer.paceEtaFormatted))
     )
     languageRow(13, HUD_ALL_TIME_TOP, _(allTimeRunsHudText))
     languageRow(14, HUD_LOBBY_TOP, _(topRunsHudText))
@@ -891,8 +929,8 @@ rule "Load Stats Page":
 
 
 # A HUD page row: a line as the HUD shows it, in its color while it's on and gray while
-# it's off. Its values and keys are filled in like on the course, in the same color, as a
-# row's color can't reach the white inside its text.
+# it's off. Its values and keys are filled in and white like on the course, and gray with
+# the rest of it while it's off (hudPageWhite).
 macro hudPageRow(line, text, pos, color):
     createInWorldText(
         getAllPlayers().filter(lambda localPlayer: isHudPage(localPlayer)),
@@ -980,7 +1018,10 @@ rule "Show HUD Page":
     # The left column
     hudPageRow(
         HUD_CONTROLS,
-        hudPageText(_(runHudText).replace("@0", inputBindingString(Button.ULTIMATE))),
+        hudPageText(
+            _(runHudText).replace("@0", inputBindingString(Button.ULTIMATE)),
+            HUD_CONTROLS
+        ),
         hudLeftPos[HUD_CONTROLS],
         rgb(230, 151, 0)
     )
@@ -989,20 +1030,19 @@ rule "Show HUD Page":
         hudPageText(
             _(faqHudText[0])
             .replace("@0", inputBindingString(Button.ULTIMATE))
-            .replace("@1", inputBindingString(Button.MELEE))
+            .replace("@1", inputBindingString(Button.MELEE)),
+            HUD_FAQ
         ),
         hudLeftPos[HUD_FAQ],
         rgb(230, 151, 0)
     )
     hudPageRow(
         HUD_HINTS,
-        hudPageText(
-            _(hintsHudText[0])
-            .replace("@0", "")
-            .replace("@1", "")
-            .replace("@2", inputBindingString(Button.ULTIMATE))
-            .replace("@3", inputBindingString(Button.ABILITY_2))
-        ),
+        _(hintsHudText[0])
+        .replace("@0", "")
+        .replace("@1", hudPageWhite(HUD_HINTS))
+        .replace("@2", inputBindingString(Button.ULTIMATE))
+        .replace("@3", inputBindingString(Button.ABILITY_2)),
         hudLeftPos[HUD_HINTS],
         rgb(230, 151, 0)
     )
@@ -1043,7 +1083,9 @@ rule "Show HUD Page":
     )
     hudPageRow(
         HUD_SPECTATORS,
-        _(spectatorHudText[4]).replace("\n", "").replace("@0", 0),
+        _(spectatorHudText[4])
+        .replace("\n", "")
+        .replace("@0", hudPageValue(HUD_SPECTATORS, HUD_PAGE_SPECTATORS)),
         hudLeftPos[HUD_SPECTATORS],
         rgb(0, 190, 255)
     )
@@ -1072,7 +1114,8 @@ rule "Show HUD Page":
         hudPageText(
             _(scorecardHudText[0])
             .replace("@0", inputBindingString(Button.ULTIMATE))
-            .replace("@1", inputBindingString(Button.CROUCH))
+            .replace("@1", inputBindingString(Button.CROUCH)),
+            HUD_PAGE_KEY
         ),
         hudLeftPos[HUD_PAGE_KEY],
         rgb(230, 151, 0)
