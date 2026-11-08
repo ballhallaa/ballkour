@@ -108,6 +108,10 @@ msgid "FAQ:                                     <fgFFFFFFFF>@0 + @1</fg>"
 msgstr "FAQ:                                              <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file controls.opy, rule "Load HUD"
+msgid "Customize HUD:      <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "HUD 사용자 지정:         <fgFFFFFFFF>@0 + @1</fg>"
+
+#. file controls.opy, rule "Load HUD"
 msgid ""
 "Prev. Language:   <fgFFFFFFFF>@0 + @1 + @2</fg>\n"
 "Next Language:   <fgFFFFFFFF>@0 + @1 + @3</fg>"
@@ -189,6 +193,10 @@ msgstr "관전"
 msgid "FAQ"
 msgstr "FAQ"
 
+#. file lobby.opy, rule "Load Buttons"
+msgid "Customize HUD"
+msgstr "HUD 사용자 지정"
+
 #. file lobby.opy, rule "Load Languages"
 msgid "Language"
 msgstr "언어"
@@ -210,6 +218,18 @@ msgstr "돌아가기"
 #. file lobby.opy, rule "Load Leaderboard"
 msgid "Click on a Run to View More Info"
 msgstr "기록을 클릭해 자세히 보기"
+
+#. file lobby.opy, rule "Show HUD Page"
+msgid "Scores"
+msgstr "점수"
+
+#. file lobby.opy, rule "Show HUD Page"
+msgid "Hide All"
+msgstr "모두 숨기기"
+
+#. file lobby.opy, rule "Show HUD Page"
+msgid "Show All"
+msgstr "모두 표시"
 
 # TODO: check if all occurrences have the same translation
 #. 4 occurrences:
@@ -284,8 +304,8 @@ msgid "Lobby Top 3"
 msgstr "로비 TOP 3"
 
 #. file run.opy, rule "Load HUD"
-msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "점수: <fgFFFFFFFF>@0 + @1</fg>"
+msgid "HUD: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "HUD: <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file run.opy, rule "Load HUD"
 msgid "Disqualified"

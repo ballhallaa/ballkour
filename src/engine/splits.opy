@@ -19,19 +19,22 @@ macro viewedSplitStats(player):
     )
 
 
-macro SPLITS_HUD_VISIBILITY = getAllPlayers().filter(
-    lambda localPlayer: not localPlayer.isInLobby
-    and not localPlayer.spectating[3]
-    and (localPlayer.viewCp < lastCp or localPlayer.viewRunner.isShowingSplitDelta)
-    and localPlayer.faqPage == 0
-)
+# Who sees one of the splits' lines, by its HUD_ number
+macro splitsHudVisibility(line):
+    getAllPlayers().filter(
+        lambda localPlayer: isCourseHudShown(localPlayer)
+        and not localPlayer.spectating[3]
+        and (localPlayer.viewCp < lastCp or localPlayer.viewRunner.isShowingSplitDelta)
+        and localPlayer.faqPage == 0
+        and isHudLineOn(localPlayer, line)
+    )
 
 
 rule "Load HUD":
     # A header, the biggest HUD text, so the CP stands above the times under it.
     # A flag icon instead of a word, so it needs no translation and stays narrow in every language.
     hudHeader(
-        SPLITS_HUD_VISIBILITY,
+        splitsHudVisibility(HUD_SPLIT_CP),
         "{} {}".format(
             iconString(Icon.FLAG),
             (
@@ -51,7 +54,7 @@ rule "Load HUD":
     # Only the times are colored, so the labels stay the HUD's orange.
     splitsHudText[0] = _("Attempt: @0")
     hudSubtext(
-        SPLITS_HUD_VISIBILITY,
+        splitsHudVisibility(HUD_ATTEMPT),
         _(splitsHudText[0]).replace(
             "@0",
             (
@@ -82,7 +85,7 @@ rule "Load HUD":
         "\nAvg: <fgFFFFFFFF>@1</fg>"
     )
     hudSubheader(
-        SPLITS_HUD_VISIBILITY,
+        splitsHudVisibility(HUD_ATTEMPT_STATS),
         _(splitsHudText[1])
         .replace("@0", viewedSplitStats(localPlayer)[0])
         .replace("@1", viewedSplitStats(localPlayer)[1]),
@@ -93,7 +96,7 @@ rule "Load HUD":
     )
     splitsHudText[2] = _("Split: @0")
     hudSubtext(
-        SPLITS_HUD_VISIBILITY,
+        splitsHudVisibility(HUD_SPLIT),
         _(splitsHudText[2]).replace(
             "@0",
             (
@@ -126,7 +129,7 @@ rule "Load HUD":
         "\nAvg: <fgFFFFFFFF>@1</fg>"
     )
     hudSubheader(
-        SPLITS_HUD_VISIBILITY,
+        splitsHudVisibility(HUD_SPLIT_STATS),
         _(splitsHudText[3])
         .replace("@0", viewedSplitStats(localPlayer)[2])
         .replace("@1", viewedSplitStats(localPlayer)[3]),
@@ -138,7 +141,7 @@ rule "Load HUD":
     # Pace turns red while it's rising: the current split has run past the average split
     splitsHudText[4] = _("\nPace: @0")
     hudSubtext(
-        SPLITS_HUD_VISIBILITY,
+        splitsHudVisibility(HUD_PACE),
         _(splitsHudText[4]).replace(
             "@0",
             ("{}{}</fg>").format(

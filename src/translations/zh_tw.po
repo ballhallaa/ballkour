@@ -108,6 +108,10 @@ msgid "FAQ:                                     <fgFFFFFFFF>@0 + @1</fg>"
 msgstr "常見問題：                                 <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file controls.opy, rule "Load HUD"
+msgid "Customize HUD:      <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "自訂介面：                   <fgFFFFFFFF>@0 + @1</fg>"
+
+#. file controls.opy, rule "Load HUD"
 msgid ""
 "Prev. Language:   <fgFFFFFFFF>@0 + @1 + @2</fg>\n"
 "Next Language:   <fgFFFFFFFF>@0 + @1 + @3</fg>"
@@ -189,6 +193,10 @@ msgstr "觀戰"
 msgid "FAQ"
 msgstr "常見問題"
 
+#. file lobby.opy, rule "Load Buttons"
+msgid "Customize HUD"
+msgstr "自訂介面"
+
 #. file lobby.opy, rule "Load Languages"
 msgid "Language"
 msgstr "語言"
@@ -210,6 +218,18 @@ msgstr "返回"
 #. file lobby.opy, rule "Load Leaderboard"
 msgid "Click on a Run to View More Info"
 msgstr "點擊紀錄查看詳情"
+
+#. file lobby.opy, rule "Show HUD Page"
+msgid "Scores"
+msgstr "成績"
+
+#. file lobby.opy, rule "Show HUD Page"
+msgid "Hide All"
+msgstr "全部隱藏"
+
+#. file lobby.opy, rule "Show HUD Page"
+msgid "Show All"
+msgstr "全部顯示"
 
 # TODO: check if all occurrences have the same translation
 #. 4 occurrences:
@@ -284,8 +304,8 @@ msgid "Lobby Top 3"
 msgstr "大廳前三名"
 
 #. file run.opy, rule "Load HUD"
-msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "成績: <fgFFFFFFFF>@0 + @1</fg>"
+msgid "HUD: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "介面：<fgFFFFFFFF>@0 + @1</fg>"
 
 #. file run.opy, rule "Load HUD"
 msgid "Disqualified"

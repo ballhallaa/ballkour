@@ -108,6 +108,10 @@ msgid "FAQ:                                     <fgFFFFFFFF>@0 + @1</fg>"
 msgstr "FAQ:                                                 <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file controls.opy, rule "Load HUD"
+msgid "Customize HUD:      <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "ปรับแต่ง HUD:                <fgFFFFFFFF>@0 + @1</fg>"
+
+#. file controls.opy, rule "Load HUD"
 msgid ""
 "Prev. Language:   <fgFFFFFFFF>@0 + @1 + @2</fg>\n"
 "Next Language:   <fgFFFFFFFF>@0 + @1 + @3</fg>"
@@ -189,6 +193,10 @@ msgstr "ชม"
 msgid "FAQ"
 msgstr "FAQ"
 
+#. file lobby.opy, rule "Load Buttons"
+msgid "Customize HUD"
+msgstr "ปรับแต่ง HUD"
+
 #. file lobby.opy, rule "Load Languages"
 msgid "Language"
 msgstr "ภาษา"
@@ -210,6 +218,18 @@ msgstr "กลับ"
 #. file lobby.opy, rule "Load Leaderboard"
 msgid "Click on a Run to View More Info"
 msgstr "คลิกที่สถิติเพื่อดูข้อมูลเพิ่มเติม"
+
+#. file lobby.opy, rule "Show HUD Page"
+msgid "Scores"
+msgstr "คะแนน"
+
+#. file lobby.opy, rule "Show HUD Page"
+msgid "Hide All"
+msgstr "ซ่อนทั้งหมด"
+
+#. file lobby.opy, rule "Show HUD Page"
+msgid "Show All"
+msgstr "แสดงทั้งหมด"
 
 # TODO: check if all occurrences have the same translation
 #. 4 occurrences:
@@ -284,8 +304,8 @@ msgid "Lobby Top 3"
 msgstr "ท็อป 3 ล็อบบี้"
 
 #. file run.opy, rule "Load HUD"
-msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "คะแนน: <fgFFFFFFFF>@0 + @1</fg>"
+msgid "HUD: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "HUD: <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file run.opy, rule "Load HUD"
 msgid "Disqualified"

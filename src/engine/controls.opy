@@ -268,7 +268,23 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    # Under FAQ, for everyone, as it works anywhere (HUD Input)
+    # Under FAQ, for everyone, as it works wherever FAQ does (Controls: HUD)
+    ctrlsHudText[17] = _("Customize HUD:      <fgFFFFFFFF>@0 + @1</fg>")
+    hudSubheader(
+        getAllPlayers().filter(
+            lambda localPlayer: controlsVisible(
+                isViewingCtrlsList(localPlayer) and localPlayer.faqPage == 0
+            )
+        ),
+        _(ctrlsHudText[17])
+        .replace("@0", inputBindingString(Button.ULTIMATE))
+        .replace("@1", inputBindingString(Button.CROUCH)),
+        HudPosition.TOP,
+        4.115,
+        rgb(230, 151, 0),
+        HudReeval.VISIBILITY_AND_STRING
+    )
+    # Under Customize HUD, for everyone, as it works anywhere (HUD Input)
     ctrlsHudText[16] = _(
         "Prev. Language:   <fgFFFFFFFF>@0 + @1 + @2</fg>"
         "\nNext Language:   <fgFFFFFFFF>@0 + @1 + @3</fg>"
@@ -451,7 +467,7 @@ macro ULT_PREV_CP = 1
 macro ULT_NEXT_CP = 2
 macro ULT_NEW_RUN = 8
 macro ULT_FREEMODE = 16
-macro ULT_SCORECARD = 32
+macro ULT_HUD = 32
 macro ULT_SPECTATE = 64
 macro ULT_LOBBY = 128
 macro ULT_FAQ = 256
@@ -506,8 +522,8 @@ macro ultCourseInputReady():
 
 # Whether the input for the buttons in ultInputKey can run now, and hasn't yet for this
 # press. Each input's checks are the ones its own rule had, with the shared ones pulled out:
-# New Run works anywhere but the FAQ, Scorecard and Lobby/Pause anywhere but first person,
-# and the rest need the FAQ closed too.
+# New Run works anywhere but the FAQ, Lobby/Pause anywhere but first person, and the rest
+# need the FAQ closed too, and HUD waits for loading to finish.
 macro ultInputReady():
     (
         not eventPlayer.ultInputDone
@@ -516,13 +532,14 @@ macro ultInputReady():
             or (
                 not eventPlayer.spectating[5]
                 and (
-                    ultInputIs(ULT_SCORECARD)
-                    or ultInputIs(ULT_LOBBY)
+                    ultInputIs(ULT_LOBBY)
                     or (
                         eventPlayer.faqPage == 0
                         and (
                             eventPlayer.ultInputKey == ULT_FAQ
                             or ultInputIs(ULT_SPECTATE)
+                            or ultInputIs(ULT_HUD)
+                            and not eventPlayer.isLoading
                             or ultCourseInputReady()
                         )
                     )
@@ -571,8 +588,8 @@ rule "Ultimate Input":
                 newRunInput()
             elif ultInputIs(ULT_FREEMODE):
                 freemodeInput()
-            elif ultInputIs(ULT_SCORECARD):
-                eventPlayer.isScorecardHidden = not eventPlayer.isScorecardHidden
+            elif ultInputIs(ULT_HUD):
+                hudInput()
             elif ultInputIs(ULT_SPECTATE):
                 toggleSpectator()
             elif ultInputIs(ULT_LOBBY):
@@ -817,23 +834,21 @@ rule "Left CP In Freemode":
 
 rule "Load Freemode HUD":
     # Under Disqualified (0.9), with a blank line above it unless Disqualified, which brings
-    # its own, is showing
+    # its own, is showing. The HUD page shows it either way, so it can be turned off ahead of
+    # time.
     freemodeHudText = _("Freemode On")
     hudSubtext(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.isInFreemode
-            and not localPlayer.spectating[0]
+            lambda localPlayer: (
+                localPlayer.isInFreemode
+                and not localPlayer.spectating[0]
+                or isHudPage(localPlayer)
+            )
             and localPlayer.faqPage == 0
+            and isHudLineOn(localPlayer, HUD_FREEMODE)
         ),
         "{}{}".format(
-            (
-                "\n"
-                if localPlayer.isInLobby
-                or localPlayer.spectating[3]
-                or localPlayer.viewRunner.isRunLegit
-                else ""
-            ),
-            _(freemodeHudText)
+            "" if isDisqualifiedShown(localPlayer) else "\n", _(freemodeHudText)
         ),
         HudPosition.LEFT,
         1,
@@ -876,6 +891,13 @@ def lobbyInput():
         )
     ):
         return
+    goToLobby()
+
+
+def goToLobby():
+    @Name "Go To Lobby"
+
+    # Lobby/Pause, and HUD from the course, which sets lobbyPage to open the HUD page
     eventPlayer.isLoading = true
     if eventPlayer.spectating[0]:
         disableSpectator()
@@ -886,6 +908,24 @@ def lobbyInput():
     eventPlayer.isLoading = false
 
 
+def hudInput():
+    @Name "HUD"
+
+    # Opens the HUD page, pausing the run to go to the lobby like Lobby/Pause. In the lobby
+    # it turns to it from the other pages, and on it goes back the way its buttons do: to the
+    # course if the run can be resumed, otherwise to the main page.
+    if eventPlayer.isInLobby:
+        if eventPlayer.lobbyPage != HUD_PAGE:
+            eventPlayer.lobbyPage = HUD_PAGE
+        elif canResumeRun(eventPlayer):
+            resumeRun()
+        else:
+            eventPlayer.lobbyPage = 1
+        return
+    eventPlayer.lobbyPage = -HUD_PAGE
+    goToLobby()
+
+
 rule "Load Hints HUD":
     # Under FAQ at the top left, grayed out when hints can't be turned on or off. While hints
     # are on at a CP without one, the same spot says so instead
@@ -894,23 +934,36 @@ rule "Load Hints HUD":
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: controlsVisible(
-                not localPlayer.isInLobby and localPlayer.faqPage == 0
+                isCourseHudShown(localPlayer) and localPlayer.faqPage == 0
             )
         ),
-        (
+        # The 3 lines at the top left keep their height, so the lines under them stay clear of
+        # the player's name tag on the 4th line: a blank line for itself while it's turned
+        # off, and one at the end for each of Controls and FAQ turned off, which move up
+        "{}{}{}".format(
             (
-                _(hintsHudText[0])
-                .replace("@0", "" if canToggleHints(localPlayer) else "<fg808080FF>")
-                .replace("@1", "<fgFFFFFFFF>" if canToggleHints(localPlayer) else "")
-                .replace("@2", inputBindingString(Button.ULTIMATE))
-                .replace("@3", inputBindingString(Button.ABILITY_2))
-                if allControlsOr(
-                    not localPlayer.isHintOn
-                    or not canToggleHints(localPlayer)
-                    or len(hintRoutes[localPlayer.viewCp]) > 1
+                " "
+                if localPlayer.hudHidden[HUD_HINTS]
+                else (
+                    _(hintsHudText[0])
+                    .replace(
+                        "@0", "" if canToggleHints(localPlayer) else "<fg808080FF>"
+                    )
+                    .replace(
+                        "@1", "<fgFFFFFFFF>" if canToggleHints(localPlayer) else ""
+                    )
+                    .replace("@2", inputBindingString(Button.ULTIMATE))
+                    .replace("@3", inputBindingString(Button.ABILITY_2))
+                    if allControlsOr(
+                        not localPlayer.isHintOn
+                        or not canToggleHints(localPlayer)
+                        or len(hintRoutes[localPlayer.viewCp]) > 1
+                    )
+                    else _(hintsHudText[1])
                 )
-                else _(hintsHudText[1])
-            )
+            ),
+            "\n" if localPlayer.hudHidden[HUD_CONTROLS] else "",
+            "\n" if localPlayer.hudHidden[HUD_FAQ] else ""
         ),
         HudPosition.LEFT,
         0.2,

@@ -39,12 +39,18 @@ def toggleSpectator():
 
 
 rule "Load HUD":
+    # The HUD page shows these lines even when they're not in use, without a player's name,
+    # so they can be turned off ahead of time
     spectatorHudText[0] = _("\nSpectating")
     hudSubtext(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.spectating[0]
-            and localPlayer.spectating[1] == null
+            lambda localPlayer: (
+                localPlayer.spectating[0]
+                and localPlayer.spectating[1] == null
+                or isHudPage(localPlayer)
+            )
             and localPlayer.faqPage == 0
+            and isHudLineOn(localPlayer, HUD_SPECTATING)
         ),
         _(spectatorHudText[0]),
         HudPosition.LEFT,
@@ -58,6 +64,7 @@ rule "Load HUD":
             lambda localPlayer: localPlayer.spectating[0]
             and localPlayer.spectating[1] != null
             and localPlayer.faqPage == 0
+            and isHudLineOn(localPlayer, HUD_SPECTATING)
         ),
         _(spectatorHudText[1]).replace("@0", localPlayer.spectating[1]),
         HudPosition.LEFT,
@@ -68,9 +75,13 @@ rule "Load HUD":
     spectatorHudText[2] = _("Freecam On")
     hudSubtext(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.spectating[0]
-            and localPlayer.spectating[2]
+            lambda localPlayer: (
+                localPlayer.spectating[0]
+                and localPlayer.spectating[2]
+                or isHudPage(localPlayer)
+            )
             and localPlayer.faqPage == 0
+            and isHudLineOn(localPlayer, HUD_FREECAM)
         ),
         _(spectatorHudText[2]),
         HudPosition.LEFT,
@@ -81,9 +92,13 @@ rule "Load HUD":
     spectatorHudText[3] = _("(Disconnected)")
     hudSubheader(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.spectating[0]
-            and localPlayer.spectating[3]
+            lambda localPlayer: (
+                localPlayer.spectating[0]
+                and localPlayer.spectating[3]
+                or isHudPage(localPlayer)
+            )
             and localPlayer.faqPage == 0
+            and isHudLineOn(localPlayer, HUD_DISCONNECTED)
         ),
         _(spectatorHudText[3]),
         HudPosition.LEFT,
@@ -96,8 +111,11 @@ rule "Load HUD":
     spectatorHudText[4] = _("\nSpectators: @0")
     hudSubtext(
         getAllPlayers().filter(
-            lambda localPlayer: localPlayer.spectating[10] > 0
+            lambda localPlayer: (
+                localPlayer.spectating[10] > 0 or isHudPage(localPlayer)
+            )
             and localPlayer.faqPage == 0
+            and isHudLineOn(localPlayer, HUD_SPECTATORS)
         ),
         _(spectatorHudText[4]).replace("@0", localPlayer.spectating[10]),
         HudPosition.LEFT,

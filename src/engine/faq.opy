@@ -150,11 +150,14 @@ rule "Open":
 
 rule "Load HUD":
     # Under Controls at the top left, and left out of the lobby like it, with the Hints line
-    # under it
+    # under it. Turned off, Hints moves up and ends in a blank line in its place, like for
+    # Controls (Run: Load HUD).
     faqHudText[0] = _("FAQ: <fgFFFFFFFF>@0 + @1</fg>")
     hudSubheader(
         getAllPlayers().filter(
-            lambda localPlayer: not localPlayer.isInLobby and localPlayer.faqPage == 0
+            lambda localPlayer: isCourseHudShown(localPlayer)
+            and localPlayer.faqPage == 0
+            and isHudLineOn(localPlayer, HUD_FAQ)
         ),
         _(faqHudText[0])
         .replace("@0", inputBindingString(Button.ULTIMATE))

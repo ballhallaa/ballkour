@@ -12,11 +12,12 @@
 macro LOBBY_HEIGHT = 100
 macro LOBBY_DISTANCE = 10
 # The buttons, with the leaderboard under them. Players arrive looking at LOOK_ANGLE, the
-# 5th row, from where all of it fits on screen between BALLKOUR.COM and their guns. It's as
-# high as it goes, so looking straight up from anywhere shows some of it: players can't
-# look up past 89°, and the top button is at 88° with Lobby Stats on.
-macro BUTTON_ANGLE = -84.5
-macro BUTTON_SPACING = 3.1
+# 5th row, from where all of it fits on screen between BALLKOUR.COM and their guns. The top
+# button is as high as it goes while staying clear of BALLKOUR.COM, so looking straight up
+# from anywhere shows some of it (players can't look up past 89°), and the 5th is a
+# button's spacing above the leaderboard's title.
+macro BUTTON_ANGLE = -86
+macro BUTTON_SPACING = 2.9
 macro TITLE_ANGLE = -71.5
 macro ROW_ANGLE = -67.3
 macro ROW_SPACING = 3
@@ -25,11 +26,21 @@ macro LOOK_ANGLE = ROW_ANGLE + ROW_SPACING * 4
 # from LOOK_ANGLE, a row every LANGUAGE_SPACING from ROW_ANGLE down
 macro LANGUAGE_ACROSS = 30
 macro LANGUAGE_SPACING = 2.3
+# The HUD page (HUD_PAGE) has the main page's layout: its 3 buttons where the main page's
+# first 3 are, and ballkour.com's row where the leaderboard's title is. Under it, the HUD's left
+# column's lines are in a column this many degrees left of the page's middle and its right
+# column's this many right, each a row every LANGUAGE_SPACING from ROW_ANGLE down, like
+# the languages. They stay inside the HUD's own columns at the screen's edges, which show
+# on the page.
+macro HUD_ACROSS = 18
+macro HUD_LEFT_ROWS = HUD_RUNS - HUD_CONTROLS
+macro HUD_RIGHT_ROWS = HUD_LINES - HUD_RUNS
 # How far to either side of a button or row a player can look and still pick it, across
 # the page as seen from LOOK_ANGLE (pageAcross)
 macro BUTTON_WIDTH = 11
 macro ROW_WIDTH = 18
 macro LANGUAGE_WIDTH = 8
+macro HUD_ROW_WIDTH = 9
 # How far from LOOK_ANGLE a player can look before an arrow and an eye show them the way
 # back to the page (Load Buttons). Past this, its middle is off-screen at the widest field
 # of view. The arrow sits MARKER_OFFSET from their crosshair, close enough to stay above
@@ -43,17 +54,16 @@ macro ROW_SIZE = 1.15
 macro HINT_SIZE = 0.9
 macro LANGUAGE_TITLE_SIZE = 1.5
 macro LANGUAGE_SIZE = 1
+macro HUD_ROW_SIZE = 1
 macro MARKER_SIZE = 4
+
+
+macro canResumeRun(player):
+    (player.isRunLoaded and not player.isRunFinished)
 
 
 macro lobbyAt(angle):
     lobbyCam + directionFromAngles(lobbyAngle, angle) * LOBBY_DISTANCE
-
-
-# The view from LOOK_ANGLE: ahead, up and to the right
-macro lobbyForward = directionFromAngles(lobbyAngle, LOOK_ANGLE)
-macro lobbyUp = directionFromAngles(lobbyAngle, LOOK_ANGLE - 90)
-macro lobbyRight = directionFromAngles(lobbyAngle - 90, 0)
 
 
 # Left and up on a player's screen, wherever they look
@@ -93,18 +103,23 @@ macro isPageLost(player):
     )
 
 
-# A spot in the languages' column. A column at one horizontal angle would lean outward
-# toward its bottom on screen, so its spots share a plane with the eyes instead, which
-# shows as an upright line from LOOK_ANGLE.
-macro languageAt(angle):
+# A spot in a column across degrees right of the page's middle (negative is left), like the
+# languages'. A column at one horizontal angle would lean outward toward its bottom on
+# screen, so its spots share a plane with the eyes instead, which shows as an upright line
+# from LOOK_ANGLE.
+macro columnAt(angle, across):
     (
         lobbyCam
         + normalize(
             directionFromAngles(lobbyAngle, angle)
-            + lobbyRight * tanDeg(LANGUAGE_ACROSS) * cosDeg(angle - LOOK_ANGLE)
+            + lobbyRight * tanDeg(across) * cosDeg(angle - LOOK_ANGLE)
         )
         * LOBBY_DISTANCE
     )
+
+
+macro languageAt(angle):
+    columnAt(angle, LANGUAGE_ACROSS)
 
 
 def loadLobby():
@@ -122,7 +137,9 @@ def loadLobby():
         # Until the mech stands up, as its eyes are measured below
         wait(0.5)
     eventPlayer.isInLobby = true
-    eventPlayer.lobbyPage = 1
+    # The main page, or the HUD page when HUD set -HUD_PAGE on the way in (Controls: HUD), so
+    # the main page doesn't flash up first
+    eventPlayer.lobbyPage = max(1, -eventPlayer.lobbyPage)
     eventPlayer.isInFreemode = false
     # Held in the sky with their eyes at lobbyCam, by stopping them there with no gravity and
     # nothing to move or jump with: forcing their position made their camera feel sluggish.
@@ -186,6 +203,20 @@ def leaveLobby():
         eventPlayer.disallowButton(Button.ABILITY_1)
 
 
+def resumeRun():
+    @Name "Resume Run"
+
+    # Back to the paused run's CP: Resume Run on the main page or the HUD page, or HUD
+    # (Controls) on the HUD page
+    eventPlayer.isLoading = true
+    leaveLobby()
+    cpResetPlayer()
+    setCpAbilities()
+    showCpNameplate()
+    faceNextCp()
+    eventPlayer.isLoading = false
+
+
 # Where a player is looking on the page, as seen from LOOK_ANGLE, where their eyes are:
 # the vertical angle it lines up with (negative is up), and how far right of the page's
 # middle it is. Measured from the page, not the horizon, as near straight up a small turn
@@ -222,14 +253,7 @@ macro lobbyAimRow(player, top, spacing, rows, across, width):
 
 # The button a player is looking at (lobbyPos[1] to [5]), or 0
 macro buttonAimRow(player):
-    lobbyAimRow(
-        player,
-        BUTTON_ANGLE - (BUTTON_SPACING if isLobbyStatsOn else 0),
-        BUTTON_SPACING,
-        (5 if isLobbyStatsOn else 4),
-        0,
-        BUTTON_WIDTH
-    )
+    lobbyAimRow(player, BUTTON_ANGLE, BUTTON_SPACING, 5, 0, BUTTON_WIDTH)
 
 
 macro isAimingAtBack(player):
@@ -252,6 +276,34 @@ macro langAimRow(player):
     )
 
 
+# The main page's Lobby Stats button, across from the languages' title
+macro isAimingAtLobbyStats(player):
+    (
+        lobbyAimRow(
+            player, TITLE_ANGLE, BUTTON_SPACING, 1, -LANGUAGE_ACROSS, LANGUAGE_WIDTH
+        )
+        == 1
+    )
+
+
+# The HUD page's: ballkour.com's row, and each column's rows (1 on). Its buttons are the
+# main page's first 3 (buttonAimRow).
+macro isAimingAtHudSite(player):
+    (lobbyAimRow(player, TITLE_ANGLE, LANGUAGE_SPACING, 1, 0, HUD_ROW_WIDTH) == 1)
+
+
+macro hudLeftAimRow(player):
+    lobbyAimRow(
+        player, ROW_ANGLE, LANGUAGE_SPACING, HUD_LEFT_ROWS, -HUD_ACROSS, HUD_ROW_WIDTH
+    )
+
+
+macro hudRightAimRow(player):
+    lobbyAimRow(
+        player, ROW_ANGLE, LANGUAGE_SPACING, HUD_RIGHT_ROWS, HUD_ACROSS, HUD_ROW_WIDTH
+    )
+
+
 # A button's text: its label, with arrows on either side while it's looked at, like the
 # leaderboard's row. Only its text changes, so nothing moves.
 macro lobbyButton(label, isAimedAt):
@@ -267,14 +319,15 @@ macro lobbyButton(label, isAimedAt):
 rule "Load Buttons":
     # Checkpoint: Expand Data has unpacked cps by now, as its file is included first
     lobbyCam = cps[0][0] + vect(0, LOBBY_HEIGHT, 0)
-    # lobbyPos[i]: [0]lookAt [1]newRun [2]resumeRun [3]spectate [4]faq [5]lobbyStats [6]back
+    # The view from LOOK_ANGLE: ahead, up and to the right. Every look at the page measures
+    # from them, so they're worked out once here instead of in each text.
+    lobbyForward = directionFromAngles(lobbyAngle, LOOK_ANGLE)
+    lobbyUp = directionFromAngles(lobbyAngle, LOOK_ANGLE - 90)
+    lobbyRight = directionFromAngles(lobbyAngle - 90, 0)
+    # lobbyPos[i]: [0]lookAt [1]newRun [2]resumeRun [3]spectate [4]faq [5]hud [6]back
     lobbyPos = [lobbyAt(LOOK_ANGLE)]
-    # Lobby Stats goes under FAQ with its Workshop Setting on, so the buttons move up one to
-    # make room
     for index in range(1, 6):
-        lobbyPos[index] = lobbyAt(
-            BUTTON_ANGLE + BUTTON_SPACING * (index - (2 if isLobbyStatsOn else 1))
-        )
+        lobbyPos[index] = lobbyAt(BUTTON_ANGLE + BUTTON_SPACING * (index - 1))
     # Lobby Stats' Back, where the 10th row is
     lobbyPos[6] = lobbyAt(ROW_ANGLE + ROW_SPACING * 9)
     # An arrow by the crosshair pointing back to the page, for players who looked away and
@@ -340,7 +393,7 @@ rule "Load Buttons":
         getAllPlayers().filter(lambda localPlayer: localPlayer.lobbyPage == 1),
         (
             lobbyButton(_(lobbyHudText[2]), buttonAimRow(localPlayer) == 2)
-            if localPlayer.isRunLoaded and not localPlayer.isRunFinished
+            if canResumeRun(localPlayer)
             else "<fg808080FF>{}</fg>".format(_(lobbyHudText[2]))
         ),
         lobbyPos[2],
@@ -370,14 +423,27 @@ rule "Load Buttons":
         WorldTextReeval.VISIBILITY_AND_STRING,
         rgb(0, 224, 146)
     )
+    # Opens the HUD page
+    lobbyHudText[9] = _("Customize HUD")
+    createInWorldText(
+        getAllPlayers().filter(lambda localPlayer: localPlayer.lobbyPage == 1),
+        lobbyButton(_(lobbyHudText[9]), buttonAimRow(localPlayer) == 5),
+        lobbyPos[5],
+        BUTTON_SIZE,
+        Clip.NONE,
+        WorldTextReeval.VISIBILITY_AND_STRING,
+        rgb(0, 224, 146)
+    )
+    # The column of buttons is full, so the host's Lobby Stats is on the page's empty left
+    # side, across from the languages' title
     if isLobbyStatsOn:
         createInWorldText(
             getAllPlayers().filter(
                 lambda localPlayer: localPlayer.lobbyPage == 1
                 and "{}".format(localPlayer) == hostPlayerName
             ),
-            lobbyButton("Lobby Stats", buttonAimRow(localPlayer) == 5),
-            lobbyPos[5],
+            lobbyButton("Lobby Stats", isAimingAtLobbyStats(localPlayer)),
+            columnAt(TITLE_ANGLE, -LANGUAGE_ACROSS),
             BUTTON_SIZE,
             Clip.NONE,
             WorldTextReeval.VISIBILITY_AND_STRING,
@@ -680,6 +746,375 @@ rule "Load Stats Page":
     )
 
 
+# A HUD page row: a line as the HUD shows it, in its color while it's on and gray while
+# it's off. Its values and keys are filled in like on the course, in the same color, as a
+# row's color can't reach the white inside its text.
+macro hudPageRow(line, text, pos, color):
+    createInWorldText(
+        getAllPlayers().filter(lambda localPlayer: isHudPage(localPlayer)),
+        text,
+        pos,
+        HUD_ROW_SIZE,
+        Clip.NONE,
+        WorldTextReeval.VISIBILITY_STRING_AND_COLOR,
+        rgb(128, 128, 128) if localPlayer.hudHidden[line] else color
+    )
+    hudPageTexts.append(getLastCreatedText())
+
+
+# A line's own text with its white values and keys in the text's color instead
+macro hudPageText(text):
+    text.replace("<fgFFFFFFFF>", "").replace("</fg>", "")
+
+
+# Best and Avg, which the HUD stacks, side by side to fit a row
+macro hudPageStats(text):
+    hudPageText(text).replace("\n", "   ").replace("@0", "--").replace("@1", "--")
+
+
+rule "Load HUD Page":
+    # Each column's rows are numbered from 1, the left column's like their lines
+    hudLeftPos = []
+    hudRightPos = []
+    for index in range(1, HUD_LEFT_ROWS + 1):
+        hudLeftPos[index] = columnAt(
+            ROW_ANGLE + LANGUAGE_SPACING * (index - 1), -HUD_ACROSS
+        )
+    for index in range(1, HUD_RIGHT_ROWS + 1):
+        hudRightPos[index] = columnAt(
+            ROW_ANGLE + LANGUAGE_SPACING * (index - 1), HUD_ACROSS
+        )
+    # Where each column's arrows wait while none of its rows is looked at, far below the
+    # lobby, like the languages' (Load Languages)
+    hudLeftPos[0] = hudLeftPos[1] + vect(0, -1000, 0)
+    hudRightPos[0] = hudRightPos[1] + vect(0, -1000, 0)
+    # Disqualified can't be turned off, so the arrows skip its row, waiting there too, like a
+    # grayed-out button's
+    hudDisqualifiedPos = hudLeftPos[HUD_DISQUALIFIED]
+    hudLeftPos[HUD_DISQUALIFIED] = hudLeftPos[0]
+    # The scorecard and the Top 3s show full on the page, with made-up players, so turning
+    # them off shows the room they can take: 12 players, each kind of scorecard row
+    # (disqualified, freemode, spectating), and runs that aren't anyone's real ones. Laid out
+    # like the real ones (Update Scorecard, Load Leaderboard, Record Top Run).
+    hudPageScorecard = "{}    {}       {}{}".format(
+        iconString(Icon.FLAG),
+        iconString(Icon.BOLT),
+        iconString(Icon.SKULL),
+        (
+            "\n87     6:41       12     GrappleGod"
+            "\n64     5:02       8       HammondFan"
+            "\n<fgFF4646FF>52     4:20       15     PileDriver</fg> <fgFF4646FF>×</fg>"
+            "\n41     3:57       6       Minefield"
+            "\n30     2:48       21     RollOut"
+            "\n22     2:05       3       SpinnyBoi"
+            "\n9       58           30     BallPit"
+            "\n3       12           1       WreckingCrew"
+            "\n<fgCB87FFFF>70     9:15       40     ShieldSurfer</fg> <fgFF4646FF>×</fg>"
+            "\n<fg00BEFFFF>33     3:10       9       MechaMouse</fg>"
+            "\n<fgCB87FFFF>15     1:30       2       Hamsterdam</fg>"
+            "\n<fg00BEFFFF>0       0             0       QuickSilver</fg>"
+        )
+    )
+    hudPageAllTimeText = (
+        "\n<fgFFFF00FF>1   3:41.07     4     TurboHamster</fg>"
+        "\n<fgB0C4DEFF>2   3:48.52     9     OrbWeaver</fg>"
+        "\n<fgC46A30FF>3   4:02.19     11   BoopMachine</fg>"
+    )
+    hudPageTopRunsText = (
+        "\n<fgFFFF00FF>1   4:15.66     7     DizzyDrifter</fg>"
+        "\n<fgB0C4DEFF>2   4:31.40     13   SlamJam</fg>"
+        "\n<fgC46A30FF>3   5:07.93     18   LooseCannon</fg>"
+    )
+
+
+rule "Show HUD Page":
+    @Condition getAllPlayers().any(lambda p: isHudPage(p)) == true
+
+    # Its texts only exist while someone's on it, as every text's definition adds to the
+    # server's load, like an open run's info (lbRunInfo). The HUD itself shows around the
+    # page (isCourseHudShown), lines that only show sometimes too, so turning a row off shows
+    # what goes and what moves up. A batch a tick, so the texts don't all land in one.
+    hudPageTexts = []
+    # ballkour.com, at the top like on the HUD, with the buttons' arrows, as there's one of it
+    hudPageRow(
+        HUD_SITE,
+        lobbyButton("ballkour.com", isAimingAtHudSite(localPlayer)),
+        lobbyAt(TITLE_ANGLE),
+        rgb(0, 224, 146)
+    )
+    # The left column
+    hudPageRow(
+        HUD_CONTROLS,
+        hudPageText(_(runHudText).replace("@0", inputBindingString(Button.ULTIMATE))),
+        hudLeftPos[HUD_CONTROLS],
+        rgb(230, 151, 0)
+    )
+    hudPageRow(
+        HUD_FAQ,
+        hudPageText(
+            _(faqHudText[0])
+            .replace("@0", inputBindingString(Button.ULTIMATE))
+            .replace("@1", inputBindingString(Button.MELEE))
+        ),
+        hudLeftPos[HUD_FAQ],
+        rgb(230, 151, 0)
+    )
+    hudPageRow(
+        HUD_HINTS,
+        hudPageText(
+            _(hintsHudText[0])
+            .replace("@0", "")
+            .replace("@1", "")
+            .replace("@2", inputBindingString(Button.ULTIMATE))
+            .replace("@3", inputBindingString(Button.ABILITY_2))
+        ),
+        hudLeftPos[HUD_HINTS],
+        rgb(230, 151, 0)
+    )
+    # Disqualified can't be turned off (Run: isDisqualifiedShown), so its row is struck
+    # through. The Workshop has no strikethrough, so a line of em dashes lies over it, about as
+    # wide as its text: 0.6 dashes per Latin or Cyrillic letter, 1 per CJK character, and 0.4
+    # per Thai character, as Thai counts its marks as characters.
+    createInWorldText(
+        getAllPlayers().filter(lambda localPlayer: isHudPage(localPlayer)),
+        _(counterHudText[3]).replace("\n", ""),
+        hudDisqualifiedPos,
+        HUD_ROW_SIZE,
+        Clip.NONE,
+        WorldTextReeval.VISIBILITY_AND_STRING,
+        rgb(255, 70, 70)
+    )
+    hudPageTexts.append(getLastCreatedText())
+    createInWorldText(
+        getAllPlayers().filter(lambda localPlayer: isHudPage(localPlayer)),
+        "——————————————".substring(
+            0,
+            round(
+                strLen(_(counterHudText[3]).replace("\n", ""))
+                * [0.6, 0.6, 0.6, 0.6, 0.6, 1, 1, 0.6, 0.6, 0.6, 0.4, 0.6, 1, 1][
+                    localPlayer.__languageIndex__
+                ]
+            )
+        ),
+        hudDisqualifiedPos,
+        HUD_ROW_SIZE,
+        Clip.NONE,
+        WorldTextReeval.VISIBILITY_AND_STRING,
+        rgb(255, 70, 70)
+    )
+    hudPageTexts.append(getLastCreatedText())
+    hudPageRow(
+        HUD_FREEMODE, _(freemodeHudText), hudLeftPos[HUD_FREEMODE], rgb(203, 135, 255)
+    )
+    hudPageRow(
+        HUD_SPECTATORS,
+        _(spectatorHudText[4]).replace("\n", "").replace("@0", 0),
+        hudLeftPos[HUD_SPECTATORS],
+        rgb(0, 190, 255)
+    )
+    hudPageRow(
+        HUD_SPECTATING,
+        _(spectatorHudText[0]).replace("\n", ""),
+        hudLeftPos[HUD_SPECTATING],
+        rgb(0, 190, 255)
+    )
+    hudPageRow(
+        HUD_FREECAM, _(spectatorHudText[2]), hudLeftPos[HUD_FREECAM], rgb(230, 151, 0)
+    )
+    hudPageRow(
+        HUD_DISCONNECTED,
+        _(spectatorHudText[3]),
+        hudLeftPos[HUD_DISCONNECTED],
+        Color.WHITE
+    )
+    # The scorecard's rows are other players, so it gets a name
+    lobbyHudText[10] = _("Scores")
+    hudPageRow(
+        HUD_SCORECARD, _(lobbyHudText[10]), hudLeftPos[HUD_SCORECARD], rgb(230, 151, 0)
+    )
+    hudPageRow(
+        HUD_PAGE_KEY,
+        hudPageText(
+            _(scorecardHudText[0])
+            .replace("@0", inputBindingString(Button.ULTIMATE))
+            .replace("@1", inputBindingString(Button.CROUCH))
+        ),
+        hudLeftPos[HUD_PAGE_KEY],
+        rgb(230, 151, 0)
+    )
+    wait()
+    # The right column
+    hudPageRow(
+        HUD_RUNS,
+        _(counterHudText[0]).replace("@0", localPlayer.runCount),
+        hudRightPos[HUD_RUNS - HUD_LEFT_ROWS],
+        rgb(230, 151, 0)
+    )
+    hudPageRow(
+        HUD_ATTEMPTS,
+        _(counterHudText[1]).replace(
+            "@0", localPlayer.cpAttempts[localPlayer.runCurrentCp]
+        ),
+        hudRightPos[HUD_ATTEMPTS - HUD_LEFT_ROWS],
+        rgb(230, 151, 0)
+    )
+    hudPageRow(
+        HUD_CP_MISTAKES,
+        _(counterHudText[2]).replace(
+            "@0", localPlayer.cpMistakes[localPlayer.runCurrentCp]
+        ),
+        hudRightPos[HUD_CP_MISTAKES - HUD_LEFT_ROWS],
+        rgb(230, 151, 0)
+    )
+    hudPageRow(
+        HUD_CP,
+        "{} {}/{}".format(iconString(Icon.FLAG), localPlayer.viewCp, lastCp),
+        hudRightPos[HUD_CP - HUD_LEFT_ROWS],
+        rgb(230, 151, 0)
+    )
+    hudPageRow(
+        HUD_TIME,
+        "{} {}".format(iconString(Icon.BOLT), localPlayer.runTimeFormatted),
+        hudRightPos[HUD_TIME - HUD_LEFT_ROWS],
+        rgb(230, 151, 0)
+    )
+    hudPageRow(
+        HUD_MISTAKES,
+        "{} {}".format(iconString(Icon.SKULL), localPlayer.runMistakes),
+        hudRightPos[HUD_MISTAKES - HUD_LEFT_ROWS],
+        rgb(230, 151, 0)
+    )
+    hudPageRow(
+        HUD_SPLIT_CP,
+        "{} {}".format(iconString(Icon.FLAG), localPlayer.viewCp),
+        hudRightPos[HUD_SPLIT_CP - HUD_LEFT_ROWS],
+        rgb(230, 151, 0)
+    )
+    hudPageRow(
+        HUD_ATTEMPT,
+        _(splitsHudText[0]).replace("@0", localPlayer.cpTimeFormatted),
+        hudRightPos[HUD_ATTEMPT - HUD_LEFT_ROWS],
+        rgb(230, 151, 0)
+    )
+    hudPageRow(
+        HUD_ATTEMPT_STATS,
+        hudPageStats(_(splitsHudText[1])),
+        hudRightPos[HUD_ATTEMPT_STATS - HUD_LEFT_ROWS],
+        rgb(230, 151, 0)
+    )
+    hudPageRow(
+        HUD_SPLIT,
+        _(splitsHudText[2]).replace("@0", localPlayer.splitTimeFormatted),
+        hudRightPos[HUD_SPLIT - HUD_LEFT_ROWS],
+        rgb(230, 151, 0)
+    )
+    hudPageRow(
+        HUD_SPLIT_STATS,
+        hudPageStats(_(splitsHudText[3])),
+        hudRightPos[HUD_SPLIT_STATS - HUD_LEFT_ROWS],
+        rgb(230, 151, 0)
+    )
+    hudPageRow(
+        HUD_PACE,
+        _(splitsHudText[4])
+        .replace("\n", "")
+        .replace("@0", localPlayer.paceEtaFormatted),
+        hudRightPos[HUD_PACE - HUD_LEFT_ROWS],
+        rgb(230, 151, 0)
+    )
+    hudPageRow(
+        HUD_ALL_TIME_TOP,
+        _(allTimeRunsHudText),
+        hudRightPos[HUD_ALL_TIME_TOP - HUD_LEFT_ROWS],
+        rgb(230, 151, 0)
+    )
+    hudPageRow(
+        HUD_LOBBY_TOP,
+        _(topRunsHudText),
+        hudRightPos[HUD_LOBBY_TOP - HUD_LEFT_ROWS],
+        rgb(230, 151, 0)
+    )
+    wait()
+    # Arrows around the row being looked at in each column, like the languages'. Its rows
+    # differ in width, so the arrows clear the column's widest.
+    createInWorldText(
+        getAllPlayers().filter(lambda localPlayer: isHudPage(localPlayer)),
+        "{}                                            {}".format(
+            iconString(Icon.ARROW_RIGHT), iconString(Icon.ARROW_LEFT)
+        ),
+        hudLeftPos[hudLeftAimRow(localPlayer)],
+        HUD_ROW_SIZE,
+        Clip.NONE,
+        WorldTextReeval.VISIBILITY_AND_POSITION,
+        rgb(230, 151, 0)
+    )
+    hudPageTexts.append(getLastCreatedText())
+    createInWorldText(
+        getAllPlayers().filter(lambda localPlayer: isHudPage(localPlayer)),
+        "{}                                            {}".format(
+            iconString(Icon.ARROW_RIGHT), iconString(Icon.ARROW_LEFT)
+        ),
+        hudRightPos[hudRightAimRow(localPlayer)],
+        HUD_ROW_SIZE,
+        Clip.NONE,
+        WorldTextReeval.VISIBILITY_AND_POSITION,
+        rgb(230, 151, 0)
+    )
+    hudPageTexts.append(getLastCreatedText())
+    # The buttons: Resume Run, grayed out with no run to resume like the main page's, Hide
+    # All, which turns to Show All once every line is off, and Back to the main page
+    createInWorldText(
+        getAllPlayers().filter(lambda localPlayer: isHudPage(localPlayer)),
+        (
+            lobbyButton(_(lobbyHudText[2]), buttonAimRow(localPlayer) == 1)
+            if canResumeRun(localPlayer)
+            else "<fg808080FF>{}</fg>".format(_(lobbyHudText[2]))
+        ),
+        lobbyPos[1],
+        BUTTON_SIZE,
+        Clip.NONE,
+        WorldTextReeval.VISIBILITY_AND_STRING,
+        rgb(0, 224, 146)
+    )
+    hudPageTexts.append(getLastCreatedText())
+    lobbyHudText[11] = _("Hide All")
+    lobbyHudText[12] = _("Show All")
+    createInWorldText(
+        getAllPlayers().filter(lambda localPlayer: isHudPage(localPlayer)),
+        lobbyButton(
+            (
+                _(lobbyHudText[12])
+                if areHudLinesAllOff(localPlayer)
+                else _(lobbyHudText[11])
+            ),
+            buttonAimRow(localPlayer) == 2
+        ),
+        lobbyPos[2],
+        BUTTON_SIZE,
+        Clip.NONE,
+        WorldTextReeval.VISIBILITY_AND_STRING,
+        rgb(0, 224, 146)
+    )
+    hudPageTexts.append(getLastCreatedText())
+    createInWorldText(
+        getAllPlayers().filter(lambda localPlayer: isHudPage(localPlayer)),
+        lobbyButton(_(lobbyHudText[4]), buttonAimRow(localPlayer) == 3),
+        lobbyPos[3],
+        BUTTON_SIZE,
+        Clip.NONE,
+        WorldTextReeval.VISIBILITY_AND_STRING,
+        rgb(0, 224, 146)
+    )
+    hudPageTexts.append(getLastCreatedText())
+    waitUntil(not getAllPlayers().any(lambda p: isHudPage(p)), Math.INFINITY)
+    for index in range(len(hudPageTexts)):
+        destroyInWorldText(hudPageTexts[index])
+    # Rechecks a tick later, like the sync rules, in case someone opened it in the same tick
+    wait()
+    if RULE_CONDITION:
+        loop()
+
+
 # Interact picks a button, and so does either fire, which don't shoot in the lobby (Load).
 # Melee closes an open run's info, like the FAQ.
 rule "Select Input":
@@ -706,14 +1141,8 @@ rule "Select Input":
         if eventPlayer.lobbyAim == 1:
             newRun()
         elif eventPlayer.lobbyAim == 2:
-            if eventPlayer.isRunLoaded and not eventPlayer.isRunFinished:
-                eventPlayer.isLoading = true
-                leaveLobby()
-                cpResetPlayer()
-                setCpAbilities()
-                showCpNameplate()
-                faceNextCp()
-                eventPlayer.isLoading = false
+            if canResumeRun(eventPlayer):
+                resumeRun()
         elif eventPlayer.lobbyAim == 3:
             toggleSpectator()
         elif eventPlayer.lobbyAim == 4:
@@ -725,8 +1154,13 @@ rule "Select Input":
             )
             eventPlayer.faqPage = 1
         elif eventPlayer.lobbyAim == 5:
-            if isLobbyStatsOn and "{}".format(eventPlayer) == hostPlayerName:
-                eventPlayer.lobbyPage = 2
+            eventPlayer.lobbyPage = HUD_PAGE
+        elif (
+            isLobbyStatsOn
+            and isAimingAtLobbyStats(eventPlayer)
+            and "{}".format(eventPlayer) == hostPlayerName
+        ):
+            eventPlayer.lobbyPage = 2
         else:
             eventPlayer.lobbyAim = langAimRow(eventPlayer)
             if eventPlayer.lobbyAim > 0:
@@ -739,6 +1173,38 @@ rule "Select Input":
                 if eventPlayer.lobbyAim != eventPlayer.lbInfoRow:
                     eventPlayer.lbInfoRow = eventPlayer.lobbyAim
                     showRunInfo()
+    elif isHudPage(eventPlayer):
+        eventPlayer.lobbyAim = buttonAimRow(eventPlayer)
+        if eventPlayer.lobbyAim == 1:
+            if canResumeRun(eventPlayer):
+                resumeRun()
+        elif eventPlayer.lobbyAim == 2:
+            # Hide All, which leaves Disqualified on, or Show All once every other line is off
+            if areHudLinesAllOff(eventPlayer):
+                eventPlayer.hudHidden = eventPlayer.hudHidden.map(lambda line: false)
+            else:
+                eventPlayer.hudHidden = eventPlayer.hudHidden.map(
+                    lambda line, i: i != HUD_DISQUALIFIED
+                )
+        elif eventPlayer.lobbyAim == 3:
+            eventPlayer.lobbyPage = 1
+        else:
+            # The row looked at, as its line's HUD_ number: the left column's rows are numbered
+            # from 1 like their lines, and the right column's follow them
+            eventPlayer.lobbyAim = hudLeftAimRow(eventPlayer)
+            if eventPlayer.lobbyAim == 0:
+                eventPlayer.lobbyAim = hudRightAimRow(eventPlayer)
+                if eventPlayer.lobbyAim > 0:
+                    eventPlayer.lobbyAim += HUD_LEFT_ROWS
+                elif isAimingAtHudSite(eventPlayer):
+                    eventPlayer.lobbyAim = HUD_SITE
+                else:
+                    return
+            # Disqualified can't be turned off (Run: isDisqualifiedShown)
+            if eventPlayer.lobbyAim != HUD_DISQUALIFIED:
+                eventPlayer.hudHidden[eventPlayer.lobbyAim] = not eventPlayer.hudHidden[
+                    eventPlayer.lobbyAim
+                ]
     elif isAimingAtBack(eventPlayer):
         eventPlayer.lobbyPage = 1
 

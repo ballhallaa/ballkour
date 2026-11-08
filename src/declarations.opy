@@ -46,8 +46,22 @@ globalvar lobbyCam
 globalvar langPos
 globalvar langNames
 globalvar lobbyAngle
+globalvar lobbyForward
+globalvar lobbyUp
+globalvar lobbyRight
 globalvar lobbyPos
 globalvar lobbyStats
+# The HUD page's rows in its left and right columns, from 1, with [0] far below the lobby
+globalvar hudLeftPos
+globalvar hudRightPos
+# The HUD page's texts, which only exist while someone's on it (Lobby: Show HUD Page)
+globalvar hudPageTexts
+# Disqualified's row, as its spot in hudLeftPos holds the arrows' parking spot instead
+globalvar hudDisqualifiedPos
+# Made-up rows the HUD shows on the HUD page in place of the scorecard and Top 3s
+globalvar hudPageScorecard
+globalvar hudPageAllTimeText
+globalvar hudPageTopRunsText
 
 # Match
 globalvar elapsedTime
@@ -105,10 +119,16 @@ playervar nameplate
 playervar isTiny
 
 # Lobby
-# The page they're on: 1 for the buttons and leaderboard, 2 for Lobby Stats, or 0 outside
-# the lobby
+# The page they're on: 1 for the buttons and leaderboard, 2 for Lobby Stats, HUD_PAGE for
+# the HUD page, or 0 outside the lobby. -HUD_PAGE on the way into the lobby opens it on the
+# HUD page (Lobby: Load).
 playervar lobbyPage
 playervar lobbyAim
+
+# HUD
+# The HUD lines a player turned off on the HUD page: true at each one's HUD_ number. It's
+# HUD_LINES long from the moment they join (Player: Joins), so a slice of it is never short.
+playervar hudHidden
 
 # Leaderboard
 playervar lbInfoRow
@@ -206,7 +226,6 @@ macro FAQ_PAGES = 4
 # The languages in #!translations (ballkour.opy), which __languageIndex__ counts from 0
 macro LANGUAGES = 14
 playervar isInFreemode
-playervar isScorecardHidden
 playervar scorecardKey
 playervar scorecardSecond
 # Ultimate Input / Watch Input: the buttons held (heldButtons) and the ones before, and
@@ -233,6 +252,7 @@ subroutine showCpNameplate
 # Lobby
 subroutine loadLobby
 subroutine leaveLobby
+subroutine resumeRun
 subroutine showRunInfo
 # Each course's leaderboard has its own, if it has runs
 subroutine loadRunInfo
@@ -271,6 +291,8 @@ subroutine nextCpInput
 subroutine newRunInput
 subroutine freemodeInput
 subroutine lobbyInput
+subroutine goToLobby
+subroutine hudInput
 
 # Spectating
 subroutine prevPlayerInput
@@ -286,6 +308,69 @@ subroutine enableFreecamForSpectators
 subroutine syncSpectatorCps
 subroutine reattachToSpectatingTarget
 subroutine enableFirstPersonSpectator
+
+
+# HUD
+# The HUD's lines, numbered in the order the HUD page lists them: ballkour.com at the top,
+# then the left column and the right column, each from the top down. A number is the
+# line's spot in hudHidden.
+macro HUD_SITE = 0
+macro HUD_CONTROLS = 1
+macro HUD_FAQ = 2
+macro HUD_HINTS = 3
+# Can't be turned off, as it says the run won't count: its row on the page is struck through
+macro HUD_DISQUALIFIED = 4
+macro HUD_FREEMODE = 5
+macro HUD_SPECTATORS = 6
+macro HUD_SPECTATING = 7
+macro HUD_FREECAM = 8
+macro HUD_DISCONNECTED = 9
+macro HUD_SCORECARD = 10
+# The HUD page's own line, under the scorecard
+macro HUD_PAGE_KEY = 11
+macro HUD_RUNS = 12
+macro HUD_ATTEMPTS = 13
+macro HUD_CP_MISTAKES = 14
+macro HUD_CP = 15
+macro HUD_TIME = 16
+macro HUD_MISTAKES = 17
+macro HUD_SPLIT_CP = 18
+macro HUD_ATTEMPT = 19
+macro HUD_ATTEMPT_STATS = 20
+macro HUD_SPLIT = 21
+macro HUD_SPLIT_STATS = 22
+macro HUD_PACE = 23
+macro HUD_ALL_TIME_TOP = 24
+macro HUD_LOBBY_TOP = 25
+macro HUD_LINES = 26
+# The lobby page that turns them on and off (lobbyPage)
+macro HUD_PAGE = 3
+
+
+macro isHudPage(player):
+    (player.lobbyPage == HUD_PAGE)
+
+
+# Whether a player sees the course's HUD: off the lobby, and on the HUD page, so they can see
+# what each line they turn off was
+macro isCourseHudShown(player):
+    (not player.isInLobby or isHudPage(player))
+
+
+macro isHudLineOn(player, line):
+    (not player.hudHidden[line])
+
+
+# Whether every line that can be turned off is: all but Disqualified
+macro areHudLinesAllOff(player):
+    (len(player.hudHidden.filter(lambda line: line)) == HUD_LINES - 1)
+
+
+# Whether a player turned off every one of count lines from the line first. Not for a
+# text's viewer filter: it's an array check, and the Workshop rejects one nested in another
+# ("Cannot nest more than 1 level").
+macro areHudLinesOff(player, first, count):
+    all(player.hudHidden.slice(first, count))
 
 
 # Whether the Controls list shows: while Ultimate is held (Controls: HUD Input), apart from
