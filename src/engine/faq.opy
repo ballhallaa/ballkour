@@ -183,8 +183,8 @@ rule "Load HUD":
     faqHudText[2] = (
         "\n\n<fg80D0FFFF>What counts as a valid run?</fg>"
         "\nYour run is only <fgFF4646FF>disqualified</fg> if you skip a checkpoint you haven't cleared yet this run."
-        "\nGoing back or restarting checkpoints, skipping ahead to cleared checkpoints, and"
-        "\n<fg00BEFFFF>spectating</fg> are fine. Leaving an uncleared checkpoint in <fgCB87FFFF>Freemode</fg> counts as skipping it."
+        "\nGoing back or restarting checkpoints, skipping ahead to cleared checkpoints,"
+        "\n<fgCB87FFFF>Freemode</fg>, and <fg00BEFFFF>spectating</fg> are fine."
         "\n<fgFF4646FF>Disqualified</fg> runs don't count toward the top-10 leaderboard, <fgE69700FF>Lobby Top 3</fg>, or <fgE69700FF>Lobby Stats</fg>."
     )
     faqHudText[3] = (
@@ -260,7 +260,7 @@ rule "Load HUD":
     faqHudText[15] = (
         "\n\n<fg80D0FFFF>What is </fg><fgCB87FFFF>Freemode</fg><fg80D0FFFF> for?</fg>"
         "\nPractice, with no timer and all your abilities. You can't clear checkpoints in it,"
-        "\nand leaving your checkpoint with it on <fgFF4646FF>disqualifies</fg> your run."
+        "\nso it doesn't <fgFF4646FF>disqualify</fg> your run."
     )
     # Page 4
     faqHudText[16] = (
