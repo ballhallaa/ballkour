@@ -108,6 +108,10 @@ msgid "FAQ:                                     <fgFFFFFFFF>@0 + @1</fg>"
 msgstr "FAQ:                                           <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file controls.opy, rule "Load HUD"
+msgid "Customize HUD:      <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "HUD anpassen:             <fgFFFFFFFF>@0 + @1</fg>"
+
+#. file controls.opy, rule "Load HUD"
 msgid ""
 "Prev. Language:   <fgFFFFFFFF>@0 + @1 + @2</fg>\n"
 "Next Language:   <fgFFFFFFFF>@0 + @1 + @3</fg>"
@@ -189,6 +193,10 @@ msgstr "Zuschauen"
 msgid "FAQ"
 msgstr "FAQ"
 
+#. file lobby.opy, rule "Load Buttons"
+msgid "Customize HUD"
+msgstr "HUD anpassen"
+
 #. file lobby.opy, rule "Load Languages"
 msgid "Language"
 msgstr "Sprache"
@@ -210,6 +218,18 @@ msgstr "Zurück"
 #. file lobby.opy, rule "Load Leaderboard"
 msgid "Click on a Run to View More Info"
 msgstr "Klicke auf einen Lauf für mehr Infos"
+
+#. file lobby.opy, rule "Show HUD Page"
+msgid "Scores"
+msgstr "Wertung"
+
+#. file lobby.opy, rule "Show HUD Page"
+msgid "Hide All"
+msgstr "Alle ausblenden"
+
+#. file lobby.opy, rule "Show HUD Page"
+msgid "Show All"
+msgstr "Alle einblenden"
 
 # TODO: check if all occurrences have the same translation
 #. 4 occurrences:
@@ -284,8 +304,8 @@ msgid "Lobby Top 3"
 msgstr "Lobby-Top 3"
 
 #. file run.opy, rule "Load HUD"
-msgid "Scores: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "Wertung: <fgFFFFFFFF>@0 + @1</fg>"
+msgid "HUD: <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "HUD: <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file run.opy, rule "Load HUD"
 msgid "Disqualified"

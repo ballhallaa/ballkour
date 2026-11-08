@@ -7,6 +7,9 @@ rule "Joins":
     @Condition eventPlayer.isDummy() == false
 
     eventPlayer.isLoading = true
+    # Every HUD line on, filled out to HUD_LINES, as an index past an array's end fills the
+    # rest with zeros
+    eventPlayer.hudHidden[HUD_LINES - 1] = false
     if isLobbyStatsOn:
         if not "{}".format(eventPlayer) in players:
             if eventPlayer == hostPlayer:
