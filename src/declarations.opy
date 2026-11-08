@@ -58,6 +58,8 @@ globalvar hudRightPos
 globalvar hudPageTexts
 # Disqualified's row, as its spot in hudLeftPos holds the arrows' parking spot instead
 globalvar hudDisqualifiedPos
+# The lobby players Pull Back or Release is turning, for the tick it runs
+globalvar lobbyPulled
 # Made-up rows the HUD shows on the HUD page in place of the scorecard and Top 3s
 globalvar hudPageScorecard
 globalvar hudPageAllTimeText
@@ -124,6 +126,8 @@ playervar isTiny
 # HUD page (Lobby: Load).
 playervar lobbyPage
 playervar lobbyAim
+# Whether they're being turned back toward the page (Lobby: Pull Back)
+playervar isPulledToPage
 
 # HUD
 # The HUD lines a player turned off on the HUD page: true at each one's HUD_ number. It's
