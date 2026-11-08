@@ -47,6 +47,12 @@ macro HUD_ROW_WIDTH = 9
 # their guns.
 macro MARKER_ANGLE = 55
 macro MARKER_OFFSET = 15
+# Past PULL_ANGLE from LOOK_ANGLE, a player is turned back toward the page at PULL_RATE
+# degrees a second until they're within RELEASE_ANGLE, where they can look around again
+# (Pull Back). It's just past MARKER_ANGLE, so the page's edge is still on their screen.
+macro PULL_ANGLE = 60
+macro RELEASE_ANGLE = 45
+macro PULL_RATE = 180
 # The texts' sizes, which the angles above are spaced for
 macro TITLE_SIZE = 1.5
 macro BUTTON_SIZE = 1.6
@@ -91,15 +97,36 @@ macro isPageSideways(player):
     abs(pageLeft(player)) > abs(pageUp(player))
 
 
+# Whether a player is in the lobby looking at its pages, and how many degrees they're
+# looking away from LOOK_ANGLE
+macro isOnPage(player):
+    (player.isInLobby and not player.isLoading and player.faqPage == 0)
+
+
+macro angleFromPage(player):
+    angleBetweenVectors(player.getFacingDirection(), lobbyForward)
+
+
 # Whether a player in the lobby has looked far enough from the page to be shown the way
 # back to it (Load Buttons)
 macro isPageLost(player):
+    (isOnPage(player) and angleFromPage(player) > MARKER_ANGLE)
+
+
+# Whether a player is being turned back toward the page, or should start or stop being
+# turned (Pull Back, Release)
+macro isPullStarting(player):
     (
-        player.isInLobby
-        and not player.isLoading
-        and player.faqPage == 0
-        and angleBetweenVectors(player.getFacingDirection(), lobbyForward)
-        > MARKER_ANGLE
+        not player.isPulledToPage
+        and isOnPage(player)
+        and angleFromPage(player) > PULL_ANGLE
+    )
+
+
+macro isPullEnding(player):
+    (
+        player.isPulledToPage
+        and (not isOnPage(player) or angleFromPage(player) < RELEASE_ANGLE)
     )
 
 
@@ -182,6 +209,10 @@ def leaveLobby():
     # Undoes Load. Each checkpoint sets the rest of the abilities (Checkpoint: Set Abilities).
     eventPlayer.isInLobby = false
     eventPlayer.lobbyPage = 0
+    # Right away rather than in Release, so the pull can't turn them from their CP
+    if eventPlayer.isPulledToPage:
+        eventPlayer.stopFacing()
+        eventPlayer.isPulledToPage = false
     eventPlayer.setGravity(100)
     eventPlayer.setMoveSpeed(100)
     eventPlayer.setJumpVerticalSpeed(100)
@@ -1110,6 +1141,37 @@ rule "Show HUD Page":
     for index in range(len(hudPageTexts)):
         destroyInWorldText(hudPageTexts[index])
     # Rechecks a tick later, like the sync rules, in case someone opened it in the same tick
+    wait()
+    if RULE_CONDITION:
+        loop()
+
+
+# Players who look too far from the page are turned back toward it, so it never leaves
+# their screen. These are global rules rather than eachPlayer ones, as every eachPlayer rule
+# adds to the server's load, and everyone in the lobby turns toward the same direction, as
+# their eyes are all at lobbyCam. The turn runs on the server, so it starts a round trip after
+# they look past PULL_ANGLE.
+rule "Pull Back":
+    @Condition getAllPlayers().any(lambda p: isPullStarting(p)) == true
+
+    lobbyPulled = getAllPlayers().filter(lambda p: isPullStarting(p))
+    lobbyPulled.startFacing(
+        lobbyForward, PULL_RATE, Relativity.TO_WORLD, FacingReeval.NONE
+    )
+    lobbyPulled.isPulledToPage = true
+    # Rechecks a tick later, like the sync rules, in case someone else looked away in the
+    # same tick
+    wait()
+    if RULE_CONDITION:
+        loop()
+
+
+rule "Release":
+    @Condition getAllPlayers().any(lambda p: isPullEnding(p)) == true
+
+    lobbyPulled = getAllPlayers().filter(lambda p: isPullEnding(p))
+    lobbyPulled.stopFacing()
+    lobbyPulled.isPulledToPage = false
     wait()
     if RULE_CONDITION:
         loop()
