@@ -236,7 +236,7 @@ rule "Load HUD":
     faqHudText[11] = (
         "\n<fg80D0FFFF>Why are some controls </fg><fg808080FF>grayed out</fg><fg80D0FFFF>?</fg>"
         "\nThey can't be used right now: <fgE69700FF>Prev. CP</fg> on the first checkpoint, <fgE69700FF>Next CP</fg> on the last,"
-        "\nand the <fg00BEFFFF>spectator controls</fg> while there's nobody to <fg00BEFFFF>spectate</fg>."
+        "\nand the <fg00BEFFFF>spectator</fg> controls while there's nobody to <fg00BEFFFF>spectate</fg>."
         "\n<fgE69700FF>Reattach</fg> needs <fgE69700FF>Freecam</fg> while watching a player. <fgE69700FF>X-Hair Player</fg> needs <fgE69700FF>Freecam</fg>."
     )
     faqHudText[12] = (
