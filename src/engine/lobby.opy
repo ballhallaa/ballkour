@@ -408,24 +408,49 @@ rule "Load Buttons":
         rgb(230, 151, 0),
         true
     )
+    # The first 3 buttons are also the HUD page's (Resume Run, Hide All, Back), which sit in
+    # the same spots, so the page needs no texts of its own for them: texts are capped at 128
+    # per server, HUD texts included, and a full lobby nearly fills that.
     lobbyHudText[0] = _("New Run")
+    lobbyHudText[2] = _("Resume Run")
     createInWorldText(
-        getAllPlayers().filter(lambda localPlayer: localPlayer.lobbyPage == 1),
-        lobbyButton(_(lobbyHudText[0]), buttonAimRow(localPlayer) == 1),
+        getAllPlayers().filter(lambda localPlayer: isLobbyPageShown(localPlayer)),
+        (
+            (
+                lobbyButton(_(lobbyHudText[2]), buttonAimRow(localPlayer) == 1)
+                if canResumeRun(localPlayer)
+                else "<fg808080FF>{}</fg>".format(_(lobbyHudText[2]))
+            )
+            if isHudPage(localPlayer)
+            else lobbyButton(_(lobbyHudText[0]), buttonAimRow(localPlayer) == 1)
+        ),
         lobbyPos[1],
         BUTTON_SIZE,
         Clip.NONE,
         WorldTextReeval.VISIBILITY_AND_STRING,
         rgb(0, 224, 146)
     )
-    lobbyHudText[2] = _("Resume Run")
-    # Grayed out, with no arrows, without a run to resume
+    # Grayed out, with no arrows, without a run to resume. On the HUD page, Hide All, which
+    # turns to Show All once every line is off.
+    lobbyHudText[11] = _("Hide All")
+    lobbyHudText[12] = _("Show All")
     createInWorldText(
-        getAllPlayers().filter(lambda localPlayer: localPlayer.lobbyPage == 1),
+        getAllPlayers().filter(lambda localPlayer: isLobbyPageShown(localPlayer)),
         (
-            lobbyButton(_(lobbyHudText[2]), buttonAimRow(localPlayer) == 2)
-            if canResumeRun(localPlayer)
-            else "<fg808080FF>{}</fg>".format(_(lobbyHudText[2]))
+            lobbyButton(
+                (
+                    _(lobbyHudText[12])
+                    if areHudLinesAllOff(localPlayer)
+                    else _(lobbyHudText[11])
+                ),
+                buttonAimRow(localPlayer) == 2
+            )
+            if isHudPage(localPlayer)
+            else (
+                lobbyButton(_(lobbyHudText[2]), buttonAimRow(localPlayer) == 2)
+                if canResumeRun(localPlayer)
+                else "<fg808080FF>{}</fg>".format(_(lobbyHudText[2]))
+            )
         ),
         lobbyPos[2],
         BUTTON_SIZE,
@@ -433,11 +458,15 @@ rule "Load Buttons":
         WorldTextReeval.VISIBILITY_AND_STRING,
         rgb(0, 224, 146)
     )
-    # The same as the Spectate and FAQ controls, which the lobby's HUD leaves out
+    # The same as the Spectate and FAQ controls, which the lobby's HUD leaves out. On the
+    # HUD page, Back (Load Leaderboard).
     lobbyHudText[7] = _("Spectate")
     createInWorldText(
-        getAllPlayers().filter(lambda localPlayer: localPlayer.lobbyPage == 1),
-        lobbyButton(_(lobbyHudText[7]), buttonAimRow(localPlayer) == 3),
+        getAllPlayers().filter(lambda localPlayer: isLobbyPageShown(localPlayer)),
+        lobbyButton(
+            _(lobbyHudText[4]) if isHudPage(localPlayer) else _(lobbyHudText[7]),
+            buttonAimRow(localPlayer) == 3
+        ),
         lobbyPos[3],
         BUTTON_SIZE,
         Clip.NONE,
@@ -565,17 +594,19 @@ rule "Load Leaderboard":
                 "     " if strLen(lbObj[2]) < 2 else "   ",
                 lbObj[0]
             )
-    # Lobby Stats' way back to the buttons and leaderboard
+    # Lobby Stats' way back to the buttons and leaderboard, only made where Lobby Stats is,
+    # as every text counts toward the cap (Load Buttons). The HUD page's Back uses its label.
     lobbyHudText[4] = _("Back")
-    createInWorldText(
-        getAllPlayers().filter(lambda localPlayer: localPlayer.lobbyPage == 2),
-        lobbyButton(_(lobbyHudText[4]), isAimingAtBack(localPlayer)),
-        lobbyPos[6],
-        BUTTON_SIZE,
-        Clip.NONE,
-        WorldTextReeval.VISIBILITY_AND_STRING,
-        rgb(0, 224, 146)
-    )
+    if isLobbyStatsOn:
+        createInWorldText(
+            getAllPlayers().filter(lambda localPlayer: localPlayer.lobbyPage == 2),
+            lobbyButton(_(lobbyHudText[4]), isAimingAtBack(localPlayer)),
+            lobbyPos[6],
+            BUTTON_SIZE,
+            Clip.NONE,
+            WorldTextReeval.VISIBILITY_AND_STRING,
+            rgb(0, 224, 146)
+        )
     # The rows are made, and lbRunText keeps what the run info needs
     lb = null
     lbObj = null
@@ -627,6 +658,44 @@ rule "Load Leaderboard":
     )
 
 
+# A line's own text with its white values and keys in the text's color instead
+macro hudPageText(text):
+    text.replace("<fgFFFFFFFF>", "").replace("</fg>", "")
+
+
+# Best and Avg, which the HUD stacks, side by side to fit a row
+macro hudPageStats(text):
+    hudPageText(text).replace("\n", "   ").replace("@0", "--").replace("@1", "--")
+
+
+# A language's row, which is also the HUD page's right column's row at the same place in
+# its column (hudRightPos), showing the HUD line it turns on and off. One text for both, as
+# texts are capped at 128 per server (Load Buttons). Each language is in its own language,
+# in the order of #!translations (ballkour.opy), and the one a player is reading is green.
+macro languageRow(row, line, hudText):
+    createInWorldText(
+        getAllPlayers().filter(lambda localPlayer: isLobbyPageShown(localPlayer)),
+        (
+            hudText
+            if isHudPage(localPlayer)
+            else (
+                "<fg00E092FF>{}</fg>".format(evalOnce(langNames[row - 1]))
+                if localPlayer.__languageIndex__ == row - 1
+                else evalOnce(langNames[row - 1])
+            )
+        ),
+        hudRightPos[row] if isHudPage(localPlayer) else langPos[row],
+        LANGUAGE_SIZE,
+        Clip.NONE,
+        WorldTextReeval.VISIBILITY_POSITION_STRING_AND_COLOR,
+        (
+            rgb(128, 128, 128)
+            if isHudPage(localPlayer) and localPlayer.hudHidden[line]
+            else rgb(230, 151, 0)
+        )
+    )
+
+
 rule "Load Languages":
     lobbyHudText[6] = _("Language")
     createInWorldText(
@@ -659,31 +728,75 @@ rule "Load Languages":
     langPos = []
     for index in range(1, LANGUAGES + 1):
         langPos[index] = languageAt(ROW_ANGLE + LANGUAGE_SPACING * (index - 1))
-        createInWorldText(
-            getAllPlayers().filter(lambda localPlayer: localPlayer.lobbyPage == 1),
-            (
-                "<fg00E092FF>{}</fg>".format(evalOnce(langNames[index - 1]))
-                if localPlayer.__languageIndex__ == evalOnce(index - 1)
-                else evalOnce(langNames[index - 1])
-            ),
-            langPos[index],
-            LANGUAGE_SIZE,
-            Clip.NONE,
-            WorldTextReeval.VISIBILITY_AND_STRING,
-            rgb(230, 151, 0)
-        )
     # Arrows around the language being looked at, like the leaderboard's, parked far below
     # the lobby at langPos[0] otherwise
     langPos[0] = langPos[1] + vect(0, -1000, 0)
+    # The languages are also the HUD page's right column, which has as many rows (see
+    # languageRow), and their arrows are its arrows
+    languageRow(1, HUD_RUNS, _(counterHudText[0]).replace("@0", localPlayer.runCount))
+    languageRow(
+        2,
+        HUD_ATTEMPTS,
+        _(counterHudText[1]).replace(
+            "@0", localPlayer.cpAttempts[localPlayer.runCurrentCp]
+        )
+    )
+    languageRow(
+        3,
+        HUD_CP_MISTAKES,
+        _(counterHudText[2]).replace(
+            "@0", localPlayer.cpMistakes[localPlayer.runCurrentCp]
+        )
+    )
+    languageRow(
+        4, HUD_CP, "{} {}/{}".format(iconString(Icon.FLAG), localPlayer.viewCp, lastCp)
+    )
+    languageRow(
+        5, HUD_TIME, "{} {}".format(iconString(Icon.BOLT), localPlayer.runTimeFormatted)
+    )
+    languageRow(
+        6, HUD_MISTAKES, "{} {}".format(iconString(Icon.SKULL), localPlayer.runMistakes)
+    )
+    languageRow(
+        7, HUD_SPLIT_CP, "{} {}".format(iconString(Icon.FLAG), localPlayer.viewCp)
+    )
+    languageRow(
+        8, HUD_ATTEMPT, _(splitsHudText[0]).replace("@0", localPlayer.cpTimeFormatted)
+    )
+    languageRow(9, HUD_ATTEMPT_STATS, hudPageStats(_(splitsHudText[1])))
+    languageRow(
+        10, HUD_SPLIT, _(splitsHudText[2]).replace("@0", localPlayer.splitTimeFormatted)
+    )
+    languageRow(11, HUD_SPLIT_STATS, hudPageStats(_(splitsHudText[3])))
+    languageRow(
+        12,
+        HUD_PACE,
+        _(splitsHudText[4])
+        .replace("\n", "")
+        .replace("@0", localPlayer.paceEtaFormatted)
+    )
+    languageRow(13, HUD_ALL_TIME_TOP, _(allTimeRunsHudText))
+    languageRow(14, HUD_LOBBY_TOP, _(topRunsHudText))
+    # The HUD page's rows differ in width, so its arrows clear its widest
     createInWorldText(
-        getAllPlayers().filter(lambda localPlayer: localPlayer.lobbyPage == 1),
-        "{}                          {}".format(
-            iconString(Icon.ARROW_RIGHT), iconString(Icon.ARROW_LEFT)
+        getAllPlayers().filter(lambda localPlayer: isLobbyPageShown(localPlayer)),
+        (
+            "{}                                            {}".format(
+                iconString(Icon.ARROW_RIGHT), iconString(Icon.ARROW_LEFT)
+            )
+            if isHudPage(localPlayer)
+            else "{}                          {}".format(
+                iconString(Icon.ARROW_RIGHT), iconString(Icon.ARROW_LEFT)
+            )
         ),
-        langPos[langAimRow(localPlayer)],
+        (
+            hudRightPos[hudRightAimRow(localPlayer)]
+            if isHudPage(localPlayer)
+            else langPos[langAimRow(localPlayer)]
+        ),
         LANGUAGE_SIZE,
         Clip.NONE,
-        WorldTextReeval.VISIBILITY_AND_POSITION,
+        WorldTextReeval.VISIBILITY_POSITION_AND_STRING,
         rgb(230, 151, 0)
     )
 
@@ -793,16 +906,6 @@ macro hudPageRow(line, text, pos, color):
     hudPageTexts.append(getLastCreatedText())
 
 
-# A line's own text with its white values and keys in the text's color instead
-macro hudPageText(text):
-    text.replace("<fgFFFFFFFF>", "").replace("</fg>", "")
-
-
-# Best and Avg, which the HUD stacks, side by side to fit a row
-macro hudPageStats(text):
-    hudPageText(text).replace("\n", "   ").replace("@0", "--").replace("@1", "--")
-
-
 rule "Load HUD Page":
     # Each column's rows are numbered from 1, the left column's like their lines
     hudLeftPos = []
@@ -864,7 +967,8 @@ rule "Show HUD Page":
     # Its texts only exist while someone's on it, as every text's definition adds to the
     # server's load, like an open run's info (lbRunInfo). The HUD itself shows around the
     # page (isCourseHudShown), lines that only show sometimes too, so turning a row off shows
-    # what goes and what moves up. A batch a tick, so the texts don't all land in one.
+    # what goes and what moves up. Its own texts are all made in one tick (14 of them), as
+    # the main page's texts it borrows wait for them (isLobbyPageShown).
     hudPageTexts = []
     # ballkour.com, at the top like on the HUD, with the buttons' arrows, as there's one of it
     hudPageRow(
@@ -973,101 +1077,10 @@ rule "Show HUD Page":
         hudLeftPos[HUD_PAGE_KEY],
         rgb(230, 151, 0)
     )
-    wait()
-    # The right column
-    hudPageRow(
-        HUD_RUNS,
-        _(counterHudText[0]).replace("@0", localPlayer.runCount),
-        hudRightPos[HUD_RUNS - HUD_LEFT_ROWS],
-        rgb(230, 151, 0)
-    )
-    hudPageRow(
-        HUD_ATTEMPTS,
-        _(counterHudText[1]).replace(
-            "@0", localPlayer.cpAttempts[localPlayer.runCurrentCp]
-        ),
-        hudRightPos[HUD_ATTEMPTS - HUD_LEFT_ROWS],
-        rgb(230, 151, 0)
-    )
-    hudPageRow(
-        HUD_CP_MISTAKES,
-        _(counterHudText[2]).replace(
-            "@0", localPlayer.cpMistakes[localPlayer.runCurrentCp]
-        ),
-        hudRightPos[HUD_CP_MISTAKES - HUD_LEFT_ROWS],
-        rgb(230, 151, 0)
-    )
-    hudPageRow(
-        HUD_CP,
-        "{} {}/{}".format(iconString(Icon.FLAG), localPlayer.viewCp, lastCp),
-        hudRightPos[HUD_CP - HUD_LEFT_ROWS],
-        rgb(230, 151, 0)
-    )
-    hudPageRow(
-        HUD_TIME,
-        "{} {}".format(iconString(Icon.BOLT), localPlayer.runTimeFormatted),
-        hudRightPos[HUD_TIME - HUD_LEFT_ROWS],
-        rgb(230, 151, 0)
-    )
-    hudPageRow(
-        HUD_MISTAKES,
-        "{} {}".format(iconString(Icon.SKULL), localPlayer.runMistakes),
-        hudRightPos[HUD_MISTAKES - HUD_LEFT_ROWS],
-        rgb(230, 151, 0)
-    )
-    hudPageRow(
-        HUD_SPLIT_CP,
-        "{} {}".format(iconString(Icon.FLAG), localPlayer.viewCp),
-        hudRightPos[HUD_SPLIT_CP - HUD_LEFT_ROWS],
-        rgb(230, 151, 0)
-    )
-    hudPageRow(
-        HUD_ATTEMPT,
-        _(splitsHudText[0]).replace("@0", localPlayer.cpTimeFormatted),
-        hudRightPos[HUD_ATTEMPT - HUD_LEFT_ROWS],
-        rgb(230, 151, 0)
-    )
-    hudPageRow(
-        HUD_ATTEMPT_STATS,
-        hudPageStats(_(splitsHudText[1])),
-        hudRightPos[HUD_ATTEMPT_STATS - HUD_LEFT_ROWS],
-        rgb(230, 151, 0)
-    )
-    hudPageRow(
-        HUD_SPLIT,
-        _(splitsHudText[2]).replace("@0", localPlayer.splitTimeFormatted),
-        hudRightPos[HUD_SPLIT - HUD_LEFT_ROWS],
-        rgb(230, 151, 0)
-    )
-    hudPageRow(
-        HUD_SPLIT_STATS,
-        hudPageStats(_(splitsHudText[3])),
-        hudRightPos[HUD_SPLIT_STATS - HUD_LEFT_ROWS],
-        rgb(230, 151, 0)
-    )
-    hudPageRow(
-        HUD_PACE,
-        _(splitsHudText[4])
-        .replace("\n", "")
-        .replace("@0", localPlayer.paceEtaFormatted),
-        hudRightPos[HUD_PACE - HUD_LEFT_ROWS],
-        rgb(230, 151, 0)
-    )
-    hudPageRow(
-        HUD_ALL_TIME_TOP,
-        _(allTimeRunsHudText),
-        hudRightPos[HUD_ALL_TIME_TOP - HUD_LEFT_ROWS],
-        rgb(230, 151, 0)
-    )
-    hudPageRow(
-        HUD_LOBBY_TOP,
-        _(topRunsHudText),
-        hudRightPos[HUD_LOBBY_TOP - HUD_LEFT_ROWS],
-        rgb(230, 151, 0)
-    )
-    wait()
-    # Arrows around the row being looked at in each column, like the languages'. Its rows
-    # differ in width, so the arrows clear the column's widest.
+    # Arrows around the left column's row being looked at, like the languages'. Its rows
+    # differ in width, so the arrows clear the widest. The right column is the languages'
+    # texts, arrows included, and the buttons are the main page's (Load Languages, Load
+    # Buttons).
     createInWorldText(
         getAllPlayers().filter(lambda localPlayer: isHudPage(localPlayer)),
         "{}                                            {}".format(
@@ -1080,64 +1093,10 @@ rule "Show HUD Page":
         rgb(230, 151, 0)
     )
     hudPageTexts.append(getLastCreatedText())
-    createInWorldText(
-        getAllPlayers().filter(lambda localPlayer: isHudPage(localPlayer)),
-        "{}                                            {}".format(
-            iconString(Icon.ARROW_RIGHT), iconString(Icon.ARROW_LEFT)
-        ),
-        hudRightPos[hudRightAimRow(localPlayer)],
-        HUD_ROW_SIZE,
-        Clip.NONE,
-        WorldTextReeval.VISIBILITY_AND_POSITION,
-        rgb(230, 151, 0)
-    )
-    hudPageTexts.append(getLastCreatedText())
-    # The buttons: Resume Run, grayed out with no run to resume like the main page's, Hide
-    # All, which turns to Show All once every line is off, and Back to the main page
-    createInWorldText(
-        getAllPlayers().filter(lambda localPlayer: isHudPage(localPlayer)),
-        (
-            lobbyButton(_(lobbyHudText[2]), buttonAimRow(localPlayer) == 1)
-            if canResumeRun(localPlayer)
-            else "<fg808080FF>{}</fg>".format(_(lobbyHudText[2]))
-        ),
-        lobbyPos[1],
-        BUTTON_SIZE,
-        Clip.NONE,
-        WorldTextReeval.VISIBILITY_AND_STRING,
-        rgb(0, 224, 146)
-    )
-    hudPageTexts.append(getLastCreatedText())
-    lobbyHudText[11] = _("Hide All")
-    lobbyHudText[12] = _("Show All")
-    createInWorldText(
-        getAllPlayers().filter(lambda localPlayer: isHudPage(localPlayer)),
-        lobbyButton(
-            (
-                _(lobbyHudText[12])
-                if areHudLinesAllOff(localPlayer)
-                else _(lobbyHudText[11])
-            ),
-            buttonAimRow(localPlayer) == 2
-        ),
-        lobbyPos[2],
-        BUTTON_SIZE,
-        Clip.NONE,
-        WorldTextReeval.VISIBILITY_AND_STRING,
-        rgb(0, 224, 146)
-    )
-    hudPageTexts.append(getLastCreatedText())
-    createInWorldText(
-        getAllPlayers().filter(lambda localPlayer: isHudPage(localPlayer)),
-        lobbyButton(_(lobbyHudText[4]), buttonAimRow(localPlayer) == 3),
-        lobbyPos[3],
-        BUTTON_SIZE,
-        Clip.NONE,
-        WorldTextReeval.VISIBILITY_AND_STRING,
-        rgb(0, 224, 146)
-    )
-    hudPageTexts.append(getLastCreatedText())
+    # The borrowed texts show in the same tick, so both sides show up together
+    isHudPageReady = true
     waitUntil(not getAllPlayers().any(lambda p: isHudPage(p)), Math.INFINITY)
+    isHudPageReady = false
     for index in range(len(hudPageTexts)):
         destroyInWorldText(hudPageTexts[index])
     # Rechecks a tick later, like the sync rules, in case someone opened it in the same tick
@@ -1285,8 +1244,11 @@ def showRunInfo():
     @Name "Show Run Info"
 
     # Only open runs have a text (see lbRunInfo), so they're remade whenever that changes.
-    # These are the only progress bar texts.
+    # These are the only progress bar texts, and with no run open there are none, as they
+    # count toward the server's 128 texts (Load Buttons).
     destroyAllProgressBarInWorldTexts()
+    if not getAllPlayers().any(lambda p: p.lbInfoRow != 0):
+        return
     # The row and close line of every open run's info. They're the same kind of text with
     # the same number of lines, with only their own line filled in, so they land above and
     # below the date and link. Each viewer's row and key name need the text reevaluated, and

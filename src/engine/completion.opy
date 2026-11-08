@@ -219,47 +219,29 @@ rule "Run Text":
         "<fg00E092FF>              ballkour.com</fg>\n\n"
         "<fgFFFFFFFF>       Thanks for Playing!</fg>"
     )
-    hudSubheader(
-        getAllPlayers().filter(
-            lambda localPlayer: localPlayer.isViewingRunCompletionText
-            and localPlayer.runTime > timeToBeat
-            and timeToBeat > 0
-            and localPlayer.isRunLegit
-            and localPlayer.faqPage == 0
-        ),
-        _(completionHudText[4]),
-        HudPosition.TOP,
-        1.4,
-        Color.WHITE,
-        HudReeval.VISIBILITY_AND_STRING
-    )
     # Goes above completionHudText[4], so the shared lines are only stored once
     completionHudText[5] = _("<fgFFD200FF>                Top-10 Time!</fg>")
-    hudSubheader(
-        getAllPlayers().filter(
-            lambda localPlayer: localPlayer.isViewingRunCompletionText
-            and (timeToBeat == 0 or localPlayer.runTime <= timeToBeat)
-            and localPlayer.isRunLegit
-            and localPlayer.faqPage == 0
-        ),
-        "{}\n{}".format(_(completionHudText[5]), _(completionHudText[4])),
-        HudPosition.TOP,
-        1.4,
-        rgb(230, 151, 0),
-        HudReeval.VISIBILITY_AND_STRING
-    )
     completionHudText[6] = _(
         "<fgFF4646FF>             Run Not Counted\n"
         "Skipped CPs or Used Freemode</fg>\n\n"
         "<fgFFFFFFFF>         Thanks for Playing!</fg>"
     )
+    # One text for the three endings, as texts are capped at 128 per server, HUD texts
+    # included (Lobby: Load Buttons). Every line has its own color, so the text's is unseen.
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
-            and not localPlayer.isRunLegit
             and localPlayer.faqPage == 0
         ),
-        _(completionHudText[6]),
+        (
+            _(completionHudText[6])
+            if not localPlayer.isRunLegit
+            else (
+                "{}\n{}".format(_(completionHudText[5]), _(completionHudText[4]))
+                if timeToBeat == 0 or localPlayer.runTime <= timeToBeat
+                else _(completionHudText[4])
+            )
+        ),
         HudPosition.TOP,
         1.4,
         Color.WHITE,

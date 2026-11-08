@@ -115,6 +115,18 @@ rule "Leaves":
                 lambda p: p.spectating[0] and p.spectating[1] == getAllPlayers()[index]
             )
         )
+    # Their nameplates go with them: Joins only replaces a slot's when someone new takes it,
+    # so they'd hold 2 of the server's 128 texts until then. The player who left can't be
+    # read anymore, so it's every slot left empty.
+    for index in range(getNumberOfSlots(PLAYER_TEAM)):
+        if (
+            nameplateObjs[index] != null
+            and getPlayersInSlot(index, PLAYER_TEAM) == null
+        ):
+            destroyInWorldText(nameplateObjs[index])
+            destroyInWorldText(tinyNameplateObjs[index])
+            nameplateObjs[index] = null
+            tinyNameplateObjs[index] = null
     # Drops the run info they had open
     showRunInfo()
     # Their row comes off the scorecard

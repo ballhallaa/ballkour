@@ -197,6 +197,14 @@ msgstr "FAQ"
 msgid "Customize HUD"
 msgstr "HUD anpassen"
 
+#. file lobby.opy, rule "Load Buttons"
+msgid "Hide All"
+msgstr "Alle ausblenden"
+
+#. file lobby.opy, rule "Load Buttons"
+msgid "Show All"
+msgstr "Alle einblenden"
+
 #. file lobby.opy, rule "Load Languages"
 msgid "Language"
 msgstr "Sprache"
@@ -222,14 +230,6 @@ msgstr "Klicke auf einen Lauf für mehr Infos"
 #. file lobby.opy, rule "Show HUD Page"
 msgid "Scores"
 msgstr "Ergebnisse"
-
-#. file lobby.opy, rule "Show HUD Page"
-msgid "Hide All"
-msgstr "Alle ausblenden"
-
-#. file lobby.opy, rule "Show HUD Page"
-msgid "Show All"
-msgstr "Alle einblenden"
 
 # TODO: check if all occurrences have the same translation
 #. 4 occurrences:

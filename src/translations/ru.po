@@ -197,6 +197,14 @@ msgstr "ЧаВо"
 msgid "Customize HUD"
 msgstr "Настроить интерфейс"
 
+#. file lobby.opy, rule "Load Buttons"
+msgid "Hide All"
+msgstr "Скрыть всё"
+
+#. file lobby.opy, rule "Load Buttons"
+msgid "Show All"
+msgstr "Показать всё"
+
 #. file lobby.opy, rule "Load Languages"
 msgid "Language"
 msgstr "Язык"
@@ -222,14 +230,6 @@ msgstr "Нажми на забег, чтобы узнать больше"
 #. file lobby.opy, rule "Show HUD Page"
 msgid "Scores"
 msgstr "Результаты"
-
-#. file lobby.opy, rule "Show HUD Page"
-msgid "Hide All"
-msgstr "Скрыть всё"
-
-#. file lobby.opy, rule "Show HUD Page"
-msgid "Show All"
-msgstr "Показать всё"
 
 # TODO: check if all occurrences have the same translation
 #. 4 occurrences:
