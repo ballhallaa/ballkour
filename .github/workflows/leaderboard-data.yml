@@ -1,5 +1,8 @@
 # When the runs change, posts the new boards to Discord with the leaderboard bot from develop
-# (.github/workflows/leaderboard-bot.yml there, which saves what it posted to leaderboards/history.json here).
+# (.github/workflows/leaderboard-bot.yml there, which saves what it posted to leaderboards/history.json here), then
+# gives out the roles. history.json changing starts it too: that's ballkour.com linking someone's legacy runs (or an
+# edit by hand), which can earn them Legacy Top 10 straight away. The bot's own saves to history.json don't start it
+# again, since they're pushed with the workflow's own token, and GitHub never starts a run for those.
 name: Leaderboard bot (new runs)
 
 on:
@@ -7,7 +10,6 @@ on:
     branches: [leaderboard-data]
     paths:
       - "leaderboards/**"
-      - "!leaderboards/history.json"
 
 permissions:
   contents: write
