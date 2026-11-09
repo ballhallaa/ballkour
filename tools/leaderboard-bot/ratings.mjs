@@ -7,8 +7,9 @@
 // history.json, but only with runs slower than today's #10: a faster one that isn't on the board any more was taken
 // off it (or the board was cleared), not pushed off.
 //
-// Every course is worth up to 10,000 points: 10000 × ln(1 + (e − 1) × record ÷ time)². The record gets all of them,
-// and it's lucio.surf's curve for a player who has run every map. A rating is the average over every course that isn't
+// Every course is worth up to 1,000 points: 1000 × ln(1 + (e − 1) × record ÷ time)². The record gets all of them,
+// and it's lucio.surf's curve for a player who has run every map, at a tenth of its 10,000 (it was 10,000 here too
+// until November 2026). A rating is the average over every course that isn't
 // broken, with 0 for the ones a player hasn't run (and for courses nobody has run yet), so a new or faster run never
 // lowers it, and the first run on a course changes nobody else's rating. A player's tier is their place divided by the number of rated players: #4 of 40 is in the Top 10%.
 // Everyone past the last tier (the bottom 10%) is just Rated.
@@ -66,7 +67,7 @@ export function rate(courses) {
       const p = players.get(key);
       // Named as on their newest run
       if ((r.date || "") > p.date) { p.date = r.date; p.name = r.name; }
-      p.points[c.n] = 10000 * Math.log(1 + (Math.E - 1) * record / seconds(r.time)) ** 2;
+      p.points[c.n] = 1000 * Math.log(1 + (Math.E - 1) * record / seconds(r.time)) ** 2;
     }
   }
   const list = [...players.values()].map((p) => {

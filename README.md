@@ -227,7 +227,7 @@ Try these with the Beta code of a Ballkour remake.
 ### On ballkour.com
 
 - **My stats:** Sign in with Discord to see your rating, place, and Top %, every course you've run, and all your runs. Share them with a link, or show them on your Discord profile.
-- **Player ratings:** Every course is worth up to 10,000 points, and your rating is your average over all of them. Your Top % is where you place among every rated player, and you automatically receive the role on our Discord.
+- **Player ratings:** Every course is worth up to 1,000 points, and your rating is your average over all of them. Your Top % is where you place among every rated player, and you automatically receive the role on our Discord.
 
 ## FAQ
 

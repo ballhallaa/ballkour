@@ -49,8 +49,9 @@ export function cardHtml({ course, board, date, runs, fresh, people, ratings = n
       `<span class="time">${BOLT}${timeHtml(r.time)}</span>` +
       `<span class="miss">${SKULL}${r.mistakes}</span>` +
       (who ? `<span class="dc">${pfp}<span>${esc(who.name)}</span></span>` : "") +
-      // Beside the date: the player's rating over every course, as on the website's Player ratings
-      `<span class="date">${ratings.has(r) ? `<span class="pts">${STAR}${Math.round(ratings.get(r)).toLocaleString("en")}</span>` : ""}${esc(r.date || "")}</span>` +
+      // Beside the date: the player's rating over every course, as on the website's Player ratings (no thousands
+      // separator, like there: a rating only reaches 1000)
+      `<span class="date">${ratings.has(r) ? `<span class="pts">${STAR}${Math.round(ratings.get(r))}</span>` : ""}${esc(r.date || "")}</span>` +
       `</li>`;
   };
   const slots = Array.from({ length: 10 }, (_, i) => runs[i] || null);
