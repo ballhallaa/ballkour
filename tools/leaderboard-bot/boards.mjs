@@ -1,17 +1,35 @@
 // Reading the leaderboards: the course list, each course's file (.opy or .json), history.json and runs.json. Shared by
 // bot.mjs (posts the boards) and roles.mjs (gives out the rating roles); ratings.mjs turns them into the boards.
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO = process.env.REPO_ROOT ? path.resolve(process.env.REPO_ROOT) : path.resolve(HERE, "../..");
-export const HISTORY = path.join(REPO, "leaderboards/history.json");
+// history.json and runs.json live on the leaderboard-data branch, not here, so the commits ballkour.com and the bot
+// make for every run stay off develop. DATA_ROOT is a checkout of that branch (the workflow makes one, and the bot
+// saves history.json there). Without it, they're read from the branch as GitHub has it now, which is all the tools
+// run by hand need.
+export const DATA_BRANCH = "leaderboard-data";
+export const DATA_ROOT = process.env.DATA_ROOT ? path.resolve(process.env.DATA_ROOT) : null;
+// Every board posted to Discord, by course number
+export const HISTORY = "leaderboards/history.json";
 // Runs that aren't in a course's own file (the runs sent from the website, and runs that never made a top 10), and
 // runs taken off the boards for good, by course number:
 //   { "runs": { "1": [run, …], … }, "removed": { "1": [{ "name", "discord", "time" }, …], … } }
 // Runs are like the .json files'. A removed run never comes back, even from an old board in history.json.
-export const RUNS = path.join(REPO, "leaderboards/runs.json");
+export const RUNS = "leaderboards/runs.json";
+let fetched = false;
+// One of the files above, as text
+export function readData(file) {
+  if (DATA_ROOT) return fs.readFileSync(path.join(DATA_ROOT, file), "utf8");
+  if (!fetched) {
+    execFileSync("git", ["fetch", "--quiet", "origin", `+${DATA_BRANCH}:refs/remotes/origin/${DATA_BRANCH}`], { cwd: REPO, stdio: "inherit" });
+    fetched = true;
+  }
+  return execFileSync("git", ["show", `origin/${DATA_BRANCH}:${file}`], { cwd: REPO, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+}
 // The server, the Top 10 and Former Top 10 roles' IDs (roles.mjs gives them out), and the courses
 export const { guild: GUILD, roles: ROLES = {}, courses: COURSES } = JSON.parse(fs.readFileSync(path.join(HERE, "courses.json"), "utf8"));
 
@@ -74,9 +92,9 @@ function cleanRemoved(r) {
   if (!r || typeof r.name !== "string" || !r.name.trim() || !TIME.test(r.time)) return null;
   return { name: r.name.trim(), discord: DISCORD_ID.test(r.discord) ? r.discord : "", time: r.time };
 }
-// runs.json → { runs: { n: [run, …] }, removed: { n: [run, …] } }. It's optional: no file means neither yet.
+// runs.json → { runs: { n: [run, …] }, removed: { n: [run, …] } }
 function extraData() {
-  const data = fs.existsSync(RUNS) ? JSON.parse(fs.readFileSync(RUNS, "utf8")) : {};
+  const data = JSON.parse(readData(RUNS));
   const byCourse = (obj, clean) => Object.fromEntries(Object.entries(obj && typeof obj === "object" ? obj : {})
     .filter(([, list]) => Array.isArray(list)).map(([n, list]) => [n, list.map(clean).filter(Boolean)]));
   return { runs: byCourse(data && data.runs, cleanRun), removed: byCourse(data && data.removed, cleanRemoved) };
@@ -85,7 +103,7 @@ function extraData() {
 //   { course, n, broken, ok, file: [run, …], more: [run, …], removed: [run, …], boards: [[run, …], …] }
 // ok is false when the course's file is missing or its layout changed, so nothing is guessed from it.
 export function loadCourses() {
-  const history = JSON.parse(fs.readFileSync(HISTORY, "utf8"));
+  const history = JSON.parse(readData(HISTORY));
   const { runs, removed } = extraData();
   return COURSES.map((course) => {
     const text = courseText(course);

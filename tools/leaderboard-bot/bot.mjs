@@ -1,9 +1,12 @@
 // Posts each course's leaderboard to its Discord channel when it changes: a picture of the top 10 and a
 // "Congrats @X, @Y, and @Z for the new top-10 times!" line that pings only the new runners. Then it adds the
 // new board to leaderboards/history.json, which is also how it knows what it has already posted. A board is the
-// course's file and the runs sent from the website (leaderboards/runs.json) together: see ratings.mjs.
+// course's file and the runs sent from the website (leaderboards/runs.json) together: see ratings.mjs. Both files
+// are on the leaderboard-data branch (see boards.mjs).
 //
 // Run by .github/workflows/leaderboard-bot.yml. Settings come from the environment:
+//   DATA_ROOT=…        a checkout of the leaderboard-data branch, where history.json is saved. Only a dry run goes
+//                      without one, reading the branch as GitHub has it.
 //   DISCORD_BOT_TOKEN  the bot's token (without it, names and pictures from Discord are left out)
 //   DRY_RUN=1          draw the pictures into out/ and print the messages, but don't post or change history.json
 //   FORCE_COURSE=…     post these courses' newest boards again, even if they haven't changed: a course number (3),
@@ -21,12 +24,17 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { chromium } from "playwright";
 import { cardHtml } from "./card.mjs";
-import { HERE, HISTORY, GUILD, COURSES, DISCORD_ID, loadCourses } from "./boards.mjs";
+import { HERE, HISTORY, DATA_ROOT, readData, GUILD, COURSES, DISCORD_ID, loadCourses } from "./boards.mjs";
 import { TOKEN, api } from "./discord.mjs";
 import { standings, rate, playerKey } from "./ratings.mjs";
 
 const OUT = path.join(HERE, "out");
 const DRY = !!process.env.DRY_RUN;
+// Posting without a place to save history.json would post the same boards again next time
+if (!DRY && !DATA_ROOT) {
+  console.error("DATA_ROOT isn't set: point it at a checkout of the leaderboard-data branch, or set DRY_RUN=1");
+  process.exit(1);
+}
 // "3", "3,5,7", "3-12" or "all" → the set of course numbers, or null when nothing is forced
 function forced(spec) {
   const s = String(spec || "").trim().toLowerCase();
@@ -164,7 +172,7 @@ function fonts() {
 }
 
 /* ---------- Main ---------- */
-const history = JSON.parse(fs.readFileSync(HISTORY, "utf8"));
+const history = JSON.parse(readData(HISTORY));
 const jobs = [];
 for (const course of LEGACY ? COURSES : []) {
   // The legacy top 10 (history.json keeps every legacy run, so the website can show them all)
@@ -256,7 +264,7 @@ for (const { course, list, at, isNew, legacy, channel } of jobs) {
     if (isNew) {
       history[course.n] = history[course.n] || { course: course.name };
       history[course.n].boards = list;
-      fs.writeFileSync(HISTORY, dumpHistory(history)); // saved after each post, so a later failure can't repost this one
+      fs.writeFileSync(path.join(DATA_ROOT, HISTORY), dumpHistory(history)); // saved after each post, so a later failure can't repost this one
       archivedNow.push(`- ${course.name}: board ${board}`);
     }
   } catch (e) {

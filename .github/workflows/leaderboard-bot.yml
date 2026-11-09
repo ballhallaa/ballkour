@@ -1,5 +1,7 @@
-# Posts a leaderboard to its Discord channel whenever it changes on develop, then saves the board to
-# leaderboards/history.json. Run it by hand (Actions → Leaderboard bot → Run workflow) for a dry run that
+# Posts a leaderboard to its Discord channel whenever it changes, then saves the board to leaderboards/history.json.
+# A board changes with its course's file here on develop, or with leaderboards/runs.json (the runs sent from the
+# website) on the leaderboard-data branch, whose own workflow calls this one. history.json is on that branch too, so the
+# commits for every run stay off develop. Run it by hand (Actions → Leaderboard bot → Run workflow) for a dry run that
 # only draws the pictures, or to post courses' newest boards again (an empty top 10 for a course with no runs).
 #   gh workflow run leaderboard-bot.yml --ref develop -f dry_run=false -f course=3-12
 # With legacy, it posts the boards from before May 2026 to each course's legacy channel instead (course picks which):
@@ -17,7 +19,8 @@ on:
     branches: [develop]
     paths:
       - "leaderboards/**"
-      - "!leaderboards/history.json"
+  # From .github/workflows/leaderboard-data.yml on the leaderboard-data branch, when runs.json changes there
+  workflow_call:
   # Once a day, so people who joined the server since get their Top % role (see tools/leaderboard-bot/roles.mjs)
   schedule:
     - cron: "17 6 * * *"
@@ -44,11 +47,6 @@ on:
         type: boolean
         default: false
 
-# One run at a time, so two quick updates can't post the same board twice
-concurrency:
-  group: leaderboard-bot
-  cancel-in-progress: false
-
 permissions:
   contents: write
 
@@ -57,16 +55,26 @@ jobs:
     # Pinned: ubuntu-latest is moving to Ubuntu 26, which this Playwright version's browser setup doesn't know yet
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    # One run at a time, so two quick updates can't post the same board twice. On the job, not the workflow, so it
+    # holds for runs called from the leaderboard-data branch too.
+    concurrency:
+      group: leaderboard-bot
+      cancel-in-progress: false
+    env:
+      DATA_ROOT: ${{ github.workspace }}/leaderboard-data
     steps:
-      # With the LEADERBOARD_DEPLOY_KEY secret set, history.json updates are pushed with that deploy key, which can
-      # be allowed past develop's rules; without it, the workflow's own token is used
-      # Always develop as it is now, not the commit that started the run: runs sent from the website can land while
+      # Both branches as they are now, not the commit that started the run: runs sent from the website can land while
       # another run is posting, and this way each run sees the boards the one before it posted, so nobody is
       # congratulated twice. (The daily run would start on the default branch, main, otherwise.)
       - uses: actions/checkout@v5
         with:
-          ssh-key: ${{ secrets.LEADERBOARD_DEPLOY_KEY }}
           ref: develop
+
+      - name: Check out the runs and the posted boards
+        uses: actions/checkout@v5
+        with:
+          ref: leaderboard-data
+          path: leaderboard-data
 
       - uses: actions/setup-node@v5
         with:
@@ -112,12 +120,14 @@ jobs:
             tools/leaderboard-bot/out/*.txt
           if-no-files-found: ignore
 
+      # Pushed with the workflow's own token, so it doesn't start another run
       - name: Save posted boards to history.json
         if: ${{ always() && !inputs.dry_run && hashFiles('tools/leaderboard-bot/out/commit-message.txt') != '' }}
+        working-directory: leaderboard-data
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add leaderboards/history.json
-          git commit -F tools/leaderboard-bot/out/commit-message.txt
-          git pull --rebase origin develop
-          git push origin HEAD:develop
+          git commit -F ../tools/leaderboard-bot/out/commit-message.txt
+          git pull --rebase origin leaderboard-data
+          git push origin HEAD:leaderboard-data
