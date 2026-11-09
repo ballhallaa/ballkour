@@ -10,8 +10,9 @@
 #   gh workflow run leaderboard-bot.yml --ref develop -f dry_run=false -f course=all -f no_congrats=true
 # With not_new, the pictures have no NEW chip or green border on new runs (add no_congrats to also skip the pings):
 #   gh workflow run leaderboard-bot.yml --ref develop -f dry_run=false -f course=all -f no_congrats=true -f not_new=true
-# After posting, it gives every rated player their rating role on Discord, Top 0.1% … Top 90% or Rated (roles.mjs), and
-# it does that once a day too.
+# After posting, it gives every rated player their rating role on Discord, Top 0.1% … Top 90% or Rated, and Top 10,
+# Former Top 10, and Legacy Top 10 (roles.mjs). It also runs once a day, from .github/workflows/leaderboard-daily.yml on
+# main: GitHub only runs scheduled workflows from the default branch, so a schedule here would never start.
 name: Leaderboard bot
 
 on:
@@ -19,11 +20,9 @@ on:
     branches: [develop]
     paths:
       - "leaderboards/**"
-  # From .github/workflows/leaderboard-data.yml on the leaderboard-data branch, when runs.json changes there
+  # From .github/workflows/leaderboard-data.yml on the leaderboard-data branch, when runs.json or history.json changes
+  # there, and from .github/workflows/leaderboard-daily.yml on main, once a day
   workflow_call:
-  # Once a day, so people who joined the server since get their Top % role (see tools/leaderboard-bot/roles.mjs)
-  schedule:
-    - cron: "17 6 * * *"
   workflow_dispatch:
     inputs:
       dry_run:
