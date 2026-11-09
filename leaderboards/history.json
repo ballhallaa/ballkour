@@ -359,6 +359,11 @@
       {"name": "HEXGOLO", "time": "19:26.--", "mistakes": 155},
       {"name": "DJANGO", "time": "19:33.--", "mistakes": 154},
       {"name": "TWOFORTWENTY", "time": "29:09.--", "mistakes": 319}
+    ],
+    "boards": [
+      [
+        {"name": "HELLOWORLD!", "discord": "175372497720573953", "time": "12:34.56", "mistakes": 123, "date": "2026-11-09", "video": "https://www.youtube.com/watch?v=oHg5SJYRHA0"}
+      ]
     ]
   },
   "13": {
