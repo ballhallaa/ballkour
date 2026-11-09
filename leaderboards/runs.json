@@ -10,7 +10,7 @@
   "removed": {},
   "claims": [
     {"name": "KAMONIC", "discord": "175372497720573953", "sentAt": "2026-11-09T02:50:13Z", "status": "declined", "checkedBy": "175372497720573953", "checkedAt": "2026-11-09T02:53:31Z"},
-    {"name": "BOOPYDOOPY", "discord": "175372497720573953", "sentAt": "2026-11-09T03:44:20Z", "status": "pending"},
+    {"name": "BOOPYDOOPY", "discord": "175372497720573953", "sentAt": "2026-11-09T03:44:20Z", "status": "approved", "checkedBy": "175372497720573953", "checkedAt": "2026-11-09T03:50:00Z"},
     {"name": "MIDSHIVA", "discord": "175372497720573953", "sentAt": "2026-11-09T03:46:47Z", "status": "pending"}
   ]
 }
