@@ -4,7 +4,11 @@
       {"name": "BALLMYBLOVED", "discord": "175372497720573953", "time": "1:23:45.67", "mistakes": 21, "date": "2026-11-08", "video": "https://youtu.be/oHg5SJYRHA0", "id": "vfv45xqD", "sentAt": "2026-11-08T22:00:11Z"}
     ]
   },
-  "pending": {},
+  "pending": {
+    "5": [
+      {"name": "HELLOWORLD!", "discord": "175372497720573953", "time": "12:34.56", "mistakes": 123, "date": "2026-11-09", "video": "https://www.youtube.com/watch?v=oHg5SJYRHA0", "id": "3", "sentAt": "2026-11-09T00:53:46Z"}
+    ]
+  },
   "declined": {
     "1": [
       {"name": "BALLMYBLOVED", "discord": "175372497720573953", "time": "1:23.45", "mistakes": 21, "date": "2026-11-08", "video": "https://youtu.be/oHg5SJYRHA0", "id": "g3PMR6wq", "sentAt": "2026-11-08T22:02:16Z", "checkedBy": "175372497720573953", "checkedAt": "2026-11-08T23:45:52Z"},
@@ -14,5 +18,5 @@
     ]
   },
   "removed": {},
-  "lastId": 2
+  "lastId": 3
 }
