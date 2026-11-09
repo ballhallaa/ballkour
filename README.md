@@ -202,9 +202,9 @@ PQZDY
 
 ## Leaderboards
 
-Every course has a top 10 on [ballkour.com/leaderboards](https://ballkour.com/leaderboards).
+Every course has a top 10 on [ballkour.com/leaderboards](https://ballkour.com/leaderboards), and the [Player ratings](https://ballkour.com/leaderboards/ratings) rank everyone over every course.
 
-To submit a video of your run, [open a ticket](https://discord.com/channels/1212553452283101245/1498944426901508106) on our Discord and share your video. Not in our server yet? [Join us](https://ballkour.com/discord) first!
+To submit a run, sign in with Discord at [ballkour.com/submit](https://ballkour.com/submit) and send your time with a link to your video. It goes on the board straight away, and a new top 10 time goes up once a moderator checks the video.
 
 ## Features
 
@@ -224,11 +224,16 @@ Try these with the Beta code of a Ballkour remake.
 - **Quality of life:** Idle runners shrink so they never block your view. See your current run and attempt numbers, view each run's video and date in the lobby, and toggle an FAQ for newcomers.
 - **Translations:** Translated into 13 languages, so each player gets a similar experience in their own language.
 
+### On ballkour.com
+
+- **My stats:** Sign in with Discord to see your rating, place, and Top %, every course you've run, and all your runs. Share them with a link, or show them on your Discord profile.
+- **Player ratings:** Every course is worth up to 10,000 points, and your rating is your average over all of them. Your Top % is where you place among every rated player, and it's your role on our Discord.
+
 ## FAQ
 
 Answers to questions like what counts as a valid run or a mistake are on [ballkour.com/faq](https://ballkour.com/faq). They're the same as the in-game FAQ, which opens with **Ultimate + Melee** in a beta match.
 
-Something wrong or missing? [Report it on GitHub](https://ballkour.com/issues).
+Something missing? [Suggest it on GitHub](https://ballkour.com/issues).
 
 ## Discord
 
