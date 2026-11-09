@@ -9,6 +9,6 @@
   "declined": {},
   "removed": {},
   "claims": [
-    {"name": "KAMONIC", "discord": "175372497720573953", "sentAt": "2026-11-09T02:50:13Z", "status": "pending"}
+    {"name": "KAMONIC", "discord": "175372497720573953", "sentAt": "2026-11-09T02:50:13Z", "status": "declined", "checkedBy": "175372497720573953", "checkedAt": "2026-11-09T02:53:31Z"}
   ]
 }
