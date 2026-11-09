@@ -4,7 +4,8 @@
 // Only runs with a Discord ID count toward someone's role. The ratings are worked out in ratings.mjs.
 //
 // It also gives out Top 10 to anyone with a run on a course's top 10, and Former Top 10 once none of their runs is on
-// one any more (see "Top 10 and Former Top 10" below).
+// one any more (see "Top 10 and Former Top 10" below), and Legacy Top 10 to anyone with a run on a course's legacy
+// top 10, from before May 2026 (see "Legacy Top 10" below).
 //
 // Run by .github/workflows/leaderboard-bot.yml after the boards are posted, and once a day for people who joined the
 // server since. Settings come from the environment:
@@ -15,7 +16,7 @@
 // ("🥇 Top 10%"), and so are their color and place in the list. Any that are missing are made, with no permissions. The bot needs Manage Roles, its own role has to be above the rating
 // roles in Server Settings → Roles, and it needs the Server Members Intent (Developer Portal → Bot) to see who has a
 // rating role now. Without the intent, it only checks the rated players, and nobody gets Unrated.
-import { GUILD, ROLES, loadCourses } from "./boards.mjs";
+import { GUILD, ROLES, HISTORY, DISCORD_ID, loadCourses, readData } from "./boards.mjs";
 import { TOKEN, api } from "./discord.mjs";
 import { TIERS, roleName, rate, standings, sameRun } from "./ratings.mjs";
 
@@ -77,6 +78,23 @@ for (const c of courses) {
   for (const r of c.boards.flat()) if (r.discord && !c.removed.some((x) => sameRun(x, r))) wasTop10.add(r.discord);
 }
 
+/* Legacy Top 10: who has a run on a course's legacy top 10 (history.json's "legacy", from before May 2026). It's the
+   top 10 the website's legacy boards show: each player once, with their best run, fastest first (ties go to fewer
+   mistakes). Only runs with a Discord ID count, and most legacy runs have none until their player claims them on
+   ballkour.com and a moderator links them. */
+const legacySeconds = (t) => t.replace(/\.--$/, "").split(":").reduce((sum, part) => sum * 60 + Number(part), 0);
+const byLegacyTime = (a, b) => legacySeconds(a.time) - legacySeconds(b.time) || a.mistakes - b.mistakes;
+const onLegacyTop10 = new Set();
+for (const e of Object.values(JSON.parse(readData(HISTORY)))) {
+  const best = new Map(); // player (their Discord ID, or else their name) → their fastest legacy run
+  for (const r of e && Array.isArray(e.legacy) ? e.legacy : []) {
+    if (!r || typeof r.name !== "string" || !/^(\d{1,2}:)?\d{1,2}:\d{2}(\.--)?$/.test(r.time) || !Number.isInteger(r.mistakes)) continue;
+    const key = DISCORD_ID.test(r.discord) ? "d:" + r.discord : "n:" + r.name.trim().toUpperCase();
+    if (!best.has(key) || byLegacyTime(r, best.get(key)) < 0) best.set(key, r);
+  }
+  for (const r of [...best.values()].sort(byLegacyTime).slice(0, 10)) if (DISCORD_ID.test(r.discord)) onLegacyTop10.add(r.discord);
+}
+
 // Who has which rating roles now: every member of the server, or, without the Server Members Intent, the rated players
 async function everyMember() {
   const all = [];
@@ -94,7 +112,7 @@ try {
   everyone = false;
   console.warn(`Couldn't list the server's members, so only the rated players are checked, and nobody gets Unrated. Turn on the Server Members Intent to give Unrated to everyone else and take rating roles away from anyone who isn't rated any more.\n  ${e.message}`);
   members = [];
-  for (const id of new Set([...nameOf.keys(), ...onTop10, ...wasTop10])) {
+  for (const id of new Set([...nameOf.keys(), ...onTop10, ...wasTop10, ...onLegacyTop10])) {
     try {
       members.push(await api("GET", `/guilds/${GUILD}/members/${id}`));
     } catch (err) {
@@ -154,6 +172,24 @@ if (ROLES.top10 && ROLES.formerTop10) {
         failed = true;
         console.error(`Couldn't change ${who}'s roles. Ballkyrie's own role has to be above Top 10 and Former Top 10 too.\n  ${e.message}`);
       }
+    }
+  }
+}
+/* Legacy Top 10 for a run on a legacy top 10. It's only ever given, never taken away, so one given by hand stays (and
+   a link undone by hand means taking it away by hand too). */
+if (ROLES.legacyTop10) {
+  for (const m of members) {
+    const id = m.user.id;
+    if (m.user.bot || !onLegacyTop10.has(id) || m.roles.includes(ROLES.legacyTop10)) continue;
+    const who = nameOf.get(id) || m.nick || m.user.global_name || m.user.username;
+    changes++;
+    if (DRY) { console.log(`Would give Legacy Top 10 to ${who}`); continue; }
+    try {
+      await api("PUT", `/guilds/${GUILD}/members/${id}/roles/${ROLES.legacyTop10}`);
+      console.log(`Gave Legacy Top 10 to ${who}`);
+    } catch (e) {
+      failed = true;
+      console.error(`Couldn't give ${who} Legacy Top 10. Ballkyrie's own role has to be above Legacy Top 10 too.\n  ${e.message}`);
     }
   }
 }

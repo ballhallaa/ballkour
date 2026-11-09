@@ -30,7 +30,7 @@ export function readData(file) {
   }
   return execFileSync("git", ["show", `origin/${DATA_BRANCH}:${file}`], { cwd: REPO, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
 }
-// The server, the Top 10 and Former Top 10 roles' IDs (roles.mjs gives them out), and the courses
+// The server, the Top 10, Former Top 10, and Legacy Top 10 roles' IDs (roles.mjs gives them out), and the courses
 export const { guild: GUILD, roles: ROLES = {}, courses: COURSES } = JSON.parse(fs.readFileSync(path.join(HERE, "courses.json"), "utf8"));
 
 export const TIME = /^(\d{1,2}:)?\d{1,2}:\d{2}\.\d{2}$/;
