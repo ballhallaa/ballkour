@@ -1,6 +1,6 @@
 {
   "guild": "1212553452283101245",
-  "roles": { "top10": "1498964608260771952", "formerTop10": "1514761072937144360" },
+  "roles": { "top10": "1498964608260771952", "formerTop10": "1514761072937144360", "legacyTop10": "1533473968210706573" },
   "courses": [
     { "n": 1, "name": "Watchpoint: Gibraltar", "flag": "🇬🇮", "by": "Spiz", "remaker": "ballhallaa", "code": "59W28", "file": "leaderboards/1-watchpoint-gibraltar.opy", "channel": "1498162993622683750", "legacyCode": "W1RWY", "legacyChannel": "1508297904891101314" },
     { "n": 2, "name": "Blizzard World (Winter)", "flag": "🇺🇸", "by": "Spiz", "remaker": "ballhallaa", "code": "GMWRF", "file": "leaderboards/2-blizzard-world.opy", "channel": "1498158771455918200", "legacyCode": "6B9Z09", "legacyChannel": "1508296802179350538" },
