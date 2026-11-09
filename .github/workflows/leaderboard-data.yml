@@ -1,0 +1,18 @@
+# When the runs change, posts the new boards to Discord with the leaderboard bot from develop
+# (.github/workflows/leaderboard-bot.yml there, which saves what it posted to leaderboards/history.json here).
+name: Leaderboard bot (new runs)
+
+on:
+  push:
+    branches: [leaderboard-data]
+    paths:
+      - "leaderboards/**"
+      - "!leaderboards/history.json"
+
+permissions:
+  contents: write
+
+jobs:
+  post:
+    uses: ballhallaa/ballkour/.github/workflows/leaderboard-bot.yml@develop
+    secrets: inherit
