@@ -1109,17 +1109,6 @@ rule "Show HUD Page":
     hudPageRow(
         HUD_SCORECARD, _(lobbyHudText[10]), hudLeftPos[HUD_SCORECARD], rgb(230, 151, 0)
     )
-    hudPageRow(
-        HUD_PAGE_KEY,
-        hudPageText(
-            _(scorecardHudText[0])
-            .replace("@0", inputBindingString(Button.ULTIMATE))
-            .replace("@1", inputBindingString(Button.CROUCH)),
-            HUD_PAGE_KEY
-        ),
-        hudLeftPos[HUD_PAGE_KEY],
-        rgb(230, 151, 0)
-    )
     # Arrows around the left column's row being looked at, like the languages'. Its rows
     # differ in width, so the arrows clear the widest. The right column is the languages'
     # texts, arrows included, and the buttons are the main page's (Load Languages, Load

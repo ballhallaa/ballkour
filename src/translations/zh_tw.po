@@ -304,10 +304,6 @@ msgid "Lobby Top 3"
 msgstr "大廳前三名"
 
 #. file run.opy, rule "Load HUD"
-msgid "HUD: <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "介面：<fgFFFFFFFF>@0 + @1</fg>"
-
-#. file run.opy, rule "Load HUD"
 msgid "Disqualified"
 msgstr "已取消資格"
 
