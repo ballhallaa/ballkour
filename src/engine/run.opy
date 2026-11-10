@@ -373,44 +373,20 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    # Under Hints, the scorecard and the HUD page's line, in one HUD text so they left-align.
-    # The scorecard only shows while someone other than the viewer is on it, as their own run
-    # is on the right, and the HUD line wherever the course's HUD shows. A blank line keeps
-    # them off the player's name tag on the 4th line, so the HUD line alone starts on the 5th,
-    # like Disqualified. The scorecard's icons stand taller than a line, so it brings a
-    # second blank line and starts on the 6th.
-    scorecardHudText[0] = _("HUD: <fgFFFFFFFF>@0 + @1</fg>")
-    # The rows stay out of the String Replace, which cuts off long strings, and they're too long for it
+    # Under Hints, the scorecard, which only shows while someone other than the viewer is on
+    # it, as their own run is on the right. Its icons stand taller than a line, so two blank
+    # lines keep it off the player's name tag on the 4th line, and it starts on the 6th.
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: controlsVisible(
-                localPlayer.faqPage == 0
-                and (
-                    isScorecardShown(localPlayer)
-                    or isCourseHudShown(localPlayer)
-                    and isHudLineOn(localPlayer, HUD_PAGE_KEY)
-                )
+                localPlayer.faqPage == 0 and isScorecardShown(localPlayer)
             )
         ),
-        "{}\n{}{}".format(
+        "{}\n\n{}".format(
             # The lobby hides Controls, FAQ and Hints, so 3 blank lines stand in for them and
             # it starts on the 6th line there too, without moving when the player leaves
             ("" if isCourseHudShown(localPlayer) else "\n\n\n"),
-            (
-                "\n{}\n".format(
-                    hudPageScorecard if isHudPage(localPlayer) else scorecard
-                )
-                if isScorecardShown(localPlayer)
-                else ""
-            ),
-            (
-                _(scorecardHudText[0])
-                .replace("@0", inputBindingString(Button.ULTIMATE))
-                .replace("@1", inputBindingString(Button.CROUCH))
-                if isCourseHudShown(localPlayer)
-                and isHudLineOn(localPlayer, HUD_PAGE_KEY)
-                else ""
-            )
+            hudPageScorecard if isHudPage(localPlayer) else scorecard
         ),
         HudPosition.LEFT,
         3,

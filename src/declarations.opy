@@ -109,7 +109,6 @@ globalvar counterHudText = []
 globalvar splitsHudText = []
 globalvar spectatorHudText = []
 globalvar completionHudText = []
-globalvar scorecardHudText = []
 globalvar topRunsHudText
 globalvar allTimeRunsHudText
 globalvar lobbyHudText = []
@@ -333,23 +332,21 @@ macro HUD_SPECTATING = 7
 macro HUD_FREECAM = 8
 macro HUD_DISCONNECTED = 9
 macro HUD_SCORECARD = 10
-# The HUD page's own line, under the scorecard
-macro HUD_PAGE_KEY = 11
-macro HUD_RUNS = 12
-macro HUD_ATTEMPTS = 13
-macro HUD_CP_MISTAKES = 14
-macro HUD_CP = 15
-macro HUD_TIME = 16
-macro HUD_MISTAKES = 17
-macro HUD_SPLIT_CP = 18
-macro HUD_ATTEMPT = 19
-macro HUD_ATTEMPT_STATS = 20
-macro HUD_SPLIT = 21
-macro HUD_SPLIT_STATS = 22
-macro HUD_PACE = 23
-macro HUD_ALL_TIME_TOP = 24
-macro HUD_LOBBY_TOP = 25
-macro HUD_LINES = 26
+macro HUD_RUNS = 11
+macro HUD_ATTEMPTS = 12
+macro HUD_CP_MISTAKES = 13
+macro HUD_CP = 14
+macro HUD_TIME = 15
+macro HUD_MISTAKES = 16
+macro HUD_SPLIT_CP = 17
+macro HUD_ATTEMPT = 18
+macro HUD_ATTEMPT_STATS = 19
+macro HUD_SPLIT = 20
+macro HUD_SPLIT_STATS = 21
+macro HUD_PACE = 22
+macro HUD_ALL_TIME_TOP = 23
+macro HUD_LOBBY_TOP = 24
+macro HUD_LINES = 25
 # The lobby page that turns them on and off (lobbyPage)
 macro HUD_PAGE = 3
 # The made-up spectator count the HUD shows on the HUD page, so Spectators has a number
