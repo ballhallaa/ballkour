@@ -19,6 +19,10 @@ rule "Start/Resume Run":
         > eventPlayer.cpData[1]
     )
 
+    # Leaving a CP skipped to is what disqualifies the skip (Run: isOnSkippedCp). A run only
+    # resumes here or in Mistake: Missed Checkpoint, and a skip always pauses it first.
+    if isOnSkippedCp(eventPlayer):
+        eventPlayer.isRunLegit = false
     eventPlayer.isRunPaused = false
     chaseAtRate(eventPlayer.runTime, Math.INFINITY, 1)
 

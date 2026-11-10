@@ -253,7 +253,9 @@ def disableSpectator():
     wait()
     eventPlayer.stopForcingPosition()
     eventPlayer.spectating[0] = false
-    if eventPlayer.spectating[4] > eventPlayer.runFurthestCp:
+    # Like Next CP, coming back past the furthest CP cleared only disqualifies the run once the
+    # player leaves the CP (Run: isOnSkippedCp), or at once on the last CP
+    if eventPlayer.spectating[4] == lastCp and eventPlayer.runFurthestCp < lastCp:
         eventPlayer.isRunLegit = false
     # Landing back on the CP they left keeps its mistake count
     if eventPlayer.spectating[4] != eventPlayer.runCurrentCp:

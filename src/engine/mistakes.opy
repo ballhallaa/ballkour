@@ -35,6 +35,10 @@ rule "Missed Checkpoint":
     addMistake()
     cpResetPlayer()
     if eventPlayer.isRunPaused:
+        # Like Timer: Start/Resume Run, when the player lands outside a CP skipped to as they
+        # leave it, before that rule runs
+        if isOnSkippedCp(eventPlayer):
+            eventPlayer.isRunLegit = false
         eventPlayer.isRunPaused = false
         chaseAtRate(eventPlayer.runTime, Math.INFINITY, 1)
     eventPlayer.isLoading = false

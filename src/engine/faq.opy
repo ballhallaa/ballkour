@@ -182,9 +182,9 @@ rule "Load HUD":
     ).format(VERSION)
     faqHudText[2] = (
         "\n\n<fg80D0FFFF>What counts as a valid run?</fg>"
-        "\nYour run is only <fgFF4646FF>disqualified</fg> if you skip a checkpoint you haven't cleared yet this run."
-        "\nGoing back or restarting checkpoints, skipping ahead to cleared checkpoints,"
-        "\n<fgCB87FFFF>Freemode</fg>, and <fg00BEFFFF>spectating</fg> are fine."
+        "\nYour run is only <fgFF4646FF>disqualified</fg> if you skip to a checkpoint you haven't reached yet this run"
+        "\nand leave it, or skip to the last one, which finishes your run. Skipping ahead to look,"
+        "\ngoing back or restarting checkpoints, <fgCB87FFFF>Freemode</fg>, and <fg00BEFFFF>spectating</fg> are fine."
         "\n<fgFF4646FF>Disqualified</fg> runs don't count toward the top-10 leaderboard, <fgE69700FF>Lobby Top 3</fg>, or <fgE69700FF>Lobby Stats</fg>."
     )
     faqHudText[3] = (
