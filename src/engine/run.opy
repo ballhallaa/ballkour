@@ -526,6 +526,14 @@ def resetRun():
     resetCpMistakes()
 
 
+# Whether the player is on a CP skipped to, past the furthest one cleared. A skip only
+# disqualifies the run once the player leaves that CP, so it can be looked at and skipped
+# back from (Timer: Start/Resume Run, Mistake: Missed Checkpoint). A skip onto the last CP
+# disqualifies it at once, as reaching it finishes the run.
+macro isOnSkippedCp(player):
+    (player.runCurrentCp > player.runFurthestCp)
+
+
 def pauseRun():
     @Name "Pause"
 

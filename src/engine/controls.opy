@@ -651,8 +651,12 @@ def nextCpInput():
     eventPlayer.setSecondaryFireEnabled(false)
     pauseRun()
     if not eventPlayer.spectating[0]:
-        # Only skipping past the furthest CP cleared disqualifies the run
-        if eventPlayer.runCurrentCp >= eventPlayer.runFurthestCp:
+        # Skipping past the furthest CP cleared only disqualifies the run once the player
+        # leaves the CP (Run: isOnSkippedCp), or at once onto the last CP, which finishes it
+        if (
+            eventPlayer.runCurrentCp + 1 == lastCp
+            and eventPlayer.runFurthestCp < lastCp
+        ):
             eventPlayer.isRunLegit = false
         eventPlayer.runCurrentCp++
         syncSpectatorCps()
@@ -689,7 +693,10 @@ def nextCpInput():
             )
         ):
             if not eventPlayer.spectating[0]:
-                if eventPlayer.runCurrentCp >= eventPlayer.runFurthestCp:
+                if (
+                    eventPlayer.runCurrentCp + 1 == lastCp
+                    and eventPlayer.runFurthestCp < lastCp
+                ):
                     eventPlayer.isRunLegit = false
                 eventPlayer.runCurrentCp++
                 eventPlayer.teleport(cps[eventPlayer.runCurrentCp][0])
