@@ -46,7 +46,8 @@ macro allTimeRuns = min(lbRunCount, 3)
 
 
 # Whether the scorecard and the Top 3s list rows: with players or runs to list, or on the
-# HUD page, which lists made-up ones (Lobby: Load HUD Page), unless they're turned off
+# HUD page, which lists made-up ones (Lobby: Load HUD Page), unless they're turned off. The
+# All-Time Top 3 stays off in the lobby, where the leaderboard already lists those runs.
 macro isScorecardShown(player):
     (
         (scorecardHasRows(player) or isHudPage(player))
@@ -55,7 +56,10 @@ macro isScorecardShown(player):
 
 
 macro isAllTimeTopShown(player):
-    ((allTimeRuns > 0 or isHudPage(player)) and isHudLineOn(player, HUD_ALL_TIME_TOP))
+    (
+        (allTimeRuns > 0 and not player.isInLobby or isHudPage(player))
+        and isHudLineOn(player, HUD_ALL_TIME_TOP)
+    )
 
 
 macro isLobbyTopShown(player):
@@ -327,7 +331,7 @@ rule "Load HUD":
     # splits, in one HUD text so they left-align. Hiding the scorecard leaves them up. The
     # splits end without blank lines, so they bring 2; without the splits, Mistakes above
     # already ends in blank lines, and the CP while spectating ends in 1.
-    # In the lobby, with nothing above them, they start at the top.
+    # In the lobby, with nothing above it, the Lobby Top 3 starts at the top.
     allTimeRunsHudText = _("All-Time Top 3")
     topRunsHudText = _("Lobby Top 3")
     hudSubheader(
