@@ -220,7 +220,7 @@ Try these with the Beta code of a Ballkour remake.
 - **Hints:** A recorded route shows you the way through. Turn hints on yourself, or they switch on after 10 mistakes on one checkpoint.
 - **Spectate:** Watch other runners in first or third person, or fly in freecam mode.
 - **Splits:** Best and average times for every checkpoint, plus a pace timer to see your estimated finish time.
-- **Scorecards:** See every runner's checkpoint, time, and mistakes live, along with the lobby's top 3.
+- **Scorecards:** See every player's checkpoint, time, and mistakes live, along with the lobby's top 3.
 - **Quality of life:** Idle runners shrink so they never block your view. See your current run and attempt numbers, view each run's video and date in the lobby, and toggle an FAQ for newcomers.
 - **Translations:** Translated into 13 languages, so each player gets a similar experience in their own language.
 

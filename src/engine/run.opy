@@ -8,31 +8,43 @@ macro viewedRunner(player):
     (player.spectating[1] if player.spectating[0] else player)
 
 
-# Everyone with a run out on the course: runners, then players in freemode or spectating
+# Every player in the game, bots aside
 macro isOnScorecard(player):
-    (not player.isDummy() and player.isRunLoaded and not player.isInLobby)
+    (not player.isDummy())
 
 
-# Listed above the players in freemode, which finishing turns on, and spectating
-macro isRunningOnScorecard(player):
-    (not player.isInFreemode and not player.spectating[0])
+# The scorecard's sections, top to bottom: runners, disqualified runners, players in
+# freemode, which finishing turns on, players spectating, and players in the lobby, along
+# with new players on their way there, who have no run yet
+macro SCORECARD_SECTIONS = 5
 
 
-# The scorecard's order within runners and within the rest: furthest, then fastest
+macro scorecardSectionOf(player):
+    (
+        4
+        if player.isInLobby or not player.isRunLoaded
+        else (
+            3
+            if player.spectating[0]
+            else (2 if player.isInFreemode else (0 if player.isRunLegit else 1))
+        )
+    )
+
+
+# The scorecard's order within each section: furthest, then fastest. A spectator's CP is the
+# one they're watching, as on their HUD (viewCp).
 macro scorecardOrder(player):
-    (player.runTime - player.runCurrentCp * 100000)
+    (player.runTime - player.viewCp * 100000)
 
 
-# Everything a player's scorecard row shows but the time, so a change to it can refresh the
-# scorecard at once. The CP stays under 1000, and the flags fit below 1.
+# Everything a player's scorecard row shows but the time, and its section, so a change to
+# them can refresh the scorecard at once. The CP stays under 1000, and the flags fit below 1.
 macro scorecardKey(player):
     (
-        player.runCurrentCp
+        player.viewCp
         + player.runMistakes * 1000
         + player.isRunLegit * 0.5
-        + isOnScorecard(player) * 0.25
-        + player.isInFreemode * 0.125
-        + player.spectating[0] * 0.0625
+        + scorecardSectionOf(player) * 0.0625
     )
 
 
@@ -397,18 +409,16 @@ rule "Load HUD":
 
 rule "Update Scorecard":
     scorecardDirty = false
-    # Two sorts joined, instead of one with an offset that would cost the times' precision
-    scorecardPlayers = sorted(
-        getAllPlayers().filter(lambda p: isOnScorecard(p) and isRunningOnScorecard(p)),
-        lambda p: scorecardOrder(p)
-    ).concat(
-        sorted(
-            getAllPlayers().filter(
-                lambda p: isOnScorecard(p) and not isRunningOnScorecard(p)
-            ),
-            lambda p: scorecardOrder(p)
-        )
+    # One sort split into its sections in order, instead of a sort with an offset per section
+    # that would cost the times' precision
+    scorecardSorted = sorted(
+        getAllPlayers().filter(lambda p: isOnScorecard(p)), lambda p: scorecardOrder(p)
     )
+    scorecardPlayers = []
+    for index in range(SCORECARD_SECTIONS):
+        scorecardPlayers = scorecardPlayers.concat(
+            scorecardSorted.filter(lambda p: p.scorecardSection == index)
+        )
     # One string rebuilt on each change and each runner's second, instead of a HUD text per runner:
     # Overwatch reprocesses every HUD text's definition every 5s (see Translated HUD Text).
     # A string only shows its first 4 icons, so they head the columns instead of filling each row.
@@ -420,8 +430,8 @@ rule "Update Scorecard":
         scorecardTime = scorecardPlayers[index].runTimeFormatted.split(".")[0]
         # The time's column fits h:mm:ss. Its padding is by length, since colons are narrower than digits.
         scorecardRow = "{}{}{}{}{}{}{}".format(
-            scorecardPlayers[index].runCurrentCp,
-            scorecardPad(scorecardPlayers[index].runCurrentCp),
+            scorecardPlayers[index].viewCp,
+            scorecardPad(scorecardPlayers[index].viewCp),
             scorecardTime,
             "             ".substring(
                 0, [0, 13, 11, 0, 7, 5, 0, 2][strLen(scorecardTime)]
@@ -430,25 +440,18 @@ rule "Update Scorecard":
             scorecardPad(scorecardPlayers[index].runMistakes),
             scorecardPlayers[index]
         )
-        # Players spectating are blue, like Spectating, and in freemode violet, like Freemode
-        # On, disqualified or not. Disqualified runners are red, like Disqualified at the
-        # top left. Disqualified runs also get a red × after the name, outside the row's color
-        # so it's red on blue and violet rows too, and for anyone who can't tell red from orange.
-        scorecard = "{}\n{}{}".format(
+        # Each section in its own color, disqualified or not: runners in the HUD's orange,
+        # disqualified runners red, like Disqualified at the top left, freemode violet, like
+        # Freemode On, spectating blue, like Spectating, and the lobby gray, like the lobby's
+        # grayed-out buttons. Disqualified runs also get a red × after the name, outside the
+        # row's color so it's red on every row, and for anyone who can't tell red from orange.
+        scorecard = "{}\n{}{}{}{}".format(
             scorecard,
-            (
-                "<fg00BEFFFF>{}</fg>".format(scorecardRow)
-                if scorecardPlayers[index].spectating[0]
-                else (
-                    "<fgCB87FFFF>{}</fg>".format(scorecardRow)
-                    if scorecardPlayers[index].isInFreemode
-                    else (
-                        scorecardRow
-                        if scorecardPlayers[index].isRunLegit
-                        else "<fgFF4646FF>{}</fg>".format(scorecardRow)
-                    )
-                )
-            ),
+            ["", "<fgFF4646FF>", "<fgCB87FFFF>", "<fg00BEFFFF>", "<fg808080FF>"][
+                scorecardPlayers[index].scorecardSection
+            ],
+            scorecardRow,
+            "</fg>" if scorecardPlayers[index].scorecardSection else "",
             "" if scorecardPlayers[index].isRunLegit else " <fgFF4646FF>×</fg>"
         )
     # A change or a runner's next second (see Update Run Format) rebuilds it within 0.1s. Rebuilding
@@ -463,6 +466,9 @@ rule "Refresh Scorecard On Change":
     @Condition eventPlayer.scorecardKey != scorecardKey(eventPlayer)
 
     eventPlayer.scorecardKey = scorecardKey(eventPlayer)
+    # Kept for Update Scorecard, so its rebuilds read each player's section instead of
+    # working it out again
+    eventPlayer.scorecardSection = scorecardSectionOf(eventPlayer)
     scorecardDirty = true
     # Rechecks a tick later, like Sync Viewed Checkpoint
     wait()

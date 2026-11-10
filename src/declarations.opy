@@ -84,6 +84,7 @@ globalvar scorecard
 globalvar scorecardRows
 globalvar scorecardDirty
 globalvar scorecardPlayers
+globalvar scorecardSorted
 globalvar scorecardRow
 globalvar scorecardTime
 globalvar topRuns = []
@@ -233,6 +234,8 @@ macro FAQ_PAGES = 4
 macro LANGUAGES = 14
 playervar isInFreemode
 playervar scorecardKey
+# The player's section of the scorecard (scorecardSectionOf), from 0 at the top
+playervar scorecardSection
 playervar scorecardSecond
 # Ultimate Input / Watch Input: the buttons held (heldButtons) and the ones before, and
 # whether that combination's input already ran, so holding it doesn't run it again

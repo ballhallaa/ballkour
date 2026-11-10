@@ -965,9 +965,9 @@ rule "Load HUD Page":
     hudDisqualifiedPos = hudLeftPos[HUD_DISQUALIFIED]
     hudLeftPos[HUD_DISQUALIFIED] = hudLeftPos[0]
     # The scorecard and the Top 3s show full on the page, with made-up players, so turning
-    # them off shows the room they can take: 12 players, each kind of scorecard row
-    # (disqualified, freemode, spectating), and runs that aren't anyone's real ones. Laid out
-    # like the real ones (Update Scorecard, Load Leaderboard, Record Top Run).
+    # them off shows the room they can take: 12 players, each section of the scorecard
+    # (disqualified, freemode, spectating, lobby), and runs that aren't anyone's real ones.
+    # Laid out like the real ones (Update Scorecard, Load Leaderboard, Record Top Run).
     hudPageScorecard = "{}    {}       {}{}".format(
         iconString(Icon.FLAG),
         iconString(Icon.BOLT),
@@ -975,16 +975,16 @@ rule "Load HUD Page":
         (
             "\n87     6:41       12     GrappleGod"
             "\n64     5:02       8       HammondFan"
-            "\n<fgFF4646FF>52     4:20       15     PileDriver</fg> <fgFF4646FF>×</fg>"
             "\n41     3:57       6       Minefield"
             "\n30     2:48       21     RollOut"
             "\n22     2:05       3       SpinnyBoi"
             "\n9       58           30     BallPit"
             "\n3       12           1       WreckingCrew"
+            "\n<fgFF4646FF>52     4:20       15     PileDriver</fg> <fgFF4646FF>×</fg>"
             "\n<fgCB87FFFF>70     9:15       40     ShieldSurfer</fg> <fgFF4646FF>×</fg>"
-            "\n<fg00BEFFFF>33     3:10       9       MechaMouse</fg>"
             "\n<fgCB87FFFF>15     1:30       2       Hamsterdam</fg>"
-            "\n<fg00BEFFFF>0       0             0       QuickSilver</fg>"
+            "\n<fg00BEFFFF>33     3:10       9       MechaMouse</fg>"
+            "\n<fg808080FF>0       0             0       QuickSilver</fg>"
         )
     )
     hudPageAllTimeText = (
