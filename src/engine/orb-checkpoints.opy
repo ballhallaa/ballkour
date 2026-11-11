@@ -31,7 +31,7 @@ rule "No Grapple":
         and not eventPlayer.isInLobby
         and not eventPlayer.hasStatus(Status.ROOTED)
     ) == true
-    @Condition eventPlayer.isInFreemode == false
+    @Condition isFreePlay(eventPlayer) == false
     @Condition eventPlayer.cpData[5] != null
     @Condition eventPlayer.cpData[12] == false
     @Condition eventPlayer.cpData[13] == false
@@ -62,7 +62,7 @@ rule "Too Slow":
     @Condition hasAllOrbs(eventPlayer) == false
     @Condition eventPlayer.isOnGround() == true
     @Condition eventPlayer.getSpeed() <= 10
-    @Condition eventPlayer.isInFreemode == false
+    @Condition isFreePlay(eventPlayer) == false
     @Condition eventPlayer.spectating[0] == false
     @Condition (
         distance(eventPlayer.getPosition(), eventPlayer.cpData[0])

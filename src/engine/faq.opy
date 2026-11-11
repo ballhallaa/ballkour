@@ -170,7 +170,7 @@ rule "Load HUD":
     # Each answer is its own string in white, with its question in light blue and the game's own
     # labels (controls, HUD and lobby names) in orange, in questions too, the ones
     # ballkour.com/faq marks. A mode or HUD text keeps its own HUD's color instead (Freemode
-    # violet, Spectator blue, (DISCONNECTED) white, disqualified red). Color tags can't nest, so a label in a
+    # violet, Assist Mode pink, Spectator blue, (DISCONNECTED) white, disqualified red). Color tags can't nest, so a label in a
     # question closes the light blue and opens it again after. The answers are English only, with the translated ones at ballkour.com/faq: in all 14
     # languages they made pasting the script take several seconds longer.
     # Page 1
@@ -186,6 +186,7 @@ rule "Load HUD":
         "\nand leave it, or skip to the last one, which finishes your run. Skipping ahead to look,"
         "\ngoing back or restarting checkpoints, <fgCB87FFFF>Freemode</fg>, and <fg00BEFFFF>spectating</fg> are fine."
         "\n<fgFF4646FF>Disqualified</fg> runs don't count toward the top-10 leaderboard, <fgE69700FF>Lobby Top 3</fg>, or <fgE69700FF>Lobby Stats</fg>."
+        "\nRuns that use <fgFF80C0FF>Assist Mode</fg> go on their own assisted leaderboard at ballkour.com instead."
     )
     faqHudText[3] = (
         "\n\n<fg80D0FFFF>How do I get on the leaderboard?</fg>"
@@ -201,7 +202,7 @@ rule "Load HUD":
         "\n\n<fg80D0FFFF>What counts as a mistake?</fg>"
         "\nLanding anywhere but the next checkpoint, bhopping twice, missing a checkpoint's orb,"
         "\nfalling off the map, or leaving mid-attempt with <fgE69700FF>Prev.</fg>/<fgE69700FF>Next CP</fg>, <fgE69700FF>Reset CP</fg>, <fgE69700FF>Freemode</fg>,"
-        "\n<fgE69700FF>Spectate</fg>, or <fgE69700FF>Lobby/Pause</fg>."
+        "\n<fgE69700FF>Assist Mode</fg>, <fgE69700FF>Spectate</fg>, or <fgE69700FF>Lobby/Pause</fg>."
     )
     # Page 2
     faqHudText[6] = (
@@ -242,8 +243,9 @@ rule "Load HUD":
     faqHudText[12] = (
         "\n\n<fg80D0FFFF>What's on the scorecard?</fg>"
         "\nEach player's checkpoint, time, and mistakes, sorted by furthest and then fastest."
-        "\nRunners come first, then <fgFF4646FF>disqualified</fg> runners in <fgFF4646FF>red</fg>, players in <fgCB87FFFF>Freemode</fg> in <fgCB87FFFF>purple</fg>,"
-        "\nplayers in <fg00BEFFFF>Spectate</fg> in <fg00BEFFFF>blue</fg>, and players in the lobby in <fg808080FF>gray</fg>. <fgFF4646FF>Disqualified</fg> runs are marked <fgFF4646FF>×</fg>."
+        "\nRunners come first, then <fgFF4646FF>disqualified</fg> runners in <fgFF4646FF>red</fg>, players in <fgFF80C0FF>Assist Mode</fg> in <fgFF80C0FF>pink</fg>,"
+        "\nplayers in <fgCB87FFFF>Freemode</fg> in <fgCB87FFFF>purple</fg>, players in <fg00BEFFFF>Spectate</fg> in <fg00BEFFFF>blue</fg>, and players in the lobby in <fg808080FF>gray</fg>."
+        "\n<fgFF4646FF>Disqualified</fg> runs are marked <fgFF4646FF>×</fg>."
     )
     faqHudText[13] = (
         "\n\n<fg80D0FFFF>What is a </fg><fg00BEFFFF>shield bounce</fg><fg80D0FFFF>?</fg>"
@@ -258,9 +260,10 @@ rule "Load HUD":
         "\nand off again when you move on to another, until you turn them off yourself."
     )
     faqHudText[15] = (
-        "\n\n<fg80D0FFFF>What is </fg><fgCB87FFFF>Freemode</fg><fg80D0FFFF> for?</fg>"
-        "\nPractice, with no timer and all your abilities. You can't clear checkpoints in it,"
-        "\nso it doesn't <fgFF4646FF>disqualify</fg> your run."
+        "\n\n<fg80D0FFFF>What are </fg><fgCB87FFFF>Freemode</fg><fg80D0FFFF> and </fg><fgFF80C0FF>Assist Mode</fg><fg80D0FFFF> for?</fg>"
+        "\n<fgCB87FFFF>Freemode</fg> is practice, with no timer and all your abilities. You can't clear checkpoints in it,"
+        "\nso it doesn't <fgFF4646FF>disqualify</fg> your run. <fgFF80C0FF>Assist Mode</fg> gives you every ability, as often as you like,"
+        "\nand landing isn't a mistake, while checkpoints still clear. Its runs have their own leaderboard."
     )
     # Page 4
     faqHudText[16] = (

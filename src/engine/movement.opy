@@ -54,7 +54,7 @@ rule "Grapple Use":
     @Condition eventPlayer.isHoldingButton(Button.ULTIMATE) == false
     @Condition eventPlayer.spectating[0] == false
 
-    if not (eventPlayer.cpData[5] == null or eventPlayer.isInFreemode):
+    if not (eventPlayer.cpData[5] == null or isFreePlay(eventPlayer)):
         eventPlayer.cpData[12] = true
         waitUntil(
             not eventPlayer.isFiringSecondaryFire() or eventPlayer.getSpeed() >= 15,
@@ -70,10 +70,10 @@ rule "Grapple Use":
             eventPlayer.cpData[13] = true
         waitUntil(not eventPlayer.isFiringSecondaryFire(), Math.INFINITY)
         eventPlayer.setAbilityCooldown(Button.SECONDARY_FIRE, 0)
-    elif not eventPlayer.isInFreemode:
+    elif not isFreePlay(eventPlayer):
         waitUntil(not eventPlayer.isFiringSecondaryFire(), Math.INFINITY)
         eventPlayer.setAbilityCooldown(Button.SECONDARY_FIRE, 0)
-    if eventPlayer.cpData[5] != null and not eventPlayer.isInFreemode:
+    if eventPlayer.cpData[5] != null and not isFreePlay(eventPlayer):
         if (
             distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
             > eventPlayer.cpData[1]
@@ -83,7 +83,7 @@ rule "Grapple Use":
             eventPlayer.cpData[13] = false
         waitUntil(not eventPlayer.isFiringSecondaryFire(), Math.INFINITY)
         eventPlayer.setAbilityCooldown(Button.SECONDARY_FIRE, 0)
-    elif eventPlayer.isInFreemode:
+    elif isFreePlay(eventPlayer):
         waitUntil(not eventPlayer.isFiringSecondaryFire(), Math.INFINITY)
         eventPlayer.setAbilityCooldown(Button.SECONDARY_FIRE, 0)
 
@@ -95,7 +95,7 @@ rule "Shield Bounce Use":
     # Its push would float a player away from the lobby, which has no gravity
     @Condition eventPlayer.isInLobby == false
     @Condition (
-        eventPlayer.isInFreemode
+        isFreePlay(eventPlayer)
         or (eventPlayer.cpData[3] and not eventPlayer.cpData[14])
     ) == true
 
@@ -136,7 +136,7 @@ rule "Shield Bounce Use":
     )
     eventPlayer.setHealth(575)
     eventPlayer.setAbilityCooldown(Button.ABILITY_2, 0)
-    if eventPlayer.isInFreemode:
+    if isFreePlay(eventPlayer):
         eventPlayer.setAbility2Enabled(true)
     elif eventPlayer.cpData[3] and not eventPlayer.cpData[14]:
         eventPlayer.cpData[14] = true

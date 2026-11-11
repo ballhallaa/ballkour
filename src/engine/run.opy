@@ -13,20 +13,24 @@ macro isOnScorecard(player):
     (not player.isDummy())
 
 
-# The scorecard's sections, top to bottom: runners, disqualified runners, players in
-# freemode, which finishing turns on, players spectating, and players in the lobby, along
-# with new players on their way there, who have no run yet
-macro SCORECARD_SECTIONS = 5
+# The scorecard's sections, top to bottom: runners, disqualified runners, players in Assist
+# Mode, players in freemode, which finishing turns on, players spectating, and players in
+# the lobby, along with new players on their way there, who have no run yet
+macro SCORECARD_SECTIONS = 6
 
 
 macro scorecardSectionOf(player):
     (
-        4
+        5
         if player.isInLobby or not player.isRunLoaded
         else (
-            3
+            4
             if player.spectating[0]
-            else (2 if player.isInFreemode else (0 if player.isRunLegit else 1))
+            else (
+                3
+                if player.isInFreemode
+                else (2 if player.isInAssistMode else (0 if player.isRunLegit else 1))
+            )
         )
     )
 
@@ -95,14 +99,30 @@ macro hudLinesGap(player):
     ("" if areHudLinesOff(player, HUD_RUNS, 3) else "\n\n")
 
 
-# Whether Disqualified shows: while the viewed run doesn't count, outside disconnected
-# freecam. It can't be turned off, as it says the run won't count, and the HUD page shows
-# it either way, struck through, so it's clear it stays.
+# Whether Disqualified shows: while the viewed run doesn't count, or the viewed runner is in
+# Assist Mode (see isAssistModeShown), outside disconnected freecam. It can't be turned off, as
+# it says the run won't count, or which leaderboard it's for, and the HUD page shows it either
+# way, struck through, so it's clear it stays.
 macro isDisqualifiedShown(player):
     (
         isCourseHudShown(player)
         and not player.spectating[3]
-        and (not player.viewRunner.isRunLegit or isHudPage(player))
+        and (
+            not player.viewRunner.isRunLegit
+            or player.viewRunner.isInAssistMode
+            or isHudPage(player)
+        )
+    )
+
+
+# Whether Disqualified says Assist Mode instead: while the viewed runner is in it, unless the
+# run is disqualified, which counts for neither leaderboard then, and apart from on the HUD
+# page, whose row for the line says Disqualified
+macro isAssistModeShown(player):
+    (
+        player.viewRunner.isInAssistMode
+        and player.viewRunner.isRunLegit
+        and not isHudPage(player)
     )
 
 
@@ -327,17 +347,24 @@ rule "Load HUD":
     # At the top left, under Hints and above Freemode On, with a blank line above it like
     # Freemode On. Freemode On drops its own blank line while it shows, so the two sit together.
     # The HUD page shows it either way, as it's one of the lines it turns off.
+    # In Assist Mode it says so instead, in pink, as the run is for the assisted leaderboard.
+    # One text for both, as texts are capped at 128 per server (Lobby: Load Buttons).
     counterHudText[3] = _("\nDisqualified")
+    counterHudText[4] = _("\nAssist Mode")
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: isDisqualifiedShown(localPlayer)
             and localPlayer.faqPage == 0
         ),
-        _(counterHudText[3]),
+        (
+            _(counterHudText[4])
+            if isAssistModeShown(localPlayer)
+            else _(counterHudText[3])
+        ),
         HudPosition.LEFT,
         0.9,
-        rgb(255, 70, 70),
-        HudReeval.VISIBILITY_AND_STRING
+        rgb(255, 128, 192) if isAssistModeShown(localPlayer) else rgb(255, 70, 70),
+        HudReeval.VISIBILITY_STRING_AND_COLOR
     )
     # The All-Time Top 3, then the Lobby Top 3, at the bottom of the right column, under the
     # splits, in one HUD text so they left-align. Hiding the scorecard leaves them up. The
@@ -441,15 +468,21 @@ rule "Update Scorecard":
             scorecardPlayers[index]
         )
         # Each section in its own color, disqualified or not: runners in the HUD's orange,
-        # disqualified runners red, like Disqualified at the top left, freemode violet, like
-        # Freemode On, spectating blue, like Spectating, and the lobby gray, like the lobby's
-        # grayed-out buttons. Disqualified runs also get a red × after the name, outside the
-        # row's color so it's red on every row, and for anyone who can't tell red from orange.
+        # disqualified runners red, like Disqualified at the top left, Assist Mode pink, like
+        # its own line there, freemode violet, like Freemode On, spectating blue, like
+        # Spectating, and the lobby gray, like the lobby's grayed-out buttons. Disqualified
+        # runs also get a red × after the name, outside the row's color so it's red on every
+        # row, and for anyone who can't tell red from orange.
         scorecard = "{}\n{}{}{}{}".format(
             scorecard,
-            ["", "<fgFF4646FF>", "<fgCB87FFFF>", "<fg00BEFFFF>", "<fg808080FF>"][
-                scorecardPlayers[index].scorecardSection
-            ],
+            [
+                "",
+                "<fgFF4646FF>",
+                "<fgFF80C0FF>",
+                "<fgCB87FFFF>",
+                "<fg00BEFFFF>",
+                "<fg808080FF>"
+            ][scorecardPlayers[index].scorecardSection],
             scorecardRow,
             "</fg>" if scorecardPlayers[index].scorecardSection else "",
             "" if scorecardPlayers[index].isRunLegit else " <fgFF4646FF>×</fg>"
@@ -510,6 +543,8 @@ def resetRun():
     eventPlayer.isInFreemode = false
     eventPlayer.isRunFinished = false
     eventPlayer.isRunLegit = true
+    # Assist Mode stays on through New Run, so the new run is an assisted one too
+    eventPlayer.isRunAssisted = eventPlayer.isInAssistMode
     eventPlayer.runCurrentCp = 0
     eventPlayer.runFurthestCp = 0
     eventPlayer.runTime = 0

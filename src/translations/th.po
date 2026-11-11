@@ -55,6 +55,10 @@ msgstr ""
 "\n"
 "<fgFFFFFFFF> ขอบคุณที่เล่น!</fg>"
 
+#. file completion.opy, rule "Run Text"
+msgid "<fgFF80C0FF>               Assisted Run</fg>"
+msgstr "<fgFF80C0FF>    การเล่นแบบช่วยเหลือ</fg>"
+
 #. file controls.opy, rule "Load Freemode HUD"
 msgid "Freemode On"
 msgstr "เปิดโหมดอิสระ"
@@ -152,6 +156,10 @@ msgstr "@0ผู้เล่นที่เล็งอยู่:               
 #. file controls.opy, rule "Load HUD"
 msgid "Freecam:                             <fgFFFFFFFF>Move</fg>"
 msgstr "กล้องอิสระ:                                      <fgFFFFFFFF>เคลื่อนที่</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "@0Assist Mode:               @1@2 + @3 (Hold)</fg>"
+msgstr "@0โหมดช่วยเหลือ:                     @1@2 + @3 (กดค้าง)</fg>"
 
 #. file faq.opy, rule "Load HUD"
 msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
@@ -306,6 +314,10 @@ msgstr "ท็อป 3 ล็อบบี้"
 #. file run.opy, rule "Load HUD"
 msgid "Disqualified"
 msgstr "ถูกตัดสิทธิ์"
+
+#. file run.opy, rule "Load HUD"
+msgid "Assist Mode"
+msgstr "โหมดช่วยเหลือ"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"

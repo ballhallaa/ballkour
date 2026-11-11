@@ -55,6 +55,10 @@ msgstr ""
 "\n"
 "<fgFFFFFFFF>プレイありがとう！</fg>"
 
+#. file completion.opy, rule "Run Text"
+msgid "<fgFF80C0FF>               Assisted Run</fg>"
+msgstr "<fgFF80C0FF>          アシストラン</fg>"
+
 #. file controls.opy, rule "Load Freemode HUD"
 msgid "Freemode On"
 msgstr "フリーモード ON"
@@ -152,6 +156,10 @@ msgstr "@0照準先のプレイヤー：        @1@2 + @3</fg>@4"
 #. file controls.opy, rule "Load HUD"
 msgid "Freecam:                             <fgFFFFFFFF>Move</fg>"
 msgstr "フリーカメラ：                                         <fgFFFFFFFF>移動</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "@0Assist Mode:               @1@2 + @3 (Hold)</fg>"
+msgstr "@0アシストモード：                    @1@2 + @3 (長押し)</fg>"
 
 #. file faq.opy, rule "Load HUD"
 msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
@@ -306,6 +314,10 @@ msgstr "ロビートップ3"
 #. file run.opy, rule "Load HUD"
 msgid "Disqualified"
 msgstr "失格"
+
+#. file run.opy, rule "Load HUD"
+msgid "Assist Mode"
+msgstr "アシストモード"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"

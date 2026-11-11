@@ -4,7 +4,7 @@
 
 rule "Missed Checkpoint":
     @Event eachPlayer
-    @Condition eventPlayer.isInFreemode == false
+    @Condition isFreePlay(eventPlayer) == false
     # An orb checkpoint allows the ground from its grapple until every orb is grabbed
     @Condition (
         eventPlayer.cpData[5] == null
@@ -52,7 +52,7 @@ rule "Already Bhopped":
         and not eventPlayer.isInLobby
         and not eventPlayer.hasStatus(Status.ROOTED)
     ) == true
-    @Condition eventPlayer.isInFreemode == false
+    @Condition isFreePlay(eventPlayer) == false
     @Condition eventPlayer.isJumping() == true
     @Condition eventPlayer.cpData[11] == true
     @Condition eventPlayer.cpData[5] == null

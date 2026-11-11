@@ -233,6 +233,13 @@ macro FAQ_PAGES = 4
 # The languages in #!translations (ballkour.opy), which __languageIndex__ counts from 0
 macro LANGUAGES = 14
 playervar isInFreemode
+# Assist Mode (Controls: Assist Mode): every ability as often as they like, and landing
+# anywhere, like Freemode, while the run's CPs still clear. It stays on, through New Run
+# too, until it's turned off.
+playervar isInAssistMode
+# Whether Assist Mode was on for any of the run, which puts it on the assisted leaderboard
+# instead, even after it's turned off again
+playervar isRunAssisted
 playervar scorecardKey
 # The player's section of the scorecard (scorecardSectionOf), from 0 at the top
 playervar scorecardSection
@@ -299,6 +306,7 @@ subroutine prevCpInput
 subroutine nextCpInput
 subroutine newRunInput
 subroutine freemodeInput
+subroutine assistModeInput
 subroutine lobbyInput
 subroutine goToLobby
 subroutine hudInput
@@ -408,6 +416,11 @@ macro allControlsOr(check):
 
 
 # Run
+# Freemode or Assist Mode: every ability as often as they like, and no mistakes for landing
+macro isFreePlay(player):
+    (player.isInFreemode or player.isInAssistMode)
+
+
 # Every mistake also ends an attempt at the CP
 macro addMistake():
     eventPlayer.runMistakes++

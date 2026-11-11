@@ -55,6 +55,10 @@ msgstr ""
 "\n"
 "<fgFFFFFFFF>感谢游玩！</fg>"
 
+#. file completion.opy, rule "Run Text"
+msgid "<fgFF80C0FF>               Assisted Run</fg>"
+msgstr "<fgFF80C0FF>    辅助模式成绩</fg>"
+
 #. file controls.opy, rule "Load Freemode HUD"
 msgid "Freemode On"
 msgstr "自由模式已开启"
@@ -152,6 +156,10 @@ msgstr "@0准星所指玩家：           @1@2 + @3</fg>@4"
 #. file controls.opy, rule "Load HUD"
 msgid "Freecam:                             <fgFFFFFFFF>Move</fg>"
 msgstr "自由视角：                                        <fgFFFFFFFF>移动</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "@0Assist Mode:               @1@2 + @3 (Hold)</fg>"
+msgstr "@0辅助模式：                           @1@2 + @3 (长按)</fg>"
 
 #. file faq.opy, rule "Load HUD"
 msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
@@ -306,6 +314,10 @@ msgstr "大厅前三名"
 #. file run.opy, rule "Load HUD"
 msgid "Disqualified"
 msgstr "已取消资格"
+
+#. file run.opy, rule "Load HUD"
+msgid "Assist Mode"
+msgstr "辅助模式"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"
