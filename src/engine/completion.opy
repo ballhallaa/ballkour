@@ -84,7 +84,8 @@ rule "Final Checkpoint Reached":
     if not eventPlayer.isRunPaused:
         stopChasingVariable(eventPlayer.runTime)
         eventPlayer.isRunPaused = true
-        # Lobby Stats and the Lobby Top 3 are for the regular leaderboard's runs
+        # Lobby Stats are for the regular leaderboard's runs. Assisted runs have a Lobby Top 3
+        # of their own (Record Top Run).
         if eventPlayer.isRunLegit and not eventPlayer.isRunAssisted:
             if isLobbyStatsOn:
                 updateStats()
@@ -94,40 +95,51 @@ rule "Final Checkpoint Reached":
         eventPlayer.runFinalTimeFormatted = eventPlayer.runTimeFormatted
         eventPlayer.runFinalMistakes = eventPlayer.runMistakes
         eventPlayer.isViewingRunCompletionText = true
-        if eventPlayer.isRunLegit and not eventPlayer.isRunAssisted:
+        if eventPlayer.isRunLegit:
             recordTopRun()
     eventPlayer.isInFreemode = true
     eventPlayer.nameplate = _("{} | FREEMODE").format(eventPlayer)
 
 
+# Which Lobby Top 3 a finished run goes in: 1 for the assisted one, for runs played in Assist
+# Mode, or 0 (topRuns)
+macro topRunsOf(player):
+    (1 if player.isRunAssisted else 0)
+
+
 def recordTopRun():
     @Name "Record Top Run"
 
-    # topRuns[i]: [0]time [1]name [2]mistakes [3]timeFormatted
+    # topRuns[0] and topRuns[1] list runs as [0]time [1]name [2]mistakes [3]timeFormatted
     # By name, so a run stays listed after its player leaves, and one player can only hold one spot
-    topRunsScratch = topRuns.filter(lambda run: run[1] == "{}".format(eventPlayer))
+    topRunsScratch = topRuns[topRunsOf(eventPlayer)].filter(
+        lambda run: run[1] == "{}".format(eventPlayer)
+    )
     if len(topRunsScratch) > 0 and topRunsScratch[0][0] <= eventPlayer.runTime:
         return
-    topRunsScratch = topRuns.filter(lambda run: run[1] != "{}".format(eventPlayer))
+    topRunsScratch = topRuns[topRunsOf(eventPlayer)].filter(
+        lambda run: run[1] != "{}".format(eventPlayer)
+    )
     topRunsScratch[len(topRunsScratch)] = [
         eventPlayer.runTime,
         "{}".format(eventPlayer),
         eventPlayer.runFinalMistakes,
         eventPlayer.runFinalTimeFormatted
     ]
-    topRuns = sorted(topRunsScratch, lambda run: run[0]).slice(0, 3)
-    topRunsText = ""
+    topRunsScratch = sorted(topRunsScratch, lambda run: run[0]).slice(0, 3)
+    topRuns[topRunsOf(eventPlayer)] = topRunsScratch
+    topRunsText[topRunsOf(eventPlayer)] = ""
     # Padded like the scorecard's columns, but for 2-digit mistakes, and times of 7+ characters
-    for index in range(len(topRuns)):
-        topRunsText = "{}\n{}{}   {}{}{}{}{}</fg>".format(
-            topRunsText,
+    for index in range(len(topRunsScratch)):
+        topRunsText[topRunsOf(eventPlayer)] = "{}\n{}{}   {}{}{}{}{}</fg>".format(
+            topRunsText[topRunsOf(eventPlayer)],
             ["<fgFFFF00FF>", "<fgB0C4DEFF>", "<fgC46A30FF>"][index],
             index + 1,
-            topRuns[index][3],
-            "     " if strLen(topRuns[index][3]) < 8 else "   ",
-            topRuns[index][2],
-            "     " if topRuns[index][2] < 10 else "   ",
-            topRuns[index][1]
+            topRunsScratch[index][3],
+            "     " if strLen(topRunsScratch[index][3]) < 8 else "   ",
+            topRunsScratch[index][2],
+            "     " if topRunsScratch[index][2] < 10 else "   ",
+            topRunsScratch[index][1]
         )
 
 

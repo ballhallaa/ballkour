@@ -235,6 +235,14 @@ msgstr "返回"
 msgid "Click on a Run to View More Info"
 msgstr "點擊紀錄查看詳情"
 
+#. file lobby.opy, rule "Load Leaderboard"
+msgid "Unassisted"
+msgstr "無輔助"
+
+#. file lobby.opy, rule "Load Leaderboard"
+msgid "Assisted"
+msgstr "輔助"
+
 #. file lobby.opy, rule "Show HUD Page"
 msgid "Scores"
 msgstr "成績"
@@ -316,8 +324,12 @@ msgid "Disqualified"
 msgstr "已取消資格"
 
 #. file run.opy, rule "Load HUD"
-msgid "Assist Mode"
-msgstr "輔助模式"
+msgid "Assist Mode On"
+msgstr "輔助模式已開啟"
+
+#. file run.opy, rule "Load HUD"
+msgid "Assisted Top 3"
+msgstr "輔助前三名"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"

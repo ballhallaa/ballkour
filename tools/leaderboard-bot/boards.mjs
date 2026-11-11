@@ -54,15 +54,18 @@ export const toSeconds = (t) => t.split(":").reduce((sum, part) => sum * 60 + Nu
 const byTime = (a, b) => toSeconds(a.time) - toSeconds(b.time) || a.mistakes - b.mistakes;
 
 // lb[i] = "NAME, M:SS.cc, MISTAKES, '...'"  # discord: ID
-// and lbRunInfo(rank, "YYYY-MM-DD", "host/path"), the same as the website reads
-export function parseOpy(text) {
-  if (!/\blb\s*=\s*\[\s*\]/.test(text)) return null; // file layout changed: don't guess
+// and lbRunInfo(rank, "YYYY-MM-DD", "host/path"), the same as the website reads. With board "assistedLb", the
+// in-game assisted top 10 instead (assistedLb[i] and assistedLbRunInfo), which only game-boards.mjs reads: the
+// assisted boards are made from runs.json alone.
+export function parseOpy(text, board = "lb") {
+  const at = `(?<![A-Za-z0-9_])${board}`;
+  if (!new RegExp(`${at}\\s*=\\s*\\[\\s*\\]`).test(text)) return null; // file layout changed: don't guess
   const rows = [];
-  for (const m of text.matchAll(/lb\[(\d+)\]\s*=\s*"([^"]*)"(?:[ \t]*#[ \t]*discord:[ \t]*(\d{17,20})\b)?/g)) {
+  for (const m of text.matchAll(new RegExp(`${at}\\[(\\d+)\\]\\s*=\\s*"([^"]*)"(?:[ \\t]*#[ \\t]*discord:[ \\t]*(\\d{17,20})\\b)?`, "g"))) {
     const [name, time, miss] = m[2].split(",").map((s) => s.trim());
     if (name && TIME.test(time) && /^\d+$/.test(miss)) rows[Number(m[1])] = { name, discord: m[3] || "", time, mistakes: Number(miss), date: "", video: "" };
   }
-  for (const m of text.matchAll(/lbRunInfo\(\s*(\d+)\s*,\s*"([^"]*)"\s*,\s*"([^"]*)"\s*\)/g)) {
+  for (const m of text.matchAll(new RegExp(`${at}RunInfo\\(\\s*(\\d+)\\s*,\\s*"([^"]*)"\\s*,\\s*"([^"]*)"\\s*\\)`, "g"))) {
     const r = rows[Number(m[1])];
     if (!r) continue;
     r.date = isoDate(m[2]);

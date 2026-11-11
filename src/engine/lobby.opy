@@ -22,6 +22,14 @@ macro TITLE_ANGLE = -71.5
 macro ROW_ANGLE = -67.3
 macro ROW_SPACING = 3
 macro LOOK_ANGLE = ROW_ANGLE + ROW_SPACING * 4
+# The leaderboard's tabs, for its regular and assisted runs, take its first row's spot, and
+# its rows start a row lower. Each tab is a text at the page's middle like the rows, so they
+# stay lined up wherever a player looks (texts at other spots shift against them), pushed to
+# its side by LB_TAB_PAD's spaces, which put its label about 115 px from the middle at 1080p.
+# The soft hyphen at the pad's far end keeps its spaces from being dropped.
+macro TAB_ANGLE = ROW_ANGLE
+macro LB_ANGLE = ROW_ANGLE + ROW_SPACING
+macro LB_TAB_PAD = "                                          "
 # The languages, in a column this many degrees to the right of the leaderboard as seen
 # from LOOK_ANGLE, a row every LANGUAGE_SPACING from ROW_ANGLE down
 macro LANGUAGE_ACROSS = 30
@@ -296,8 +304,26 @@ macro isAimingAtBack(player):
     )
 
 
+# The leaderboard's row a player is looking at, on the leaderboard they picked (lbBoard),
+# which has no rows to pick without runs
 macro lbAimRow(player):
-    lobbyAimRow(player, ROW_ANGLE, ROW_SPACING, lbRunCount, 0, ROW_WIDTH)
+    lobbyAimRow(
+        player,
+        LB_ANGLE,
+        ROW_SPACING,
+        max(0, assistedRunCount if player.lbBoard else lbRunCount),
+        0,
+        ROW_WIDTH
+    )
+
+
+# Whether a player is looking at the leaderboard's tab on a side (-1 left, 1 right): the half
+# of its first row's spot on that side
+macro isAimingAtTab(player, side):
+    (
+        abs(pageAngle(player) - TAB_ANGLE) <= ROW_SPACING / 2
+        and abs(pageAcross(player) - side * ROW_WIDTH / 2) <= ROW_WIDTH / 2
+    )
 
 
 # The languages' column, which is upright as seen from LOOK_ANGLE (languageAt)
@@ -522,23 +548,34 @@ rule "Load Leaderboard":
         WorldTextReeval.VISIBILITY_AND_STRING,
         rgb(230, 151, 0)
     )
+    # lbPos[i]: [0] where the rows' arrows wait (below), [1] to [10] the rows, [11] the tabs
     lbPos = []
     for index in range(1, 11):
-        lbPos[index] = lobbyAt(ROW_ANGLE + ROW_SPACING * (index - 1))
-    # lb[0] is unused, so this is -1 without runs
+        lbPos[index] = lobbyAt(LB_ANGLE + ROW_SPACING * (index - 1))
+    lbPos[11] = lobbyAt(TAB_ANGLE)
+    # lb[0] and assistedLb[0] are unused, so these are -1 without runs
     lbRunCount = len(lb) - 1
-    lbRunText = []
-    allTimeRunsText = ""
-    # 1st-9th Position Placeholder"
-    lb[11] = "---, -:--.--, -, '                                               '"
-    # 10th Position Placeholder"
-    lb[12] = "---, -:--.--, -, '                                              '"
+    assistedRunCount = len(assistedLb) - 1
+    # The assisted leaderboard's runs follow the regular one's, from lb[11], so both are laid
+    # out in one go, and lbRowText and lbRunText keep them the same way
     for index in range(1, 11):
+        lb[10 + index] = assistedLb[index]
+    lbRowText = []
+    lbRunText = []
+    for index in range(1, 21):
+        # The row's place on its own leaderboard
+        lbRank = (index - 1) % 10 + 1
+        # Rows without a run have a placeholder, as wide as a run's, a space narrower for
+        # the 10th's 2-digit rank
         if lb[index] == null:
-            if index <= 9:
-                lbObj = lb[11]
+            if lbRank <= 9:
+                lbObj = (
+                    "---, -:--.--, -, '                                               '"
+                )
             else:
-                lbObj = lb[12]
+                lbObj = (
+                    "---, -:--.--, -, '                                              '"
+                )
         else:
             lbObj = lb[index]
         # lbObj[i]: [0]name [1]time [2]mistakes [3]alignmentSeparator [4]rankColor
@@ -546,10 +583,10 @@ rule "Load Leaderboard":
         lbObj[3] = lbObj[3].replace("'", "")
         # Gold, silver and bronze, then the rest
         lbObj[4] = ["<fgFFFF00FF>", "<fgB0C4DEFF>", "<fgC46A30FF>", "<fgFFFFFFFF>"][
-            min(index, 4) - 1
+            min(lbRank, 4) - 1
         ]
-        lbObjFormatted = "{}. {}{}</fg>{}{}{}{}   {}{}</fg>".format(
-            index,
+        lbRowText[index] = "{}. {}{}</fg>{}{}{}{}   {}{}</fg>".format(
+            lbRank,
             lbObj[4],
             lbObj[0],
             lbObj[3],
@@ -561,7 +598,7 @@ rule "Load Leaderboard":
         )
         # The row without its alignment, for the run info (lbRunInfo)
         lbRunText[index] = "{}. {}{}</fg>   {}{}{}   {}{}</fg>".format(
-            index,
+            lbRank,
             lbObj[4],
             lbObj[0],
             iconString(Icon.BOLT),
@@ -570,30 +607,78 @@ rule "Load Leaderboard":
             iconString(Icon.SKULL),
             lbObj[2]
         )
+        # Each leaderboard's first 3 runs are also its Top 3 on the HUD: the All-Time Top 3,
+        # or the assisted one's in Assist Mode (Run: Load HUD), laid out like the Lobby Top 3
+        # (Completion: Record Top Run)
+        if lbRank <= min(lbRunCount if index <= 10 else assistedRunCount, 3):
+            lbObj[1] = lbObj[1].replace(" ", "")
+            lbObj[2] = lbObj[2].replace(" ", "")
+            allTimeRunsText[floor((index - 1) / 10)] = (
+                "{}\n{}{}   {}{}{}{}{}</fg>".format(
+                    allTimeRunsText[floor((index - 1) / 10)],
+                    lbObj[4],
+                    lbRank,
+                    lbObj[1],
+                    "     " if strLen(lbObj[1]) < 8 else "   ",
+                    lbObj[2],
+                    "     " if strLen(lbObj[2]) < 2 else "   ",
+                    lbObj[0]
+                )
+            )
+    # The rows, which show the runs of the leaderboard each player picked (lbBoard)
+    for index in range(1, 11):
         createInWorldText(
             getAllPlayers().filter(lambda localPlayer: localPlayer.lobbyPage == 1),
-            lbObjFormatted,
+            lbRowText[evalOnce(index) + localPlayer.lbBoard],
             lbPos[index],
             ROW_SIZE,
             Clip.NONE,
-            WorldTextReeval.VISIBILITY,
+            WorldTextReeval.VISIBILITY_AND_STRING,
             rgb(230, 151, 0)
         )
-        # The first 3 runs are also the All-Time Top 3 (Run's Load HUD), laid out like the
-        # Lobby Top 3 (Record Top Run)
-        if index <= allTimeRuns:
-            lbObj[1] = lbObj[1].replace(" ", "")
-            lbObj[2] = lbObj[2].replace(" ", "")
-            allTimeRunsText = "{}\n{}{}   {}{}{}{}{}</fg>".format(
-                allTimeRunsText,
-                lbObj[4],
-                index,
-                lbObj[1],
-                "     " if strLen(lbObj[1]) < 8 else "   ",
-                lbObj[2],
-                "     " if strLen(lbObj[2]) < 2 else "   ",
-                lbObj[0]
+    # The tabs that pick it (Select Input). The picked one is green, like the language a
+    # player is reading, and the other orange, like the other languages, and either gets the
+    # buttons' arrows while it's looked at. The arrows don't move its label, as they sit on
+    # both sides of it, inside its pad.
+    # On the HUD page, the first is its ballkour.com row, at the top like on the HUD: texts are
+    # capped at 128 per server (Load Buttons).
+    lobbyHudText[13] = _("Unassisted")
+    lobbyHudText[14] = _("Assisted")
+    createInWorldText(
+        getAllPlayers().filter(lambda localPlayer: isLobbyPageShown(localPlayer)),
+        (
+            lobbyButton("ballkour.com", isAimingAtHudSite(localPlayer))
+            if isHudPage(localPlayer)
+            else "{}{}­".format(
+                lobbyButton(_(lobbyHudText[13]), isAimingAtTab(localPlayer, -1)),
+                LB_TAB_PAD
             )
+        ),
+        lobbyAt(TITLE_ANGLE) if isHudPage(localPlayer) else lbPos[11],
+        ROW_SIZE,
+        Clip.NONE,
+        WorldTextReeval.VISIBILITY_POSITION_STRING_AND_COLOR,
+        (
+            (
+                rgb(128, 128, 128)
+                if localPlayer.hudHidden[HUD_SITE]
+                else rgb(0, 224, 146)
+            )
+            if isHudPage(localPlayer)
+            else (rgb(230, 151, 0) if localPlayer.lbBoard else rgb(0, 224, 146))
+        )
+    )
+    createInWorldText(
+        getAllPlayers().filter(lambda localPlayer: localPlayer.lobbyPage == 1),
+        "­{}{}".format(
+            LB_TAB_PAD, lobbyButton(_(lobbyHudText[14]), isAimingAtTab(localPlayer, 1))
+        ),
+        lbPos[11],
+        ROW_SIZE,
+        Clip.NONE,
+        WorldTextReeval.VISIBILITY_STRING_AND_COLOR,
+        rgb(0, 224, 146) if localPlayer.lbBoard else rgb(230, 151, 0)
+    )
     # Lobby Stats' way back to the buttons and leaderboard, only made where Lobby Stats is,
     # as every text counts toward the cap (Load Buttons). The HUD page's Back uses its label.
     lobbyHudText[4] = _("Back")
@@ -607,12 +692,12 @@ rule "Load Leaderboard":
             WorldTextReeval.VISIBILITY_AND_STRING,
             rgb(0, 224, 146)
         )
-    # The rows are made, and lbRunText keeps what the run info needs
+    # The rows are made, and lbRowText and lbRunText keep what they need
     lb = null
+    assistedLb = null
     lbObj = null
-    lbObjFormatted = null
-    # Courses without runs have no run info
-    if lbRunCount <= 0:
+    # Courses without runs on either leaderboard have no run info
+    if lbRunCount <= 0 and assistedRunCount <= 0:
         return
     # Arrows on either side of the row the player is looking at, so they can see which run
     # Interact opens. The 86 spaces between them clear the widest row. Only its position
@@ -646,11 +731,15 @@ rule "Load Leaderboard":
     ]
     # Shown under an open run's info (lbRunInfo)
     lobbyHudText[1] = _("Close: <fgFFFFFFFF>@0</fg>")
+    # Under the rows, while the picked leaderboard has runs to click on
     lobbyHudText[5] = _("Click on a Run to View More Info")
     createInWorldText(
-        getAllPlayers().filter(lambda localPlayer: localPlayer.lobbyPage == 1),
+        getAllPlayers().filter(
+            lambda localPlayer: localPlayer.lobbyPage == 1
+            and (assistedRunCount if localPlayer.lbBoard else lbRunCount) > 0
+        ),
         _(lobbyHudText[5]),
-        lobbyAt(ROW_ANGLE + ROW_SPACING * 10),
+        lobbyAt(LB_ANGLE + ROW_SPACING * 10),
         HINT_SIZE,
         Clip.NONE,
         WorldTextReeval.VISIBILITY_AND_STRING,
@@ -813,7 +902,15 @@ rule "Load Languages":
         .replace("\n", "")
         .replace("@0", hudPageValue(HUD_PACE, localPlayer.paceEtaFormatted))
     )
-    languageRow(13, HUD_ALL_TIME_TOP, _(allTimeRunsHudText))
+    languageRow(
+        13,
+        HUD_ALL_TIME_TOP,
+        (
+            _(assistedRunsHudText)
+            if assistedTopOf(localPlayer)
+            else _(allTimeRunsHudText)
+        )
+    )
     languageRow(14, HUD_LOBBY_TOP, _(topRunsHudText))
     # The HUD page's rows differ in width, so its arrows clear its widest
     createInWorldText(
@@ -1006,16 +1103,10 @@ rule "Show HUD Page":
     # Its texts only exist while someone's on it, as every text's definition adds to the
     # server's load, like an open run's info (lbRunInfo). The HUD itself shows around the
     # page (isCourseHudShown), lines that only show sometimes too, so turning a row off shows
-    # what goes and what moves up. Its own texts are all made in one tick (14 of them), as
-    # the main page's texts it borrows wait for them (isLobbyPageShown).
+    # what goes and what moves up. Its own texts are all made in one tick (13 of them), as
+    # the main page's texts it borrows wait for them (isLobbyPageShown). Its ballkour.com row
+    # is the leaderboard's first tab (Load Leaderboard).
     hudPageTexts = []
-    # ballkour.com, at the top like on the HUD, with the buttons' arrows, as there's one of it
-    hudPageRow(
-        HUD_SITE,
-        lobbyButton("ballkour.com", isAimingAtHudSite(localPlayer)),
-        lobbyAt(TITLE_ANGLE),
-        rgb(0, 224, 146)
-    )
     # The left column
     hudPageRow(
         HUD_CONTROLS,
@@ -1079,8 +1170,17 @@ rule "Show HUD Page":
         rgb(255, 70, 70)
     )
     hudPageTexts.append(getLastCreatedText())
+    # Assist Mode On turns off with Freemode On (Run: isDisqualifiedShown), so it's listed with
+    # it, in its pink, which turns gray with the rest of the row while it's off
     hudPageRow(
-        HUD_FREEMODE, _(freemodeHudText), hudLeftPos[HUD_FREEMODE], rgb(203, 135, 255)
+        HUD_FREEMODE,
+        "{} / {}{}</fg>".format(
+            _(freemodeHudText),
+            ("<fg808080FF>" if localPlayer.hudHidden[HUD_FREEMODE] else "<fgFF80C0FF>"),
+            _(counterHudText[4]).replace("\n", "")
+        ),
+        hudLeftPos[HUD_FREEMODE],
+        rgb(203, 135, 255)
     )
     hudPageRow(
         HUD_SPECTATORS,
@@ -1219,14 +1319,33 @@ rule "Select Input":
             eventPlayer.lobbyAim = langAimRow(eventPlayer)
             if eventPlayer.lobbyAim > 0:
                 eventPlayer.__languageIndex__ = eventPlayer.lobbyAim - 1
-            elif lbRunCount > 0:
-                eventPlayer.lobbyAim = lbAimRow(eventPlayer)
-                # Looking at the open run again hides it, like looking away from the runs
-                if eventPlayer.lobbyAim == eventPlayer.lbInfoRow:
+            else:
+                # A tab picks its leaderboard (lbBoard): 0 for the regular one's on the left,
+                # 10 for the assisted one's on the right. Picking the other closes its open run.
+                if isAimingAtTab(eventPlayer, -1):
                     eventPlayer.lobbyAim = 0
-                if eventPlayer.lobbyAim != eventPlayer.lbInfoRow:
-                    eventPlayer.lbInfoRow = eventPlayer.lobbyAim
-                    showRunInfo()
+                elif isAimingAtTab(eventPlayer, 1):
+                    eventPlayer.lobbyAim = 10
+                else:
+                    eventPlayer.lobbyAim = -1
+                if eventPlayer.lobbyAim >= 0:
+                    if eventPlayer.lobbyAim != eventPlayer.lbBoard:
+                        eventPlayer.lbBoard = eventPlayer.lobbyAim
+                        if eventPlayer.lbInfoRow != 0:
+                            eventPlayer.lbInfoRow = 0
+                            showRunInfo()
+                elif lbRunCount > 0 or assistedRunCount > 0:
+                    # A row's run, on the picked leaderboard: lbInfoRow 1 to 10 for the
+                    # regular one's, 11 to 20 for the assisted one's (lbRunText)
+                    eventPlayer.lobbyAim = lbAimRow(eventPlayer)
+                    if eventPlayer.lobbyAim > 0:
+                        eventPlayer.lobbyAim += eventPlayer.lbBoard
+                    # Looking at the open run again hides it, like looking away from the runs
+                    if eventPlayer.lobbyAim == eventPlayer.lbInfoRow:
+                        eventPlayer.lobbyAim = 0
+                    if eventPlayer.lobbyAim != eventPlayer.lbInfoRow:
+                        eventPlayer.lbInfoRow = eventPlayer.lobbyAim
+                        showRunInfo()
     elif isHudPage(eventPlayer):
         eventPlayer.lobbyAim = buttonAimRow(eventPlayer)
         if eventPlayer.lobbyAim == 1:

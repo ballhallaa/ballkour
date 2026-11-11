@@ -235,6 +235,14 @@ msgstr "돌아가기"
 msgid "Click on a Run to View More Info"
 msgstr "기록을 클릭해 자세히 보기"
 
+#. file lobby.opy, rule "Load Leaderboard"
+msgid "Unassisted"
+msgstr "어시스트 없음"
+
+#. file lobby.opy, rule "Load Leaderboard"
+msgid "Assisted"
+msgstr "어시스트"
+
 #. file lobby.opy, rule "Show HUD Page"
 msgid "Scores"
 msgstr "점수"
@@ -316,8 +324,12 @@ msgid "Disqualified"
 msgstr "실격"
 
 #. file run.opy, rule "Load HUD"
-msgid "Assist Mode"
-msgstr "어시스트 모드"
+msgid "Assist Mode On"
+msgstr "어시스트 모드 켜짐"
+
+#. file run.opy, rule "Load HUD"
+msgid "Assisted Top 3"
+msgstr "어시스트 TOP 3"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"
