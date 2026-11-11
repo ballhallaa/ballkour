@@ -27,9 +27,10 @@ function fontFaces(fonts) {
  * runs: [{ name, time, mistakes, date }] (up to 10), fresh: Set of the runs that are new,
  * people: Map of run → { name, avatar } from Discord, ratings: Map of run → its player's rating over every course,
  * logo: data URI or "",
- * legacy: true for the board from before May 2026, whose times have no hundredths ("4:30.--")
+ * legacy: true for the board from before May 2026, whose times have no hundredths ("4:30.--"),
+ * assisted: true for a course's assisted board (runs played in Assist Mode), whose ratings are the assisted rating
  */
-export function cardHtml({ course, board, date, runs, fresh, people, ratings = new Map(), logo, fonts, legacy = false }) {
+export function cardHtml({ course, board, date, runs, fresh, people, ratings = new Map(), logo, fonts, legacy = false, assisted = false }) {
   // A legacy time's missing hundredths are dimmed, as on the website
   const timeHtml = (t) => {
     const m = /^(.*?)(\.--)$/.exec(t);
@@ -60,7 +61,8 @@ export function cardHtml({ course, board, date, runs, fresh, people, ratings = n
   // no remaker.
   const line = (parts) => parts.filter(Boolean).map((s) => `<span>${s}</span>`).join("<span>·</span>");
   const field = (label, value) => (value ? `${label} <b>${esc(value)}</b>` : "");
-  const sub = legacy ? line(["Legacy top 10", "Before May 2026"]) : line(["Top 10", date, board ? `Board ${board}` : ""]);
+  const sub = legacy ? line(["Legacy top 10", "Before May 2026"])
+    : line([assisted ? "Assisted top 10" : "Top 10", date, board ? `Board ${board}` : ""]);
   const credits = line([field("Code", legacy ? course.legacyCode : course.code), field("Creator", course.by),
     legacy ? "" : field("Remaker", course.remaker)]);
 
@@ -68,7 +70,7 @@ export function cardHtml({ course, board, date, runs, fresh, people, ratings = n
 ${fontFaces(fonts)}
 :root {
   --void: #030605; --ink: #ecf6f2; --ink-2: #a7b6b0; --ink-3: #76867f; --line: rgba(196,255,232,.11);
-  --volt: #00e697; --coral: #ff6a4f; --gold: #ffd54f; --silver: #d3dde2; --bronze: #e8a066; --discord: #b9befc;
+  --volt: #00e697; --coral: #ff6a4f; --gold: #ffd54f; --silver: #d3dde2; --bronze: #e8a066; --discord: #b9befc; --pink: #ff80c0;
   --display: "Barlow Condensed", "TeX Gyre Heros Cn", "Arial Narrow", sans-serif;
   --body: "Barlow", "Inter", "Noto Sans", sans-serif;
   --mono: "JetBrains Mono", "DejaVu Sans Mono", monospace;
@@ -84,6 +86,9 @@ body { margin: 0; background: var(--void); }
 .title { margin: 0; display: flex; align-items: center; gap: 16px; font: italic 800 54px/0.9 var(--display), var(--cjk); text-transform: uppercase; letter-spacing: .005em;
   text-shadow: .035em 0 0 rgba(255,154,46,.8), -.035em 0 0 rgba(51,198,255,.75), 0 0 .45em rgba(0,230,151,.3); }
 .flag { font: 400 40px/1 var(--emoji); text-shadow: none; }
+/* After an assisted board's course name: its runs were played in Assist Mode, in the game's own pink for it */
+.mode { flex: none; padding: 8px 12px 7px; border-radius: 8px; font: normal 700 17px/1 var(--mono); letter-spacing: .14em; color: var(--pink);
+  background: rgba(255,128,192,.12); border: 1px solid rgba(255,128,192,.5); text-shadow: none; }
 .sub { margin-top: 12px; display: flex; gap: 10px; font: 600 15px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
 .sub b { color: var(--ink-2); font-weight: 600; }
 .sub + .sub { margin-top: 9px; }
@@ -133,7 +138,7 @@ ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
   <canvas id="warp"></canvas>
   <div class="head">
     <div>
-      <h1 class="title"><span class="flag">${course.flag || ""}</span>${esc(course.name)}</h1>
+      <h1 class="title"><span class="flag">${course.flag || ""}</span>${esc(course.name)}${assisted ? `<span class="mode">Assisted</span>` : ""}</h1>
       <div class="sub">${sub}</div>
       ${credits ? `<div class="sub">${credits}</div>` : ""}
     </div>
@@ -143,7 +148,7 @@ ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
     <ol>${slots.slice(0, 5).map((r, i) => row(r, i)).join("")}</ol>
     <ol>${slots.slice(5, 10).map((r, i) => row(r, i + 5)).join("")}</ol>
   </div>
-  <div class="foot"><span>Course <b>${course.n}</b></span><span class="url">ballkour.com/leaderboards/${course.n}${legacy ? "/legacy" : ""}</span>` +
+  <div class="foot"><span>Course <b>${course.n}</b></span><span class="url">ballkour.com/leaderboards/${course.n}${legacy ? "/legacy" : assisted ? "/assisted" : ""}</span>` +
     (legacy ? `<span class="note">Videos weren’t required</span>`
       : runs.length ? `<span class="note">Dates: <b>YYYY-MM-DD (UTC)</b></span>`
       : course.broken ? `<span class="note broken">Broken</span>`
