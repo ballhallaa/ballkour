@@ -34,10 +34,9 @@ export function readData(file) {
   return execFileSync("git", ["show", `origin/${DATA_BRANCH}:${file}`], { cwd: REPO, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
 }
 // The server, the Top 10 Run (Unassisted), Former Top 10 Run (Unassisted), Former Top 10 Rating (Global), Legacy
-// Top 10 Run, and ratings heading roles' IDs (roles.mjs gives them out), the channel the assisted boards of courses
-// without an assistedChannel of their own are posted to, and the courses
+// Top 10 Run, and ratings heading roles' IDs (roles.mjs gives them out), and the courses
 export const {
-  guild: GUILD, roles: ROLES = {}, assistedChannel: ASSISTED_CHANNEL = "", courses: COURSES,
+  guild: GUILD, roles: ROLES = {}, courses: COURSES,
 } = JSON.parse(fs.readFileSync(path.join(HERE, "courses.json"), "utf8"));
 
 export const TIME = /^(\d{1,2}:)?\d{1,2}:\d{2}\.\d{2}$/;
@@ -134,7 +133,9 @@ export function loadCourses({ assisted = false, legacy = false } = {}) {
   }
   const { runs, removed } = extraData(assisted);
   const posted = assisted ? ASSISTED : "boards";
-  return COURSES.map((course) => {
+  // Only the remakes (remaker in courses.json) have Assist Mode, as it's part of their Workshop script (src/engine), so
+  // only they have assisted boards, and the assisted rating is over them alone
+  return COURSES.filter((course) => !assisted || course.remaker).map((course) => {
     const text = assisted ? "" : courseText(course);
     const file = assisted ? [] : text === null ? null : course.file.endsWith(".opy") ? parseOpy(text) : jsonRuns(text);
     return {
