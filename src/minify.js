@@ -1,6 +1,7 @@
 // OverPy runs this on the compiled script (#!postCompileHook in ballkour.opy), as Overwatch freezes
 // while it reads a pasted script in. It only changes how the script is written, never an element:
-// no comments, indentation or rule names, and variables and subroutines get the shortest names.
+// no comments, indentation or rule names (but Source Code's), and variables and subroutines get the
+// shortest names.
 // Dev builds stay readable for the Workshop editor and Inspector.
 
 // One change to an element, in every build: OverPy gives __languageIndex__ (#!translateWithPlayerVar
@@ -11,6 +12,16 @@ content = content.replace(
     /\n\s*rule \("Initialize player variables"\) \{\s*event \{\s*Ongoing - Each Player;\s*All;\s*All;\s*\}\s*actions \{\s*Set Player Variable\(Event Player, __languageIndex__, 0\.1\);\s*\}\s*\}/,
     ""
 );
+
+// The Source Code rule (match.opy) goes first in every build, above OverPy's own rules, so its link
+// is the first thing in the script. A release build keeps its name too (below).
+var sourceCodeRule = /\nrule \("Source Code"\) \{\n[\s\S]*?\n\}\n/.exec(content);
+if (sourceCodeRule) {
+    content = content.replace(sourceCodeRule[0], "");
+    var firstRule = content.indexOf("\nrule (") + 1;
+    content =
+        content.slice(0, firstRule) + sourceCodeRule[0].slice(1) + "\n" + content.slice(firstRule);
+}
 
 // The version is in the description, as a dev version ends in -dev, before any +tag
 if (!/-dev(\+\S+)? \\n\\nLatest Code/.test(content)) {
@@ -72,7 +83,7 @@ if (!/-dev(\+\S+)? \\n\\nLatest Code/.test(content)) {
                 return line;
             }
             if (line.startsWith("rule (")) {
-                return 'rule ("") {';
+                return line === 'rule ("Source Code") {' ? line : 'rule ("") {';
             }
             return line.replace(STRING_OR_NAME, function (token) {
                 return shortNames.get(token) || token;
