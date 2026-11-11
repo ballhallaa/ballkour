@@ -190,7 +190,8 @@ rule "Load HUD":
     )
     faqHudText[3] = (
         "\n\n<fg80D0FFFF>How do I get on the leaderboard?</fg>"
-        "\nFinish a valid run and submit a video of it at ballkour.com."
+        "\nFinish a valid run and submit it at ballkour.com."
+        "\nOnly top 10 runs need a video, since a moderator checks those first."
         "\n<fgE69700FF>All-Time Top 3</fg> shows the leaderboard's 3 fastest runs."
         "\n<fgE69700FF>Lobby Top 3</fg> only lists the fastest valid runs finished in this lobby."
     )
