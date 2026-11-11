@@ -57,14 +57,6 @@ macro scorecardHasRows(player):
     len(scorecardPlayers.exclude(player)) > 0
 
 
-# Whether the Top 3s list assisted runs: while the viewed runner is in Assist Mode, the
-# assisted leaderboard's Top 3 takes the All-Time Top 3's place, and the Lobby Top 3 lists the
-# lobby's assisted runs. As an index of allTimeRunsText, topRuns and topRunsText: 1 for the
-# assisted ones, 0 for the rest.
-macro assistedTopOf(player):
-    (1 if player.viewRunner.isInAssistMode else 0)
-
-
 # Whether the scorecard and the Top 3s list rows: with players or runs to list, or on the
 # HUD page, which lists made-up ones (Lobby: Load HUD Page), unless they're turned off. The
 # All-Time Top 3 stays off in the lobby, where the leaderboard already lists those runs.
@@ -78,7 +70,7 @@ macro isScorecardShown(player):
 macro isAllTimeTopShown(player):
     (
         (
-            (assistedRunCount if assistedTopOf(player) else lbRunCount) > 0
+            (lbRunCount > 0 or assistedRunCount > 0)
             and not player.isInLobby
             or isHudPage(player)
         )
@@ -87,10 +79,7 @@ macro isAllTimeTopShown(player):
 
 
 macro isLobbyTopShown(player):
-    (
-        (len(topRuns[assistedTopOf(player)]) > 0 or isHudPage(player))
-        and isHudLineOn(player, HUD_LOBBY_TOP)
-    )
+    ((len(topRuns) > 0 or isHudPage(player)) and isHudLineOn(player, HUD_LOBBY_TOP))
 
 
 # The blank lines above the CP, time and mistakes: 2 under the counters, or 5 standing in
@@ -392,10 +381,9 @@ rule "Load HUD":
     # splits end without blank lines, so they bring 2; without the splits, Mistakes above
     # already ends in blank lines, and the CP while spectating ends in 1.
     # In the lobby, with nothing above it, the Lobby Top 3 starts at the top.
-    # In Assist Mode, the assisted leaderboard's Top 3 and the lobby's assisted runs, with
-    # their titles in pink (assistedTopOf).
+    # Both list the assisted leaderboard's runs and the lobby's assisted runs with the rest,
+    # marked with a pink *.
     allTimeRunsHudText = _("All-Time Top 3")
-    assistedRunsHudText = _("Assisted Top 3")
     topRunsHudText = _("Lobby Top 3")
     hudSubheader(
         getAllPlayers().filter(
@@ -414,16 +402,8 @@ rule "Load HUD":
             ),
             (
                 "{}{}".format(
-                    (
-                        "<fgFF80C0FF>{}</fg>".format(_(assistedRunsHudText))
-                        if assistedTopOf(localPlayer)
-                        else _(allTimeRunsHudText)
-                    ),
-                    (
-                        hudPageAllTimeText
-                        if isHudPage(localPlayer)
-                        else allTimeRunsText[assistedTopOf(localPlayer)]
-                    )
+                    _(allTimeRunsHudText),
+                    (hudPageAllTimeText if isHudPage(localPlayer) else allTimeRunsText)
                 )
                 if isAllTimeTopShown(localPlayer)
                 else ""
@@ -432,16 +412,8 @@ rule "Load HUD":
             (
                 "{}{}{}".format(
                     "\n\n" if isAllTimeTopShown(localPlayer) else "",
-                    (
-                        "<fgFF80C0FF>{}</fg>".format(_(topRunsHudText))
-                        if assistedTopOf(localPlayer)
-                        else _(topRunsHudText)
-                    ),
-                    (
-                        hudPageTopRunsText
-                        if isHudPage(localPlayer)
-                        else topRunsText[assistedTopOf(localPlayer)]
-                    )
+                    _(topRunsHudText),
+                    (hudPageTopRunsText if isHudPage(localPlayer) else topRunsText)
                 )
                 if isLobbyTopShown(localPlayer)
                 else ""

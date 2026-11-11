@@ -316,10 +316,6 @@ msgid "All-Time Top 3"
 msgstr "Top 3 de tous les temps"
 
 #. file run.opy, rule "Load HUD"
-msgid "Assisted Top 3"
-msgstr "Top 3 assisté"
-
-#. file run.opy, rule "Load HUD"
 msgid "Lobby Top 3"
 msgstr "Top 3 du lobby"
 
