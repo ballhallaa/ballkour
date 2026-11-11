@@ -18,13 +18,17 @@
 // The assisted boards (runs played in Assist Mode) have a rating of their own, worked out the same way from those
 // boards alone (loadCourses({ assisted: true }) in boards.mjs), and so do the legacy boards, from before May 2026
 // (loadCourses({ legacy: true })), whose times were only to the second ("4:30.--", read as 4:30.00).
+//
+// The Global rating adds each player's unassisted and assisted ratings together (combine), so it's worth up to 2,000,
+// and ranks and tiers the totals the same way. The Legacy rating stays out of it: its boards can't change any more.
 
 export const TIERS = [0.1, 1, 5, 10, 25, 50, 75, 90];
 // The Discord role for a tier: "Top 10%", or "Rated" for the bottom 10% (tier null), with its rating's suffix:
-// "Top 10% (Unassisted)", "Top 10% (Assisted)", "Rated (Legacy)"
+// "Top 10% (Unassisted)", "Top 10% (Assisted)", "Rated (Legacy)", "Top 1% (Global)"
 export const UNASSISTED_SUFFIX = " (Unassisted)";
 export const ASSISTED_SUFFIX = " (Assisted)";
 export const LEGACY_SUFFIX = " (Legacy)";
+export const GLOBAL_SUFFIX = " (Global)";
 export const roleName = (tier, suffix = "") => (tier === null ? "Rated" : `Top ${tier}%`) + suffix;
 
 const seconds = (t) => t.replace(/\.--$/, "").split(":").reduce((sum, part) => sum * 60 + Number(part), 0);
@@ -83,12 +87,35 @@ export function rate(courses) {
     const pts = Object.values(p.points);
     return { ...p, courses: pts.length, rating: pts.reduce((a, b) => a + b, 0) / (counted.length || 1) };
   });
+  return { counted, players: ranked(list) };
+}
+
+// Rated players, best first (then whoever has run more courses, then by name), each with their place and tier.
+// Players with the same rating share the better place.
+function ranked(list) {
   list.sort((a, b) => b.rating - a.rating || b.courses - a.courses || (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
-  // Players with the same rating share the better place
   const same = (a, b) => Math.round(a.rating * 100) === Math.round(b.rating * 100);
   list.forEach((p, i) => {
     p.rank = i > 0 && same(list[i - 1], p) ? list[i - 1].rank : i + 1;
     p.tier = TIERS.find((tier) => ((p.rank - 1) / list.length) * 100 <= tier + 1e-9) ?? null;
   });
-  return { counted, players: list };
+  return list;
+}
+
+// The Global rating: rate()'s results for the unassisted and the assisted boards, added up per player (courses: the
+// courses they've run either way). The website's ratings(then, "global") (index.html) and the Worker's combine()
+// (cloudflare/ratings.js in ballhallaa/ballkour.com) work it out the same way: keep them in step.
+// → { counted: [course numbers], players: [{ key, name, discord, rating, courses, rank, tier }] }
+export function combine(ratings) {
+  const players = new Map();
+  for (const p of ratings.flatMap((r) => r.players)) {
+    if (!players.has(p.key)) players.set(p.key, { key: p.key, name: p.name, discord: p.discord, date: p.date, rating: 0, ran: new Set() });
+    const g = players.get(p.key);
+    g.rating += p.rating;
+    for (const n of Object.keys(p.points)) g.ran.add(n);
+    // Named as on their newest run
+    if ((p.date || "") > g.date) { g.date = p.date; g.name = p.name; }
+  }
+  const counted = [...new Set(ratings.flatMap((r) => r.counted))].sort((a, b) => a - b);
+  return { counted, players: ranked([...players.values()].map(({ ran, ...p }) => ({ ...p, courses: ran.size }))) };
 }

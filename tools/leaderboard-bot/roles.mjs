@@ -7,7 +7,9 @@
 // The assisted boards (runs played in Assist Mode) have a rating of their own, with roles of their own, the same ones
 // with "(Assisted)" after them: Top 0.1% (Assisted) to Top 90% (Assisted), Rated (Assisted), and Unrated (Assisted)
 // for everyone else. Everyone has one of each set. And so do the legacy boards, from before May 2026: Top 0.1%
-// (Legacy) to Top 90% (Legacy) and Rated (Legacy), only for the players on them (there's no Unrated (Legacy)).
+// (Legacy) to Top 90% (Legacy) and Rated (Legacy), only for the players on them (there's no Unrated (Legacy)). And so
+// does the Global rating, the unassisted and assisted ratings added up: Top 0.1% (Global) to Top 90% (Global), Rated
+// (Global), and Unrated (Global), and Top 10 (Global) for its 10 best players.
 //
 // It also gives out Top 10 to anyone with a run on a course's top 10, and Former Top 10 once none of their runs is on
 // one any more (see "Top 10 and Former Top 10" below), the same with Top 10 (Assisted) and Former Top 10 (Assisted)
@@ -29,7 +31,7 @@
 // rating role now. Without the intent, it only checks the rated players, and nobody gets Unrated.
 import { GUILD, ROLES, HISTORY, DISCORD_ID, loadCourses, readData } from "./boards.mjs";
 import { TOKEN, api } from "./discord.mjs";
-import { TIERS, UNASSISTED_SUFFIX, ASSISTED_SUFFIX, LEGACY_SUFFIX, roleName, rate, standings, sameRun } from "./ratings.mjs";
+import { TIERS, UNASSISTED_SUFFIX, ASSISTED_SUFFIX, LEGACY_SUFFIX, GLOBAL_SUFFIX, roleName, rate, combine, standings, sameRun } from "./ratings.mjs";
 
 const DRY = !!process.env.DRY_RUN;
 
@@ -50,6 +52,8 @@ const ratings = [
   { suffix: ASSISTED_SUFFIX, what: "assisted ", unratedRole: true, courses: assistedCourses, ...rate(assistedCourses) },
   { suffix: LEGACY_SUFFIX, what: "legacy ", unratedRole: false, courses: legacyCourses, ...rate(legacyCourses) },
 ];
+// And the Global one, from the unassisted and assisted ones
+ratings.push({ suffix: GLOBAL_SUFFIX, what: "global ", unratedRole: true, ...combine(ratings.slice(0, 2)) });
 for (const { suffix, what, counted, players } of ratings) {
   console.log(`${what ? "\n" : ""}${players.length} ${what}rated players over ${counted.length} courses (${counted.join(", ")})`);
   for (const p of players) {
@@ -109,6 +113,13 @@ top10Sets.push({
   former: await roleNamed("Former Top 10" + ASSISTED_SUFFIX),
   courses: assistedCourses,
 });
+// Top 10 (Global): the Global rating's 10 best players (and anyone tied with #10), found by name too. It goes when they
+// drop out of them, with no Former one.
+const globalTop10 = {
+  name: "Top 10" + GLOBAL_SUFFIX,
+  role: await roleNamed("Top 10" + GLOBAL_SUFFIX),
+  now: new Set(ratings.at(-1).players.filter((p) => p.discord && p.rank <= 10).map((p) => p.discord)),
+};
 for (const set of top10Sets) {
   set.now = new Set();
   set.was = new Set();
@@ -162,8 +173,8 @@ try {
 }
 
 /* The ratings heading: an empty role whose name heads the rating roles on a member's profile (like "──── Ratings ────").
-   Everyone with a rating role has it: a Top % or Rated role, unassisted, assisted, or legacy, or Unrated (Unassisted) or Unrated
-   (Assisted), which everyone else gets, so that's every member but bots. Discord's onboarding can take it away when someone changes their Channels & Roles picks, so it's
+   Everyone with a rating role has it: a Top % or Rated role, unassisted, assisted, global, or legacy, or Unrated
+   (Unassisted), Unrated (Assisted) or Unrated (Global), which everyone else gets, so that's every member but bots. Discord's onboarding can take it away when someone changes their Channels & Roles picks, so it's
    given back on the next run (after a board is posted, and once a day). It used to be ball-bot's sticky role rule,
    which only knew the regular rating roles. */
 const heading = ROLES.ratingsHeading || "";
@@ -242,6 +253,24 @@ for (const set of top10Sets) {
         console.error(`Couldn't change ${who}'s roles. Ballkyrie's own role has to be above ${set.name} and ${former} too.\n  ${e.message}`);
       }
     }
+  }
+}
+/* Top 10 (Global) for the Global rating's top 10, and taken away from anyone else who has it */
+for (const m of members) {
+  const id = m.user.id;
+  const now = globalTop10.now.has(id);
+  if (m.user.bot || now === m.roles.includes(globalTop10.role)) continue;
+  const who = nameOf.get(id) || m.nick || m.user.global_name || m.user.username;
+  const [method, plan, done] = now ? ["PUT", "give", "Gave"] : ["DELETE", "take", "Took"];
+  const what = `${globalTop10.name} ${now ? "to" : "from"} ${who}`;
+  changes++;
+  if (DRY) { console.log(`Would ${plan} ${what}`); continue; }
+  try {
+    await api(method, `/guilds/${GUILD}/members/${id}/roles/${globalTop10.role}`);
+    console.log(`${done} ${what}`);
+  } catch (e) {
+    failed = true;
+    console.error(`Couldn't change ${who}'s roles. Ballkyrie's own role has to be above ${globalTop10.name} too.\n  ${e.message}`);
   }
 }
 /* Legacy Top 10 for a run on a legacy top 10. It's only ever given, never taken away, so one given by hand stays (and
