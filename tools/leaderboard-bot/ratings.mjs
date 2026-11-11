@@ -20,8 +20,9 @@
 // (loadCourses({ legacy: true })), whose times were only to the second ("4:30.--", read as 4:30.00).
 
 export const TIERS = [0.1, 1, 5, 10, 25, 50, 75, 90];
-// The Discord role for a tier: "Top 10%", or "Rated" for the bottom 10% (tier null), and with suffix, the assisted or
-// Legacy rating's: "Top 10% (Assisted)", "Rated (Legacy)"
+// The Discord role for a tier: "Top 10%", or "Rated" for the bottom 10% (tier null), with its rating's suffix:
+// "Top 10% (Unassisted)", "Top 10% (Assisted)", "Rated (Legacy)"
+export const UNASSISTED_SUFFIX = " (Unassisted)";
 export const ASSISTED_SUFFIX = " (Assisted)";
 export const LEGACY_SUFFIX = " (Legacy)";
 export const roleName = (tier, suffix = "") => (tier === null ? "Rated" : `Top ${tier}%`) + suffix;
