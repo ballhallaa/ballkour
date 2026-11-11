@@ -1,7 +1,7 @@
 #!include "../../VERSION"
 #!include "../../game-settings.opy"
 
-settings courseSettings(Blizzard World (Winter), GMWRF, 8Y14F, "blizzWorldWinter")
+settings courseSettings(2, Blizzard World (Winter), GMWRF, 8Y14F, "blizzWorldWinter")
 
 #!include "../../declarations.opy"
 
