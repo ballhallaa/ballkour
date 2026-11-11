@@ -44,10 +44,9 @@ if (unread.length) {
 const assistedCourses = loadCourses({ assisted: true });
 const legacyCourses = loadCourses({ legacy: true });
 // The three ratings, each with its own set of roles (suffix: what's after their names): the regular (unassisted) one,
-// the assisted one, and the Legacy one, which has no Unrated (unratedRole: false). The unassisted roles had no suffix
-// until November 2026 (formerSuffix): see roleNamed.
+// the assisted one, and the Legacy one, which has no Unrated (unratedRole: false)
 const ratings = [
-  { suffix: UNASSISTED_SUFFIX, formerSuffix: "", what: "", unratedRole: true, courses, ...rate(courses) },
+  { suffix: UNASSISTED_SUFFIX, what: "", unratedRole: true, courses, ...rate(courses) },
   { suffix: ASSISTED_SUFFIX, what: "assisted ", unratedRole: true, courses: assistedCourses, ...rate(assistedCourses) },
   { suffix: LEGACY_SUFFIX, what: "legacy ", unratedRole: false, courses: legacyCourses, ...rate(legacyCourses) },
 ];
@@ -68,17 +67,10 @@ const existing = await api("GET", `/guilds/${GUILD}/roles`);
 // A role's name without emojis or symbols around it: "🥇 Top 10%" is the Top 10% role. A name is compared after the
 // same is done to it, which also drops the closing ")" of "(Assisted)" from both.
 const bare = (s) => s.replace(/^[^\p{L}\p{N}]+|(?<=%|[\p{L}\p{N}])[^\p{L}\p{N}%]+$/gu, "");
-// The ID of the role with this name, which is made if there's none. A role not renamed yet for a new suffix (the
-// unassisted roles' "(Unassisted)") is found by its former name instead, so renaming it on Discord and changing the
-// name here can happen in either order without a new role being made. Once every role has its new name, formerName
-// can go.
-async function roleNamed(name, formerName) {
-  const found = existing.find((r) => bare(r.name) === bare(name))
-    || (formerName !== undefined && existing.find((r) => bare(r.name) === bare(formerName)));
-  if (found) {
-    if (bare(found.name) !== bare(name)) console.log(`Using the ${found.name.trim()} role as ${name} until it's renamed`);
-    return found.id;
-  }
+// The ID of the role with this name, which is made if there's none
+async function roleNamed(name) {
+  const found = existing.find((r) => bare(r.name) === bare(name));
+  if (found) return found.id;
   if (DRY) { console.log(`Would make the ${name} role`); return `new ${name}`; }
   try {
     const made = await api("POST", `/guilds/${GUILD}/roles`, { name, permissions: "0", hoist: false, mentionable: false });
@@ -93,9 +85,7 @@ const UNRATED = "unrated";
 const label = (key, suffix) => (key === UNRATED ? "Unrated" + suffix : roleName(key, suffix));
 for (const set of ratings) {
   set.roleOf = new Map(); // tier (null for Rated, UNRATED for everyone else) → role ID
-  for (const tier of [...TIERS, null, ...(set.unratedRole ? [UNRATED] : [])]) {
-    set.roleOf.set(tier, await roleNamed(label(tier, set.suffix), set.formerSuffix === undefined ? undefined : label(tier, set.formerSuffix)));
-  }
+  for (const tier of [...TIERS, null, ...(set.unratedRole ? [UNRATED] : [])]) set.roleOf.set(tier, await roleNamed(label(tier, set.suffix)));
   set.ids = new Set(set.roleOf.values());
   set.tierOfRole = new Map([...set.roleOf].map(([tier, id]) => [id, tier]));
   // The role each rated player with a Discord ID should have
