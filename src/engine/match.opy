@@ -1,14 +1,19 @@
 #!mainFile "../main.opy"
+#!rulePrefix ""
+
+
+# The first rule of the script (minify.js moves it above OverPy's own), with its name kept even
+# in a release build, so the link is the first thing someone reading the script sees. It logs
+# before Initialize turns the Inspector off.
+rule "Source Code":
+    logToInspector("ballkour.com/source-code")
+
+
 #!rulePrefix "Match"
 
 
 # The most Disruptive Environment Destructors spawned at once
 macro DED_BATCH_SIZE = 4
-
-
-# Logs before Initialize turns the Inspector off
-rule "Info":
-    logToInspector("Latest source code: ballkour.com/github")
 
 
 rule "Initialize":
@@ -18,7 +23,7 @@ rule "Initialize":
     if not isDebugOn and not isHintRecorderOn:
         disableInspector()
     else:
-        # Sets the Info rule's line apart from the debug logs that follow
+        # Sets the Source Code rule's line apart from the debug logs that follow
         logToInspector(
             "----------------------------------------------------------------------"
         )
