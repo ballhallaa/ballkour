@@ -63,7 +63,7 @@ jobs:
   post:
     # Pinned: ubuntu-latest is moving to Ubuntu 26, which this Playwright version's browser setup doesn't know yet
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 25 # room for the fonts and Chromium to retry through a mirror or GitHub outage
     # One run at a time, so two quick updates can't post the same board twice. On the job, not the workflow, so it
     # holds for runs called from the leaderboard-data branch too.
     concurrency:
@@ -90,14 +90,48 @@ jobs:
           node-version: 22
           package-manager-cache: false # the bot has no lockfile to cache by
 
-      - name: Install fonts for Chinese/Japanese names and flags
-        run: sudo apt-get update && sudo apt-get install -y fonts-noto-cjk fonts-noto-color-emoji
+      # The fonts the fonts-noto-cjk and fonts-noto-color-emoji packages install, downloaded from Noto's own releases
+      # and kept in the cache, so the runner's Ubuntu mirror being down can't stop the boards
+      - name: Restore the fonts for Chinese/Japanese names and flags
+        id: fonts
+        uses: actions/cache@v6
+        with:
+          path: ~/.local/share/fonts/noto
+          key: fonts-noto-cjk-Sans2.004-emoji-v2.051
+
+      - name: Download the fonts for Chinese/Japanese names and flags
+        if: steps.fonts.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/.local/share/fonts/noto
+          cd ~/.local/share/fonts/noto
+          # Keeps trying for up to 5 minutes, through GitHub hiccups too
+          get() { curl -fsSL --connect-timeout 10 --max-time 120 --retry 30 --retry-all-errors --retry-delay 10 --retry-max-time 300 -O "$1"; }
+          get https://github.com/notofonts/noto-cjk/raw/Sans2.004/Sans/OTC/NotoSansCJK-Regular.ttc
+          get https://github.com/notofonts/noto-cjk/raw/Sans2.004/Sans/OTC/NotoSansCJK-Bold.ttc
+          get https://github.com/googlefonts/noto-emoji/raw/v2.051/fonts/NotoColorEmoji.ttf
+          sha256sum -c <<'EOF'
+          b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a  NotoSansCJK-Regular.ttc
+          faa5f3656a78b2e2d450d27fe8382c778bc2b6bb5ea29c986664a6a435056ceb  NotoSansCJK-Bold.ttc
+          72a635cb3d2f3524c51620cdde406b217204e8a6a06c6a096ff8ed4b5fd6e27b  NotoColorEmoji.ttf
+          EOF
+
+      - name: Install the fonts
+        run: fc-cache -f && fc-list | grep -E "NotoSansCJK-(Regular|Bold)|NotoColorEmoji" | sort
 
       - name: Install the bot
         working-directory: tools/leaderboard-bot
         run: |
           npm install --no-audit --no-fund
-          npx playwright install --with-deps chromium
+          # Playwright apt-installs Chromium's system libraries, and the runner's Ubuntu mirror is sometimes unreachable
+          # for a few minutes, so keep trying for up to 10 minutes
+          until npx playwright install --with-deps chromium; do
+            if [ "$SECONDS" -ge 600 ]; then
+              echo "Couldn't install Chromium for 10 minutes, giving up"
+              exit 1
+            fi
+            echo "Couldn't install Chromium, trying again in 30 s"
+            sleep 30
+          done
 
       - name: Post changed leaderboards
         working-directory: tools/leaderboard-bot
