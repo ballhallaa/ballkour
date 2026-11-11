@@ -17,7 +17,9 @@
 // (Assisted) and Former Top 10 Run (Assisted) for the assisted boards, and Legacy Top 10 Run to anyone with a
 // run on a course's legacy top 10, from before May 2026 (see "Legacy Top 10 Run" below). And the ratings heading, the
 // empty role that heads the rating roles on a member's profile, to everyone with a rating role, Unrated (Unassisted)
-// and Unrated (Assisted) included, which is every member (see "The ratings heading" below).
+// and Unrated (Assisted) included, which is every member (see "The ratings heading" below). And the badges heading, the
+// empty role that heads the badges, to everyone with a Top 10 role or another badge, and nobody else (see "The badges
+// heading" below).
 //
 // Run by .github/workflows/leaderboard-bot.yml after the boards are posted, and once a day for people who joined the
 // server since. Settings come from the environment:
@@ -27,10 +29,11 @@
 // The rating roles, the assisted Top 10 roles and Top 10 Rating (Global) are found by name, so keep the words of their
 // names as they are. Emojis or symbols around them are fine ("🥇 Top 10%", "🌐 Top 10 Rating (Global)"), and so are their
 // color and place in the list. Any that are missing are made, with no permissions. The unassisted Top 10 roles, Former
-// Top 10 Rating (Global) and Legacy Top 10 Run are found by their IDs in courses.json instead, and so is the ratings
-// heading. The bot needs Manage Roles, its own role has to be above the rating roles in Server Settings → Roles, and it
-// needs the Server Members Intent (Developer Portal → Bot) to see who has a rating role now. Without the intent, it
-// only checks the rated players, and nobody gets Unrated.
+// Top 10 Rating (Global) and Legacy Top 10 Run are found by their IDs in courses.json instead, and so are the ratings
+// heading (ratingsHeading), the badges heading (badgesHeading), and the other badges (badges). The bot needs Manage
+// Roles, its own role has to be above the rating roles and the badges heading in Server Settings → Roles, and it needs
+// the Server Members Intent (Developer Portal → Bot) to see who has a rating role now. Without the intent, it only
+// checks the rated players, and nobody gets Unrated.
 import { GUILD, ROLES, HISTORY, DISCORD_ID, loadCourses, readData } from "./boards.mjs";
 import { TOKEN, api } from "./discord.mjs";
 import { TIERS, UNASSISTED_SUFFIX, ASSISTED_SUFFIX, LEGACY_SUFFIX, GLOBAL_SUFFIX, roleName, rate, combine, everGlobalTop10, standings, sameRun } from "./ratings.mjs";
@@ -187,13 +190,15 @@ try {
   }
 }
 
+// A heading's name for the log, without the blank characters that pad it out on the server ("𝗥𝗔𝗧𝗜𝗡𝗚⠀⠀⠀⠀" is 𝗥𝗔𝗧𝗜𝗡𝗚)
+const headingNamed = (id, fallback) => bare(((id && existing.find((r) => r.id === id)) || {}).name || "") || fallback;
 /* The ratings heading: an empty role whose name heads the rating roles on a member's profile (like "──── Ratings ────").
    Everyone with a rating role has it: a Top % or Rated role, unassisted, assisted, global, or legacy, or Unrated
    (Unassisted), Unrated (Assisted) or Unrated (Global), which everyone else gets, so that's every member but bots. Discord's onboarding can take it away when someone changes their Channels & Roles picks, so it's
    given back on the next run (after a board is posted, and once a day). It used to be ball-bot's sticky role rule,
    which only knew the regular rating roles. */
 const heading = ROLES.ratingsHeading || "";
-const headingName = (((heading && existing.find((r) => r.id === heading)) || {}).name || "the ratings heading").trim();
+const headingName = headingNamed(heading, "the ratings heading");
 let changes = 0, failed = false;
 for (const m of members) {
   const id = m.user.id;
@@ -286,6 +291,38 @@ if (ROLES.legacyTop10) {
     } catch (e) {
       failed = true;
       console.error(`Couldn't give ${who} Legacy Top 10 Run. Ballkyrie's own role has to be above Legacy Top 10 Run too.\n  ${e.message}`);
+    }
+  }
+}
+/* The badges heading: an empty role whose name heads the badges on a member's profile (badgesHeading in courses.json).
+   Everyone with a badge has it, and nobody else. The badges are the Top 10 roles (Top 10 Run or Former Top 10 Run,
+   unassisted or assisted, Top 10 Rating (Global) or Former Top 10 Rating (Global), and Legacy Top 10 Run), as they are
+   once this run is done, and the other roles listed in courses.json's badges (Helper, Bug Hunter, and the rest).
+   Someone who gets or loses one of those others gets or loses the heading on the next run (after a board is posted,
+   and once a day). */
+if (ROLES.badgesHeading) {
+  const name = headingNamed(ROLES.badgesHeading, "the badges heading");
+  const badges = ROLES.badges || [];
+  // Has a Top 10 role once this run is done: Top 10 Run (now), Former Top 10 Run, which anyone who's had Top 10 Run
+  // gets (was), or Former Top 10 Run already, which is only taken away from someone back on a top 10 (now again)
+  const hasTop10Role = (m) =>
+    top10Sets.some((set) => set.now.has(m.user.id) || set.was.has(m.user.id) || m.roles.includes(set.top) || m.roles.includes(set.former)) ||
+    Boolean(ROLES.legacyTop10 && (onLegacyTop10.has(m.user.id) || m.roles.includes(ROLES.legacyTop10)));
+  for (const m of members) {
+    if (m.user.bot) continue;
+    const want = hasTop10Role(m) || badges.some((r) => m.roles.includes(r));
+    if (want === m.roles.includes(ROLES.badgesHeading)) continue;
+    const who = nameOf.get(m.user.id) || m.nick || m.user.global_name || m.user.username;
+    const [method, plan, done] = want ? ["PUT", "give", "Gave"] : ["DELETE", "take", "Took"];
+    const what = `${name} ${want ? "to" : "from"} ${who}`;
+    changes++;
+    if (DRY) { console.log(`Would ${plan} ${what}`); continue; }
+    try {
+      await api(method, `/guilds/${GUILD}/members/${m.user.id}/roles/${ROLES.badgesHeading}`);
+      console.log(`${done} ${what}`);
+    } catch (e) {
+      failed = true;
+      console.error(`Couldn't change ${who}'s roles. Ballkyrie's own role has to be above ${name} too.\n  ${e.message}`);
     }
   }
 }
