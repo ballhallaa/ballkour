@@ -235,6 +235,14 @@ msgstr "Indietro"
 msgid "Click on a Run to View More Info"
 msgstr "Clicca su una partita per altre info"
 
+#. file lobby.opy, rule "Load Leaderboard"
+msgid "Unassisted"
+msgstr "Senza assistenza"
+
+#. file lobby.opy, rule "Load Leaderboard"
+msgid "Assisted"
+msgstr "Assistita"
+
 #. file lobby.opy, rule "Show HUD Page"
 msgid "Scores"
 msgstr "Punteggi"
@@ -316,8 +324,12 @@ msgid "Disqualified"
 msgstr "Squalificato"
 
 #. file run.opy, rule "Load HUD"
-msgid "Assist Mode"
-msgstr "Modalità assistita"
+msgid "Assist Mode On"
+msgstr "Modalità assistita attiva"
+
+#. file run.opy, rule "Load HUD"
+msgid "Assisted Top 3"
+msgstr "Top 3 assistita"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"

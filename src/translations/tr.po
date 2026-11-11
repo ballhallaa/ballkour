@@ -235,6 +235,14 @@ msgstr "Geri"
 msgid "Click on a Run to View More Info"
 msgstr "Daha fazla bilgi için bir denemeye tıkla"
 
+#. file lobby.opy, rule "Load Leaderboard"
+msgid "Unassisted"
+msgstr "Yardımsız"
+
+#. file lobby.opy, rule "Load Leaderboard"
+msgid "Assisted"
+msgstr "Yardımlı"
+
 #. file lobby.opy, rule "Show HUD Page"
 msgid "Scores"
 msgstr "Skorlar"
@@ -316,8 +324,12 @@ msgid "Disqualified"
 msgstr "Diskalifiye"
 
 #. file run.opy, rule "Load HUD"
-msgid "Assist Mode"
-msgstr "Yardım modu"
+msgid "Assist Mode On"
+msgstr "Yardım modu açık"
+
+#. file run.opy, rule "Load HUD"
+msgid "Assisted Top 3"
+msgstr "Yardımlı İlk 3"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"

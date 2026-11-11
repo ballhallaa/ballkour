@@ -12,10 +12,16 @@ macro ALL_CONTROLS = strContains(VERSION, "+all-ctrls")
 
 # Leaderboard
 globalvar lb
+# The assisted leaderboard, for runs played in Assist Mode, laid out like lb
+globalvar assistedLb
 globalvar lbPos
 globalvar lbObj
-globalvar lbObjFormatted
+globalvar lbRank
 globalvar lbRunCount
+globalvar assistedRunCount
+# Each row's text, the regular leaderboard's at 1 to 10 and the assisted one's at 11 to 20,
+# with and without its alignment (Lobby: Load Leaderboard)
+globalvar lbRowText
 globalvar lbRunText
 globalvar lbRunPad
 globalvar lbRunViewers
@@ -87,10 +93,13 @@ globalvar scorecardPlayers
 globalvar scorecardSorted
 globalvar scorecardRow
 globalvar scorecardTime
-globalvar topRuns = []
+# The Lobby Top 3 at [0], and at [1] the lobby's assisted one, for runs played in Assist Mode
+# (Completion: Record Top Run), and the All-Time Top 3 and assisted leaderboard's Top 3 the same
+# way (Lobby: Load Leaderboard)
+globalvar topRuns = [[], []]
 globalvar topRunsScratch
-globalvar topRunsText
-globalvar allTimeRunsText
+globalvar topRunsText = ["", ""]
+globalvar allTimeRunsText = ["", ""]
 
 # Spectating
 globalvar playerToEnableFreecam
@@ -112,6 +121,7 @@ globalvar spectatorHudText = []
 globalvar completionHudText = []
 globalvar topRunsHudText
 globalvar allTimeRunsHudText
+globalvar assistedRunsHudText
 globalvar lobbyHudText = []
 globalvar faqHudText = []
 
@@ -139,6 +149,9 @@ playervar hudHidden
 
 # Leaderboard
 playervar lbInfoRow
+# The leaderboard a player picked in the lobby: 0 for the regular one, or 10 for the assisted
+# one, which is how far along lbRowText and lbRunText its rows are (Lobby: Select Input)
+playervar lbBoard
 
 # Run
 playervar isRunLoaded
@@ -461,3 +474,9 @@ macro lbRunInfo(rank, date, link):
             rgb(230, 151, 0),
             ProgressWorldTextReeval.VISIBILITY_AND_POSITION
         )
+
+
+# An assisted leaderboard run's, the same way: its rows are lbInfoRow 11 to 20, after the
+# regular leaderboard's (Lobby: Load Leaderboard)
+macro assistedLbRunInfo(rank, date, link):
+    lbRunInfo(rank + 10, date, link)

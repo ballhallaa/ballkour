@@ -13,6 +13,9 @@ rule "Leaderboard":
     lb[8] = "安宁, 5:51.20, 40, '                           '"  # discord: 1332978961659068439
     lb[9] = "KINGO, 6:26.18, 37, '                        '"  # discord: 231870424718245888
     lb[10] = "VANESSA, 6:59.56, 58, '                  '"  # discord: 297472760618418176
+    # The assisted leaderboard, for runs played in Assist Mode, laid out the same way, with
+    # assistedLbRunInfo(rank, date, link) for its runs' info in loadRunInfo
+    assistedLb = []
 
 
 def loadRunInfo():

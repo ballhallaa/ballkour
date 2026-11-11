@@ -235,6 +235,14 @@ msgstr "Wróć"
 msgid "Click on a Run to View More Info"
 msgstr "Kliknij podejście, aby zobaczyć więcej"
 
+#. file lobby.opy, rule "Load Leaderboard"
+msgid "Unassisted"
+msgstr "Bez wspomagania"
+
+#. file lobby.opy, rule "Load Leaderboard"
+msgid "Assisted"
+msgstr "Wspomagana"
+
 #. file lobby.opy, rule "Show HUD Page"
 msgid "Scores"
 msgstr "Wyniki"
@@ -316,8 +324,12 @@ msgid "Disqualified"
 msgstr "Zdyskwalifikowano"
 
 #. file run.opy, rule "Load HUD"
-msgid "Assist Mode"
-msgstr "Tryb wspomagany"
+msgid "Assist Mode On"
+msgstr "Tryb wspomagany włączony"
+
+#. file run.opy, rule "Load HUD"
+msgid "Assisted Top 3"
+msgstr "Wspomagane Top 3"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"

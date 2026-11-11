@@ -57,8 +57,12 @@ macro scorecardHasRows(player):
     len(scorecardPlayers.exclude(player)) > 0
 
 
-# How many runs the All-Time Top 3 lists: up to the leaderboard's first 3
-macro allTimeRuns = min(lbRunCount, 3)
+# Whether the Top 3s list assisted runs: while the viewed runner is in Assist Mode, the
+# assisted leaderboard's Top 3 takes the All-Time Top 3's place, and the Lobby Top 3 lists the
+# lobby's assisted runs. As an index of allTimeRunsText, topRuns and topRunsText: 1 for the
+# assisted ones, 0 for the rest.
+macro assistedTopOf(player):
+    (1 if player.viewRunner.isInAssistMode else 0)
 
 
 # Whether the scorecard and the Top 3s list rows: with players or runs to list, or on the
@@ -73,13 +77,20 @@ macro isScorecardShown(player):
 
 macro isAllTimeTopShown(player):
     (
-        (allTimeRuns > 0 and not player.isInLobby or isHudPage(player))
+        (
+            (assistedRunCount if assistedTopOf(player) else lbRunCount) > 0
+            and not player.isInLobby
+            or isHudPage(player)
+        )
         and isHudLineOn(player, HUD_ALL_TIME_TOP)
     )
 
 
 macro isLobbyTopShown(player):
-    ((len(topRuns) > 0 or isHudPage(player)) and isHudLineOn(player, HUD_LOBBY_TOP))
+    (
+        (len(topRuns[assistedTopOf(player)]) > 0 or isHudPage(player))
+        and isHudLineOn(player, HUD_LOBBY_TOP)
+    )
 
 
 # The blank lines above the CP, time and mistakes: 2 under the counters, or 5 standing in
@@ -101,8 +112,8 @@ macro hudLinesGap(player):
 
 # Whether Disqualified shows: while the viewed run doesn't count, or the viewed runner is in
 # Assist Mode (see isAssistModeShown), outside disconnected freecam. It can't be turned off, as
-# it says the run won't count, or which leaderboard it's for, and the HUD page shows it either
-# way, struck through, so it's clear it stays.
+# it says the run won't count, and the HUD page shows it either way, struck through, so it's
+# clear it stays. Assist Mode On turns off with Freemode On, which the HUD page lists it with.
 macro isDisqualifiedShown(player):
     (
         isCourseHudShown(player)
@@ -110,6 +121,7 @@ macro isDisqualifiedShown(player):
         and (
             not player.viewRunner.isRunLegit
             or player.viewRunner.isInAssistMode
+            and isHudLineOn(player, HUD_FREEMODE)
             or isHudPage(player)
         )
     )
@@ -347,10 +359,12 @@ rule "Load HUD":
     # At the top left, under Hints and above Freemode On, with a blank line above it like
     # Freemode On. Freemode On drops its own blank line while it shows, so the two sit together.
     # The HUD page shows it either way, as it's one of the lines it turns off.
-    # In Assist Mode it says so instead, in pink, as the run is for the assisted leaderboard.
-    # One text for both, as texts are capped at 128 per server (Lobby: Load Buttons).
+    # In Assist Mode it says Assist Mode On instead, in pink, as the run is for the assisted
+    # leaderboard, and turns off with Freemode On (isDisqualifiedShown), which the HUD page's
+    # row lists it with. One text for both, as texts are capped at 128 per server (Lobby: Load
+    # Buttons).
     counterHudText[3] = _("\nDisqualified")
-    counterHudText[4] = _("\nAssist Mode")
+    counterHudText[4] = _("\nAssist Mode On")
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: isDisqualifiedShown(localPlayer)
@@ -371,7 +385,10 @@ rule "Load HUD":
     # splits end without blank lines, so they bring 2; without the splits, Mistakes above
     # already ends in blank lines, and the CP while spectating ends in 1.
     # In the lobby, with nothing above it, the Lobby Top 3 starts at the top.
+    # In Assist Mode, the assisted leaderboard's Top 3 and the lobby's assisted runs, with
+    # their titles in pink (assistedTopOf).
     allTimeRunsHudText = _("All-Time Top 3")
+    assistedRunsHudText = _("Assisted Top 3")
     topRunsHudText = _("Lobby Top 3")
     hudSubheader(
         getAllPlayers().filter(
@@ -390,8 +407,16 @@ rule "Load HUD":
             ),
             (
                 "{}{}".format(
-                    _(allTimeRunsHudText),
-                    (hudPageAllTimeText if isHudPage(localPlayer) else allTimeRunsText)
+                    (
+                        "<fgFF80C0FF>{}</fg>".format(_(assistedRunsHudText))
+                        if assistedTopOf(localPlayer)
+                        else _(allTimeRunsHudText)
+                    ),
+                    (
+                        hudPageAllTimeText
+                        if isHudPage(localPlayer)
+                        else allTimeRunsText[assistedTopOf(localPlayer)]
+                    )
                 )
                 if isAllTimeTopShown(localPlayer)
                 else ""
@@ -400,8 +425,16 @@ rule "Load HUD":
             (
                 "{}{}{}".format(
                     "\n\n" if isAllTimeTopShown(localPlayer) else "",
-                    _(topRunsHudText),
-                    hudPageTopRunsText if isHudPage(localPlayer) else topRunsText
+                    (
+                        "<fgFF80C0FF>{}</fg>".format(_(topRunsHudText))
+                        if assistedTopOf(localPlayer)
+                        else _(topRunsHudText)
+                    ),
+                    (
+                        hudPageTopRunsText
+                        if isHudPage(localPlayer)
+                        else topRunsText[assistedTopOf(localPlayer)]
+                    )
                 )
                 if isLobbyTopShown(localPlayer)
                 else ""
