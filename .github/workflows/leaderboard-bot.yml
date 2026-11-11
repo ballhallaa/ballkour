@@ -118,20 +118,60 @@ jobs:
       - name: Install the fonts
         run: fc-cache -f && fc-list | grep -E "NotoSansCJK-(Regular|Bold)|NotoColorEmoji" | sort
 
+      # The packages Playwright apt-installs for Chromium that the runner doesn't have: all fonts (fonts-wqy-zenhei,
+      # fonts-tlwg-loma-otf, fonts-unifont, …), for names in scripts the other fonts don't cover. Kept in the cache, so
+      # they only come from the runner's Ubuntu mirror, which is sometimes down for a long while, when the cache is empty
+      - name: Restore Chromium's packages
+        id: chromium-debs
+        uses: actions/cache@v6
+        with:
+          path: ~/chromium-debs
+          key: chromium-debs-ubuntu-24.04-${{ hashFiles('tools/leaderboard-bot/package.json') }}
+
       - name: Install the bot
         working-directory: tools/leaderboard-bot
+        env:
+          CACHE_HIT: ${{ steps.chromium-debs.outputs.cache-hit }}
         run: |
+          shopt -s nullglob
+          # Keeps trying for up to 10 minutes, for the runner's Ubuntu mirror or Playwright's server being down
+          retry() {
+            until "$@"; do
+              if [ "$SECONDS" -ge 600 ]; then
+                echo "Still failing after 10 minutes, giving up"
+                return 1
+              fi
+              echo "Failed, trying again in 30 s"
+              sleep 30
+            done
+          }
           npm install --no-audit --no-fund
-          # Playwright apt-installs Chromium's system libraries, and the runner's Ubuntu mirror is sometimes unreachable
-          # for a few minutes, so keep trying for up to 10 minutes
-          until npx playwright install --with-deps chromium; do
-            if [ "$SECONDS" -ge 600 ]; then
-              echo "Couldn't install Chromium for 10 minutes, giving up"
-              exit 1
+          debs=~/chromium-debs
+          if [ "$CACHE_HIT" != true ]; then
+            # Downloads what Playwright would install, without installing it
+            pkgs=$(npx playwright install-deps --dry-run chromium | sed -n 's/.*--no-install-recommends \(.*\)"$/\1/p')
+            if [ -n "$pkgs" ]; then
+              mkdir -p $debs/partial
+              retry sudo sh -c "apt-get update && apt-get install -y --no-install-recommends --download-only \
+                -o Dir::Cache::archives=$debs $pkgs"
+              sudo rm -rf $debs/partial $debs/lock
+              sudo chown -R "$USER" $debs
+            else
+              echo "Couldn't read the packages Playwright installs, so it installs them itself"
             fi
-            echo "Couldn't install Chromium, trying again in 30 s"
-            sleep 30
+          fi
+          # Installs the downloaded packages the runner doesn't have yet. If they don't (the runner has changed since
+          # they were cached, or nothing was downloaded), Playwright apt-installs them as before.
+          new=()
+          for deb in $debs/*.deb; do
+            pkg=$(dpkg-deb -f "$deb" Package)
+            dpkg-query -W -f='${Status}' "$pkg" 2>/dev/null | grep -q "ok installed" || new+=("$deb")
           done
+          echo "Installing ${#new[@]} of Chromium's packages from the cache: ${new[*]##*/}"
+          if [ ! -d $debs ] || { [ ${#new[@]} -gt 0 ] && ! sudo apt-get install -y --no-download "${new[@]}"; }; then
+            retry npx playwright install-deps chromium
+          fi
+          retry npx playwright install chromium
 
       - name: Post changed leaderboards
         working-directory: tools/leaderboard-bot
