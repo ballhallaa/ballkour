@@ -186,14 +186,14 @@ rule "Load HUD":
         "\nand leave it, or skip to the last one, which finishes your run. Skipping ahead to look,"
         "\ngoing back or restarting checkpoints, <fgCB87FFFF>Freemode</fg>, and <fg00BEFFFF>spectating</fg> are fine."
         "\n<fgFF4646FF>Disqualified</fg> runs don't count toward the top-10 leaderboard, <fgE69700FF>Lobby Top 3</fg>, or <fgE69700FF>Lobby Stats</fg>."
-        "\nRuns that use <fgFF80C0FF>Assist Mode</fg> go on their own assisted leaderboard at ballkour.com instead."
+        "\nRuns that use <fgFF80C0FF>Assist Mode</fg> go on their own <fgFF80C0FF>assisted</fg> leaderboard at ballkour.com instead."
     )
     faqHudText[3] = (
         "\n\n<fg80D0FFFF>How do I get on the leaderboard?</fg>"
-        "\nFinish a valid run and submit it at ballkour.com."
-        "\nOnly top 10 runs need a video for proof."
+        "\nFinish a valid run and submit it at ballkour.com. Only top 10 runs need a video for proof."
         "\n<fgE69700FF>All-Time Top 3</fg> shows the leaderboard's 3 fastest runs."
         "\n<fgE69700FF>Lobby Top 3</fg> lists the fastest valid runs finished in this lobby."
+        "\nIn <fgFF80C0FF>Assist Mode</fg>, <fgFF80C0FF>Assisted Top 3</fg> replaces <fgE69700FF>All-Time Top 3</fg>, and <fgE69700FF>Lobby Top 3</fg> lists <fgFF80C0FF>assisted</fg> runs."
     )
     faqHudText[4] = (
         "\n\n<fg80D0FFFF>When does my run's timer start?</fg>"
