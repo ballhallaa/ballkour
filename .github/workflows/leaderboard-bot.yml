@@ -91,10 +91,11 @@ jobs:
           package-manager-cache: false # the bot has no lockfile to cache by
 
       # The fonts the fonts-noto-cjk and fonts-noto-color-emoji packages install, downloaded from Noto's own releases
-      # and kept in the cache, so the runner's Ubuntu mirror being down can't stop the boards
+      # and kept in the cache, so the runner's Ubuntu mirror being down can't stop the boards. Saved to the cache as soon
+      # as they're downloaded, even if the run then fails.
       - name: Restore the fonts for Chinese/Japanese names and flags
         id: fonts
-        uses: actions/cache@v6
+        uses: actions/cache/restore@v6
         with:
           path: ~/.local/share/fonts/noto
           key: fonts-noto-cjk-Sans2.004-emoji-v2.051
@@ -114,6 +115,13 @@ jobs:
           faa5f3656a78b2e2d450d27fe8382c778bc2b6bb5ea29c986664a6a435056ceb  NotoSansCJK-Bold.ttc
           72a635cb3d2f3524c51620cdde406b217204e8a6a06c6a096ff8ed4b5fd6e27b  NotoColorEmoji.ttf
           EOF
+
+      - name: Save the fonts for Chinese/Japanese names and flags
+        if: steps.fonts.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: ~/.local/share/fonts/noto
+          key: ${{ steps.fonts.outputs.cache-primary-key }}
 
       - name: Install the fonts
         run: fc-cache -f && fc-list | grep -E "NotoSansCJK-(Regular|Bold)|NotoColorEmoji" | sort
