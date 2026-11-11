@@ -119,3 +119,19 @@ export function combine(ratings) {
   const counted = [...new Set(ratings.flatMap((r) => r.counted))].sort((a, b) => a - b);
   return { counted, players: ranked([...players.values()].map(({ ran, ...p }) => ({ ...p, courses: ran.size }))) };
 }
+
+// Everyone (their Discord IDs) who has been in the Global top 10 at some point: the Global rating as it stood at the
+// end of each day with a run, from the runs dated up to then (with today's courses and removed runs). roles.mjs gives
+// Former Top 10 (Global) by it, like Former Top 10 by the posted boards, so it isn't lost to someone who leaves the
+// server and comes back, or whose Top 10 (Global) was taken away by hand.
+// unassisted, assisted: the courses as loadCourses() gives them
+export function everGlobalTop10(unassisted, assisted) {
+  const upTo = (day) => (r) => (r.date || "") <= day;
+  const asOf = (courses, day) => courses.map((c) => ({ ...c, file: c.file.filter(upTo(day)), more: c.more.filter(upTo(day)), boards: c.boards.map((b) => b.filter(upTo(day))) }));
+  const days = new Set([...unassisted, ...assisted].flatMap((c) => [...c.file, ...c.more]).map((r) => r.date).filter(Boolean));
+  const ever = new Set();
+  for (const day of days) {
+    for (const p of combine([rate(asOf(unassisted, day)), rate(asOf(assisted, day))]).players) if (p.discord && p.rank <= 10) ever.add(p.discord);
+  }
+  return ever;
+}
