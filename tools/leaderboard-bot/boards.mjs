@@ -71,6 +71,12 @@ export function parseOpy(text) {
   return rows.filter(Boolean).slice(0, 10);
 }
 // { "name", "discord", "time", "mistakes", "date", "video" }, as in the classic courses' files → a clean run, or null
+// A legacy run, timed to the second ("4:30.--") with no date or video → a clean run, or null
+const LEGACY_TIME = /^(\d{1,2}:)?\d{1,2}:\d{2}(\.--|\.\d{2})?$/;
+function cleanLegacy(r) {
+  if (!r || typeof r.name !== "string" || !r.name.trim() || !LEGACY_TIME.test(r.time) || !Number.isInteger(r.mistakes) || r.mistakes < 0) return null;
+  return { name: r.name.trim(), discord: DISCORD_ID.test(r.discord) ? r.discord : "", time: r.time, mistakes: r.mistakes, date: "", video: "" };
+}
 export function cleanRun(r) {
   if (!r || typeof r.name !== "string" || !r.name.trim() || !TIME.test(r.time) || !Number.isInteger(r.mistakes) || r.mistakes < 0) return null;
   return {
@@ -110,9 +116,18 @@ function extraData(assisted) {
 //   { course, n, broken, ok, file: [run, …], more: [run, …], removed: [run, …], boards: [[run, …], …] }
 // ok is false when the course's file is missing or its layout changed, so nothing is guessed from it.
 // assisted: the assisted boards instead, from the assisted runs in runs.json alone (the courses' own files only have
-// regular runs) and the assisted boards posted before (history.json's "assisted")
-export function loadCourses({ assisted = false } = {}) {
+// regular runs) and the assisted boards posted before (history.json's "assisted"). legacy: the legacy boards instead
+// (history.json's "legacy", from before May 2026), for the Legacy rating: only the courses with one, each made of its
+// legacy board alone, and counted whether or not the course works now, as its board can't change any more. It's the
+// same as the website's (legacyOf in index.html).
+export function loadCourses({ assisted = false, legacy = false } = {}) {
   const history = JSON.parse(readData(HISTORY));
+  if (legacy) {
+    return COURSES.map((course) => {
+      const list = history[course.n] && Array.isArray(history[course.n].legacy) ? history[course.n].legacy : [];
+      return { course, n: course.n, broken: false, ok: true, file: list.map(cleanLegacy).filter(Boolean), more: [], removed: [], boards: [] };
+    }).filter((c) => c.file.length);
+  }
   const { runs, removed } = extraData(assisted);
   const posted = assisted ? ASSISTED : "boards";
   return COURSES.map((course) => {
