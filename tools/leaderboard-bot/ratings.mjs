@@ -16,8 +16,9 @@
 // the last tier (the bottom 10%) is just Rated.
 //
 // The assisted boards (runs played in Assist Mode) have a rating of their own, worked out the same way from those
-// boards alone (loadCourses({ assisted: true }) in boards.mjs), and so do the legacy boards, from before May 2026
-// (loadCourses({ legacy: true })), whose times were only to the second ("4:30.--", read as 4:30.00).
+// boards alone (loadCourses({ assisted: true }) in boards.mjs), over the courses with Assist Mode (the remakes), and so
+// do the legacy boards, from before May 2026 (loadCourses({ legacy: true })), whose times were only to the second
+// ("4:30.--", read as 4:30.00).
 //
 // The Global rating adds each player's unassisted and assisted ratings together (combine), so it's worth up to 2,000,
 // and ranks and tiers the totals the same way. The Legacy rating stays out of it: its boards can't change any more.

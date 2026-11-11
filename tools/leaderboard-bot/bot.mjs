@@ -4,8 +4,8 @@
 // course's file and the runs sent from the website (leaderboards/runs.json) together: see ratings.mjs. Both files
 // are on the leaderboard-data branch (see boards.mjs).
 // Each course's assisted board (the runs played in Assist Mode) is posted the same way, to the course's own
-// assistedChannel in courses.json, or without one, to the channel those courses share (the assistedChannel at the
-// top of courses.json), and kept in history.json under "assisted".
+// assistedChannel in courses.json, and kept in history.json under "assisted". A course without an assistedChannel
+// has nothing posted, and isn't marked as posted either, so its newest assisted board goes out once it has one.
 //
 // Run by .github/workflows/leaderboard-bot.yml. Settings come from the environment:
 //   DATA_ROOT=…        a checkout of the leaderboard-data branch, where history.json is saved. Only a dry run goes
@@ -14,8 +14,7 @@
 //   DRY_RUN=1          draw the pictures into out/ and print the messages, but don't post or change history.json
 //   FORCE_COURSE=…     post these courses' newest boards again, even if they haven't changed: a course number (3),
 //                      a list (3,5,7), a range (3-12), or all. A course with no runs yet posts an empty top 10. Its
-//                      newest assisted board goes again too, an empty one only to a channel of the course's own (in
-//                      the shared one, a course with no assisted runs posts nothing).
+//                      newest assisted board goes again too (an empty one with no assisted runs yet).
 //   LEGACY=1           post the legacy boards (the runs from before May 2026 in history.json) to each course's
 //                      legacyChannel instead: all of them, or only FORCE_COURSE's. No pings, and history.json
 //                      isn't changed, so it doesn't affect which boards count as new.
@@ -31,7 +30,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { chromium } from "playwright";
 import { cardHtml } from "./card.mjs";
-import { HERE, HISTORY, DATA_ROOT, readData, GUILD, COURSES, DISCORD_ID, ASSISTED, ASSISTED_CHANNEL, loadCourses } from "./boards.mjs";
+import { HERE, HISTORY, DATA_ROOT, readData, GUILD, COURSES, DISCORD_ID, ASSISTED, loadCourses } from "./boards.mjs";
 import { TOKEN, api } from "./discord.mjs";
 import { standings, rate, playerKey } from "./ratings.mjs";
 
@@ -134,9 +133,8 @@ const mdEscape = (s) => String(s).replace(/([\\*_~`|>#-])/g, "\\$1");
 // The course's board on the website: ballkour.com/leaderboards/6 opens Dorado's top 10, and
 // ballkour.com/leaderboards/6/assisted its assisted top 10
 const boardLink = (course, assisted = false) => `ballkour.com/leaderboards/${course.n}${assisted ? "/assisted" : ""}`;
-// assisted: an assisted board. shared: posted to the channel courses without one of their own share, so it names its
-// course.
-function message(course, runs, fresh, assisted = false, shared = false) {
+// assisted: an assisted board
+function message(course, runs, fresh, assisted = false) {
   const newRuns = NO_CONGRATS ? [] : runs.filter((r) => fresh.has(r));
   const users = [];
   const names = newRuns.map((r) => {
@@ -148,7 +146,7 @@ function message(course, runs, fresh, assisted = false, shared = false) {
   const lines = [];
   if (names.length) {
     const list = new Intl.ListFormat("en", { style: "long", type: "conjunction" }).format(names);
-    lines.push(`Congrats ${list} for the new ${assisted ? "assisted " : ""}top-10 time${names.length > 1 ? "s" : ""}${shared ? ` on ${course.name}` : ""}!`);
+    lines.push(`Congrats ${list} for the new ${assisted ? "assisted " : ""}top-10 time${names.length > 1 ? "s" : ""}!`);
   }
   lines.push(`-# Watch every run: [${boardLink(course, assisted)}](https://${boardLink(course, assisted)})`);
   return { content: lines.join("\n"), users };
@@ -213,26 +211,26 @@ for (const kind of kinds) {
   for (const course of COURSES) {
     const archived = (history[course.n] && Array.isArray(history[course.n][kind.key])) ? history[course.n][kind.key] : [];
     const data = boards.get(course.n);
+    if (!data) continue; // an assisted board, for a course without Assist Mode (only the remakes have it)
     const live = data.ok ? standings(data).top : null;
-    // An assisted board goes to the course's own assisted channel, or else to the one the others share
-    const shared = kind.assisted && !course.assistedChannel;
-    const channel = kind.assisted ? course.assistedChannel || ASSISTED_CHANNEL : course.channel;
+    // An assisted board goes to the course's own assisted channel. Without one (or without a channel at all), the
+    // board isn't posted or saved, and only a board with runs on it is mentioned, so the courses with nothing to post
+    // don't fill the log.
+    const channel = kind.assisted ? course.assistedChannel : course.channel;
     if (!channel) {
-      console.warn(`${course.n} ${course.name} has no ${kind.assisted ? "assistedChannel" : "channel"} in courses.json, so its ${kind.assisted ? "assisted " : ""}board isn't posted`);
+      if (live && live.length) console.warn(`${course.n} ${course.name} has no ${kind.assisted ? "assistedChannel" : "channel"} in courses.json, so its ${kind.assisted ? "assisted " : ""}board isn't posted`);
       continue;
     }
     if (FORCE) {
       if (FORCE !== "all" && !FORCE.has(course.n)) continue;
-      // In the shared channel, a course with no assisted runs posts nothing
-      if (shared && !archived.length && !(live && live.length)) continue;
       // The newest posted board, or the live one if none was posted yet, or an empty board if there are no runs
       const list = archived.length ? archived : live && live.length ? [live] : [[]];
-      jobs.push({ course, list, at: list.length - 1, isNew: false, channel, kind, shared });
+      jobs.push({ course, list, at: list.length - 1, isNew: false, channel, kind });
       continue;
     }
     if (!live || !live.length) continue;
     if (archived.length && sameBoard(live, archived[archived.length - 1])) continue;
-    jobs.push({ course, list: [...archived, live], at: archived.length, isNew: true, channel, kind, shared });
+    jobs.push({ course, list: [...archived, live], at: archived.length, isNew: true, channel, kind });
   }
 }
 if (!jobs.length) {
@@ -250,7 +248,7 @@ const channelTypes = new Map();
 const archivedNow = [];
 let failed = false;
 
-for (const { course, list, at, isNew, legacy, channel, kind, shared } of jobs) {
+for (const { course, list, at, isNew, legacy, channel, kind } of jobs) {
   const { assisted, ratingOf } = kind;
   const runs = list[at];
   const board = runs.length && !legacy ? at + 1 : 0; // 0: no runs yet or a legacy board, so no board number
@@ -272,7 +270,7 @@ for (const { course, list, at, isNew, legacy, channel, kind, shared } of jobs) {
     await page.goto(pathToFileURL(htmlFile).href, { waitUntil: "load" });
     await page.evaluate(() => document.fonts.ready);
     const png = await page.locator(".card").screenshot({ path: path.join(OUT, filename) });
-    const { content, users } = legacy ? legacyMessage() : runs.length ? message(course, runs, fresh, assisted, shared) : emptyMessage(course);
+    const { content, users } = legacy ? legacyMessage() : runs.length ? message(course, runs, fresh, assisted) : emptyMessage(course);
     fs.writeFileSync(path.join(OUT, `${base}.txt`), content + "\n");
     console.log(`\n${label}\n${content}`);
     if (DRY) continue;
