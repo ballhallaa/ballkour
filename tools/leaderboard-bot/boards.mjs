@@ -19,7 +19,10 @@ export const HISTORY = "leaderboards/history.json";
 // runs taken off the boards for good, by course number:
 //   { "runs": { "1": [run, …], … }, "removed": { "1": [{ "name", "discord", "time" }, …], … } }
 // Runs are like the .json files'. A removed run never comes back, even from an old board in history.json.
+// A run played in Assist Mode has "mode": "assisted", and is only on the course's assisted board (and a removed one
+// only comes off that board). Every other run is on its regular board.
 export const RUNS = "leaderboards/runs.json";
+export const ASSISTED = "assisted";
 let fetched = false;
 // One of the files above, as text
 export function readData(file) {
@@ -30,8 +33,11 @@ export function readData(file) {
   }
   return execFileSync("git", ["show", `origin/${DATA_BRANCH}:${file}`], { cwd: REPO, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
 }
-// The server, the Top 10, Former Top 10, and Legacy Top 10 roles' IDs (roles.mjs gives them out), and the courses
-export const { guild: GUILD, roles: ROLES = {}, courses: COURSES } = JSON.parse(fs.readFileSync(path.join(HERE, "courses.json"), "utf8"));
+// The server, the Top 10, Former Top 10, Legacy Top 10, and ratings heading roles' IDs (roles.mjs gives them out), the
+// channel every course's assisted board is posted to, and the courses
+export const {
+  guild: GUILD, roles: ROLES = {}, assistedChannel: ASSISTED_CHANNEL = "", courses: COURSES,
+} = JSON.parse(fs.readFileSync(path.join(HERE, "courses.json"), "utf8"));
 
 export const TIME = /^(\d{1,2}:)?\d{1,2}:\d{2}\.\d{2}$/;
 export const DISCORD_ID = /^\d{17,20}$/;
@@ -92,22 +98,26 @@ function cleanRemoved(r) {
   if (!r || typeof r.name !== "string" || !r.name.trim() || !TIME.test(r.time)) return null;
   return { name: r.name.trim(), discord: DISCORD_ID.test(r.discord) ? r.discord : "", time: r.time };
 }
-// runs.json → { runs: { n: [run, …] }, removed: { n: [run, …] } }
-function extraData() {
+// runs.json → { runs: { n: [run, …] }, removed: { n: [run, …] } }, with either the assisted runs or the rest
+function extraData(assisted) {
   const data = JSON.parse(readData(RUNS));
   const byCourse = (obj, clean) => Object.fromEntries(Object.entries(obj && typeof obj === "object" ? obj : {})
-    .filter(([, list]) => Array.isArray(list)).map(([n, list]) => [n, list.map(clean).filter(Boolean)]));
+    .filter(([, list]) => Array.isArray(list))
+    .map(([n, list]) => [n, list.filter((r) => !!r && (r.mode === ASSISTED) === assisted).map(clean).filter(Boolean)]));
   return { runs: byCourse(data && data.runs, cleanRun), removed: byCourse(data && data.removed, cleanRemoved) };
 }
 // Every course with what its board is made of, for ratings.mjs:
 //   { course, n, broken, ok, file: [run, …], more: [run, …], removed: [run, …], boards: [[run, …], …] }
 // ok is false when the course's file is missing or its layout changed, so nothing is guessed from it.
-export function loadCourses() {
+// assisted: the assisted boards instead, from the assisted runs in runs.json alone (the courses' own files only have
+// regular runs) and the assisted boards posted before (history.json's "assisted")
+export function loadCourses({ assisted = false } = {}) {
   const history = JSON.parse(readData(HISTORY));
-  const { runs, removed } = extraData();
+  const { runs, removed } = extraData(assisted);
+  const posted = assisted ? ASSISTED : "boards";
   return COURSES.map((course) => {
-    const text = courseText(course);
-    const file = text === null ? null : course.file.endsWith(".opy") ? parseOpy(text) : jsonRuns(text);
+    const text = assisted ? "" : courseText(course);
+    const file = assisted ? [] : text === null ? null : course.file.endsWith(".opy") ? parseOpy(text) : jsonRuns(text);
     return {
       course,
       n: course.n,
@@ -116,7 +126,7 @@ export function loadCourses() {
       file: file || [],
       more: runs[course.n] || [],
       removed: removed[course.n] || [],
-      boards: ((history[course.n] && history[course.n].boards) || []).map((b) => b.map(cleanRun).filter(Boolean)),
+      boards: ((history[course.n] && history[course.n][posted]) || []).map((b) => b.map(cleanRun).filter(Boolean)),
     };
   });
 }

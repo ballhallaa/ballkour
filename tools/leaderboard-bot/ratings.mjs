@@ -13,10 +13,15 @@
 // broken, with 0 for the ones a player hasn't run (and for courses nobody has run yet), so a new or faster run never
 // lowers it, and the first run on a course changes nobody else's rating. A player's tier is their place divided by the number of rated players: #4 of 40 is in the Top 10%.
 // Everyone past the last tier (the bottom 10%) is just Rated.
+//
+// The assisted boards (runs played in Assist Mode) have a rating of their own, worked out the same way from those
+// boards alone (loadCourses({ assisted: true }) in boards.mjs).
 
 export const TIERS = [0.1, 1, 5, 10, 25, 50, 75, 90];
-// The Discord role for a tier: "Top 10%", or "Rated" for the bottom 10% (tier null)
-export const roleName = (tier) => (tier === null ? "Rated" : `Top ${tier}%`);
+// The Discord role for a tier: "Top 10%", or "Rated" for the bottom 10% (tier null), and "Top 10% (Assisted)" and
+// "Rated (Assisted)" for the assisted rating's
+export const ASSISTED_SUFFIX = " (Assisted)";
+export const roleName = (tier, assisted = false) => (tier === null ? "Rated" : `Top ${tier}%`) + (assisted ? ASSISTED_SUFFIX : "");
 
 const seconds = (t) => t.split(":").reduce((sum, part) => sum * 60 + Number(part), 0);
 const byTime = (a, b) => seconds(a.time) - seconds(b.time) || a.mistakes - b.mistakes;
