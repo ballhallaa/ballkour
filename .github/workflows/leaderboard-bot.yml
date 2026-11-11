@@ -14,8 +14,8 @@
 #   gh workflow run leaderboard-bot.yml --ref develop -f dry_run=false -f course=all -f no_congrats=true -f not_new=true
 # With boards, it only posts the unassisted boards, or only the assisted ones:
 #   gh workflow run leaderboard-bot.yml --ref develop -f dry_run=false -f course=all -f no_congrats=true -f boards=unassisted
-# After posting, it gives every rated player their rating role on Discord, Top 0.1% … Top 90% or Rated, the same
-# with (Assisted) for the assisted rating and (Legacy) for the Legacy rating, and Top 10, Former Top 10, Top 10 (Assisted), Former Top 10 (Assisted),
+# After posting, it gives every rated player their rating role on Discord, Top 0.1% (Unassisted) … Top 90% (Unassisted)
+# or Rated (Unassisted), the same with (Assisted) for the assisted rating and (Legacy) for the Legacy rating, and Top 10, Former Top 10, Top 10 (Assisted), Former Top 10 (Assisted),
 # Legacy Top 10, and the ratings heading over them (roles.mjs). It also runs once a day, from .github/workflows/leaderboard-daily.yml on
 # main: GitHub only runs scheduled workflows from the default branch, so a schedule here would never start.
 name: Leaderboard bot
