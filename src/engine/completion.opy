@@ -129,9 +129,10 @@ def recordTopRun():
     topRunsScratch = sorted(topRunsScratch, lambda run: run[0]).slice(0, 3)
     topRuns[topRunsOf(eventPlayer)] = topRunsScratch
     topRunsText[topRunsOf(eventPlayer)] = ""
-    # Padded like the scorecard's columns, but for 2-digit mistakes, and times of 7+ characters
+    # Padded like the scorecard's columns, but for 2-digit mistakes, and times of 7+ characters.
+    # The mistakes get a × in the row's color, as a red one marks a disqualified run there.
     for index in range(len(topRunsScratch)):
-        topRunsText[topRunsOf(eventPlayer)] = "{}\n{}{}   {}{}{}{}{}</fg>".format(
+        topRunsText[topRunsOf(eventPlayer)] = "{}\n{}{}   {}{}{}×{}{}</fg>".format(
             topRunsText[topRunsOf(eventPlayer)],
             ["<fgFFFF00FF>", "<fgB0C4DEFF>", "<fgC46A30FF>"][index],
             index + 1,
