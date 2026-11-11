@@ -609,12 +609,12 @@ rule "Load Leaderboard":
         )
         # Each leaderboard's first 3 runs are also its Top 3 on the HUD: the All-Time Top 3,
         # or the assisted one's in Assist Mode (Run: Load HUD), laid out like the Lobby Top 3
-        # (Completion: Record Top Run)
+        # (Completion: Record Top Run), × and all
         if lbRank <= min(lbRunCount if index <= 10 else assistedRunCount, 3):
             lbObj[1] = lbObj[1].replace(" ", "")
             lbObj[2] = lbObj[2].replace(" ", "")
             allTimeRunsText[floor((index - 1) / 10)] = (
-                "{}\n{}{}   {}{}{}{}{}</fg>".format(
+                "{}\n{}{}   {}{}{}×{}{}</fg>".format(
                     allTimeRunsText[floor((index - 1) / 10)],
                     lbObj[4],
                     lbRank,
@@ -1086,14 +1086,14 @@ rule "Load HUD Page":
         )
     )
     hudPageAllTimeText = (
-        "\n<fgFFFF00FF>1   3:41.07     4     TurboHamster</fg>"
-        "\n<fgB0C4DEFF>2   3:48.52     9     OrbWeaver</fg>"
-        "\n<fgC46A30FF>3   4:02.19     11   BoopMachine</fg>"
+        "\n<fgFFFF00FF>1   3:41.07     4×     TurboHamster</fg>"
+        "\n<fgB0C4DEFF>2   3:48.52     9×     OrbWeaver</fg>"
+        "\n<fgC46A30FF>3   4:02.19     11×   BoopMachine</fg>"
     )
     hudPageTopRunsText = (
-        "\n<fgFFFF00FF>1   4:15.66     7     DizzyDrifter</fg>"
-        "\n<fgB0C4DEFF>2   4:31.40     13   SlamJam</fg>"
-        "\n<fgC46A30FF>3   5:07.93     18   LooseCannon</fg>"
+        "\n<fgFFFF00FF>1   4:15.66     7×     DizzyDrifter</fg>"
+        "\n<fgB0C4DEFF>2   4:31.40     13×   SlamJam</fg>"
+        "\n<fgC46A30FF>3   5:07.93     18×   LooseCannon</fg>"
     )
 
 
