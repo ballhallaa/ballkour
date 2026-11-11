@@ -3,8 +3,8 @@
 # website) on the leaderboard-data branch, whose own workflow calls this one. history.json is on that branch too, so the
 # commits for every run stay off develop. Run it by hand (Actions → Leaderboard bot → Run workflow) for a dry run that
 # only draws the pictures, or to post courses' newest boards again (an empty top 10 for a course with no runs).
-# Each course's assisted board (runs played in Assist Mode) goes to the one channel they share (courses.json's
-# assistedChannel), and is saved under "assisted" in history.json.
+# Each course's assisted board (runs played in Assist Mode) goes to the course's own assistedChannel in courses.json,
+# or without one, to the channel those courses share, and is saved under "assisted" in history.json.
 #   gh workflow run leaderboard-bot.yml --ref develop -f dry_run=false -f course=3-12
 # With legacy, it posts the boards from before May 2026 to each course's legacy channel instead (course picks which):
 #   gh workflow run leaderboard-bot.yml --ref develop -f dry_run=false -f legacy=true

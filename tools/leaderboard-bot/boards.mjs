@@ -34,7 +34,7 @@ export function readData(file) {
   return execFileSync("git", ["show", `origin/${DATA_BRANCH}:${file}`], { cwd: REPO, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
 }
 // The server, the Top 10, Former Top 10, Legacy Top 10, and ratings heading roles' IDs (roles.mjs gives them out), the
-// channel every course's assisted board is posted to, and the courses
+// channel the assisted boards of courses without an assistedChannel of their own are posted to, and the courses
 export const {
   guild: GUILD, roles: ROLES = {}, assistedChannel: ASSISTED_CHANNEL = "", courses: COURSES,
 } = JSON.parse(fs.readFileSync(path.join(HERE, "courses.json"), "utf8"));
