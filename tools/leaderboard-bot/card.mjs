@@ -62,7 +62,7 @@ export function cardHtml({ course, board, date, runs, fresh, people, ratings = n
   const line = (parts) => parts.filter(Boolean).map((s) => `<span>${s}</span>`).join("<span>·</span>");
   const field = (label, value) => (value ? `${label} <b>${esc(value)}</b>` : "");
   const sub = legacy ? line(["Legacy top 10", "Before May 2026"])
-    : line([assisted ? "Assisted top 10" : course.remaker ? "Unassisted top 10" : "Top 10", date, board ? `Board ${board}` : ""]);
+    : line([!assisted && course.remaker ? "Unassisted top 10" : "Top 10", date, board ? `Board ${board}` : ""]);
   const credits = line([field("Code", legacy ? course.legacyCode : course.code), field("Creator", course.by),
     legacy ? "" : field("Remaker", course.remaker)]);
 
