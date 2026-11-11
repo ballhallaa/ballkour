@@ -11,8 +11,9 @@
 // and it's lucio.surf's curve for a player who has run every map, at a tenth of its 10,000 (it was 10,000 here too
 // until November 2026). A rating is the average over every course that isn't
 // broken, with 0 for the ones a player hasn't run (and for courses nobody has run yet), so a new or faster run never
-// lowers it, and the first run on a course changes nobody else's rating. A player's tier is their place divided by the number of rated players: #4 of 40 is in the Top 10%.
-// Everyone past the last tier (the bottom 10%) is just Rated.
+// lowers it, and the first run on a course changes nobody else's rating. A player's tier is the share of rated
+// players ahead of them: #1 is always in the Top 0.1%, and #5 of 40 (4 ahead, 10%) is in the Top 10%. Everyone past
+// the last tier (the bottom 10%) is just Rated.
 //
 // The assisted boards (runs played in Assist Mode) have a rating of their own, worked out the same way from those
 // boards alone (loadCourses({ assisted: true }) in boards.mjs), and so do the legacy boards, from before May 2026
@@ -86,7 +87,7 @@ export function rate(courses) {
   const same = (a, b) => Math.round(a.rating * 100) === Math.round(b.rating * 100);
   list.forEach((p, i) => {
     p.rank = i > 0 && same(list[i - 1], p) ? list[i - 1].rank : i + 1;
-    p.tier = TIERS.find((tier) => (p.rank / list.length) * 100 <= tier + 1e-9) ?? null;
+    p.tier = TIERS.find((tier) => ((p.rank - 1) / list.length) * 100 <= tier + 1e-9) ?? null;
   });
   return { counted, players: list };
 }
