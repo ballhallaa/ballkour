@@ -9,7 +9,8 @@
 // for everyone else. Everyone has one of each set. And so do the legacy boards, from before May 2026: Top 0.1%
 // (Legacy) to Top 90% (Legacy) and Rated (Legacy), only for the players on them (there's no Unrated (Legacy)). And so
 // does the Global rating, the unassisted and assisted ratings added up: Top 0.1% (Global) to Top 90% (Global), Rated
-// (Global), and Unrated (Global), and Top 10 (Global) for its 10 best players.
+// (Global), and Unrated (Global), and Top 10 (Global) for its 10 best players, then Former Top 10 (Global) once they
+// drop out of them.
 //
 // It also gives out Top 10 to anyone with a run on a course's top 10, and Former Top 10 once none of their runs is on
 // one any more (see "Top 10 and Former Top 10" below), the same with Top 10 (Assisted) and Former Top 10 (Assisted)
@@ -25,13 +26,14 @@
 //
 // The rating roles and the assisted Top 10 roles are found by name, so keep the words of their names as they are.
 // Emojis or symbols around them are fine ("🥇 Top 10%", "🥇 Top 10% (Assisted)"), and so are their color and place in
-// the list. Any that are missing are made, with no permissions. Top 10, Former Top 10 and Legacy Top 10 are found by
-// their IDs in courses.json instead, and so is the ratings heading. The bot needs Manage Roles, its own role has to be above the rating
-// roles in Server Settings → Roles, and it needs the Server Members Intent (Developer Portal → Bot) to see who has a
-// rating role now. Without the intent, it only checks the rated players, and nobody gets Unrated.
+// the list. Any that are missing are made, with no permissions. Top 10, Former Top 10, Former Top 10 (Global) and
+// Legacy Top 10 are found by their IDs in courses.json instead, and so is the ratings heading. The bot needs Manage
+// Roles, its own role has to be above the rating roles in Server Settings → Roles, and it needs the Server Members
+// Intent (Developer Portal → Bot) to see who has a rating role now. Without the intent, it only checks the rated
+// players, and nobody gets Unrated.
 import { GUILD, ROLES, HISTORY, DISCORD_ID, loadCourses, readData } from "./boards.mjs";
 import { TOKEN, api } from "./discord.mjs";
-import { TIERS, UNASSISTED_SUFFIX, ASSISTED_SUFFIX, LEGACY_SUFFIX, GLOBAL_SUFFIX, roleName, rate, combine, standings, sameRun } from "./ratings.mjs";
+import { TIERS, UNASSISTED_SUFFIX, ASSISTED_SUFFIX, LEGACY_SUFFIX, GLOBAL_SUFFIX, roleName, rate, combine, everGlobalTop10, standings, sameRun } from "./ratings.mjs";
 
 const DRY = !!process.env.DRY_RUN;
 
@@ -113,13 +115,6 @@ top10Sets.push({
   former: await roleNamed("Former Top 10" + ASSISTED_SUFFIX),
   courses: assistedCourses,
 });
-// Top 10 (Global): the Global rating's 10 best players (and anyone tied with #10), found by name too. It goes when they
-// drop out of them, with no Former one.
-const globalTop10 = {
-  name: "Top 10" + GLOBAL_SUFFIX,
-  role: await roleNamed("Top 10" + GLOBAL_SUFFIX),
-  now: new Set(ratings.at(-1).players.filter((p) => p.discord && p.rank <= 10).map((p) => p.discord)),
-};
 for (const set of top10Sets) {
   set.now = new Set();
   set.was = new Set();
@@ -128,6 +123,17 @@ for (const set of top10Sets) {
     for (const r of c.boards.flat()) if (r.discord && !c.removed.some((x) => sameRun(x, r))) set.was.add(r.discord);
   }
 }
+// Top 10 (Global): the Global rating's 10 best players (and anyone tied with #10), found by name too, and Former Top 10
+// (Global) once they drop out of them, found by its ID in courses.json (or else by name). Who has been in them is
+// worked out again from the runs each time (see everGlobalTop10 in ratings.mjs), the way the posted boards are for
+// Former Top 10.
+top10Sets.push({
+  name: "Top 10" + GLOBAL_SUFFIX,
+  top: await roleNamed("Top 10" + GLOBAL_SUFFIX),
+  former: ROLES.formerTop10Global || (await roleNamed("Former Top 10" + GLOBAL_SUFFIX)),
+  now: new Set(ratings.at(-1).players.filter((p) => p.discord && p.rank <= 10).map((p) => p.discord)),
+  was: everGlobalTop10(courses, assistedCourses),
+});
 
 /* Legacy Top 10: who has a run on a course's legacy top 10 (history.json's "legacy", from before May 2026). It's the
    top 10 the website's legacy boards show: each player once, with their best run, fastest first (ties go to fewer
@@ -228,7 +234,8 @@ for (const m of members) {
   }
 }
 /* Top 10 for a run on a top 10 now, Former Top 10 once there's none. Former is only ever taken away from someone back
-   on a top 10, so one given by hand stays. The same for Top 10 (Assisted) and Former Top 10 (Assisted). */
+   on a top 10, so one given by hand stays. The same for Top 10 (Assisted) and Former Top 10 (Assisted), and for Top 10
+   (Global) and Former Top 10 (Global), from a place in the Global rating's top 10. */
 for (const set of top10Sets) {
   const former = "Former " + set.name;
   for (const m of members) {
@@ -253,24 +260,6 @@ for (const set of top10Sets) {
         console.error(`Couldn't change ${who}'s roles. Ballkyrie's own role has to be above ${set.name} and ${former} too.\n  ${e.message}`);
       }
     }
-  }
-}
-/* Top 10 (Global) for the Global rating's top 10, and taken away from anyone else who has it */
-for (const m of members) {
-  const id = m.user.id;
-  const now = globalTop10.now.has(id);
-  if (m.user.bot || now === m.roles.includes(globalTop10.role)) continue;
-  const who = nameOf.get(id) || m.nick || m.user.global_name || m.user.username;
-  const [method, plan, done] = now ? ["PUT", "give", "Gave"] : ["DELETE", "take", "Took"];
-  const what = `${globalTop10.name} ${now ? "to" : "from"} ${who}`;
-  changes++;
-  if (DRY) { console.log(`Would ${plan} ${what}`); continue; }
-  try {
-    await api(method, `/guilds/${GUILD}/members/${id}/roles/${globalTop10.role}`);
-    console.log(`${done} ${what}`);
-  } catch (e) {
-    failed = true;
-    console.error(`Couldn't change ${who}'s roles. Ballkyrie's own role has to be above ${globalTop10.name} too.\n  ${e.message}`);
   }
 }
 /* Legacy Top 10 for a run on a legacy top 10. It's only ever given, never taken away, so one given by hand stays (and
