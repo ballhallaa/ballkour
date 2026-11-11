@@ -191,9 +191,9 @@ rule "Load HUD":
     faqHudText[3] = (
         "\n\n<fg80D0FFFF>How do I get on the leaderboard?</fg>"
         "\nFinish a valid run and submit it at ballkour.com. Only top 10 runs need a video for proof."
-        "\n<fgE69700FF>All-Time Top 3</fg> shows the leaderboard's 3 fastest runs."
+        "\n<fgE69700FF>All-Time Top 3</fg> shows the 3 fastest runs on the leaderboard and the <fgFF80C0FF>assisted</fg> one."
         "\n<fgE69700FF>Lobby Top 3</fg> lists the fastest valid runs finished in this lobby."
-        "\nIn <fgFF80C0FF>Assist Mode</fg>, <fgFF80C0FF>Assisted Top 3</fg> replaces <fgE69700FF>All-Time Top 3</fg>, and <fgE69700FF>Lobby Top 3</fg> lists <fgFF80C0FF>assisted</fg> runs."
+        "\nBoth mark <fgFF80C0FF>assisted</fg> runs with <fgFF80C0FF>*</fg>."
     )
     faqHudText[4] = (
         "\n\n<fg80D0FFFF>When does my run's timer start?</fg>"

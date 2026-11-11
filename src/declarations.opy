@@ -17,6 +17,7 @@ globalvar assistedLb
 globalvar lbPos
 globalvar lbObj
 globalvar lbRank
+globalvar lbTimeChar
 globalvar lbRunCount
 globalvar assistedRunCount
 # Each row's text, the regular leaderboard's at 1 to 10 and the assisted one's at 11 to 20,
@@ -93,13 +94,12 @@ globalvar scorecardPlayers
 globalvar scorecardSorted
 globalvar scorecardRow
 globalvar scorecardTime
-# The Lobby Top 3 at [0], and at [1] the lobby's assisted one, for runs played in Assist Mode
-# (Completion: Record Top Run), and the All-Time Top 3 and assisted leaderboard's Top 3 the same
-# way (Lobby: Load Leaderboard)
-globalvar topRuns = [[], []]
+# The Lobby Top 3 (Completion: Record Top Run) and the All-Time Top 3 (Lobby: Load
+# Leaderboard), assisted runs included, marked
+globalvar topRuns = []
 globalvar topRunsScratch
-globalvar topRunsText = ["", ""]
-globalvar allTimeRunsText = ["", ""]
+globalvar topRunsText = ""
+globalvar allTimeRunsText = ""
 
 # Spectating
 globalvar playerToEnableFreecam
@@ -121,7 +121,6 @@ globalvar spectatorHudText = []
 globalvar completionHudText = []
 globalvar topRunsHudText
 globalvar allTimeRunsHudText
-globalvar assistedRunsHudText
 globalvar lobbyHudText = []
 globalvar faqHudText = []
 

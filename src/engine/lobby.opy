@@ -562,6 +562,7 @@ rule "Load Leaderboard":
         lb[10 + index] = assistedLb[index]
     lbRowText = []
     lbRunText = []
+    topRunsScratch = []
     for index in range(1, 21):
         # The row's place on its own leaderboard
         lbRank = (index - 1) % 10 + 1
@@ -607,24 +608,52 @@ rule "Load Leaderboard":
             iconString(Icon.SKULL),
             lbObj[2]
         )
-        # Each leaderboard's first 3 runs are also its Top 3 on the HUD: the All-Time Top 3,
-        # or the assisted one's in Assist Mode (Run: Load HUD), laid out like the Lobby Top 3
-        # (Completion: Record Top Run), × and all
+        # Each leaderboard's first 3 runs are up for the All-Time Top 3 on the HUD (below),
+        # in topRunsScratch as [0]time [1]name [2]mistakes [3]timeFormatted [4]assisted
         if lbRank <= min(lbRunCount if index <= 10 else assistedRunCount, 3):
             lbObj[1] = lbObj[1].replace(" ", "")
             lbObj[2] = lbObj[2].replace(" ", "")
-            allTimeRunsText[floor((index - 1) / 10)] = (
-                "{}\n{}{}   {}{}{}×{}{}</fg>".format(
-                    allTimeRunsText[floor((index - 1) / 10)],
-                    lbObj[4],
-                    lbRank,
-                    lbObj[1],
-                    "     " if strLen(lbObj[1]) < 8 else "   ",
-                    lbObj[2],
-                    "     " if strLen(lbObj[2]) < 2 else "   ",
-                    lbObj[0]
-                )
+            # The time in seconds, read like the time to beat (Match: Initialize): each ":"
+            # carries the units read so far into the next one, which leaves the seconds and
+            # hundredths in lbObj[6] as one number (SScc)
+            lbObj[5] = 0
+            lbObj[6] = 0
+            for lbTimeChar in range(strLen(lbObj[1])):
+                if lbObj[1].charAt(lbTimeChar) == ":":
+                    lbObj[5] = (lbObj[5] + lbObj[6]) * 60
+                    lbObj[6] = 0
+                elif lbObj[1].charAt(lbTimeChar) != ".":
+                    lbObj[6] = lbObj[6] * 10 + "0123456789".strIndex(
+                        lbObj[1].charAt(lbTimeChar)
+                    )
+            topRunsScratch[len(topRunsScratch)] = [
+                lbObj[5] + lbObj[6] / 100,
+                lbObj[0],
+                lbObj[2],
+                lbObj[1],
+                index > 10
+            ]
+    # The All-Time Top 3 (Run: Load HUD): the 3 fastest runs of both leaderboards, one per
+    # player, laid out like the Lobby Top 3 (Completion: Record Top Run), × and *, and all
+    topRunsScratch = sorted(topRunsScratch, lambda run: run[0])
+    allTimeRunsText = ""
+    lbRank = 0
+    for index in range(len(topRunsScratch)):
+        if lbRank < 3 and not topRunsScratch[index][1] in [
+            run[1] for run in topRunsScratch.slice(0, index)
+        ]:
+            allTimeRunsText = "{}\n{}{}   {}{}{}×{}{}</fg>{}".format(
+                allTimeRunsText,
+                ["<fgFFFF00FF>", "<fgB0C4DEFF>", "<fgC46A30FF>"][lbRank],
+                lbRank + 1,
+                topRunsScratch[index][3],
+                "     " if strLen(topRunsScratch[index][3]) < 8 else "   ",
+                topRunsScratch[index][2],
+                "     " if strLen(topRunsScratch[index][2]) < 2 else "   ",
+                topRunsScratch[index][1],
+                "<fgFF80C0FF>*</fg>" if topRunsScratch[index][4] else ""
             )
+            lbRank++
     # The rows, which show the runs of the leaderboard each player picked (lbBoard)
     for index in range(1, 11):
         createInWorldText(
@@ -902,15 +931,7 @@ rule "Load Languages":
         .replace("\n", "")
         .replace("@0", hudPageValue(HUD_PACE, localPlayer.paceEtaFormatted))
     )
-    languageRow(
-        13,
-        HUD_ALL_TIME_TOP,
-        (
-            _(assistedRunsHudText)
-            if assistedTopOf(localPlayer)
-            else _(allTimeRunsHudText)
-        )
-    )
+    languageRow(13, HUD_ALL_TIME_TOP, _(allTimeRunsHudText))
     languageRow(14, HUD_LOBBY_TOP, _(topRunsHudText))
     # The HUD page's rows differ in width, so its arrows clear its widest
     createInWorldText(
@@ -1088,11 +1109,11 @@ rule "Load HUD Page":
     hudPageAllTimeText = (
         "\n<fgFFFF00FF>1   3:41.07     4×     TurboHamster</fg>"
         "\n<fgB0C4DEFF>2   3:48.52     9×     OrbWeaver</fg>"
-        "\n<fgC46A30FF>3   4:02.19     11×   BoopMachine</fg>"
+        "\n<fgC46A30FF>3   4:02.19     11×   BoopMachine</fg><fgFF80C0FF>*</fg>"
     )
     hudPageTopRunsText = (
         "\n<fgFFFF00FF>1   4:15.66     7×     DizzyDrifter</fg>"
-        "\n<fgB0C4DEFF>2   4:31.40     13×   SlamJam</fg>"
+        "\n<fgB0C4DEFF>2   4:31.40     13×   SlamJam</fg><fgFF80C0FF>*</fg>"
         "\n<fgC46A30FF>3   5:07.93     18×   LooseCannon</fg>"
     )
 
