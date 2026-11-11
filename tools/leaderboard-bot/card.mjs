@@ -86,9 +86,11 @@ body { margin: 0; background: var(--void); }
 .title { margin: 0; display: flex; align-items: center; gap: 16px; font: italic 800 54px/0.9 var(--display), var(--cjk); text-transform: uppercase; letter-spacing: .005em;
   text-shadow: .035em 0 0 rgba(255,154,46,.8), -.035em 0 0 rgba(51,198,255,.75), 0 0 .45em rgba(0,230,151,.3); }
 .flag { font: 400 40px/1 var(--emoji); text-shadow: none; }
-/* After an assisted board's course name: its runs were played in Assist Mode, in the game's own pink for it */
+/* After an assisted board's course name: its runs were played in Assist Mode, in the game's own pink for it. A
+   remake's regular board, which has an assisted one beside it, gets an orange Unassisted one, the game's orange. */
 .mode { flex: none; padding: 8px 12px 7px; border-radius: 8px; font: normal 700 17px/1 var(--mono); letter-spacing: .14em; color: var(--pink);
   background: rgba(255,128,192,.12); border: 1px solid rgba(255,128,192,.5); text-shadow: none; }
+.mode.unassisted { color: #e69700; background: rgba(230,151,0,.12); border-color: rgba(230,151,0,.5); }
 .sub { margin-top: 12px; display: flex; gap: 10px; font: 600 15px/1 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
 .sub b { color: var(--ink-2); font-weight: 600; }
 .sub + .sub { margin-top: 9px; }
@@ -138,7 +140,7 @@ ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
   <canvas id="warp"></canvas>
   <div class="head">
     <div>
-      <h1 class="title"><span class="flag">${course.flag || ""}</span>${esc(course.name)}${assisted ? `<span class="mode">Assisted</span>` : ""}</h1>
+      <h1 class="title"><span class="flag">${course.flag || ""}</span>${esc(course.name)}${assisted ? `<span class="mode">Assisted</span>` : !legacy && course.remaker ? `<span class="mode unassisted">Unassisted</span>` : ""}</h1>
       <div class="sub">${sub}</div>
       ${credits ? `<div class="sub">${credits}</div>` : ""}
     </div>
