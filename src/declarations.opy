@@ -265,6 +265,8 @@ playervar ultInputDone
 playervar watchInputKey
 playervar watchInputLastKey
 playervar watchInputDone
+# Prev./Next CP: the steps a hold has taken so far, which make each next step longer (cpHoldStep)
+playervar cpHoldSteps
 
 # Spectating
 playervar spectating

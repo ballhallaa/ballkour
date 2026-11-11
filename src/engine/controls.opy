@@ -492,6 +492,21 @@ macro canGoToNextCp(player):
     )
 
 
+# Prev./Next CP held: after the first CP and a 0.25s wait, a step of one CP every 0.12s, each
+# wait 0.01s shorter down to 0.02s (10 steps, ~0.75s), so nearby CPs are easy to stop on, then
+# one CP longer every CP_HOLD_RAMP steps (~0.5s), so far CPs come up faster the longer it's held
+macro CP_HOLD_RAMP = 15
+
+
+macro cpHoldStep():
+    (1 + floor(eventPlayer.cpHoldSteps / CP_HOLD_RAMP))
+
+
+# After cpHoldSteps++, so the first step waits 0.12s
+macro cpHoldWait():
+    max(0.02, 0.13 - 0.01 * eventPlayer.cpHoldSteps)
+
+
 # The inputs that need the player out of the lobby: Freemode and Assist Mode, Prev. and Next
 # CP. Freemode's keys also work on the last CP, held, for Assist Mode.
 macro ultCourseInputReady():
@@ -637,6 +652,7 @@ def prevCpInput():
             or (eventPlayer.spectating[4] > 0 and eventPlayer.spectating[0])
         )
     ):
+        eventPlayer.cpHoldSteps = 0
         while (
             eventPlayer.isHoldingButton(Button.ULTIMATE)
             and eventPlayer.isHoldingButton(Button.PRIMARY_FIRE)
@@ -646,14 +662,19 @@ def prevCpInput():
             )
         ):
             if not eventPlayer.spectating[0]:
-                eventPlayer.runCurrentCp--
+                eventPlayer.runCurrentCp = max(
+                    eventPlayer.runCurrentCp - cpHoldStep(), 0
+                )
                 syncSpectatorCps()
                 eventPlayer.teleport(cps[eventPlayer.runCurrentCp][0])
                 showCpNameplate()
             else:
-                eventPlayer.spectating[4]--
+                eventPlayer.spectating[4] = max(
+                    eventPlayer.spectating[4] - cpHoldStep(), 0
+                )
                 eventPlayer.teleport(cps[eventPlayer.spectating[4]][0])
-            wait(0.02)
+            eventPlayer.cpHoldSteps++
+            wait(cpHoldWait())
         loadCpData()
         cpResetPlayer()
         setCpAbilities()
@@ -705,6 +726,7 @@ def nextCpInput():
             or (eventPlayer.spectating[4] < lastCp and eventPlayer.spectating[0])
         )
     ):
+        eventPlayer.cpHoldSteps = 0
         while (
             eventPlayer.isHoldingButton(Button.ULTIMATE)
             and eventPlayer.isHoldingButton(Button.SECONDARY_FIRE)
@@ -714,19 +736,26 @@ def nextCpInput():
             )
         ):
             if not eventPlayer.spectating[0]:
+                # A step that reaches the last CP stops there, and disqualifies the run first,
+                # as a single skip onto it does
                 if (
-                    eventPlayer.runCurrentCp + 1 == lastCp
+                    eventPlayer.runCurrentCp + cpHoldStep() >= lastCp
                     and eventPlayer.runFurthestCp < lastCp
                 ):
                     eventPlayer.isRunLegit = false
-                eventPlayer.runCurrentCp++
+                eventPlayer.runCurrentCp = min(
+                    eventPlayer.runCurrentCp + cpHoldStep(), lastCp
+                )
                 eventPlayer.teleport(cps[eventPlayer.runCurrentCp][0])
                 showCpNameplate()
             else:
-                eventPlayer.spectating[4]++
+                eventPlayer.spectating[4] = min(
+                    eventPlayer.spectating[4] + cpHoldStep(), lastCp
+                )
                 eventPlayer.teleport(cps[eventPlayer.spectating[4]][0])
             syncSpectatorCps()
-            wait(0.02)
+            eventPlayer.cpHoldSteps++
+            wait(cpHoldWait())
         loadCpData()
         cpResetPlayer()
         setCpAbilities()
