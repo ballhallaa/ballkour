@@ -92,6 +92,10 @@ msgid "@0Freemode:                                @1@2 + @3</fg>"
 msgstr "@0自由模式：                                     @1@2 + @3</fg>"
 
 #. file controls.opy, rule "Load HUD"
+msgid "@0Assist Mode:               @1@2 + @3 (Hold)</fg>"
+msgstr "@0輔助模式：                          @1@2 + @3 (長按)</fg>"
+
+#. file controls.opy, rule "Load HUD"
 msgid "@0Hints:                                         @1@2 + @3</fg>"
 msgstr "@0提示：                                           @1@2 + @3</fg>"
 
@@ -157,10 +161,6 @@ msgstr "@0準星所指玩家：          @1@2 + @3</fg>@4"
 msgid "Freecam:                             <fgFFFFFFFF>Move</fg>"
 msgstr "自由視角：                                        <fgFFFFFFFF>移動</fg>"
 
-#. file controls.opy, rule "Load HUD"
-msgid "@0Assist Mode:               @1@2 + @3 (Hold)</fg>"
-msgstr "@0輔助模式：                          @1@2 + @3 (長按)</fg>"
-
 #. file faq.opy, rule "Load HUD"
 msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
 msgstr "常見問題：<fgFFFFFFFF>@0 + @1</fg>"
@@ -194,6 +194,14 @@ msgid "Resume Run"
 msgstr "繼續遊戲"
 
 #. file lobby.opy, rule "Load Buttons"
+msgid "Hide All"
+msgstr "全部隱藏"
+
+#. file lobby.opy, rule "Load Buttons"
+msgid "Show All"
+msgstr "全部顯示"
+
+#. file lobby.opy, rule "Load Buttons"
 msgid "Spectate"
 msgstr "觀戰"
 
@@ -204,14 +212,6 @@ msgstr "常見問題"
 #. file lobby.opy, rule "Load Buttons"
 msgid "Customize HUD"
 msgstr "自訂介面"
-
-#. file lobby.opy, rule "Load Buttons"
-msgid "Hide All"
-msgstr "全部隱藏"
-
-#. file lobby.opy, rule "Load Buttons"
-msgid "Show All"
-msgstr "全部顯示"
 
 #. file lobby.opy, rule "Load Languages"
 msgid "Language"
@@ -228,20 +228,20 @@ msgid "Leaderboard"
 msgstr "排行榜"
 
 #. file lobby.opy, rule "Load Leaderboard"
-msgid "Back"
-msgstr "返回"
-
-#. file lobby.opy, rule "Load Leaderboard"
-msgid "Click on a Run to View More Info"
-msgstr "點擊紀錄查看詳情"
-
-#. file lobby.opy, rule "Load Leaderboard"
 msgid "Unassisted"
 msgstr "無輔助"
 
 #. file lobby.opy, rule "Load Leaderboard"
 msgid "Assisted"
 msgstr "輔助"
+
+#. file lobby.opy, rule "Load Leaderboard"
+msgid "Back"
+msgstr "返回"
+
+#. file lobby.opy, rule "Load Leaderboard"
+msgid "Click on a Run to View More Info"
+msgstr "點擊紀錄查看詳情"
 
 #. file lobby.opy, rule "Show HUD Page"
 msgid "Scores"
@@ -316,6 +316,10 @@ msgid "All-Time Top 3"
 msgstr "歷史前三名"
 
 #. file run.opy, rule "Load HUD"
+msgid "Assisted Top 3"
+msgstr "輔助前三名"
+
+#. file run.opy, rule "Load HUD"
 msgid "Lobby Top 3"
 msgstr "大廳前三名"
 
@@ -326,10 +330,6 @@ msgstr "已取消資格"
 #. file run.opy, rule "Load HUD"
 msgid "Assist Mode On"
 msgstr "輔助模式已開啟"
-
-#. file run.opy, rule "Load HUD"
-msgid "Assisted Top 3"
-msgstr "輔助前三名"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"

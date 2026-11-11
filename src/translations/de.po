@@ -89,7 +89,11 @@ msgstr "Neuer Lauf:                    <fgFFFFFFFF>@0 + @1 (halten)</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid "@0Freemode:                                @1@2 + @3</fg>"
-msgstr "@0Freier Modus:                               @1@2 + @3</fg>"
+msgstr "@0Freier Modus:                             @1@2 + @3</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "@0Assist Mode:               @1@2 + @3 (Hold)</fg>"
+msgstr "@0Assistenzmodus:        @1@2 + @3 (halten)</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid "@0Hints:                                         @1@2 + @3</fg>"
@@ -157,10 +161,6 @@ msgstr "@0Anvisierter Spieler:       @1@2 + @3</fg>@4"
 msgid "Freecam:                             <fgFFFFFFFF>Move</fg>"
 msgstr "Freie Kamera:                          <fgFFFFFFFF>Bewegen</fg>"
 
-#. file controls.opy, rule "Load HUD"
-msgid "@0Assist Mode:               @1@2 + @3 (Hold)</fg>"
-msgstr "@0Assistenzmodus:          @1@2 + @3 (halten)</fg>"
-
 #. file faq.opy, rule "Load HUD"
 msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
 msgstr "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
@@ -194,6 +194,14 @@ msgid "Resume Run"
 msgstr "Lauf fortsetzen"
 
 #. file lobby.opy, rule "Load Buttons"
+msgid "Hide All"
+msgstr "Alle ausblenden"
+
+#. file lobby.opy, rule "Load Buttons"
+msgid "Show All"
+msgstr "Alle einblenden"
+
+#. file lobby.opy, rule "Load Buttons"
 msgid "Spectate"
 msgstr "Zuschauen"
 
@@ -204,14 +212,6 @@ msgstr "FAQ"
 #. file lobby.opy, rule "Load Buttons"
 msgid "Customize HUD"
 msgstr "HUD anpassen"
-
-#. file lobby.opy, rule "Load Buttons"
-msgid "Hide All"
-msgstr "Alle ausblenden"
-
-#. file lobby.opy, rule "Load Buttons"
-msgid "Show All"
-msgstr "Alle einblenden"
 
 #. file lobby.opy, rule "Load Languages"
 msgid "Language"
@@ -228,20 +228,20 @@ msgid "Leaderboard"
 msgstr "Bestenliste"
 
 #. file lobby.opy, rule "Load Leaderboard"
-msgid "Back"
-msgstr "Zurück"
-
-#. file lobby.opy, rule "Load Leaderboard"
-msgid "Click on a Run to View More Info"
-msgstr "Klicke auf einen Lauf für mehr Infos"
-
-#. file lobby.opy, rule "Load Leaderboard"
 msgid "Unassisted"
 msgstr "Ohne Assistenz"
 
 #. file lobby.opy, rule "Load Leaderboard"
 msgid "Assisted"
 msgstr "Assistiert"
+
+#. file lobby.opy, rule "Load Leaderboard"
+msgid "Back"
+msgstr "Zurück"
+
+#. file lobby.opy, rule "Load Leaderboard"
+msgid "Click on a Run to View More Info"
+msgstr "Klicke auf einen Lauf für mehr Infos"
 
 #. file lobby.opy, rule "Show HUD Page"
 msgid "Scores"
@@ -316,6 +316,10 @@ msgid "All-Time Top 3"
 msgstr "Allzeit-Top 3"
 
 #. file run.opy, rule "Load HUD"
+msgid "Assisted Top 3"
+msgstr "Assistierte Top 3"
+
+#. file run.opy, rule "Load HUD"
 msgid "Lobby Top 3"
 msgstr "Lobby-Top 3"
 
@@ -326,10 +330,6 @@ msgstr "Disqualifiziert"
 #. file run.opy, rule "Load HUD"
 msgid "Assist Mode On"
 msgstr "Assistenzmodus an"
-
-#. file run.opy, rule "Load HUD"
-msgid "Assisted Top 3"
-msgstr "Assistierte Top 3"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"

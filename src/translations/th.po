@@ -92,6 +92,10 @@ msgid "@0Freemode:                                @1@2 + @3</fg>"
 msgstr "@0โหมดอิสระ:                                        @1@2 + @3</fg>"
 
 #. file controls.opy, rule "Load HUD"
+msgid "@0Assist Mode:               @1@2 + @3 (Hold)</fg>"
+msgstr "@0โหมดช่วยเหลือ:                     @1@2 + @3 (กดค้าง)</fg>"
+
+#. file controls.opy, rule "Load HUD"
 msgid "@0Hints:                                         @1@2 + @3</fg>"
 msgstr "@0คำใบ้:                                                @1@2 + @3</fg>"
 
@@ -157,10 +161,6 @@ msgstr "@0ผู้เล่นที่เล็งอยู่:               
 msgid "Freecam:                             <fgFFFFFFFF>Move</fg>"
 msgstr "กล้องอิสระ:                                      <fgFFFFFFFF>เคลื่อนที่</fg>"
 
-#. file controls.opy, rule "Load HUD"
-msgid "@0Assist Mode:               @1@2 + @3 (Hold)</fg>"
-msgstr "@0โหมดช่วยเหลือ:                     @1@2 + @3 (กดค้าง)</fg>"
-
 #. file faq.opy, rule "Load HUD"
 msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
 msgstr "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
@@ -194,6 +194,14 @@ msgid "Resume Run"
 msgstr "เล่นต่อ"
 
 #. file lobby.opy, rule "Load Buttons"
+msgid "Hide All"
+msgstr "ซ่อนทั้งหมด"
+
+#. file lobby.opy, rule "Load Buttons"
+msgid "Show All"
+msgstr "แสดงทั้งหมด"
+
+#. file lobby.opy, rule "Load Buttons"
 msgid "Spectate"
 msgstr "ชม"
 
@@ -204,14 +212,6 @@ msgstr "FAQ"
 #. file lobby.opy, rule "Load Buttons"
 msgid "Customize HUD"
 msgstr "ปรับแต่ง HUD"
-
-#. file lobby.opy, rule "Load Buttons"
-msgid "Hide All"
-msgstr "ซ่อนทั้งหมด"
-
-#. file lobby.opy, rule "Load Buttons"
-msgid "Show All"
-msgstr "แสดงทั้งหมด"
 
 #. file lobby.opy, rule "Load Languages"
 msgid "Language"
@@ -228,20 +228,20 @@ msgid "Leaderboard"
 msgstr "กระดานผู้นำ"
 
 #. file lobby.opy, rule "Load Leaderboard"
-msgid "Back"
-msgstr "กลับ"
-
-#. file lobby.opy, rule "Load Leaderboard"
-msgid "Click on a Run to View More Info"
-msgstr "คลิกที่สถิติเพื่อดูข้อมูลเพิ่มเติม"
-
-#. file lobby.opy, rule "Load Leaderboard"
 msgid "Unassisted"
 msgstr "ไม่ช่วยเหลือ"
 
 #. file lobby.opy, rule "Load Leaderboard"
 msgid "Assisted"
 msgstr "ช่วยเหลือ"
+
+#. file lobby.opy, rule "Load Leaderboard"
+msgid "Back"
+msgstr "กลับ"
+
+#. file lobby.opy, rule "Load Leaderboard"
+msgid "Click on a Run to View More Info"
+msgstr "คลิกที่สถิติเพื่อดูข้อมูลเพิ่มเติม"
 
 #. file lobby.opy, rule "Show HUD Page"
 msgid "Scores"
@@ -316,6 +316,10 @@ msgid "All-Time Top 3"
 msgstr "ท็อป 3 ตลอดกาล"
 
 #. file run.opy, rule "Load HUD"
+msgid "Assisted Top 3"
+msgstr "ท็อป 3 แบบช่วยเหลือ"
+
+#. file run.opy, rule "Load HUD"
 msgid "Lobby Top 3"
 msgstr "ท็อป 3 ล็อบบี้"
 
@@ -326,10 +330,6 @@ msgstr "ถูกตัดสิทธิ์"
 #. file run.opy, rule "Load HUD"
 msgid "Assist Mode On"
 msgstr "เปิดโหมดช่วยเหลือ"
-
-#. file run.opy, rule "Load HUD"
-msgid "Assisted Top 3"
-msgstr "ท็อป 3 แบบช่วยเหลือ"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"
