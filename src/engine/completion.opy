@@ -123,7 +123,7 @@ def recordTopRun():
     topRunsText = ""
     # Padded like the scorecard's columns, but for 2-digit mistakes, and times of 7+ characters.
     # The mistakes get a × in the row's color, as a red one marks a disqualified run there.
-    # Assisted runs get a pink * after the name, like Assist Mode's pink, outside the row's
+    # Assisted runs get a pink • after the name, like Assist Mode's pink, outside the row's
     # color, as the scorecard's red × is.
     for index in range(len(topRunsScratch)):
         topRunsText = "{}\n{}{}   {}{}{}×{}{}</fg>{}".format(
@@ -135,7 +135,7 @@ def recordTopRun():
             topRunsScratch[index][2],
             "     " if topRunsScratch[index][2] < 10 else "   ",
             topRunsScratch[index][1],
-            "<fgFF80C0FF>*</fg>" if topRunsScratch[index][4] else ""
+            "<fgFF80C0FF>•</fg>" if topRunsScratch[index][4] else ""
         )
 
 

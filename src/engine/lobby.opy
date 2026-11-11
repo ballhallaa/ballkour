@@ -634,7 +634,7 @@ rule "Load Leaderboard":
                 index > 10
             ]
     # The All-Time Top 3 (Run: Load HUD): the 3 fastest runs of both leaderboards, one per
-    # player, laid out like the Lobby Top 3 (Completion: Record Top Run), × and *, and all
+    # player, laid out like the Lobby Top 3 (Completion: Record Top Run), × and •, and all
     topRunsScratch = sorted(topRunsScratch, lambda run: run[0])
     allTimeRunsText = ""
     lbRank = 0
@@ -651,7 +651,7 @@ rule "Load Leaderboard":
                 topRunsScratch[index][2],
                 "     " if strLen(topRunsScratch[index][2]) < 2 else "   ",
                 topRunsScratch[index][1],
-                "<fgFF80C0FF>*</fg>" if topRunsScratch[index][4] else ""
+                "<fgFF80C0FF>•</fg>" if topRunsScratch[index][4] else ""
             )
             lbRank++
     # The rows, which show the runs of the leaderboard each player picked (lbBoard)
@@ -1109,11 +1109,11 @@ rule "Load HUD Page":
     hudPageAllTimeText = (
         "\n<fgFFFF00FF>1   3:41.07     4×     TurboHamster</fg>"
         "\n<fgB0C4DEFF>2   3:48.52     9×     OrbWeaver</fg>"
-        "\n<fgC46A30FF>3   4:02.19     11×   BoopMachine</fg><fgFF80C0FF>*</fg>"
+        "\n<fgC46A30FF>3   4:02.19     11×   BoopMachine</fg><fgFF80C0FF>•</fg>"
     )
     hudPageTopRunsText = (
         "\n<fgFFFF00FF>1   4:15.66     7×     DizzyDrifter</fg>"
-        "\n<fgB0C4DEFF>2   4:31.40     13×   SlamJam</fg><fgFF80C0FF>*</fg>"
+        "\n<fgB0C4DEFF>2   4:31.40     13×   SlamJam</fg><fgFF80C0FF>•</fg>"
         "\n<fgC46A30FF>3   5:07.93     18×   LooseCannon</fg>"
     )
 

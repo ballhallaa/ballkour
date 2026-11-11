@@ -193,7 +193,7 @@ rule "Load HUD":
         "\nFinish a valid run and submit it at ballkour.com. Only top 10 runs need a video for proof."
         "\n<fgE69700FF>All-Time Top 3</fg> shows the 3 fastest runs on the leaderboard and the <fgFF80C0FF>assisted</fg> one."
         "\n<fgE69700FF>Lobby Top 3</fg> lists the fastest valid runs finished in this lobby."
-        "\nBoth mark <fgFF80C0FF>assisted</fg> runs with <fgFF80C0FF>*</fg>."
+        "\nBoth mark <fgFF80C0FF>assisted</fg> runs with <fgFF80C0FF>•</fg>."
     )
     faqHudText[4] = (
         "\n\n<fg80D0FFFF>When does my run's timer start?</fg>"

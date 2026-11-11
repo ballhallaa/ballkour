@@ -382,7 +382,7 @@ rule "Load HUD":
     # already ends in blank lines, and the CP while spectating ends in 1.
     # In the lobby, with nothing above it, the Lobby Top 3 starts at the top.
     # Both list the assisted leaderboard's runs and the lobby's assisted runs with the rest,
-    # marked with a pink *.
+    # marked with a pink •.
     allTimeRunsHudText = _("All-Time Top 3")
     topRunsHudText = _("Lobby Top 3")
     hudSubheader(
