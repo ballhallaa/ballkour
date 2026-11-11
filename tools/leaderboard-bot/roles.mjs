@@ -12,8 +12,8 @@
 // one any more (see "Top 10 and Former Top 10" below), the same with Top 10 (Assisted) and Former Top 10 (Assisted)
 // for the assisted boards, and Legacy Top 10 to anyone with a run on a course's legacy top 10, from before May 2026
 // (see "Legacy Top 10" below). And the ratings heading, the empty role that heads the rating roles on a member's
-// profile, to everyone with a Top % or Rated role, regular, assisted, or legacy, and takes it away from anyone left with
-// neither (see "The ratings heading" below).
+// profile, to everyone with a rating role, Unrated and Unrated (Assisted) included, which is every member (see "The
+// ratings heading" below).
 //
 // Run by .github/workflows/leaderboard-bot.yml after the boards are posted, and once a day for people who joined the
 // server since. Settings come from the environment:
@@ -161,8 +161,8 @@ try {
 }
 
 /* The ratings heading: an empty role whose name heads the rating roles on a member's profile (like "──── Ratings ────").
-   Everyone with a Top % or Rated role, regular, assisted, or legacy, has it, and nobody else (Unrated and Unrated
-   (Assisted) don't count). Discord's onboarding can take it away when someone changes their Channels & Roles picks, so it's
+   Everyone with a rating role has it: a Top % or Rated role, regular, assisted, or legacy, or Unrated or Unrated
+   (Assisted), which everyone else gets, so that's every member but bots. Discord's onboarding can take it away when someone changes their Channels & Roles picks, so it's
    given back on the next run (after a board is posted, and once a day). It used to be ball-bot's sticky role rule,
    which only knew the regular rating roles. */
 const heading = ROLES.ratingsHeading || "";
@@ -172,12 +172,13 @@ for (const m of members) {
   const id = m.user.id;
   const who = nameOf.get(id) || m.nick || m.user.global_name || m.user.username;
   if (heading && !m.user.bot) {
-    const rated = ratings.some((set) => set.want.has(id));
+    // A rating role from any set: their tier, or Unrated where the set has it (and the members could be listed)
+    const hasRating = ratings.some((set) => set.want.has(id) || (set.unratedRole && everyone));
     const has = m.roles.includes(heading);
-    if (rated !== has) {
+    if (hasRating !== has) {
       changes++;
-      const [method, plan, done] = rated ? ["PUT", "give", "Gave"] : ["DELETE", "take", "Took"];
-      const what = `${headingName} ${rated ? "to" : "from"} ${who}`;
+      const [method, plan, done] = hasRating ? ["PUT", "give", "Gave"] : ["DELETE", "take", "Took"];
+      const what = `${headingName} ${hasRating ? "to" : "from"} ${who}`;
       if (DRY) console.log(`Would ${plan} ${what}`);
       else {
         try {
