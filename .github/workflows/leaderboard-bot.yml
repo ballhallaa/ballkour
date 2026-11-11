@@ -12,6 +12,8 @@
 #   gh workflow run leaderboard-bot.yml --ref develop -f dry_run=false -f course=all -f no_congrats=true
 # With not_new, the pictures have no NEW chip or green border on new runs (add no_congrats to also skip the pings):
 #   gh workflow run leaderboard-bot.yml --ref develop -f dry_run=false -f course=all -f no_congrats=true -f not_new=true
+# With boards, it only posts the unassisted boards, or only the assisted ones:
+#   gh workflow run leaderboard-bot.yml --ref develop -f dry_run=false -f course=all -f no_congrats=true -f boards=unassisted
 # After posting, it gives every rated player their rating role on Discord, Top 0.1% … Top 90% or Rated, the same
 # with (Assisted) for the assisted rating and (Legacy) for the Legacy rating, and Top 10, Former Top 10, Top 10 (Assisted), Former Top 10 (Assisted),
 # Legacy Top 10, and the ratings heading over them (roles.mjs). It also runs once a day, from .github/workflows/leaderboard-daily.yml on
@@ -48,6 +50,11 @@ on:
         description: "Draw the pictures without the NEW chip and green border on new runs"
         type: boolean
         default: false
+      boards:
+        description: "Which boards to post: both, only the unassisted ones, or only the assisted ones"
+        type: choice
+        options: [both, unassisted, assisted]
+        default: both
 
 permissions:
   contents: write
@@ -101,6 +108,7 @@ jobs:
           LEGACY: ${{ inputs.legacy && '1' || '' }}
           NO_CONGRATS: ${{ inputs.no_congrats && '1' || '' }}
           NOT_NEW: ${{ inputs.not_new && '1' || '' }}
+          BOARDS: ${{ inputs.boards }}
         run: node bot.mjs
 
       # One rating role per rated player (Top 0.1% … Top 90%, or Rated), even when no board changed. Not for legacy boards.

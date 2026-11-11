@@ -23,6 +23,8 @@
 //                      pictures without pinging their runners a second time.
 //   NOT_NEW=1          draw the pictures without the NEW chip and green border on new runs. The "Congrats …"
 //                      line is unchanged (NO_CONGRATS leaves that out).
+//   BOARDS=…           unassisted or assisted: only post that kind of board, the regular ones or the assisted ones,
+//                      as when posting boards again with FORCE_COURSE. Both, without it.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -58,6 +60,11 @@ const FORCE = forced(process.env.FORCE_COURSE);
 const LEGACY = !!process.env.LEGACY;
 const NO_CONGRATS = !!process.env.NO_CONGRATS;
 const NOT_NEW = !!process.env.NOT_NEW;
+const BOARDS = String(process.env.BOARDS || "both").trim().toLowerCase();
+if (!["both", "unassisted", "assisted"].includes(BOARDS)) {
+  console.error(`BOARDS is ${JSON.stringify(process.env.BOARDS)}: use unassisted, assisted, or both`);
+  process.exit(1);
+}
 
 /* ---------- History ---------- */
 // The player is their Discord ID when both runs have one, and their name otherwise
@@ -197,8 +204,8 @@ for (const course of LEGACY ? COURSES : []) {
 // rating is shown on their rows: their rating over every course, or on an assisted board, their assisted rating
 // (none on legacy boards, which count toward neither).
 const kinds = LEGACY ? [] : [
-  { assisted: false, key: "boards", courses: loadCourses() },
-  { assisted: true, key: ASSISTED, courses: loadCourses({ assisted: true }) },
+  ...(BOARDS !== "assisted" ? [{ assisted: false, key: "boards", courses: loadCourses() }] : []),
+  ...(BOARDS !== "unassisted" ? [{ assisted: true, key: ASSISTED, courses: loadCourses({ assisted: true }) }] : []),
 ];
 for (const kind of kinds) {
   kind.ratingOf = new Map(rate(kind.courses).players.map((p) => [p.key, p.rating]));
@@ -230,7 +237,7 @@ for (const kind of kinds) {
 }
 if (!jobs.length) {
   console.log(LEGACY ? "None of those courses have a legacy board to post."
-    : FORCE ? "None of those course numbers exist." : "No leaderboard changed since the last posted board.");
+    : FORCE ? "None of those courses has a board to post." : "No leaderboard changed since the last posted board.");
   process.exit(FORCE || LEGACY ? 1 : 0);
 }
 
