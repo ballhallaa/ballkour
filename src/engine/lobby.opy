@@ -1138,13 +1138,18 @@ rule "Show HUD Page":
         hudLeftPos[HUD_HINTS],
         rgb(230, 151, 0)
     )
-    # Disqualified can't be turned off (Run: isDisqualifiedShown), so its row is struck
+    # Assist Mode On and Disqualified, which share a line, can't be turned off (Run:
+    # isDisqualifiedShown), so their row lists both, Assist Mode On in its pink, and is struck
     # through. The Workshop has no strikethrough, so a line of em dashes lies over it, about as
-    # wide as its text: 0.6 dashes per Latin or Cyrillic letter, 1 per CJK character, and 0.4
-    # per Thai character, as Thai counts its marks as characters.
+    # wide as its text: 0.75 dashes per Latin or Cyrillic letter (21 cover ASSIST MODE ON /
+    # DISQUALIFIED), 1 per CJK character, and 0.4 per Thai character, as Thai counts its marks
+    # as characters, and 1.8 for the " / ". Up to 50 dashes fit.
     createInWorldText(
         getAllPlayers().filter(lambda localPlayer: isHudPage(localPlayer)),
-        _(counterHudText[3]).replace("\n", ""),
+        "<fgFF80C0FF>{}</fg> / {}".format(
+            _(counterHudText[4]).replace("\n", ""),
+            _(counterHudText[3]).replace("\n", "")
+        ),
         hudDisqualifiedPos,
         HUD_ROW_SIZE,
         Clip.NONE,
@@ -1154,13 +1159,30 @@ rule "Show HUD Page":
     hudPageTexts.append(getLastCreatedText())
     createInWorldText(
         getAllPlayers().filter(lambda localPlayer: isHudPage(localPlayer)),
-        "——————————————".substring(
+        "——————————————————————————————————————————————————".substring(
             0,
             round(
-                strLen(_(counterHudText[3]).replace("\n", ""))
-                * [0.6, 0.6, 0.6, 0.6, 0.6, 1, 1, 0.6, 0.6, 0.6, 0.4, 0.6, 1, 1][
-                    localPlayer.__languageIndex__
-                ]
+                (
+                    strLen(_(counterHudText[3]).replace("\n", ""))
+                    + strLen(_(counterHudText[4]).replace("\n", ""))
+                )
+                * [
+                    0.75,
+                    0.75,
+                    0.78,
+                    0.71,
+                    0.73,
+                    1.31,
+                    1.2,
+                    0.89,
+                    0.78,
+                    0.97,
+                    0.55,
+                    0.76,
+                    1.48,
+                    1.48
+                ][localPlayer.__languageIndex__]
+                + 1.8
             )
         ),
         hudDisqualifiedPos,
@@ -1170,17 +1192,8 @@ rule "Show HUD Page":
         rgb(255, 70, 70)
     )
     hudPageTexts.append(getLastCreatedText())
-    # Assist Mode On turns off with Freemode On (Run: isDisqualifiedShown), so it's listed with
-    # it, in its pink, which turns gray with the rest of the row while it's off
     hudPageRow(
-        HUD_FREEMODE,
-        "{} / {}{}</fg>".format(
-            _(freemodeHudText),
-            ("<fg808080FF>" if localPlayer.hudHidden[HUD_FREEMODE] else "<fgFF80C0FF>"),
-            _(counterHudText[4]).replace("\n", "")
-        ),
-        hudLeftPos[HUD_FREEMODE],
-        rgb(203, 135, 255)
+        HUD_FREEMODE, _(freemodeHudText), hudLeftPos[HUD_FREEMODE], rgb(203, 135, 255)
     )
     hudPageRow(
         HUD_SPECTATORS,

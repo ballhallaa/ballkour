@@ -73,55 +73,59 @@ msgstr "Нет подсказки для этого CP"
 
 #. file controls.opy, rule "Load HUD"
 msgid "@0Prev. CP:                                  @1@2 + @3</fg>"
-msgstr "@0Пред. CP:                                           @1@2 + @3</fg>"
+msgstr "@0Пред. CP:                                               @1@2 + @3</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid "@0Next CP:                                   @1@2 + @3</fg>"
-msgstr "@0След. CP:                                          @1@2 + @3</fg>"
+msgstr "@0След. CP:                                              @1@2 + @3</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid "@0Reset CP:                               @1@2 (Hold)</fg>"
-msgstr "@0Сброс CP:                       @1@2 (удерживать)</fg>"
+msgstr "@0Сброс CP:                           @1@2 (удерживать)</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid "New Run:                     <fgFFFFFFFF>@0 + @1 (Hold)</fg>"
-msgstr "Новый забег:       <fgFFFFFFFF>@0 + @1 (удерживать)</fg>"
+msgstr "Новый забег:           <fgFFFFFFFF>@0 + @1 (удерживать)</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid "@0Freemode:                                @1@2 + @3</fg>"
 msgstr "@0Свободный режим:                    @1@2 + @3</fg>"
 
 #. file controls.opy, rule "Load HUD"
+msgid "@0Assist Mode:               @1@2 + @3 (Hold)</fg>"
+msgstr "@0Режим помощи: @1@2 + @3 (удерживать)</fg>"
+
+#. file controls.opy, rule "Load HUD"
 msgid "@0Hints:                                         @1@2 + @3</fg>"
-msgstr "@0Подсказки:                                    @1@2 + @3</fg>"
+msgstr "@0Подсказки:                                        @1@2 + @3</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid "Spectate:                           <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "Наблюдать:                            <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "Наблюдать:                                <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid "Lobby/Pause:             <fgFFFFFFFF>@0 + @1 (Hold)</fg>"
-msgstr "Лобби/Пауза:     <fgFFFFFFFF>@0 + @1 (удерживать)</fg>"
+msgstr "Лобби/Пауза:         <fgFFFFFFFF>@0 + @1 (удерживать)</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid "Lobby:                          <fgFFFFFFFF>@0 + @1 (Hold)</fg>"
-msgstr "Лобби:                   <fgFFFFFFFF>@0 + @1 (удерживать)</fg>"
+msgstr "Лобби:                       <fgFFFFFFFF>@0 + @1 (удерживать)</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid "FAQ:                                     <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "ЧаВо:                                           <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "ЧаВо:                                               <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid "Customize HUD:      <fgFFFFFFFF>@0 + @1</fg>"
-msgstr "Интерфейс:                      <fgFFFFFFFF>@0 + @1</fg>"
+msgstr "Интерфейс:                         <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid ""
 "Prev. Language:   <fgFFFFFFFF>@0 + @1 + @2</fg>\n"
 "Next Language:   <fgFFFFFFFF>@0 + @1 + @3</fg>"
 msgstr ""
-"Пред. язык:                      <fgFFFFFFFF>@0 + @1 + @2</fg>\n"
-"След. язык:                     <fgFFFFFFFF>@0 + @1 + @3</fg>"
+"Пред. язык:                          <fgFFFFFFFF>@0 + @1 + @2</fg>\n"
+"След. язык:                         <fgFFFFFFFF>@0 + @1 + @3</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid ""
@@ -129,37 +133,30 @@ msgid ""
 "<fgEC9900FF>        Spectator Controls</fg>\n"
 "Disable:                             <fgFFFFFFFF>@0 + @1</fg>"
 msgstr ""
-"<fg808080FF>- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -</fg>\n"
-"<fgEC9900FF>        Управление наблюдателя</fg>\n"
-"Выйти:                                       <fgFFFFFFFF>@0 + @1</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid "@0Reattach:                          @1@2 + @3</fg>"
-msgstr "@0Вернуться к игроку:              @1@2 + @3</fg>"
+msgstr "@0Вернуться к игроку:                  @1@2 + @3</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid "@0First Person:                   @1@2 + @3</fg>"
-msgstr "@0От первого лица:                  @1@2 + @3</fg>"
+msgstr "@0От первого лица:                      @1@2 + @3</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid ""
 "@0Prev. Player:                  @1@2 + @3</fg>\n"
 "@0Next Player:                   @1@2 + @4</fg>"
 msgstr ""
-"@0Пред. игрок:                           @1@2 + @3</fg>\n"
-"@0След. игрок:                          @1@2 + @4</fg>"
+"@0Пред. игрок:                               @1@2 + @3</fg>\n"
+"@0След. игрок:                              @1@2 + @4</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid "@0X-Hair Player:         @1@2 + @3</fg>@4"
-msgstr "@0Игрок в прицеле:           @1@2 + @3</fg>@4"
+msgstr "@0Игрок в прицеле:               @1@2 + @3</fg>@4"
 
 #. file controls.opy, rule "Load HUD"
 msgid "Freecam:                             <fgFFFFFFFF>Move</fg>"
-msgstr "Свободная камера:          <fgFFFFFFFF>Движение</fg>"
-
-#. file controls.opy, rule "Load HUD"
-msgid "@0Assist Mode:               @1@2 + @3 (Hold)</fg>"
-msgstr "@0Режим помощи: @1@2 + @3 (удерживать)</fg>"
+msgstr "Свободная камера:              <fgFFFFFFFF>Движение</fg>"
 
 #. file faq.opy, rule "Load HUD"
 msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
@@ -194,6 +191,14 @@ msgid "Resume Run"
 msgstr "Продолжить забег"
 
 #. file lobby.opy, rule "Load Buttons"
+msgid "Hide All"
+msgstr "Скрыть всё"
+
+#. file lobby.opy, rule "Load Buttons"
+msgid "Show All"
+msgstr "Показать всё"
+
+#. file lobby.opy, rule "Load Buttons"
 msgid "Spectate"
 msgstr "Наблюдать"
 
@@ -204,14 +209,6 @@ msgstr "ЧаВо"
 #. file lobby.opy, rule "Load Buttons"
 msgid "Customize HUD"
 msgstr "Настроить интерфейс"
-
-#. file lobby.opy, rule "Load Buttons"
-msgid "Hide All"
-msgstr "Скрыть всё"
-
-#. file lobby.opy, rule "Load Buttons"
-msgid "Show All"
-msgstr "Показать всё"
 
 #. file lobby.opy, rule "Load Languages"
 msgid "Language"
@@ -228,20 +225,20 @@ msgid "Leaderboard"
 msgstr "Таблица лидеров"
 
 #. file lobby.opy, rule "Load Leaderboard"
-msgid "Back"
-msgstr "Назад"
-
-#. file lobby.opy, rule "Load Leaderboard"
-msgid "Click on a Run to View More Info"
-msgstr "Нажми на забег, чтобы узнать больше"
-
-#. file lobby.opy, rule "Load Leaderboard"
 msgid "Unassisted"
 msgstr "Без помощи"
 
 #. file lobby.opy, rule "Load Leaderboard"
 msgid "Assisted"
 msgstr "С помощью"
+
+#. file lobby.opy, rule "Load Leaderboard"
+msgid "Back"
+msgstr "Назад"
+
+#. file lobby.opy, rule "Load Leaderboard"
+msgid "Click on a Run to View More Info"
+msgstr "Нажми на забег, чтобы узнать больше"
 
 #. file lobby.opy, rule "Show HUD Page"
 msgid "Scores"
@@ -316,6 +313,10 @@ msgid "All-Time Top 3"
 msgstr "Топ-3 за всё время"
 
 #. file run.opy, rule "Load HUD"
+msgid "Assisted Top 3"
+msgstr "Топ-3 с помощью"
+
+#. file run.opy, rule "Load HUD"
 msgid "Lobby Top 3"
 msgstr "Топ-3 лобби"
 
@@ -326,10 +327,6 @@ msgstr "Дисквалификация"
 #. file run.opy, rule "Load HUD"
 msgid "Assist Mode On"
 msgstr "Режим помощи включён"
-
-#. file run.opy, rule "Load HUD"
-msgid "Assisted Top 3"
-msgstr "Топ-3 с помощью"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"

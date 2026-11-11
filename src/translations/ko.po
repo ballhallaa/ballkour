@@ -92,6 +92,10 @@ msgid "@0Freemode:                                @1@2 + @3</fg>"
 msgstr "@0자유 모드:                                        @1@2 + @3</fg>"
 
 #. file controls.opy, rule "Load HUD"
+msgid "@0Assist Mode:               @1@2 + @3 (Hold)</fg>"
+msgstr "@0어시스트 모드:            @1@2 + @3 (길게 누르기)</fg>"
+
+#. file controls.opy, rule "Load HUD"
 msgid "@0Hints:                                         @1@2 + @3</fg>"
 msgstr "@0힌트:                                               @1@2 + @3</fg>"
 
@@ -157,10 +161,6 @@ msgstr "@0조준한 플레이어:           @1@2 + @3</fg>@4"
 msgid "Freecam:                             <fgFFFFFFFF>Move</fg>"
 msgstr "자유 카메라:                                       <fgFFFFFFFF>이동</fg>"
 
-#. file controls.opy, rule "Load HUD"
-msgid "@0Assist Mode:               @1@2 + @3 (Hold)</fg>"
-msgstr "@0어시스트 모드:            @1@2 + @3 (길게 누르기)</fg>"
-
 #. file faq.opy, rule "Load HUD"
 msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
 msgstr "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
@@ -194,6 +194,14 @@ msgid "Resume Run"
 msgstr "이어하기"
 
 #. file lobby.opy, rule "Load Buttons"
+msgid "Hide All"
+msgstr "모두 숨기기"
+
+#. file lobby.opy, rule "Load Buttons"
+msgid "Show All"
+msgstr "모두 표시"
+
+#. file lobby.opy, rule "Load Buttons"
 msgid "Spectate"
 msgstr "관전"
 
@@ -204,14 +212,6 @@ msgstr "FAQ"
 #. file lobby.opy, rule "Load Buttons"
 msgid "Customize HUD"
 msgstr "HUD 사용자 지정"
-
-#. file lobby.opy, rule "Load Buttons"
-msgid "Hide All"
-msgstr "모두 숨기기"
-
-#. file lobby.opy, rule "Load Buttons"
-msgid "Show All"
-msgstr "모두 표시"
 
 #. file lobby.opy, rule "Load Languages"
 msgid "Language"
@@ -228,20 +228,20 @@ msgid "Leaderboard"
 msgstr "순위표"
 
 #. file lobby.opy, rule "Load Leaderboard"
-msgid "Back"
-msgstr "돌아가기"
-
-#. file lobby.opy, rule "Load Leaderboard"
-msgid "Click on a Run to View More Info"
-msgstr "기록을 클릭해 자세히 보기"
-
-#. file lobby.opy, rule "Load Leaderboard"
 msgid "Unassisted"
 msgstr "어시스트 없음"
 
 #. file lobby.opy, rule "Load Leaderboard"
 msgid "Assisted"
 msgstr "어시스트"
+
+#. file lobby.opy, rule "Load Leaderboard"
+msgid "Back"
+msgstr "돌아가기"
+
+#. file lobby.opy, rule "Load Leaderboard"
+msgid "Click on a Run to View More Info"
+msgstr "기록을 클릭해 자세히 보기"
 
 #. file lobby.opy, rule "Show HUD Page"
 msgid "Scores"
@@ -316,6 +316,10 @@ msgid "All-Time Top 3"
 msgstr "역대 TOP 3"
 
 #. file run.opy, rule "Load HUD"
+msgid "Assisted Top 3"
+msgstr "어시스트 TOP 3"
+
+#. file run.opy, rule "Load HUD"
 msgid "Lobby Top 3"
 msgstr "로비 TOP 3"
 
@@ -326,10 +330,6 @@ msgstr "실격"
 #. file run.opy, rule "Load HUD"
 msgid "Assist Mode On"
 msgstr "어시스트 모드 켜짐"
-
-#. file run.opy, rule "Load HUD"
-msgid "Assisted Top 3"
-msgstr "어시스트 TOP 3"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"

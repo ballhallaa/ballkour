@@ -92,8 +92,12 @@ msgid "@0Freemode:                                @1@2 + @3</fg>"
 msgstr "@0フリーモード：                                      @1@2 + @3</fg>"
 
 #. file controls.opy, rule "Load HUD"
+msgid "@0Assist Mode:               @1@2 + @3 (Hold)</fg>"
+msgstr "@0アシストモード：                    @1@2 + @3 (長押し)</fg>"
+
+#. file controls.opy, rule "Load HUD"
 msgid "@0Hints:                                         @1@2 + @3</fg>"
-msgstr "@0ヒント：                                                @1@2 + @3</fg>"
+msgstr "@0ヒント：                                                 @1@2 + @3</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid "Spectate:                           <fgFFFFFFFF>@0 + @1</fg>"
@@ -157,10 +161,6 @@ msgstr "@0照準先のプレイヤー：        @1@2 + @3</fg>@4"
 msgid "Freecam:                             <fgFFFFFFFF>Move</fg>"
 msgstr "フリーカメラ：                                         <fgFFFFFFFF>移動</fg>"
 
-#. file controls.opy, rule "Load HUD"
-msgid "@0Assist Mode:               @1@2 + @3 (Hold)</fg>"
-msgstr "@0アシストモード：                    @1@2 + @3 (長押し)</fg>"
-
 #. file faq.opy, rule "Load HUD"
 msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
 msgstr "FAQ：<fgFFFFFFFF>@0 + @1</fg>"
@@ -194,6 +194,14 @@ msgid "Resume Run"
 msgstr "続きから"
 
 #. file lobby.opy, rule "Load Buttons"
+msgid "Hide All"
+msgstr "すべて非表示"
+
+#. file lobby.opy, rule "Load Buttons"
+msgid "Show All"
+msgstr "すべて表示"
+
+#. file lobby.opy, rule "Load Buttons"
 msgid "Spectate"
 msgstr "観戦"
 
@@ -204,14 +212,6 @@ msgstr "FAQ"
 #. file lobby.opy, rule "Load Buttons"
 msgid "Customize HUD"
 msgstr "HUDをカスタマイズ"
-
-#. file lobby.opy, rule "Load Buttons"
-msgid "Hide All"
-msgstr "すべて非表示"
-
-#. file lobby.opy, rule "Load Buttons"
-msgid "Show All"
-msgstr "すべて表示"
 
 #. file lobby.opy, rule "Load Languages"
 msgid "Language"
@@ -228,20 +228,20 @@ msgid "Leaderboard"
 msgstr "ランキング"
 
 #. file lobby.opy, rule "Load Leaderboard"
-msgid "Back"
-msgstr "戻る"
-
-#. file lobby.opy, rule "Load Leaderboard"
-msgid "Click on a Run to View More Info"
-msgstr "記録をクリックで詳細を表示"
-
-#. file lobby.opy, rule "Load Leaderboard"
 msgid "Unassisted"
 msgstr "アシストなし"
 
 #. file lobby.opy, rule "Load Leaderboard"
 msgid "Assisted"
 msgstr "アシスト"
+
+#. file lobby.opy, rule "Load Leaderboard"
+msgid "Back"
+msgstr "戻る"
+
+#. file lobby.opy, rule "Load Leaderboard"
+msgid "Click on a Run to View More Info"
+msgstr "記録をクリックで詳細を表示"
 
 #. file lobby.opy, rule "Show HUD Page"
 msgid "Scores"
@@ -316,6 +316,10 @@ msgid "All-Time Top 3"
 msgstr "歴代トップ3"
 
 #. file run.opy, rule "Load HUD"
+msgid "Assisted Top 3"
+msgstr "アシスト トップ3"
+
+#. file run.opy, rule "Load HUD"
 msgid "Lobby Top 3"
 msgstr "ロビートップ3"
 
@@ -326,10 +330,6 @@ msgstr "失格"
 #. file run.opy, rule "Load HUD"
 msgid "Assist Mode On"
 msgstr "アシストモード ON"
-
-#. file run.opy, rule "Load HUD"
-msgid "Assisted Top 3"
-msgstr "アシスト トップ3"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"

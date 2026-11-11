@@ -112,8 +112,9 @@ macro hudLinesGap(player):
 
 # Whether Disqualified shows: while the viewed run doesn't count, or the viewed runner is in
 # Assist Mode (see isAssistModeShown), outside disconnected freecam. It can't be turned off, as
-# it says the run won't count, and the HUD page shows it either way, struck through, so it's
-# clear it stays. Assist Mode On turns off with Freemode On, which the HUD page lists it with.
+# it says the run won't count, or which leaderboard it's for, and the HUD page shows both on its
+# row, struck through, so it's clear they stay. (Freemode On can show with Assist Mode On, so it
+# has a row of its own.)
 macro isDisqualifiedShown(player):
     (
         isCourseHudShown(player)
@@ -121,7 +122,6 @@ macro isDisqualifiedShown(player):
         and (
             not player.viewRunner.isRunLegit
             or player.viewRunner.isInAssistMode
-            and isHudLineOn(player, HUD_FREEMODE)
             or isHudPage(player)
         )
     )
@@ -360,9 +360,9 @@ rule "Load HUD":
     # Freemode On. Freemode On drops its own blank line while it shows, so the two sit together.
     # The HUD page shows it either way, as it's one of the lines it turns off.
     # In Assist Mode it says Assist Mode On instead, in pink, as the run is for the assisted
-    # leaderboard, and turns off with Freemode On (isDisqualifiedShown), which the HUD page's
-    # row lists it with. One text for both, as texts are capped at 128 per server (Lobby: Load
-    # Buttons).
+    # leaderboard. One text for both, as texts are capped at 128 per server (Lobby: Load
+    # Buttons), and neither can be turned off (isDisqualifiedShown). The HUD page shows both,
+    # Assist Mode On / Disqualified, like its row.
     counterHudText[3] = _("\nDisqualified")
     counterHudText[4] = _("\nAssist Mode On")
     hudSubtext(
@@ -373,7 +373,14 @@ rule "Load HUD":
         (
             _(counterHudText[4])
             if isAssistModeShown(localPlayer)
-            else _(counterHudText[3])
+            else (
+                "\n<fgFF80C0FF>{}</fg> / {}".format(
+                    _(counterHudText[4]).replace("\n", ""),
+                    _(counterHudText[3]).replace("\n", "")
+                )
+                if isHudPage(localPlayer)
+                else _(counterHudText[3])
+            )
         ),
         HudPosition.LEFT,
         0.9,

@@ -89,7 +89,11 @@ msgstr "Yeni deneme:             <fgFFFFFFFF>@0 + @1 (basılı tut)</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid "@0Freemode:                                @1@2 + @3</fg>"
-msgstr "@0Serbest mod:                                @1@2 + @3</fg>"
+msgstr "@0Serbest mod:                               @1@2 + @3</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "@0Assist Mode:               @1@2 + @3 (Hold)</fg>"
+msgstr "@0Yardım modu:         @1@2 + @3 (basılı tut)</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid "@0Hints:                                         @1@2 + @3</fg>"
@@ -157,10 +161,6 @@ msgstr "@0Nişandaki oyuncu:   @1@2 + @3</fg>@4"
 msgid "Freecam:                             <fgFFFFFFFF>Move</fg>"
 msgstr "Serbest kamera:                     <fgFFFFFFFF>Hareket</fg>"
 
-#. file controls.opy, rule "Load HUD"
-msgid "@0Assist Mode:               @1@2 + @3 (Hold)</fg>"
-msgstr "@0Yardım modu:          @1@2 + @3 (basılı tut)</fg>"
-
 #. file faq.opy, rule "Load HUD"
 msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
 msgstr "SSS: <fgFFFFFFFF>@0 + @1</fg>"
@@ -194,6 +194,14 @@ msgid "Resume Run"
 msgstr "Denemeye devam et"
 
 #. file lobby.opy, rule "Load Buttons"
+msgid "Hide All"
+msgstr "Tümünü gizle"
+
+#. file lobby.opy, rule "Load Buttons"
+msgid "Show All"
+msgstr "Tümünü göster"
+
+#. file lobby.opy, rule "Load Buttons"
 msgid "Spectate"
 msgstr "İzle"
 
@@ -204,14 +212,6 @@ msgstr "SSS"
 #. file lobby.opy, rule "Load Buttons"
 msgid "Customize HUD"
 msgstr "Arayüzü özelleştir"
-
-#. file lobby.opy, rule "Load Buttons"
-msgid "Hide All"
-msgstr "Tümünü gizle"
-
-#. file lobby.opy, rule "Load Buttons"
-msgid "Show All"
-msgstr "Tümünü göster"
 
 #. file lobby.opy, rule "Load Languages"
 msgid "Language"
@@ -228,20 +228,20 @@ msgid "Leaderboard"
 msgstr "Liderlik tablosu"
 
 #. file lobby.opy, rule "Load Leaderboard"
-msgid "Back"
-msgstr "Geri"
-
-#. file lobby.opy, rule "Load Leaderboard"
-msgid "Click on a Run to View More Info"
-msgstr "Daha fazla bilgi için bir denemeye tıkla"
-
-#. file lobby.opy, rule "Load Leaderboard"
 msgid "Unassisted"
 msgstr "Yardımsız"
 
 #. file lobby.opy, rule "Load Leaderboard"
 msgid "Assisted"
 msgstr "Yardımlı"
+
+#. file lobby.opy, rule "Load Leaderboard"
+msgid "Back"
+msgstr "Geri"
+
+#. file lobby.opy, rule "Load Leaderboard"
+msgid "Click on a Run to View More Info"
+msgstr "Daha fazla bilgi için bir denemeye tıkla"
 
 #. file lobby.opy, rule "Show HUD Page"
 msgid "Scores"
@@ -316,6 +316,10 @@ msgid "All-Time Top 3"
 msgstr "Tüm Zamanların İlk 3'ü"
 
 #. file run.opy, rule "Load HUD"
+msgid "Assisted Top 3"
+msgstr "Yardımlı İlk 3"
+
+#. file run.opy, rule "Load HUD"
 msgid "Lobby Top 3"
 msgstr "Lobi İlk 3"
 
@@ -326,10 +330,6 @@ msgstr "Diskalifiye"
 #. file run.opy, rule "Load HUD"
 msgid "Assist Mode On"
 msgstr "Yardım modu açık"
-
-#. file run.opy, rule "Load HUD"
-msgid "Assisted Top 3"
-msgstr "Yardımlı İlk 3"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"
