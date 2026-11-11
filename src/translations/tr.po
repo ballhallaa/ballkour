@@ -55,6 +55,10 @@ msgstr ""
 "\n"
 "<fgFFFFFFFF>Oynadığın için teşekkürler!</fg>"
 
+#. file completion.opy, rule "Run Text"
+msgid "<fgFF80C0FF>               Assisted Run</fg>"
+msgstr "<fgFF80C0FF>              Yardımlı deneme</fg>"
+
 #. file controls.opy, rule "Load Freemode HUD"
 msgid "Freemode On"
 msgstr "Serbest mod açık"
@@ -152,6 +156,10 @@ msgstr "@0Nişandaki oyuncu:   @1@2 + @3</fg>@4"
 #. file controls.opy, rule "Load HUD"
 msgid "Freecam:                             <fgFFFFFFFF>Move</fg>"
 msgstr "Serbest kamera:                     <fgFFFFFFFF>Hareket</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "@0Assist Mode:               @1@2 + @3 (Hold)</fg>"
+msgstr "@0Yardım modu:          @1@2 + @3 (basılı tut)</fg>"
 
 #. file faq.opy, rule "Load HUD"
 msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
@@ -306,6 +314,10 @@ msgstr "Lobi İlk 3"
 #. file run.opy, rule "Load HUD"
 msgid "Disqualified"
 msgstr "Diskalifiye"
+
+#. file run.opy, rule "Load HUD"
+msgid "Assist Mode"
+msgstr "Yardım modu"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"

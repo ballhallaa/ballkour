@@ -55,6 +55,10 @@ msgstr ""
 "\n"
 "<fgFFFFFFFF>Спасибо за игру!</fg>"
 
+#. file completion.opy, rule "Run Text"
+msgid "<fgFF80C0FF>               Assisted Run</fg>"
+msgstr "<fgFF80C0FF>            Забег с помощью</fg>"
+
 #. file controls.opy, rule "Load Freemode HUD"
 msgid "Freemode On"
 msgstr "Свободный режим включён"
@@ -152,6 +156,10 @@ msgstr "@0Игрок в прицеле:           @1@2 + @3</fg>@4"
 #. file controls.opy, rule "Load HUD"
 msgid "Freecam:                             <fgFFFFFFFF>Move</fg>"
 msgstr "Свободная камера:          <fgFFFFFFFF>Движение</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "@0Assist Mode:               @1@2 + @3 (Hold)</fg>"
+msgstr "@0Режим помощи: @1@2 + @3 (удерживать)</fg>"
 
 #. file faq.opy, rule "Load HUD"
 msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
@@ -306,6 +314,10 @@ msgstr "Топ-3 лобби"
 #. file run.opy, rule "Load HUD"
 msgid "Disqualified"
 msgstr "Дисквалификация"
+
+#. file run.opy, rule "Load HUD"
+msgid "Assist Mode"
+msgstr "Режим помощи"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"

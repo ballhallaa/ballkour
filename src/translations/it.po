@@ -55,6 +55,10 @@ msgstr ""
 "\n"
 "<fgFFFFFFFF>Grazie per aver giocato!</fg>"
 
+#. file completion.opy, rule "Run Text"
+msgid "<fgFF80C0FF>               Assisted Run</fg>"
+msgstr "<fgFF80C0FF>                Partita assistita</fg>"
+
 #. file controls.opy, rule "Load Freemode HUD"
 msgid "Freemode On"
 msgstr "Modalità libera attiva"
@@ -152,6 +156,10 @@ msgstr "@0Giocatore mirato:          @1@2 + @3</fg>@4"
 #. file controls.opy, rule "Load HUD"
 msgid "Freecam:                             <fgFFFFFFFF>Move</fg>"
 msgstr "Telecamera libera:                      <fgFFFFFFFF>Muoviti</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "@0Assist Mode:               @1@2 + @3 (Hold)</fg>"
+msgstr "@0Mod. assistita:      @1@2 + @3 (tieni premuto)</fg>"
 
 #. file faq.opy, rule "Load HUD"
 msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
@@ -306,6 +314,10 @@ msgstr "Top 3 della lobby"
 #. file run.opy, rule "Load HUD"
 msgid "Disqualified"
 msgstr "Squalificato"
+
+#. file run.opy, rule "Load HUD"
+msgid "Assist Mode"
+msgstr "Modalità assistita"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"

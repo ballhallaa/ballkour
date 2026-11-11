@@ -55,6 +55,10 @@ msgstr ""
 "\n"
 "<fgFFFFFFFF>           Dzięki za grę!</fg>"
 
+#. file completion.opy, rule "Run Text"
+msgid "<fgFF80C0FF>               Assisted Run</fg>"
+msgstr "<fgFF80C0FF>             Podejście wspomagane</fg>"
+
 #. file controls.opy, rule "Load Freemode HUD"
 msgid "Freemode On"
 msgstr "Tryb swobodny włączony"
@@ -152,6 +156,10 @@ msgstr "@0Gracz w celowniku:         @1@2 + @3</fg>@4"
 #. file controls.opy, rule "Load HUD"
 msgid "Freecam:                             <fgFFFFFFFF>Move</fg>"
 msgstr "Wolna kamera:                                  <fgFFFFFFFF>Ruch</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "@0Assist Mode:               @1@2 + @3 (Hold)</fg>"
+msgstr "@0Tryb wspomagany: @1@2 + @3 (przytrzymaj)</fg>"
 
 #. file faq.opy, rule "Load HUD"
 msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
@@ -306,6 +314,10 @@ msgstr "Top 3 lobby"
 #. file run.opy, rule "Load HUD"
 msgid "Disqualified"
 msgstr "Zdyskwalifikowano"
+
+#. file run.opy, rule "Load HUD"
+msgid "Assist Mode"
+msgstr "Tryb wspomagany"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"

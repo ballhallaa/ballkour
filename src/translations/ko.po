@@ -55,6 +55,10 @@ msgstr ""
 "\n"
 "<fgFFFFFFFF>플레이해 주셔서 감사합니다!</fg>"
 
+#. file completion.opy, rule "Run Text"
+msgid "<fgFF80C0FF>               Assisted Run</fg>"
+msgstr "<fgFF80C0FF>          어시스트 플레이</fg>"
+
 #. file controls.opy, rule "Load Freemode HUD"
 msgid "Freemode On"
 msgstr "자유 모드 켜짐"
@@ -152,6 +156,10 @@ msgstr "@0조준한 플레이어:           @1@2 + @3</fg>@4"
 #. file controls.opy, rule "Load HUD"
 msgid "Freecam:                             <fgFFFFFFFF>Move</fg>"
 msgstr "자유 카메라:                                       <fgFFFFFFFF>이동</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "@0Assist Mode:               @1@2 + @3 (Hold)</fg>"
+msgstr "@0어시스트 모드:            @1@2 + @3 (길게 누르기)</fg>"
 
 #. file faq.opy, rule "Load HUD"
 msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
@@ -306,6 +314,10 @@ msgstr "로비 TOP 3"
 #. file run.opy, rule "Load HUD"
 msgid "Disqualified"
 msgstr "실격"
+
+#. file run.opy, rule "Load HUD"
+msgid "Assist Mode"
+msgstr "어시스트 모드"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Freecam On"

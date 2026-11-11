@@ -66,7 +66,7 @@ rule "HUD Input":
 
 
 # Whether Reset CP and Freemode work: on the course, before the last CP. Their lines are
-# grayed out otherwise.
+# grayed out otherwise. Assist Mode only needs the course, as it's for the next run too.
 macro canUseCpControls(player):
     (not player.spectating[0] and player.runCurrentCp < lastCp)
 
@@ -160,17 +160,27 @@ rule "Load HUD":
         HudReeval.VISIBILITY_AND_STRING
     )
     ctrlsHudText[4] = _("@0Freemode:                                @1@2 + @3</fg>")
+    # Assist Mode is Freemode's keys held, so it's under Freemode, in the same text, which
+    # saves one of the 128 texts per server (Lobby: Load Buttons)
+    ctrlsHudText[18] = _("@0Assist Mode:               @1@2 + @3 (Hold)</fg>")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: controlsVisible(
                 isViewingCtrlsList(localPlayer) and localPlayer.faqPage == 0
             )
         ),
-        _(ctrlsHudText[4])
-        .replace("@0", "" if canUseCpControls(localPlayer) else "<fg808080FF>")
-        .replace("@1", "<fgFFFFFFFF>" if canUseCpControls(localPlayer) else "")
-        .replace("@2", inputBindingString(Button.ULTIMATE))
-        .replace("@3", inputBindingString(Button.INTERACT)),
+        "{}\n{}".format(
+            _(ctrlsHudText[4])
+            .replace("@0", "" if canUseCpControls(localPlayer) else "<fg808080FF>")
+            .replace("@1", "<fgFFFFFFFF>" if canUseCpControls(localPlayer) else "")
+            .replace("@2", inputBindingString(Button.ULTIMATE))
+            .replace("@3", inputBindingString(Button.INTERACT)),
+            _(ctrlsHudText[18])
+            .replace("@0", "<fg808080FF>" if localPlayer.spectating[0] else "")
+            .replace("@1", "" if localPlayer.spectating[0] else "<fgFFFFFFFF>")
+            .replace("@2", inputBindingString(Button.ULTIMATE))
+            .replace("@3", inputBindingString(Button.INTERACT))
+        ),
         HudPosition.TOP,
         4.05,
         rgb(230, 151, 0),
@@ -482,16 +492,13 @@ macro canGoToNextCp(player):
     )
 
 
-# The inputs that need the player out of the lobby: Freemode, Prev. and Next CP
+# The inputs that need the player out of the lobby: Freemode and Assist Mode, Prev. and Next
+# CP. Freemode's keys also work on the last CP, held, for Assist Mode.
 macro ultCourseInputReady():
     (
         not eventPlayer.isInLobby
         and (
-            (
-                ultInputIs(ULT_FREEMODE)
-                and not eventPlayer.spectating[0]
-                and eventPlayer.runCurrentCp < lastCp
-            )
+            (ultInputIs(ULT_FREEMODE) and not eventPlayer.spectating[0])
             or (
                 eventPlayer.hasSpawned()
                 and not eventPlayer.isLoading
@@ -571,7 +578,21 @@ rule "Ultimate Input":
             elif ultInputIs(ULT_NEW_RUN):
                 newRunInput()
             elif ultInputIs(ULT_FREEMODE):
-                freemodeInput()
+                # A tap toggles Freemode once it's let go, and a hold Assist Mode, which
+                # needs the wait, like New Run's hold
+                waitUntil(
+                    not (
+                        eventPlayer.isHoldingButton(Button.ULTIMATE)
+                        and eventPlayer.isHoldingButton(Button.INTERACT)
+                    ),
+                    0.35
+                )
+                if eventPlayer.isHoldingButton(
+                    Button.ULTIMATE
+                ) and eventPlayer.isHoldingButton(Button.INTERACT):
+                    assistModeInput()
+                elif eventPlayer.runCurrentCp < lastCp:
+                    freemodeInput()
             elif ultInputIs(ULT_HUD):
                 hudInput()
             elif ultInputIs(ULT_SPECTATE):
@@ -799,6 +820,35 @@ def freemodeInput():
         showCpNameplate()
         eventPlayer.isLoading = false
     eventPlayer.allowButton(Button.MELEE)
+
+
+def assistModeInput():
+    @Name "Assist Mode"
+
+    if not eventPlayer.isInAssistMode:
+        eventPlayer.isInAssistMode = true
+        # The run goes on, for the assisted leaderboard now. A finished run stays as it was,
+        # as Assist Mode is for the next one then.
+        if not eventPlayer.isRunFinished:
+            eventPlayer.isRunAssisted = true
+        setCpAbilities()
+    else:
+        eventPlayer.isLoading = true
+        eventPlayer.isInAssistMode = false
+        # Its attempt played without the CP's rules, so turning it off away from the CP puts
+        # the player back on it, which counts as a mistake, like Reset CP. Freemode does that
+        # itself once it's turned off.
+        if (
+            not eventPlayer.isInFreemode
+            and eventPlayer.runCurrentCp < lastCp
+            and distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
+            > eventPlayer.cpData[1]
+        ):
+            if not eventPlayer.isRunPaused:
+                addMistake()
+            cpResetPlayer()
+        setCpAbilities()
+        eventPlayer.isLoading = false
 
 
 rule "Load Freemode HUD":

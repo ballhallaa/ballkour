@@ -73,7 +73,7 @@ def setCpAbilities():
 
     if eventPlayer.spectating[0]:
         return
-    if eventPlayer.runCurrentCp < lastCp and not eventPlayer.isInFreemode:
+    if eventPlayer.runCurrentCp < lastCp and not isFreePlay(eventPlayer):
         eventPlayer.setSecondaryFireEnabled(eventPlayer.cpData[2])
         eventPlayer.setAbility2Enabled(eventPlayer.cpData[3])
         if not eventPlayer.cpData[4]:
@@ -221,4 +221,6 @@ def cpResetPlayer():
         eventPlayer.cpData[10] = false
         eventPlayer.cpData[11] = false
         eventPlayer.cpData[14] = false
-        eventPlayer.setAbility2Enabled(eventPlayer.cpData[3])
+        eventPlayer.setAbility2Enabled(
+            eventPlayer.cpData[3] or eventPlayer.isInAssistMode
+        )

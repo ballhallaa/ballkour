@@ -11,7 +11,7 @@ rule "Record Route":
         and not eventPlayer.isLoading
         and not eventPlayer.isInLobby
     ) == true
-    @Condition eventPlayer.isInFreemode == false
+    @Condition isFreePlay(eventPlayer) == false
     @Condition eventPlayer.spectating[0] == false
     @Condition eventPlayer.runCurrentCp < lastCp
 
