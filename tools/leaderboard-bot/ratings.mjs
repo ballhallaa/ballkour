@@ -15,15 +15,17 @@
 // Everyone past the last tier (the bottom 10%) is just Rated.
 //
 // The assisted boards (runs played in Assist Mode) have a rating of their own, worked out the same way from those
-// boards alone (loadCourses({ assisted: true }) in boards.mjs).
+// boards alone (loadCourses({ assisted: true }) in boards.mjs), and so do the legacy boards, from before May 2026
+// (loadCourses({ legacy: true })), whose times were only to the second ("4:30.--", read as 4:30.00).
 
 export const TIERS = [0.1, 1, 5, 10, 25, 50, 75, 90];
-// The Discord role for a tier: "Top 10%", or "Rated" for the bottom 10% (tier null), and "Top 10% (Assisted)" and
-// "Rated (Assisted)" for the assisted rating's
+// The Discord role for a tier: "Top 10%", or "Rated" for the bottom 10% (tier null), and with suffix, the assisted or
+// Legacy rating's: "Top 10% (Assisted)", "Rated (Legacy)"
 export const ASSISTED_SUFFIX = " (Assisted)";
-export const roleName = (tier, assisted = false) => (tier === null ? "Rated" : `Top ${tier}%`) + (assisted ? ASSISTED_SUFFIX : "");
+export const LEGACY_SUFFIX = " (Legacy)";
+export const roleName = (tier, suffix = "") => (tier === null ? "Rated" : `Top ${tier}%`) + suffix;
 
-const seconds = (t) => t.split(":").reduce((sum, part) => sum * 60 + Number(part), 0);
+const seconds = (t) => t.replace(/\.--$/, "").split(":").reduce((sum, part) => sum * 60 + Number(part), 0);
 const byTime = (a, b) => seconds(a.time) - seconds(b.time) || a.mistakes - b.mistakes;
 
 // A player is their Discord ID, or for a run without one, its in-game name. In-game names aren't unique (Overwatch

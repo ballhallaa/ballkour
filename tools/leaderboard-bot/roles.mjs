@@ -5,13 +5,14 @@
 //
 // The assisted boards (runs played in Assist Mode) have a rating of their own, with roles of their own, the same ones
 // with "(Assisted)" after them: Top 0.1% (Assisted) to Top 90% (Assisted), Rated (Assisted), and Unrated (Assisted)
-// for everyone else. Everyone has one of each set.
+// for everyone else. Everyone has one of each set. And so do the legacy boards, from before May 2026: Top 0.1%
+// (Legacy) to Top 90% (Legacy) and Rated (Legacy), only for the players on them (there's no Unrated (Legacy)).
 //
 // It also gives out Top 10 to anyone with a run on a course's top 10, and Former Top 10 once none of their runs is on
 // one any more (see "Top 10 and Former Top 10" below), the same with Top 10 (Assisted) and Former Top 10 (Assisted)
 // for the assisted boards, and Legacy Top 10 to anyone with a run on a course's legacy top 10, from before May 2026
 // (see "Legacy Top 10" below). And the ratings heading, the empty role that heads the rating roles on a member's
-// profile, to everyone with a Top % or Rated role, regular or assisted, and takes it away from anyone left with
+// profile, to everyone with a Top % or Rated role, regular, assisted, or legacy, and takes it away from anyone left with
 // neither (see "The ratings heading" below).
 //
 // Run by .github/workflows/leaderboard-bot.yml after the boards are posted, and once a day for people who joined the
@@ -27,7 +28,7 @@
 // rating role now. Without the intent, it only checks the rated players, and nobody gets Unrated.
 import { GUILD, ROLES, HISTORY, DISCORD_ID, loadCourses, readData } from "./boards.mjs";
 import { TOKEN, api } from "./discord.mjs";
-import { TIERS, ASSISTED_SUFFIX, roleName, rate, standings, sameRun } from "./ratings.mjs";
+import { TIERS, ASSISTED_SUFFIX, LEGACY_SUFFIX, roleName, rate, standings, sameRun } from "./ratings.mjs";
 
 const DRY = !!process.env.DRY_RUN;
 
@@ -40,15 +41,18 @@ if (unread.length) {
   process.exit(1);
 }
 const assistedCourses = loadCourses({ assisted: true });
-// The two ratings, each with its own set of roles: the regular one, then the assisted one
+const legacyCourses = loadCourses({ legacy: true });
+// The three ratings, each with its own set of roles (suffix: what's after their names): the regular one, the assisted
+// one, and the Legacy one, which has no Unrated (unratedRole: false)
 const ratings = [
-  { assisted: false, courses, ...rate(courses) },
-  { assisted: true, courses: assistedCourses, ...rate(assistedCourses) },
+  { suffix: "", what: "", unratedRole: true, courses, ...rate(courses) },
+  { suffix: ASSISTED_SUFFIX, what: "assisted ", unratedRole: true, courses: assistedCourses, ...rate(assistedCourses) },
+  { suffix: LEGACY_SUFFIX, what: "legacy ", unratedRole: false, courses: legacyCourses, ...rate(legacyCourses) },
 ];
-for (const { assisted, counted, players } of ratings) {
-  console.log(`${assisted ? "\n" : ""}${players.length} ${assisted ? "assisted " : ""}rated players over ${counted.length} courses (${counted.join(", ")})`);
+for (const { suffix, what, counted, players } of ratings) {
+  console.log(`${what ? "\n" : ""}${players.length} ${what}rated players over ${counted.length} courses (${counted.join(", ")})`);
   for (const p of players) {
-    console.log(`  ${String(p.rank).padStart(3)}. ${p.name.padEnd(16)} ${Math.round(p.rating).toString().padStart(5)}  ${roleName(p.tier, assisted)}${p.discord ? "" : "  (no Discord ID)"}`);
+    console.log(`  ${String(p.rank).padStart(3)}. ${p.name.padEnd(16)} ${Math.round(p.rating).toString().padStart(5)}  ${roleName(p.tier, suffix)}${p.discord ? "" : "  (no Discord ID)"}`);
   }
 }
 if (!TOKEN) {
@@ -77,10 +81,10 @@ async function roleNamed(name) {
   }
 }
 const UNRATED = "unrated";
-const label = (key, assisted) => (key === UNRATED ? "Unrated" + (assisted ? ASSISTED_SUFFIX : "") : roleName(key, assisted));
+const label = (key, suffix) => (key === UNRATED ? "Unrated" + suffix : roleName(key, suffix));
 for (const set of ratings) {
   set.roleOf = new Map(); // tier (null for Rated, UNRATED for everyone else) → role ID
-  for (const tier of [...TIERS, null, UNRATED]) set.roleOf.set(tier, await roleNamed(label(tier, set.assisted)));
+  for (const tier of [...TIERS, null, ...(set.unratedRole ? [UNRATED] : [])]) set.roleOf.set(tier, await roleNamed(label(tier, set.suffix)));
   set.ids = new Set(set.roleOf.values());
   set.tierOfRole = new Map([...set.roleOf].map(([tier, id]) => [id, tier]));
   // The role each rated player with a Discord ID should have
@@ -88,7 +92,7 @@ for (const set of ratings) {
   for (const p of set.players) if (p.discord) set.want.set(p.discord, set.roleOf.get(p.tier));
   set.unrated = { gave: 0, took: 0 }; // counted, not listed: on the first run, that's most of the server
 }
-const roleLabel = (set, role) => label(set.tierOfRole.get(role), set.assisted);
+const roleLabel = (set, role) => label(set.tierOfRole.get(role), set.suffix);
 // Each player's name as on their newest run, from the regular rating first
 const nameOf = new Map();
 for (const { players } of ratings) for (const p of players) if (p.discord && !nameOf.has(p.discord)) nameOf.set(p.discord, p.name);
@@ -157,8 +161,8 @@ try {
 }
 
 /* The ratings heading: an empty role whose name heads the rating roles on a member's profile (like "──── Ratings ────").
-   Everyone with a Top % or Rated role, regular or assisted, has it, and nobody else (Unrated and Unrated (Assisted)
-   don't count). Discord's onboarding can take it away when someone changes their Channels & Roles picks, so it's
+   Everyone with a Top % or Rated role, regular, assisted, or legacy, has it, and nobody else (Unrated and Unrated
+   (Assisted) don't count). Discord's onboarding can take it away when someone changes their Channels & Roles picks, so it's
    given back on the next run (after a board is posted, and once a day). It used to be ball-bot's sticky role rule,
    which only knew the regular rating roles. */
 const heading = ROLES.ratingsHeading || "";
@@ -187,8 +191,8 @@ for (const m of members) {
     }
   }
   for (const set of ratings) {
-    // Rated players get their tier, and everyone else Unrated (bots get nothing)
-    const target = set.want.get(id) || (everyone && !m.user.bot ? set.roleOf.get(UNRATED) : undefined);
+    // Rated players get their tier, and everyone else Unrated, where the rating has it (bots get nothing)
+    const target = set.want.get(id) || (set.unratedRole && everyone && !m.user.bot ? set.roleOf.get(UNRATED) : undefined);
     const has = m.roles.filter((r) => set.ids.has(r));
     // [method, role, what a dry run says, what a real run says]
     const steps = [
@@ -257,7 +261,7 @@ if (ROLES.legacyTop10) {
   }
 }
 for (const set of ratings) {
-  const name = label(UNRATED, set.assisted);
+  const name = label(UNRATED, set.suffix);
   const { gave, took } = set.unrated;
   if (gave) console.log(`${DRY ? "Would give" : "Gave"} ${name} to ${gave} member${gave === 1 ? "" : "s"}`);
   if (took) console.log(`${DRY ? "Would take" : "Took"} ${name} from ${took} member${took === 1 ? "" : "s"} who got rated`);
