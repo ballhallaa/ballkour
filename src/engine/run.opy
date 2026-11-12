@@ -130,8 +130,9 @@ macro isDisqualifiedShown(player):
 
 
 # Whether Disqualified says Assist Mode instead: while the viewed runner is in it, unless the
-# run is disqualified, which counts for neither leaderboard then, and apart from on the HUD
-# page, whose row for the line says Disqualified
+# run is disqualified, which counts for neither leaderboard then (Disqualified shows Assist
+# Mode On under it then), and apart from on the HUD page, whose row for the line says
+# Disqualified
 macro isAssistModeShown(player):
     (
         player.viewRunner.isInAssistMode
@@ -376,8 +377,9 @@ rule "Load HUD":
     # The HUD page shows it either way, as it's one of the lines it turns off.
     # In Assist Mode it says Assist Mode On instead, in pink, as the run is for the assisted
     # leaderboard. One text for both, as texts are capped at 128 per server (Lobby: Load
-    # Buttons), and neither can be turned off (isDisqualifiedShown). The HUD page shows both,
-    # Assist Mode On / Disqualified, like its row.
+    # Buttons), and neither can be turned off (isDisqualifiedShown). A disqualified run in
+    # Assist Mode shows both, Disqualified with Assist Mode On under it in pink, so the mode
+    # still shows. The HUD page shows both, Assist Mode On / Disqualified, like its row.
     counterHudText[3] = _("\nDisqualified")
     counterHudText[4] = _("\nAssist Mode On")
     hudSubtext(
@@ -394,7 +396,13 @@ rule "Load HUD":
                     _(counterHudText[3]).replace("\n", "")
                 )
                 if isHudPage(localPlayer)
-                else _(counterHudText[3])
+                else (
+                    "{}\n<fgFF80C0FF>{}</fg>".format(
+                        _(counterHudText[3]), _(counterHudText[4]).replace("\n", "")
+                    )
+                    if localPlayer.viewRunner.isInAssistMode
+                    else _(counterHudText[3])
+                )
             )
         ),
         HudPosition.LEFT,
