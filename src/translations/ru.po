@@ -92,8 +92,8 @@ msgid "New Run:                     <fgFFFFFFFF>@0 + @1 (Hold)</fg>"
 msgstr "Новый забег:           <fgFFFFFFFF>@0 + @1 (удерживать)</fg>"
 
 #. file controls.opy, rule "Load HUD"
-msgid "@0Freemode:                          @1@2 + @3</fg>"
-msgstr "@0Свободный режим:                  @1@2 + @3</fg>"
+msgid "@0Freemode:                                @1@2 + @3</fg>"
+msgstr "@0Свободный режим:                        @1@2 + @3</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid "@0Practice Mode:                @1@2 + @3 + @4</fg>"

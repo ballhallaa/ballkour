@@ -92,8 +92,8 @@ msgid "New Run:                     <fgFFFFFFFF>@0 + @1 (Hold)</fg>"
 msgstr "Yeni deneme:             <fgFFFFFFFF>@0 + @1 (basılı tut)</fg>"
 
 #. file controls.opy, rule "Load HUD"
-msgid "@0Freemode:                          @1@2 + @3</fg>"
-msgstr "@0Serbest mod:                           @1@2 + @3</fg>"
+msgid "@0Freemode:                                @1@2 + @3</fg>"
+msgstr "@0Serbest mod:                                 @1@2 + @3</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid "@0Practice Mode:                @1@2 + @3 + @4</fg>"
