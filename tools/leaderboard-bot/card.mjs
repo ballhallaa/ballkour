@@ -56,15 +56,15 @@ export function cardHtml({ course, board, date, runs, fresh, people, ratings = n
       `</li>`;
   };
   const slots = Array.from({ length: 10 }, (_, i) => runs[i] || null);
-  // Two lines under the title: which board this is, then the course's codes and who made it. A course with a beta
-  // code (beta in courses.json) shows it after its latest code. When the latest code is broken, only the beta code is
-  // shown, since it's the one to play. A legacy board was set on the original course, so it shows that course's code
-  // (legacyCode) and no remaker.
+  // Two lines under the title: which board this is, then the course's code and who made it. A broken code is shown
+  // like any other, unless the course has a beta code that still works (beta in courses.json): then that's the one
+  // shown, as Beta, since it's the code to play. A legacy board was set on the original course, so it shows that
+  // course's code (legacyCode) and no remaker.
   const line = (parts) => parts.filter(Boolean).map((s) => `<span>${s}</span>`).join("<span>·</span>");
   const field = (label, value) => (value ? `${label} <b>${esc(value)}</b>` : "");
   const sub = legacy ? line(["Legacy top 10", "Before May 2026"])
     : line(["Top 10", board ? `Board ${board}` : "", date]);
-  const credits = line([...(legacy ? [field("Code", course.legacyCode)] : [course.broken && course.beta ? "" : field("Code", course.code), field("Beta", course.beta)]), field("Creator", course.by),
+  const credits = line([(legacy ? field("Code", course.legacyCode) : course.broken && course.beta ? field("Beta", course.beta) : field("Code", course.code)), field("Creator", course.by),
     legacy ? "" : field("Remaker", course.remaker)]);
 
   return `<!doctype html><meta charset="utf-8"><style>
