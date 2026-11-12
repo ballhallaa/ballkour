@@ -415,9 +415,9 @@ rule "Load HUD":
     # splits end without blank lines, so they bring 2; without the splits, Mistakes above
     # already ends in blank lines, and the CP while spectating ends in 1.
     # In the lobby, with nothing above it, the Lobby Top 3 starts at the top.
-    # The All-Time Top 3 lists the leaderboard's runs, or in Assist Mode the assisted one's,
-    # with a pink (Assisted) after its title. The Lobby Top 3 lists the lobby's assisted runs
-    # with the rest, marked with a pink •.
+    # The All-Time Top 3 lists the leaderboard's runs, with (Unassisted) after its title, or
+    # in Assist Mode the assisted one's, with a pink (Assisted). The Lobby Top 3 lists the
+    # lobby's assisted runs with the rest, marked with a pink •.
     allTimeRunsHudText = _("All-Time Top 3")
     topRunsHudText = _("Lobby Top 3")
     hudSubheader(
@@ -441,7 +441,7 @@ rule "Load HUD":
                     (
                         " <fgFF80C0FF>({})</fg>".format(_(lobbyHudText[14]))
                         if isAssistModeShown(localPlayer)
-                        else ""
+                        else " ({})".format(_(lobbyHudText[13]))
                     ),
                     (
                         hudPageAllTimeText
