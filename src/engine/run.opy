@@ -13,6 +13,14 @@ macro isOnScorecard(player):
     (not player.isDummy())
 
 
+# Whether the player is on a CP skipped to, past the furthest one cleared. A skip only
+# disqualifies the run once the player leaves that CP, so it can be looked at and skipped
+# back from (Timer: Start/Resume Run, Mistake: Missed Checkpoint). A skip onto the last CP
+# disqualifies it at once, as reaching it finishes the run.
+macro isOnSkippedCp(player):
+    (player.runCurrentCp > player.runFurthestCp)
+
+
 # The scorecard's sections, top to bottom: runners, disqualified runners, players in Assist
 # Mode, players in freemode, which finishing turns on, or Practice Mode, players spectating,
 # and players in the lobby, along with new players on their way there, who have no run yet
@@ -533,7 +541,14 @@ rule "Update Scorecard":
         # Spectating, and the lobby gray, like the lobby's grayed-out buttons. Disqualified
         # runs also get a red × after the name, outside the row's color so it's red on every
         # row, and for anyone who can't tell red from orange.
-        scorecard = "{}\n{}{}{}{}".format(
+        # Runs still assisted after their player left Assist Mode get a pink • after the
+        # name, like the Lobby Top 3's assisted runs. Runs that still count on a CP skipped
+        # to (isOnSkippedCp) get a red •, as their CP wasn't reached by clearing, until
+        # leaving it turns it into the ×, also in the lobby, which keeps the run paused on
+        # that CP. Spectators' rows show the CP they watch, not theirs, so they don't get it.
+        # A change to either mark changes the CP or the section too, which refreshes the
+        # scorecard (scorecardKey).
+        scorecard = "{}\n{}{}{}{}{}{}".format(
             scorecard,
             [
                 "",
@@ -545,6 +560,19 @@ rule "Update Scorecard":
             ][scorecardPlayers[index].scorecardSection],
             scorecardRow,
             "</fg>" if scorecardPlayers[index].scorecardSection else "",
+            (
+                "<fgFF80C0FF>•</fg>"
+                if scorecardPlayers[index].isRunAssisted
+                and not scorecardPlayers[index].isInAssistMode
+                else ""
+            ),
+            (
+                "<fgFF4646FF>•</fg>"
+                if scorecardPlayers[index].isRunLegit
+                and isOnSkippedCp(scorecardPlayers[index])
+                and scorecardPlayers[index].scorecardSection != 4
+                else ""
+            ),
             "" if scorecardPlayers[index].isRunLegit else " <fgFF4646FF>×</fg>"
         )
     # A change or a runner's next second (see Update Run Format) rebuilds it within 0.1s. Rebuilding
@@ -620,14 +648,6 @@ def resetRun():
     eventPlayer.paceSplitTotal = 0
     eventPlayer.paceSplitClears = 0
     resetCpMistakes()
-
-
-# Whether the player is on a CP skipped to, past the furthest one cleared. A skip only
-# disqualifies the run once the player leaves that CP, so it can be looked at and skipped
-# back from (Timer: Start/Resume Run, Mistake: Missed Checkpoint). A skip onto the last CP
-# disqualifies it at once, as reaching it finishes the run.
-macro isOnSkippedCp(player):
-    (player.runCurrentCp > player.runFurthestCp)
 
 
 def pauseRun():
