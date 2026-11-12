@@ -1051,7 +1051,7 @@ rule "Load HUD Page":
         iconString(Icon.BOLT),
         iconString(Icon.SKULL),
         (
-            "\n87     6:41       12     GrappleGod<fgFF4646FF>•</fg>"
+            "\n87     6:41       12     GrappleGod<fgFF4646FF>»</fg>"
             "\n64     5:02       8       HammondFan<fgFF80C0FF>•</fg>"
             "\n41     3:57       6       Minefield"
             "\n30     2:48       21     RollOut"
