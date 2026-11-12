@@ -122,18 +122,20 @@ export function combine(ratings) {
   return { counted, players: ranked([...players.values()].map(({ ran, ...p }) => ({ ...p, courses: ran.size }))) };
 }
 
-// Everyone (their Discord IDs) who has been in the Global top 10 at some point: the Global rating as it stood at the
-// end of each day with a run, from the runs dated up to then (with today's courses and removed runs). roles.mjs gives
-// Former Top 10 (Global) by it, like Former Top 10 by the posted boards, so it isn't lost to someone who leaves the
-// server and comes back, or whose Top 10 (Global) was taken away by hand.
-// unassisted, assisted: the courses as loadCourses() gives them
-export function everGlobalTop10(unassisted, assisted) {
+// Everyone (their Discord IDs) who has been in a rating's top 10 at some point: the rating as it stood at the end of
+// each day with a run, from the runs dated up to then (with today's courses and removed runs). With one set of courses,
+// it's that set's rating (the unassisted or the assisted one), and with two, the Global rating, the two added up.
+// roles.mjs gives Former Top 10 Rating by it, so it isn't lost to someone who leaves the server and comes back, or
+// whose Top 10 Rating was taken away by hand.
+// sets: [courses], or [unassisted, assisted] for the Global rating, each as loadCourses() gives them
+export function everTop10(sets) {
   const upTo = (day) => (r) => (r.date || "") <= day;
   const asOf = (courses, day) => courses.map((c) => ({ ...c, file: c.file.filter(upTo(day)), more: c.more.filter(upTo(day)), boards: c.boards.map((b) => b.filter(upTo(day))) }));
-  const days = new Set([...unassisted, ...assisted].flatMap((c) => [...c.file, ...c.more]).map((r) => r.date).filter(Boolean));
+  const days = new Set(sets.flat().flatMap((c) => [...c.file, ...c.more]).map((r) => r.date).filter(Boolean));
   const ever = new Set();
   for (const day of days) {
-    for (const p of combine([rate(asOf(unassisted, day)), rate(asOf(assisted, day))]).players) if (p.discord && p.rank <= 10) ever.add(p.discord);
+    const rated = sets.map((courses) => rate(asOf(courses, day)));
+    for (const p of (rated.length > 1 ? combine(rated) : rated[0]).players) if (p.discord && p.rank <= 10) ever.add(p.discord);
   }
   return ever;
 }
