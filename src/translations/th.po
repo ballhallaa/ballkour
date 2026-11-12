@@ -92,6 +92,18 @@ msgid "New Run:                     <fgFFFFFFFF>@0 + @1 (Hold)</fg>"
 msgstr "เริ่มใหม่:                               <fgFFFFFFFF>@0 + @1 (กดค้าง)</fg>"
 
 #. file controls.opy, rule "Load HUD"
+msgid "@0Freemode:                          @1@2 + @3</fg>"
+msgstr "@0โหมดอิสระ:                                      @1@2 + @3</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "@0Practice Mode:                @1@2 + @3 + @4</fg>"
+msgstr "@0โหมดฝึกซ้อม:                              @1@2 + @3 + @4</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "@0Assist Mode:               @1@2 + @3 + @4</fg>"
+msgstr "@0โหมดช่วยเหลือ:                       @1@2 + @3 + @4</fg>"
+
+#. file controls.opy, rule "Load HUD"
 msgid "@0Hints:                                         @1@2 + @3</fg>"
 msgstr "@0คำใบ้:                                                @1@2 + @3</fg>"
 
@@ -156,18 +168,6 @@ msgstr "@0ผู้เล่นที่เล็งอยู่:               
 #. file controls.opy, rule "Load HUD"
 msgid "Freecam:                             <fgFFFFFFFF>Move</fg>"
 msgstr "กล้องอิสระ:                                      <fgFFFFFFFF>เคลื่อนที่</fg>"
-
-#. file controls.opy, rule "Load HUD"
-msgid "@0Freemode:                          @1@2 + @3</fg>"
-msgstr "@0โหมดอิสระ:                                      @1@2 + @3</fg>"
-
-#. file controls.opy, rule "Load HUD"
-msgid "@0Practice Mode:        @1@2 + @3 + @4</fg>"
-msgstr "@0โหมดฝึกซ้อม:                          @1@2 + @3 + @4</fg>"
-
-#. file controls.opy, rule "Load HUD"
-msgid "@0Assist Mode:               @1@2 + @3 + @4</fg>"
-msgstr "@0โหมดช่วยเหลือ:                       @1@2 + @3 + @4</fg>"
 
 #. file faq.opy, rule "Load HUD"
 msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"

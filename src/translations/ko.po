@@ -92,6 +92,18 @@ msgid "New Run:                     <fgFFFFFFFF>@0 + @1 (Hold)</fg>"
 msgstr "처음부터:                    <fgFFFFFFFF>@0 + @1 (길게 누르기)</fg>"
 
 #. file controls.opy, rule "Load HUD"
+msgid "@0Freemode:                          @1@2 + @3</fg>"
+msgstr "@0자유 모드:                                  @1@2 + @3</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "@0Practice Mode:                @1@2 + @3 + @4</fg>"
+msgstr "@0연습 모드:                                 @1@2 + @3 + @4</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "@0Assist Mode:               @1@2 + @3 + @4</fg>"
+msgstr "@0어시스트 모드:                      @1@2 + @3 + @4</fg>"
+
+#. file controls.opy, rule "Load HUD"
 msgid "@0Hints:                                         @1@2 + @3</fg>"
 msgstr "@0힌트:                                               @1@2 + @3</fg>"
 
@@ -156,18 +168,6 @@ msgstr "@0조준한 플레이어:           @1@2 + @3</fg>@4"
 #. file controls.opy, rule "Load HUD"
 msgid "Freecam:                             <fgFFFFFFFF>Move</fg>"
 msgstr "자유 카메라:                                       <fgFFFFFFFF>이동</fg>"
-
-#. file controls.opy, rule "Load HUD"
-msgid "@0Freemode:                          @1@2 + @3</fg>"
-msgstr "@0자유 모드:                                  @1@2 + @3</fg>"
-
-#. file controls.opy, rule "Load HUD"
-msgid "@0Practice Mode:        @1@2 + @3 + @4</fg>"
-msgstr "@0연습 모드:                            @1@2 + @3 + @4</fg>"
-
-#. file controls.opy, rule "Load HUD"
-msgid "@0Assist Mode:               @1@2 + @3 + @4</fg>"
-msgstr "@0어시스트 모드:                      @1@2 + @3 + @4</fg>"
 
 #. file faq.opy, rule "Load HUD"
 msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"

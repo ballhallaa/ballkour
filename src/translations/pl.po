@@ -92,6 +92,18 @@ msgid "New Run:                     <fgFFFFFFFF>@0 + @1 (Hold)</fg>"
 msgstr "Nowe podejście:        <fgFFFFFFFF>@0 + @1 (przytrzymaj)</fg>"
 
 #. file controls.opy, rule "Load HUD"
+msgid "@0Freemode:                          @1@2 + @3</fg>"
+msgstr "@0Tryb swobodny:                                @1@2 + @3</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "@0Practice Mode:                @1@2 + @3 + @4</fg>"
+msgstr "@0Tryb treningowy:                           @1@2 + @3 + @4</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "@0Assist Mode:               @1@2 + @3 + @4</fg>"
+msgstr "@0Tryb wspomagany:                  @1@2 + @3 + @4</fg>"
+
+#. file controls.opy, rule "Load HUD"
 msgid "@0Hints:                                         @1@2 + @3</fg>"
 msgstr "@0Podpowiedzi:                                          @1@2 + @3</fg>"
 
@@ -156,18 +168,6 @@ msgstr "@0Gracz w celowniku:           @1@2 + @3</fg>@4"
 #. file controls.opy, rule "Load HUD"
 msgid "Freecam:                             <fgFFFFFFFF>Move</fg>"
 msgstr "Wolna kamera:                                    <fgFFFFFFFF>Ruch</fg>"
-
-#. file controls.opy, rule "Load HUD"
-msgid "@0Freemode:                          @1@2 + @3</fg>"
-msgstr "@0Tryb swobodny:                                @1@2 + @3</fg>"
-
-#. file controls.opy, rule "Load HUD"
-msgid "@0Practice Mode:        @1@2 + @3 + @4</fg>"
-msgstr "@0Tryb treningowy:                      @1@2 + @3 + @4</fg>"
-
-#. file controls.opy, rule "Load HUD"
-msgid "@0Assist Mode:               @1@2 + @3 + @4</fg>"
-msgstr "@0Tryb wspomagany:                  @1@2 + @3 + @4</fg>"
 
 #. file faq.opy, rule "Load HUD"
 msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"
