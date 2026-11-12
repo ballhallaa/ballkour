@@ -67,7 +67,6 @@ globalvar hudPageTexts
 # (Lobby: Show HUD Page)
 globalvar isHudPageReady
 # Disqualified's row, as its spot in hudLeftPos holds the arrows' parking spot instead
-globalvar hudDisqualifiedPos
 # The lobby players Pull Back or Release is turning, for the tick it runs
 globalvar lobbyPulled
 # Made-up rows the HUD shows on the HUD page in place of the scorecard and Top 3s
@@ -113,6 +112,7 @@ globalvar freecamQueue = []
 # so its arguments are @0, @1... markers, filled in with .replace("@0", value) where it's shown.
 globalvar ctrlsHudText = []
 globalvar freemodeHudText
+globalvar practiceModeHudText
 globalvar hintsHudText = []
 globalvar runHudText
 globalvar counterHudText = []
@@ -193,6 +193,9 @@ playervar isShowingSplitDelta
 playervar splitCpBest
 playervar attemptBests
 playervar attemptTotals
+# Attempt Best/Avg count Practice Mode's clears too, which aren't splits, so attempts keep
+# their own count of clears
+playervar attemptClears
 playervar attemptCpBest
 playervar splitDiff
 playervar splitResult
@@ -245,6 +248,9 @@ macro FAQ_PAGES = 4
 # The languages in #!translations (ballkour.opy), which __languageIndex__ counts from 0
 macro LANGUAGES = 14
 playervar isInFreemode
+# Practice Mode (Controls: Practice Mode): the run waits, paused like in Freemode, while the
+# player plays its current CP over and over, which starts again each time it's cleared
+playervar isInPracticeMode
 # Assist Mode (Controls: Assist Mode): every ability as often as they like, and landing
 # anywhere, like Freemode, while the run's CPs still clear. It stays on, through New Run
 # too, until it's turned off.
@@ -321,6 +327,7 @@ subroutine nextCpInput
 subroutine newRunInput
 subroutine freemodeInput
 subroutine assistModeInput
+subroutine practiceModeInput
 subroutine lobbyInput
 subroutine goToLobby
 subroutine hudInput
@@ -435,9 +442,10 @@ macro isFreePlay(player):
     (player.isInFreemode or player.isInAssistMode)
 
 
-# Every mistake also ends an attempt at the CP
+# Every mistake also ends an attempt at the CP. Practice Mode's don't count toward the run,
+# which is paused.
 macro addMistake():
-    eventPlayer.runMistakes++
+    eventPlayer.runMistakes += not eventPlayer.isInPracticeMode
     eventPlayer.cpAttempts[eventPlayer.runCurrentCp]++
     eventPlayer.cpMistakes[eventPlayer.runCurrentCp]++
 

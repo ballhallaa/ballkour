@@ -12,7 +12,8 @@ rule "Checkpoint (No Skipping)":
     ) == true
     @Condition eventPlayer.isRunLoaded == true
     @Condition eventPlayer.isInFreemode == false
-    @Condition eventPlayer.isRunPaused == false
+    # Practice Mode's run stays paused, but its CP still clears
+    @Condition (not eventPlayer.isRunPaused or eventPlayer.isInPracticeMode) == true
     @Condition (
         eventPlayer.isOnGround()
         or eventPlayer.cpData[9]
@@ -45,6 +46,14 @@ rule "Checkpoint (No Skipping)":
     eventPlayer.isLoading = true
     # A clear ends an attempt too
     eventPlayer.cpAttempts[eventPlayer.runCurrentCp]++
+    # Practice Mode starts the same CP again
+    if eventPlayer.isInPracticeMode:
+        cpResetPlayer()
+        playEffect(
+            eventPlayer, DynamicEffect.RING_EXPLOSION_SOUND, null, eventPlayer, 100
+        )
+        eventPlayer.isLoading = false
+        return
     eventPlayer.runCurrentCp++
     eventPlayer.runFurthestCp = max(eventPlayer.runFurthestCp, eventPlayer.runCurrentCp)
     syncSpectatorCps()
@@ -98,6 +107,8 @@ rule "Final Checkpoint Reached":
         if eventPlayer.isRunLegit:
             recordTopRun()
     eventPlayer.isInFreemode = true
+    # Practice Mode ends here (Next CP onto the last one), which is Freemode now
+    eventPlayer.isInPracticeMode = false
     eventPlayer.nameplate = _("{} | FREEMODE").format(eventPlayer)
 
 

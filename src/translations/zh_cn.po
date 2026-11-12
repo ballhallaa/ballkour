@@ -63,6 +63,10 @@ msgstr "<fgFF80C0FF>    辅助模式成绩</fg>"
 msgid "Freemode On"
 msgstr "自由模式已开启"
 
+#. file controls.opy, rule "Load Freemode HUD"
+msgid "Practice Mode On"
+msgstr "练习模式已开启"
+
 #. file controls.opy, rule "Load Hints HUD"
 msgid "@0Hints: @1@2 + @3</fg>"
 msgstr "@0提示：@1@2 + @3</fg>"
@@ -86,14 +90,6 @@ msgstr "@0重置CP：                                    @1@2 (长按)</fg>"
 #. file controls.opy, rule "Load HUD"
 msgid "New Run:                     <fgFFFFFFFF>@0 + @1 (Hold)</fg>"
 msgstr "重新开始：                          <fgFFFFFFFF>@0 + @1 (长按)</fg>"
-
-#. file controls.opy, rule "Load HUD"
-msgid "@0Freemode:                                @1@2 + @3</fg>"
-msgstr "@0自由模式：                                     @1@2 + @3</fg>"
-
-#. file controls.opy, rule "Load HUD"
-msgid "@0Assist Mode:               @1@2 + @3 (Hold)</fg>"
-msgstr "@0辅助模式：                          @1@2 + @3 (长按)</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid "@0Hints:                                         @1@2 + @3</fg>"
@@ -160,6 +156,18 @@ msgstr "@0准星所指玩家：           @1@2 + @3</fg>@4"
 #. file controls.opy, rule "Load HUD"
 msgid "Freecam:                             <fgFFFFFFFF>Move</fg>"
 msgstr "自由视角：                                        <fgFFFFFFFF>移动</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "@0Freemode:                          @1@2 + @3</fg>"
+msgstr "@0自由模式：                                 @1@2 + @3</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "@0Practice Mode:        @1@2 + @3 + @4</fg>"
+msgstr "@0练习模式：                          @1@2 + @3 + @4</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "@0Assist Mode:               @1@2 + @3 + @4</fg>"
+msgstr "@0辅助模式：                          @1@2 + @3 + @4</fg>"
 
 #. file faq.opy, rule "Load HUD"
 msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"

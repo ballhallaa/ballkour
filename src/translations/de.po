@@ -63,6 +63,10 @@ msgstr "<fgFF80C0FF>                Assistierter Lauf</fg>"
 msgid "Freemode On"
 msgstr "Freier Modus an"
 
+#. file controls.opy, rule "Load Freemode HUD"
+msgid "Practice Mode On"
+msgstr "Trainingsmodus an"
+
 #. file controls.opy, rule "Load Hints HUD"
 msgid "@0Hints: @1@2 + @3</fg>"
 msgstr "@0Hinweise: @1@2 + @3</fg>"
@@ -86,14 +90,6 @@ msgstr "@0CP zurücksetzen:                @1@2 (halten)</fg>"
 #. file controls.opy, rule "Load HUD"
 msgid "New Run:                     <fgFFFFFFFF>@0 + @1 (Hold)</fg>"
 msgstr "Neuer Lauf:                    <fgFFFFFFFF>@0 + @1 (halten)</fg>"
-
-#. file controls.opy, rule "Load HUD"
-msgid "@0Freemode:                                @1@2 + @3</fg>"
-msgstr "@0Freier Modus:                             @1@2 + @3</fg>"
-
-#. file controls.opy, rule "Load HUD"
-msgid "@0Assist Mode:               @1@2 + @3 (Hold)</fg>"
-msgstr "@0Assistenzmodus:        @1@2 + @3 (halten)</fg>"
 
 #. file controls.opy, rule "Load HUD"
 msgid "@0Hints:                                         @1@2 + @3</fg>"
@@ -160,6 +156,18 @@ msgstr "@0Anvisierter Spieler:       @1@2 + @3</fg>@4"
 #. file controls.opy, rule "Load HUD"
 msgid "Freecam:                             <fgFFFFFFFF>Move</fg>"
 msgstr "Freie Kamera:                          <fgFFFFFFFF>Bewegen</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "@0Freemode:                          @1@2 + @3</fg>"
+msgstr "@0Freier Modus:                          @1@2 + @3</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "@0Practice Mode:        @1@2 + @3 + @4</fg>"
+msgstr "@0Trainingsmodus:            @1@2 + @3 + @4</fg>"
+
+#. file controls.opy, rule "Load HUD"
+msgid "@0Assist Mode:               @1@2 + @3 + @4</fg>"
+msgstr "@0Assistenzmodus:             @1@2 + @3 + @4</fg>"
 
 #. file faq.opy, rule "Load HUD"
 msgid "FAQ: <fgFFFFFFFF>@0 + @1</fg>"

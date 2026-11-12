@@ -6,14 +6,15 @@
 macro NO_SPLIT_STATS = ["--", "--", "--", "--"]
 
 
-# Keeps showing the cleared CP's old stats during its delta, so the deltas can be read against them
+# Keeps showing the cleared CP's old stats during its delta, so the deltas can be read against
+# them. Any clear has an attempt, so attemptClears covers the splits' too.
 macro viewedSplitStats(player):
     (
         player.viewRunner.splitDelta[3]
         if player.viewRunner.isShowingSplitDelta
         else (
             player.viewRunner.splitStatsFormatted[player.viewCp]
-            if player.viewRunner.splitClears[player.viewCp]
+            if player.viewRunner.attemptClears[player.viewCp]
             else NO_SPLIT_STATS
         )
     )
@@ -193,7 +194,8 @@ def recordSplit():
     @Name "Record"
 
     # Each clear records two times: the attempt that cleared the CP, timed from leaving it,
-    # and the split from entering the CP to clearing it, which resets and mistakes count toward
+    # and the split from entering the CP to clearing it, which resets and mistakes count toward.
+    # Practice Mode's clears only record the attempt, as its run is paused.
     # splitDelta: [0]cp [1]attemptFormatted [2]splitFormatted [3]prevStatsFormatted [4]hideTime
     # Rounded to the hundredths shown, so a new best has to be at least 0.01 faster
     eventPlayer.cpTime = round(eventPlayer.cpTime * 100) / 100
@@ -208,35 +210,47 @@ def recordSplit():
         getTotalTimeElapsed() + 2
     ]
     eventPlayer.isShowingSplitDelta = true
-    # A first clear has nothing to compare against, so its times show in yellow without a delta
-    if not eventPlayer.splitClears[eventPlayer.runCurrentCp]:
+    # A first clear has nothing to compare against, so its times show in yellow without a delta.
+    # A new best is compared to the old best, and anything else to the average.
+    eventPlayer.timeToFormat = eventPlayer.cpTime
+    if not eventPlayer.attemptClears[eventPlayer.runCurrentCp]:
         eventPlayer.attemptBests[eventPlayer.runCurrentCp] = eventPlayer.cpTime
-        eventPlayer.splitBests[eventPlayer.runCurrentCp] = eventPlayer.splitTime
-        eventPlayer.timeToFormat = eventPlayer.cpTime
         formatTime()
         eventPlayer.splitDelta[1] = "<fgFFFF00FF>{}</fg>".format(
-            eventPlayer.timeFormatted
-        )
-        eventPlayer.timeToFormat = eventPlayer.splitTime
-        formatTime()
-        eventPlayer.splitDelta[2] = "<fgFFFF00FF>{}</fg>".format(
             eventPlayer.timeFormatted
         )
     else:
         eventPlayer.splitDelta[3] = eventPlayer.splitStatsFormatted[
             eventPlayer.runCurrentCp
         ]
-        # A new best is compared to the old best, and anything else to the average
-        eventPlayer.timeToFormat = eventPlayer.cpTime
         eventPlayer.splitDiff = eventPlayer.cpTime - (
             eventPlayer.attemptBests[eventPlayer.runCurrentCp]
             if eventPlayer.cpTime < eventPlayer.attemptBests[eventPlayer.runCurrentCp]
             else eventPlayer.attemptTotals[eventPlayer.runCurrentCp]
-            / eventPlayer.splitClears[eventPlayer.runCurrentCp]
+            / eventPlayer.attemptClears[eventPlayer.runCurrentCp]
         )
         formatSplitResult()
         eventPlayer.splitDelta[1] = eventPlayer.splitResult
-        eventPlayer.timeToFormat = eventPlayer.splitTime
+        eventPlayer.attemptBests[eventPlayer.runCurrentCp] = min(
+            eventPlayer.attemptBests[eventPlayer.runCurrentCp], eventPlayer.cpTime
+        )
+    eventPlayer.attemptTotals[eventPlayer.runCurrentCp] += eventPlayer.cpTime
+    eventPlayer.attemptClears[eventPlayer.runCurrentCp]++
+    eventPlayer.timeToFormat = eventPlayer.splitTime
+    if eventPlayer.isInPracticeMode:
+        # The split shows as it was, paused, and the live attempt turns red past the new best
+        formatTime()
+        eventPlayer.splitDelta[2] = "<fgFFFFFFFF>{}</fg>".format(
+            eventPlayer.timeFormatted
+        )
+        eventPlayer.attemptCpBest = eventPlayer.attemptBests[eventPlayer.runCurrentCp]
+    elif not eventPlayer.splitClears[eventPlayer.runCurrentCp]:
+        eventPlayer.splitBests[eventPlayer.runCurrentCp] = eventPlayer.splitTime
+        formatTime()
+        eventPlayer.splitDelta[2] = "<fgFFFF00FF>{}</fg>".format(
+            eventPlayer.timeFormatted
+        )
+    else:
         eventPlayer.splitDiff = eventPlayer.splitTime - (
             eventPlayer.splitBests[eventPlayer.runCurrentCp]
             if eventPlayer.splitTime < eventPlayer.splitBests[eventPlayer.runCurrentCp]
@@ -245,22 +259,19 @@ def recordSplit():
         )
         formatSplitResult()
         eventPlayer.splitDelta[2] = eventPlayer.splitResult
-        eventPlayer.attemptBests[eventPlayer.runCurrentCp] = min(
-            eventPlayer.attemptBests[eventPlayer.runCurrentCp], eventPlayer.cpTime
-        )
         eventPlayer.splitBests[eventPlayer.runCurrentCp] = min(
             eventPlayer.splitBests[eventPlayer.runCurrentCp], eventPlayer.splitTime
         )
-    eventPlayer.attemptTotals[eventPlayer.runCurrentCp] += eventPlayer.cpTime
-    eventPlayer.splitTotals[eventPlayer.runCurrentCp] += eventPlayer.splitTime
-    eventPlayer.paceSplitTotal += eventPlayer.splitTime
-    eventPlayer.paceSplitClears++
-    eventPlayer.splitClears[eventPlayer.runCurrentCp]++
+    if not eventPlayer.isInPracticeMode:
+        eventPlayer.splitTotals[eventPlayer.runCurrentCp] += eventPlayer.splitTime
+        eventPlayer.paceSplitTotal += eventPlayer.splitTime
+        eventPlayer.paceSplitClears++
+        eventPlayer.splitClears[eventPlayer.runCurrentCp]++
     # In the same order as NO_SPLIT_STATS
     eventPlayer.splitResult = [
         eventPlayer.attemptBests[eventPlayer.runCurrentCp],
         eventPlayer.attemptTotals[eventPlayer.runCurrentCp]
-        / eventPlayer.splitClears[eventPlayer.runCurrentCp],
+        / eventPlayer.attemptClears[eventPlayer.runCurrentCp],
         eventPlayer.splitBests[eventPlayer.runCurrentCp],
         eventPlayer.splitTotals[eventPlayer.runCurrentCp]
         / eventPlayer.splitClears[eventPlayer.runCurrentCp]
@@ -269,6 +280,10 @@ def recordSplit():
         eventPlayer.timeToFormat = eventPlayer.splitResult[eventPlayer.index]
         formatTime()
         eventPlayer.splitResult[eventPlayer.index] = eventPlayer.timeFormatted
+    # Practice Mode alone hasn't cleared a split yet
+    if not eventPlayer.splitClears[eventPlayer.runCurrentCp]:
+        eventPlayer.splitResult[2] = "--"
+        eventPlayer.splitResult[3] = "--"
     eventPlayer.splitStatsFormatted[eventPlayer.runCurrentCp] = eventPlayer.splitResult
 
 

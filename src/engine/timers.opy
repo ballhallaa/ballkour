@@ -10,7 +10,8 @@ rule "Start/Resume Run":
         and not eventPlayer.hasStatus(Status.ROOTED)
     ) == true
     @Condition eventPlayer.isInLobby == false
-    @Condition eventPlayer.isInFreemode == false
+    # Practice Mode's run waits until it's turned off
+    @Condition (eventPlayer.isInFreemode or eventPlayer.isInPracticeMode) == false
     @Condition eventPlayer.isRunPaused == true
     @Condition eventPlayer.runCurrentCp < lastCp
     @Condition eventPlayer.spectating[0] == false
@@ -30,12 +31,13 @@ rule "Start/Resume Run":
 rule "Update Run Format":
     @Event eachPlayer
     @Condition eventPlayer.isTimerActive == false
-    @Condition eventPlayer.isRunPaused == false
+    # Practice Mode's run is paused, but its attempts are timed
+    @Condition (not eventPlayer.isRunPaused or eventPlayer.isInPracticeMode) == true
     @Condition eventPlayer.isRunLoaded == true
     @Condition isDebugOn == false
 
     eventPlayer.isTimerActive = true
-    while not eventPlayer.isRunPaused:
+    while not eventPlayer.isRunPaused or eventPlayer.isInPracticeMode:
         wait(0.016 + getServerLoad() * 0.001)
         eventPlayer.timeToFormat = eventPlayer.runTime
         formatTime()
