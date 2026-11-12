@@ -345,7 +345,7 @@ msgstr "(Getrennt)"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Spectating"
-msgstr "Zuschauen"
+msgstr "Zuschauermodus"
 
 #. file spectator.opy, rule "Load HUD"
 msgid "Spectating @0"
