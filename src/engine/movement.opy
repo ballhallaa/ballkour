@@ -166,6 +166,9 @@ rule "Reset Useless Jump/Grapple/Shield Bounce/Bhop":
         or eventPlayer.cpData[11]
         or eventPlayer.cpData[13]
         or eventPlayer.cpData[14]
+        # Grabbed orbs too, so coming back always resets them (Assist Mode and Freemode can
+        # leave without a grapple)
+        or eventPlayer.cpData[16]
     ) == true
     @Condition eventPlayer.isInLobby == false
     @Condition (eventPlayer.isOnGround() or eventPlayer.cpData[9]) == true
