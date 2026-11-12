@@ -9,18 +9,32 @@
 
 # The orbs not grabbed yet, and of those, the ones the ball is touching. The ball's centre is
 # 0.7 m up from its position, and in-game a size-1 orb visibly touches the ball 1.24 m from
-# there. The reach is a touch more forgiving than that: the orb's radius plus 0.3 m. Unlike
-# Fasteroid's fork of the Giga editor, the eyes aren't checked: in ball form they sit 1.83 m
-# up, above the ball.
+# there. Unlike Fasteroid's fork of the Giga editor, the eyes aren't checked: in ball form they
+# sit 1.83 m up, above the ball.
 macro orbsLeft(player):
     player.cpData[5].filter(lambda orb, i: not hasGrabbedOrb(player, i))
 
 
-macro orbsTouched(player):
-    orbsLeft(player).filter(
-        lambda orb: distance(player.getPosition() + vect(0, 0.7, 0), orb)
-        <= player.cpData[6] + 0.3
+# The gap as the camera sees it: depth doesn't show on screen, so an orb just behind or in
+# front of the ball looks touching from further away. Sideways and vertically the reach is the
+# orb's radius + 0.3 m, along the view direction up to radius + 0.5 m
+# (1 - (1.3 / 1.5)^2 = 0.25).
+macro orbGap(player, orb):
+    sqrt(
+        dotProduct(
+            orb - player.getPosition() - vect(0, 0.7, 0),
+            orb - player.getPosition() - vect(0, 0.7, 0)
+        )
+        - dotProduct(
+            orb - player.getPosition() - vect(0, 0.7, 0), player.getFacingDirection()
+        )
+        ** 2
+        * 0.25
     )
+
+
+macro orbsTouched(player):
+    orbsLeft(player).filter(lambda orb: orbGap(player, orb) <= player.cpData[6] + 0.3)
 
 
 rule "No Grapple":
@@ -85,15 +99,24 @@ rule "Grab Orb":
     ) == true
     @Condition eventPlayer.cpData[5] != null
     @Condition len(orbsTouched(eventPlayer)) > 0
-    # The last one only in the air, so rolling through it isn't then read as landing after it
-    @Condition (not eventPlayer.isOnGround() or len(orbsLeft(eventPlayer)) > 1) == true
     @Condition eventPlayer.isInFreemode == false
     @Condition eventPlayer.spectating[0] == false
 
+    # The last orb grabbed on the ground: rolling on isn't a landing after it, so Missed
+    # Checkpoint waits until the ball has left the ground (set before the orb, in the same tick)
+    eventPlayer.cpData[17] = (
+        eventPlayer.isOnGround() and len(orbsLeft(eventPlayer)) == 1
+    )
     eventPlayer.cpData[16] = eventPlayer.cpData[16] + 2 ** eventPlayer.cpData[5].index(
         orbsTouched(eventPlayer)[0]
     )
     playEffect(eventPlayer, DynamicEffect.BUFF_EXPLOSION_SOUND, null, eventPlayer, 100)
+    # A reset or another CP clears the orbs, which ends the wait too
+    if eventPlayer.cpData[17]:
+        waitUntil(
+            not eventPlayer.isOnGround() or not hasAllOrbs(eventPlayer), Math.INFINITY
+        )
+        eventPlayer.cpData[17] = false
     # Another orb touched in the same tick doesn't retrigger the rule
     wait()
     if RULE_CONDITION:

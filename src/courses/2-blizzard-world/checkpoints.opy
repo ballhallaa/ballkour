@@ -8,8 +8,8 @@ rule "Checkpoints":
     cpDefaults[2] = 2.5
     # cps is one compressed vector array, which Expand Data unpacks. Each line is a checkpoint:
     # its location, vect(isGrappleAllowed, isShieldBounceAllowed, isPiledriverAllowed), and its
-    # orb location, or vect(0, 0, 0) without an orb. Orbs are only grabbed in the air, so put one
-    # where the jump takes the player. The final checkpoint only has its location.
+    # orb location, or vect(0, 0, 0) without an orb. Put it where the jump takes the player. The
+    # final checkpoint only has its location.
     # Sizes come from cpDefaults. compress() keeps 2 decimals.
     cps = compress(
         [
