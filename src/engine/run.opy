@@ -14,8 +14,8 @@ macro isOnScorecard(player):
 
 
 # The scorecard's sections, top to bottom: runners, disqualified runners, players in Assist
-# Mode, players in freemode, which finishing turns on, players spectating, and players in
-# the lobby, along with new players on their way there, who have no run yet
+# Mode, players in freemode, which finishing turns on, or Practice Mode, players spectating,
+# and players in the lobby, along with new players on their way there, who have no run yet
 macro SCORECARD_SECTIONS = 6
 
 
@@ -28,7 +28,7 @@ macro scorecardSectionOf(player):
             if player.spectating[0]
             else (
                 3
-                if player.isInFreemode
+                if player.isInFreemode or player.isInPracticeMode
                 else (2 if player.isInAssistMode else (0 if player.isRunLegit else 1))
             )
         )
@@ -553,6 +553,7 @@ def resetRun():
     eventPlayer.isRunLoaded = true
     eventPlayer.isRunPaused = true
     eventPlayer.isInFreemode = false
+    eventPlayer.isInPracticeMode = false
     eventPlayer.isRunFinished = false
     eventPlayer.isRunLegit = true
     # Assist Mode stays on through New Run, so the new run is an assisted one too

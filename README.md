@@ -220,10 +220,10 @@ Try these with the Beta code of a Ballkour remake.
 - **Hints:** A recorded route shows you the way through. Turn hints on yourself, or they switch on after 10 mistakes on one checkpoint.
 - **Spectate:** Watch other runners in first or third person, or fly in freecam mode.
 - **Splits:** Best and average times for every checkpoint, plus a pace timer to see your estimated finish time.
-- **Assist Mode:** Every ability as often as you like, free usage of the ground, while your timer runs and checkpoints still clear. Assisted runs have their own leaderboards.
+- **Practice & Assist:** Practice Mode lets you replay one checkpoint as many times as you like while your run stays paused. Assist Mode gives you every ability as often as you like and free usage of the ground. Assisted runs have their own leaderboards.
 - **Scorecards:** See every player's checkpoint, time, and mistakes live, along with the lobby's top 3.
 - **Customize HUD:** Turn any line of the HUD on or off from the lobby, so it only shows what you want to see.
-- **Quality of life:** Idle runners shrink so they never block your view. See your current run and attempt numbers, view each run's video and date in the lobby, and toggle an FAQ for newcomers.
+- **Quality of life:** Idle runners shrink so they never block your view, see your current run and attempt numbers, customize the HUD, and view the FAQ if you're a newcomer.
 - **Translations:** Translated into 13 languages, so each player gets a similar experience in their own language.
 
 ### On ballkour.com

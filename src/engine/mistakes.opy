@@ -34,7 +34,8 @@ rule "Missed Checkpoint":
     eventPlayer.isLoading = true
     addMistake()
     cpResetPlayer()
-    if eventPlayer.isRunPaused:
+    # Practice Mode's run stays paused
+    if eventPlayer.isRunPaused and not eventPlayer.isInPracticeMode:
         # Like Timer: Start/Resume Run, when the player lands outside a CP skipped to as they
         # leave it, before that rule runs
         if isOnSkippedCp(eventPlayer):

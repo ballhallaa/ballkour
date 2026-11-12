@@ -65,8 +65,9 @@ rule "HUD Input":
         eventPlayer.allowButton(Button.ABILITY_2)
 
 
-# Whether Reset CP and Freemode work: on the course, before the last CP. Their lines are
-# grayed out otherwise. Assist Mode only needs the course, as it's for the next run too.
+# Whether Reset CP, Freemode and Practice Mode work: on the course, before the last CP.
+# Their lines are grayed out otherwise. Assist Mode only needs the course, as it's for the
+# next run too.
 macro canUseCpControls(player):
     (not player.spectating[0] and player.runCurrentCp < lastCp)
 
@@ -159,27 +160,35 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    ctrlsHudText[4] = _("@0Freemode:                                @1@2 + @3</fg>")
-    # Assist Mode is Freemode's keys held, so it's under Freemode, in the same text, which
-    # saves one of the 128 texts per server (Lobby: Load Buttons)
-    ctrlsHudText[18] = _("@0Assist Mode:               @1@2 + @3 (Hold)</fg>")
+    ctrlsHudText[4] = _("@0Freemode:                          @1@2 + @3</fg>")
+    # Practice Mode and Assist Mode are Freemode's keys and one more, so they're under it,
+    # in the same text, which saves two of the 128 texts per server (Lobby: Load Buttons)
+    ctrlsHudText[19] = _("@0Practice Mode:        @1@2 + @3 + @4</fg>")
+    ctrlsHudText[18] = _("@0Assist Mode:               @1@2 + @3 + @4</fg>")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: controlsVisible(
                 isViewingCtrlsList(localPlayer) and localPlayer.faqPage == 0
             )
         ),
-        "{}\n{}".format(
+        "{}\n{}\n{}".format(
             _(ctrlsHudText[4])
             .replace("@0", "" if canUseCpControls(localPlayer) else "<fg808080FF>")
             .replace("@1", "<fgFFFFFFFF>" if canUseCpControls(localPlayer) else "")
             .replace("@2", inputBindingString(Button.ULTIMATE))
             .replace("@3", inputBindingString(Button.INTERACT)),
+            _(ctrlsHudText[19])
+            .replace("@0", "" if canUseCpControls(localPlayer) else "<fg808080FF>")
+            .replace("@1", "<fgFFFFFFFF>" if canUseCpControls(localPlayer) else "")
+            .replace("@2", inputBindingString(Button.ULTIMATE))
+            .replace("@3", inputBindingString(Button.INTERACT))
+            .replace("@4", inputBindingString(Button.RELOAD)),
             _(ctrlsHudText[18])
             .replace("@0", "<fg808080FF>" if localPlayer.spectating[0] else "")
             .replace("@1", "" if localPlayer.spectating[0] else "<fgFFFFFFFF>")
             .replace("@2", inputBindingString(Button.ULTIMATE))
             .replace("@3", inputBindingString(Button.INTERACT))
+            .replace("@4", inputBindingString(Button.MELEE))
         ),
         HudPosition.TOP,
         4.05,
@@ -456,7 +465,7 @@ macro heldButtons(player):
 
 
 # Ultimate + each one, alone. Melee gets its own bit (256) above them in ultInputKey, as
-# only the FAQ needs it, while the others don't mind it being held.
+# only the FAQ and Assist Mode need it, while the others don't mind it being held.
 macro ULT_PREV_CP = 1
 macro ULT_NEXT_CP = 2
 macro ULT_NEW_RUN = 8
@@ -465,6 +474,11 @@ macro ULT_HUD = 32
 macro ULT_SPECTATE = 64
 macro ULT_LOBBY = 128
 macro ULT_FAQ = 256
+# The modes are all Ultimate + Interact: alone for Freemode, with Reload for Practice Mode
+# (16 + 8) and with Melee for Assist Mode (16 + 256). They match ultInputKey exactly, so
+# holding one more button picks another mode instead.
+macro ULT_PRACTICE = 24
+macro ULT_ASSIST = 272
 
 
 macro ultInputKeyNow():
@@ -507,19 +521,30 @@ macro cpHoldWait():
     max(0.02, 0.13 - 0.01 * eventPlayer.cpHoldSteps)
 
 
-# The inputs that need the player out of the lobby: Freemode and Assist Mode, Prev. and Next
-# CP. Freemode's keys also work on the last CP, held, for Assist Mode.
+# The inputs that need the player out of the lobby: the modes, Prev. and Next CP. Freemode
+# and Practice Mode only work before the last CP, which Freemode checks once its tap is
+# over. Assist Mode works on the last CP too, as it's for the next run then.
 macro ultCourseInputReady():
     (
         not eventPlayer.isInLobby
         and (
-            (ultInputIs(ULT_FREEMODE) and not eventPlayer.spectating[0])
+            (
+                (
+                    eventPlayer.ultInputKey == ULT_FREEMODE
+                    or eventPlayer.ultInputKey == ULT_ASSIST
+                )
+                and not eventPlayer.spectating[0]
+            )
             or (
                 eventPlayer.hasSpawned()
                 and not eventPlayer.isLoading
                 and (
                     (ultInputIs(ULT_PREV_CP) and canGoToPrevCp(eventPlayer))
                     or (ultInputIs(ULT_NEXT_CP) and canGoToNextCp(eventPlayer))
+                    or (
+                        eventPlayer.ultInputKey == ULT_PRACTICE
+                        and canUseCpControls(eventPlayer)
+                    )
                 )
             )
         )
@@ -574,8 +599,14 @@ rule "Ultimate Input":
         eventPlayer.ultInputLastKey = eventPlayer.ultInputKey
         eventPlayer.ultInputKey = ultInputKeyNow()
         if eventPlayer.ultInputKey != eventPlayer.ultInputLastKey:
-            # A new press, so its input can run, at once if it's ready (the wait passes)
-            eventPlayer.ultInputDone = false
+            # A new press, so its input can run, at once if it's ready (the wait passes).
+            # Letting go of one button of a combo isn't one: letting go of Reload or Melee
+            # after Practice Mode or Assist Mode left Freemode's keys held, and letting go
+            # of Interact first left New Run's. Buttons change one at a time, so fewer
+            # buttons is a lower key.
+            eventPlayer.ultInputDone = (
+                eventPlayer.ultInputKey < eventPlayer.ultInputLastKey
+            )
         elif eventPlayer.isHoldingButton(Button.ULTIMATE):
             # With the same buttons still held, the wait only passed because the input can
             # run. The code after a wait runs in the tick it passes (tested), so that still
@@ -583,31 +614,43 @@ rule "Ultimate Input":
             eventPlayer.ultInputDone = true
             if eventPlayer.ultInputKey == ULT_FAQ:
                 # Opens the FAQ, where either fire turns its pages, once Melee is let go, so
-                # the same press doesn't close it again at once
-                waitUntil(not eventPlayer.isHoldingButton(Button.MELEE), Math.INFINITY)
-                eventPlayer.faqPage = 1
+                # the same press doesn't close it again at once. Interact joining in first
+                # makes it Assist Mode instead, which the next pass runs.
+                waitUntil(
+                    not eventPlayer.isHoldingButton(Button.MELEE)
+                    or eventPlayer.isHoldingButton(Button.INTERACT),
+                    Math.INFINITY
+                )
+                if not eventPlayer.isHoldingButton(Button.MELEE):
+                    eventPlayer.faqPage = 1
             elif ultInputIs(ULT_PREV_CP):
                 prevCpInput()
             elif ultInputIs(ULT_NEXT_CP):
                 nextCpInput()
             elif ultInputIs(ULT_NEW_RUN):
                 newRunInput()
-            elif ultInputIs(ULT_FREEMODE):
-                # A tap toggles Freemode once it's let go, and a hold Assist Mode, which
-                # needs the wait, like New Run's hold
+            elif eventPlayer.ultInputKey == ULT_FREEMODE:
+                # Toggles Freemode once it's let go, unless Reload or Melee joined in first,
+                # which picks Practice Mode or Assist Mode instead, run by the next pass
                 waitUntil(
+                    not eventPlayer.isHoldingButton(Button.ULTIMATE)
+                    or not eventPlayer.isHoldingButton(Button.INTERACT)
+                    or eventPlayer.isHoldingButton(Button.RELOAD)
+                    or eventPlayer.isHoldingButton(Button.MELEE),
+                    Math.INFINITY
+                )
+                if (
                     not (
                         eventPlayer.isHoldingButton(Button.ULTIMATE)
                         and eventPlayer.isHoldingButton(Button.INTERACT)
-                    ),
-                    0.35
-                )
-                if eventPlayer.isHoldingButton(
-                    Button.ULTIMATE
-                ) and eventPlayer.isHoldingButton(Button.INTERACT):
-                    assistModeInput()
-                elif eventPlayer.runCurrentCp < lastCp:
+                    )
+                    and eventPlayer.runCurrentCp < lastCp
+                ):
                     freemodeInput()
+            elif eventPlayer.ultInputKey == ULT_PRACTICE:
+                practiceModeInput()
+            elif eventPlayer.ultInputKey == ULT_ASSIST:
+                assistModeInput()
             elif ultInputIs(ULT_HUD):
                 hudInput()
             elif ultInputIs(ULT_SPECTATE):
@@ -783,7 +826,8 @@ rule "Reset Checkpoint Input":
     ):
         return
     eventPlayer.isLoading = true
-    if not eventPlayer.isRunPaused:
+    # Practice Mode's run is paused, but its resets still end an attempt
+    if not eventPlayer.isRunPaused or eventPlayer.isInPracticeMode:
         if (
             distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
             > eventPlayer.cpData[1]
@@ -796,13 +840,18 @@ rule "Reset Checkpoint Input":
 def newRunInput():
     @Name "New Run"
 
+    # Held, or tapped on the last CP. Interact joining in makes it Practice Mode, so the run
+    # isn't lost to holding Reload a moment before the rest of that combo.
     waitUntil(
         not (
             eventPlayer.isHoldingButton(Button.ULTIMATE)
             and eventPlayer.isHoldingButton(Button.RELOAD)
-        ),
+        )
+        or eventPlayer.isHoldingButton(Button.INTERACT),
         0.35
     )
+    if eventPlayer.isHoldingButton(Button.INTERACT):
+        return
     if (
         not (
             eventPlayer.isHoldingButton(Button.ULTIMATE)
@@ -823,13 +872,9 @@ def freemodeInput():
 
     eventPlayer.disallowButton(Button.MELEE)
     if not eventPlayer.isInFreemode:
-        stopChasingVariable(eventPlayer.runTime)
-        eventPlayer.isRunPaused = true
-        if (
-            distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
-            > eventPlayer.cpData[1]
-        ):
-            addMistake()
+        # Straight from Practice Mode, whose run is already paused, so it's no mistake
+        pauseRun()
+        eventPlayer.isInPracticeMode = false
         eventPlayer.setSecondaryFireEnabled(true)
         eventPlayer.setAbility2Enabled(true)
         eventPlayer.allowButton(Button.CROUCH)
@@ -849,6 +894,30 @@ def freemodeInput():
         showCpNameplate()
         eventPlayer.isLoading = false
     eventPlayer.allowButton(Button.MELEE)
+
+
+def practiceModeInput():
+    @Name "Practice Mode"
+
+    # Plays the current CP over and over, each clear starting it again (Completion:
+    # Checkpoint). The run waits, paused like in Freemode, which it switches straight from.
+    # Turning it off puts the player back on the CP, which resumes the run once they leave it.
+    eventPlayer.isLoading = true
+    if not eventPlayer.isInPracticeMode:
+        pauseRun()
+        eventPlayer.isInFreemode = false
+        eventPlayer.isInPracticeMode = true
+        setCpAbilities()
+        cpResetPlayer()
+    else:
+        eventPlayer.isInPracticeMode = false
+        if (
+            distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
+            > eventPlayer.cpData[1]
+        ):
+            cpResetPlayer()
+    showCpNameplate()
+    eventPlayer.isLoading = false
 
 
 def assistModeInput():
@@ -884,11 +953,13 @@ rule "Load Freemode HUD":
     # Under Disqualified (0.9), with a blank line above it unless Disqualified, which brings
     # its own, is showing. The HUD page shows it either way, so it can be turned off ahead of
     # time.
+    # Practice Mode On takes its place, as the two never show together
     freemodeHudText = _("Freemode On")
+    practiceModeHudText = _("Practice Mode On")
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: (
-                localPlayer.isInFreemode
+                (localPlayer.isInFreemode or localPlayer.isInPracticeMode)
                 and not localPlayer.spectating[0]
                 or isHudPage(localPlayer)
             )
@@ -896,7 +967,12 @@ rule "Load Freemode HUD":
             and isHudLineOn(localPlayer, HUD_FREEMODE)
         ),
         "{}{}".format(
-            "" if isDisqualifiedShown(localPlayer) else "\n", _(freemodeHudText)
+            "" if isDisqualifiedShown(localPlayer) else "\n",
+            (
+                _(practiceModeHudText)
+                if localPlayer.isInPracticeMode and not isHudPage(localPlayer)
+                else _(freemodeHudText)
+            )
         ),
         HudPosition.LEFT,
         1,

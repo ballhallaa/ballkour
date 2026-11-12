@@ -57,7 +57,7 @@ def loadCpData():
     # The live times turn red past these, which they never are on a CP that hasn't been cleared yet
     eventPlayer.attemptCpBest = (
         eventPlayer.attemptBests[eventPlayer.runCurrentCp]
-        if eventPlayer.splitClears[eventPlayer.runCurrentCp]
+        if eventPlayer.attemptClears[eventPlayer.runCurrentCp]
         else Math.INFINITY
     )
     eventPlayer.splitCpBest = (

@@ -176,6 +176,7 @@ def loadLobby():
     # the main page doesn't flash up first
     eventPlayer.lobbyPage = max(1, -eventPlayer.lobbyPage)
     eventPlayer.isInFreemode = false
+    eventPlayer.isInPracticeMode = false
     # Held in the sky with their eyes at lobbyCam, by stopping them there with no gravity and
     # nothing to move or jump with: forcing their position made their camera feel sluggish.
     # Everyone in the lobby is held at the same spot, so they're invisible and nameless there.
@@ -806,11 +807,13 @@ macro hudPageStats(text, hudLine):
 # its column (hudRightPos), showing the HUD line it turns on and off. One text for both, as
 # texts are capped at 128 per server (Load Buttons). Each language is in its own language,
 # in the order of #!translations (ballkour.opy), and the one a player is reading is green.
+# The HUD line gets the buttons' arrows while it's looked at, as its width differs by
+# language, so no one gap clears it everywhere.
 macro languageRow(row, line, hudText):
     createInWorldText(
         getAllPlayers().filter(lambda localPlayer: isLobbyPageShown(localPlayer)),
         (
-            hudText
+            lobbyButton(hudText, hudRightAimRow(localPlayer) == row)
             if isHudPage(localPlayer)
             else (
                 "<fg00E092FF>{}</fg>".format(evalOnce(langNames[row - 1]))
@@ -866,7 +869,7 @@ rule "Load Languages":
     # the lobby at langPos[0] otherwise
     langPos[0] = langPos[1] + vect(0, -1000, 0)
     # The languages are also the HUD page's right column, which has as many rows (see
-    # languageRow), and their arrows are its arrows
+    # languageRow)
     languageRow(
         1,
         HUD_RUNS,
@@ -933,26 +936,21 @@ rule "Load Languages":
     )
     languageRow(13, HUD_ALL_TIME_TOP, _(allTimeRunsHudText))
     languageRow(14, HUD_LOBBY_TOP, _(topRunsHudText))
-    # The HUD page's rows differ in width, so its arrows clear its widest
+    # The languages' arrows, one text that moves to the language looked at. The names are
+    # short, so one width clears them all. The HUD page's rows are wider and differ by
+    # language, so they carry their own arrows, like the buttons (languageRow).
     createInWorldText(
-        getAllPlayers().filter(lambda localPlayer: isLobbyPageShown(localPlayer)),
-        (
-            "{}                                            {}".format(
-                iconString(Icon.ARROW_RIGHT), iconString(Icon.ARROW_LEFT)
-            )
-            if isHudPage(localPlayer)
-            else "{}                          {}".format(
-                iconString(Icon.ARROW_RIGHT), iconString(Icon.ARROW_LEFT)
-            )
+        getAllPlayers().filter(
+            lambda localPlayer: isLobbyPageShown(localPlayer)
+            and not isHudPage(localPlayer)
         ),
-        (
-            hudRightPos[hudRightAimRow(localPlayer)]
-            if isHudPage(localPlayer)
-            else langPos[langAimRow(localPlayer)]
+        "{}                          {}".format(
+            iconString(Icon.ARROW_RIGHT), iconString(Icon.ARROW_LEFT)
         ),
+        langPos[langAimRow(localPlayer)],
         LANGUAGE_SIZE,
         Clip.NONE,
-        WorldTextReeval.VISIBILITY_POSITION_AND_STRING,
+        WorldTextReeval.VISIBILITY_AND_POSITION,
         rgb(230, 151, 0)
     )
 
@@ -1048,11 +1046,12 @@ rule "Load Stats Page":
 
 # A HUD page row: a line as the HUD shows it, in its color while it's on and gray while
 # it's off. Its values and keys are filled in and white like on the course, and gray with
-# the rest of it while it's off (hudPageWhite).
+# the rest of it while it's off (hudPageWhite). While it's looked at, it gets the buttons'
+# arrows, which clear it in every language, however wide.
 macro hudPageRow(line, text, pos, color):
     createInWorldText(
         getAllPlayers().filter(lambda localPlayer: isHudPage(localPlayer)),
-        text,
+        lobbyButton(text, hudLeftAimRow(localPlayer) == line),
         pos,
         HUD_ROW_SIZE,
         Clip.NONE,
@@ -1074,14 +1073,6 @@ rule "Load HUD Page":
         hudRightPos[index] = columnAt(
             ROW_ANGLE + LANGUAGE_SPACING * (index - 1), HUD_ACROSS
         )
-    # Where each column's arrows wait while none of its rows is looked at, far below the
-    # lobby, like the languages' (Load Languages)
-    hudLeftPos[0] = hudLeftPos[1] + vect(0, -1000, 0)
-    hudRightPos[0] = hudRightPos[1] + vect(0, -1000, 0)
-    # Disqualified can't be turned off, so the arrows skip its row, waiting there too, like a
-    # grayed-out button's
-    hudDisqualifiedPos = hudLeftPos[HUD_DISQUALIFIED]
-    hudLeftPos[HUD_DISQUALIFIED] = hudLeftPos[0]
     # The scorecard and the Top 3s show full on the page, with made-up players, so turning
     # them off shows the room they can take: 12 players, each section of the scorecard
     # (disqualified, Assist Mode, freemode, spectating, lobby), and runs that aren't anyone's
@@ -1124,7 +1115,7 @@ rule "Show HUD Page":
     # Its texts only exist while someone's on it, as every text's definition adds to the
     # server's load, like an open run's info (lbRunInfo). The HUD itself shows around the
     # page (isCourseHudShown), lines that only show sometimes too, so turning a row off shows
-    # what goes and what moves up. Its own texts are all made in one tick (13 of them), as
+    # what goes and what moves up. Its own texts are all made in one tick (12 of them), as
     # the main page's texts it borrows wait for them (isLobbyPageShown). Its ballkour.com row
     # is the leaderboard's first tab (Load Leaderboard).
     hudPageTexts = []
@@ -1171,7 +1162,7 @@ rule "Show HUD Page":
             _(counterHudText[4]).replace("\n", ""),
             _(counterHudText[3]).replace("\n", "")
         ),
-        hudDisqualifiedPos,
+        hudLeftPos[HUD_DISQUALIFIED],
         HUD_ROW_SIZE,
         Clip.NONE,
         WorldTextReeval.VISIBILITY_AND_STRING,
@@ -1206,15 +1197,20 @@ rule "Show HUD Page":
                 + 1.8
             )
         ),
-        hudDisqualifiedPos,
+        hudLeftPos[HUD_DISQUALIFIED],
         HUD_ROW_SIZE,
         Clip.NONE,
         WorldTextReeval.VISIBILITY_AND_STRING,
         rgb(255, 70, 70)
     )
     hudPageTexts.append(getLastCreatedText())
+    # Freemode On and Practice Mode On share a line (Controls: Load Freemode HUD), and so
+    # its row, which lists both, like Assist Mode On / Disqualified's
     hudPageRow(
-        HUD_FREEMODE, _(freemodeHudText), hudLeftPos[HUD_FREEMODE], rgb(203, 135, 255)
+        HUD_FREEMODE,
+        "{} / {}".format(_(freemodeHudText), _(practiceModeHudText)),
+        hudLeftPos[HUD_FREEMODE],
+        rgb(203, 135, 255)
     )
     hudPageRow(
         HUD_SPECTATORS,
@@ -1244,22 +1240,6 @@ rule "Show HUD Page":
     hudPageRow(
         HUD_SCORECARD, _(lobbyHudText[10]), hudLeftPos[HUD_SCORECARD], rgb(230, 151, 0)
     )
-    # Arrows around the left column's row being looked at, like the languages'. Its rows
-    # differ in width, so the arrows clear the widest. The right column is the languages'
-    # texts, arrows included, and the buttons are the main page's (Load Languages, Load
-    # Buttons).
-    createInWorldText(
-        getAllPlayers().filter(lambda localPlayer: isHudPage(localPlayer)),
-        "{}                                            {}".format(
-            iconString(Icon.ARROW_RIGHT), iconString(Icon.ARROW_LEFT)
-        ),
-        hudLeftPos[hudLeftAimRow(localPlayer)],
-        HUD_ROW_SIZE,
-        Clip.NONE,
-        WorldTextReeval.VISIBILITY_AND_POSITION,
-        rgb(230, 151, 0)
-    )
-    hudPageTexts.append(getLastCreatedText())
     # The borrowed texts show in the same tick, so both sides show up together
     isHudPageReady = true
     waitUntil(not getAllPlayers().any(lambda p: isHudPage(p)), Math.INFINITY)
