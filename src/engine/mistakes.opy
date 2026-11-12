@@ -5,11 +5,13 @@
 rule "Missed Checkpoint":
     @Event eachPlayer
     @Condition isFreePlay(eventPlayer) == false
-    # An orb checkpoint allows the ground from its grapple until every orb is grabbed
+    # An orb checkpoint allows the ground from its grapple until every orb is grabbed, and
+    # after a last orb grabbed on the ground, until the ball leaves it (cpData[17])
     @Condition (
         eventPlayer.cpData[5] == null
         or (not eventPlayer.cpData[12] and not eventPlayer.cpData[13])
         or hasAllOrbs(eventPlayer)
+        and not eventPlayer.cpData[17]
     ) == true
     @Condition (
         eventPlayer.isOnGround() or eventPlayer.cpData[9] and eventPlayer.cpData[11]

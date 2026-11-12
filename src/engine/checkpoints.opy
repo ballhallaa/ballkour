@@ -44,7 +44,7 @@ rule "Expand Data":
 def loadCpData():
     @Name "Load Data"
 
-    # eventPlayer.cpData[i]: [0]cpLocation [1]cpSize [2]isGrappleAllowed [3]isShieldBounceAllowed [4]isPiledriverAllowed [5]orbLocations [6]orbSize [7]nextCpLocation [8]nextCpSize [9]isJumping [10]hasJumped [11]hasBhopped [12]isGrappling [13]hasUsedGrapple [14]hasShieldBounced [15]isPiledriving [16]grabbedOrbs
+    # eventPlayer.cpData[i]: [0]cpLocation [1]cpSize [2]isGrappleAllowed [3]isShieldBounceAllowed [4]isPiledriverAllowed [5]orbLocations [6]orbSize [7]nextCpLocation [8]nextCpSize [9]isJumping [10]hasJumped [11]hasBhopped [12]isGrappling [13]hasUsedGrapple [14]hasShieldBounced [15]isPiledriving [16]grabbedOrbs [17]isLastOrbOnGround
     # Copying the checkpoint leaves [9] onwards unset, which reads as false. [16] starts at 0
     # since the Grab Orb rule adds to it.
     eventPlayer.cpData = cps[eventPlayer.runCurrentCp]
