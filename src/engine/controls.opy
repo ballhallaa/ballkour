@@ -160,7 +160,7 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    ctrlsHudText[4] = _("@0Freemode:                          @1@2 + @3</fg>")
+    ctrlsHudText[4] = _("@0Freemode:                                @1@2 + @3</fg>")
     # Practice Mode and Assist Mode are Freemode's keys and one more, so they're under it,
     # in the same text, which saves two of the 128 texts per server (Lobby: Load Buttons)
     ctrlsHudText[19] = _("@0Practice Mode:                @1@2 + @3 + @4</fg>")
