@@ -132,22 +132,20 @@ def recordTopRun():
     topRunsScratch = sorted(topRunsScratch, lambda run: run[0]).slice(0, 3)
     topRuns = topRunsScratch
     topRunsText = ""
-    # Padded like the scorecard's columns, but for 2-digit mistakes, and times of 7+ characters.
     # The mistakes get a × in the row's color, as a red one marks a disqualified run there.
     # Assisted runs get a pink • after the name, like Assist Mode's pink, outside the row's
-    # color, as the scorecard's red × is.
+    # color, as the scorecard's red × is. Ranks no run holds yet get placeholders.
     for index in range(len(topRunsScratch)):
-        topRunsText = "{}\n{}{}   {}{}{}×{}{}</fg>{}".format(
+        topRunsText = topRunRow(
             topRunsText,
-            ["<fgFFFF00FF>", "<fgB0C4DEFF>", "<fgC46A30FF>"][index],
-            index + 1,
-            topRunsScratch[index][3],
-            "     " if strLen(topRunsScratch[index][3]) < 8 else "   ",
-            topRunsScratch[index][2],
-            "     " if topRunsScratch[index][2] < 10 else "   ",
+            index,
             topRunsScratch[index][1],
-            "<fgFF80C0FF>•</fg>" if topRunsScratch[index][4] else ""
+            topRunsScratch[index][2],
+            topRunsScratch[index][3],
+            topRunsScratch[index][4]
         )
+    for index in range(len(topRunsScratch), 3):
+        topRunsText = topRunPlaceholderRow(topRunsText, index)
 
 
 rule "Load Run Text":

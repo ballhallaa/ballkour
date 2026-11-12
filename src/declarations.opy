@@ -93,12 +93,14 @@ globalvar scorecardPlayers
 globalvar scorecardSorted
 globalvar scorecardRow
 globalvar scorecardTime
-# The Lobby Top 3 (Completion: Record Top Run) and the All-Time Top 3 (Lobby: Load
-# Leaderboard), assisted runs included, marked
+# The Lobby Top 3 (Completion: Record Top Run), assisted runs included, marked, and the
+# All-Time Top 3 (Lobby: Load Leaderboard), of the leaderboard or, in Assist Mode, the
+# assisted one
 globalvar topRuns = []
 globalvar topRunsScratch
 globalvar topRunsText = ""
 globalvar allTimeRunsText = ""
+globalvar allTimeAssistedText = ""
 
 # Spectating
 globalvar playerToEnableFreecam

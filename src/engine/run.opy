@@ -52,29 +52,42 @@ macro scorecardKey(player):
     )
 
 
+# A Top 3 row (Lobby: Load Leaderboard, Completion: Record Top Run) added to topText: rank,
+# time, mistakes and name, in the rank's color, with a pink • after it if topMarked. Padded
+# like the scorecard's columns, but for 2-digit mistakes, and times of 7+ characters.
+macro topRunRow(topText, topRank, topName, topMistakes, topTime, topMarked):
+    "{}\n{}{}   {}{}{}×{}{}</fg>{}".format(
+        topText,
+        ["<fgFFFF00FF>", "<fgB0C4DEFF>", "<fgC46A30FF>"][topRank],
+        topRank + 1,
+        topTime,
+        "     " if strLen(topTime) < 8 else "   ",
+        topMistakes,
+        "     " if strLen("{}".format(topMistakes)) < 2 else "   ",
+        topName,
+        "<fgFF80C0FF>•</fg>" if topMarked else ""
+    )
+
+
+# A Lobby Top 3 row for a rank no run holds yet, with the leaderboard's placeholders,
+# laid out like topRunRow
+macro topRunPlaceholderRow(topText, topRank):
+    "{}\n{}{}   -:--.--     -×     ---</fg>".format(
+        topText, ["<fgFFFF00FF>", "<fgB0C4DEFF>", "<fgC46A30FF>"][topRank], topRank + 1
+    )
+
+
 # Whether the scorecard lists its rows: not when the only player listed is the viewer
 macro scorecardHasRows(player):
     len(scorecardPlayers.exclude(player)) > 0
 
 
 # Whether the scorecard and the Top 3s list rows: with players or runs to list, or on the
-# HUD page, which lists made-up ones (Lobby: Load HUD Page), unless they're turned off. The
-# All-Time Top 3 stays off in the lobby, where the leaderboard already lists those runs.
+# HUD page, which lists made-up ones (Lobby: Load HUD Page), unless they're turned off.
 macro isScorecardShown(player):
     (
         (scorecardHasRows(player) or isHudPage(player))
         and isHudLineOn(player, HUD_SCORECARD)
-    )
-
-
-macro isAllTimeTopShown(player):
-    (
-        (
-            (lbRunCount > 0 or assistedRunCount > 0)
-            and not player.isInLobby
-            or isHudPage(player)
-        )
-        and isHudLineOn(player, HUD_ALL_TIME_TOP)
     )
 
 
@@ -124,6 +137,19 @@ macro isAssistModeShown(player):
         player.viewRunner.isInAssistMode
         and player.viewRunner.isRunLegit
         and not isHudPage(player)
+    )
+
+
+# Whether the All-Time Top 3 lists rows: with runs to list, or on the HUD page, unless it's
+# turned off. It stays off in the lobby, where the leaderboard already lists those runs.
+macro isAllTimeTopShown(player):
+    (
+        (
+            (lbRunCount > 0 or assistedRunCount > 0)
+            and not player.isInLobby
+            or isHudPage(player)
+        )
+        and isHudLineOn(player, HUD_ALL_TIME_TOP)
     )
 
 
@@ -381,8 +407,9 @@ rule "Load HUD":
     # splits end without blank lines, so they bring 2; without the splits, Mistakes above
     # already ends in blank lines, and the CP while spectating ends in 1.
     # In the lobby, with nothing above it, the Lobby Top 3 starts at the top.
-    # Both list the assisted leaderboard's runs and the lobby's assisted runs with the rest,
-    # marked with a pink •.
+    # The All-Time Top 3 lists the leaderboard's runs, or in Assist Mode the assisted one's,
+    # with a pink (Assisted) after its title. The Lobby Top 3 lists the lobby's assisted runs
+    # with the rest, marked with a pink •.
     allTimeRunsHudText = _("All-Time Top 3")
     topRunsHudText = _("Lobby Top 3")
     hudSubheader(
@@ -401,9 +428,22 @@ rule "Load HUD":
                 else ("\n" if localPlayer.spectating[3] else "")
             ),
             (
-                "{}{}".format(
+                "{}{}{}".format(
                     _(allTimeRunsHudText),
-                    (hudPageAllTimeText if isHudPage(localPlayer) else allTimeRunsText)
+                    (
+                        " <fgFF80C0FF>({})</fg>".format(_(lobbyHudText[14]))
+                        if isAssistModeShown(localPlayer)
+                        else ""
+                    ),
+                    (
+                        hudPageAllTimeText
+                        if isHudPage(localPlayer)
+                        else (
+                            allTimeAssistedText
+                            if isAssistModeShown(localPlayer)
+                            else allTimeRunsText
+                        )
+                    )
                 )
                 if isAllTimeTopShown(localPlayer)
                 else ""
