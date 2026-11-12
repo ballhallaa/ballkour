@@ -163,7 +163,7 @@ rule "Load HUD":
     ctrlsHudText[4] = _("@0Freemode:                          @1@2 + @3</fg>")
     # Practice Mode and Assist Mode are Freemode's keys and one more, so they're under it,
     # in the same text, which saves two of the 128 texts per server (Lobby: Load Buttons)
-    ctrlsHudText[19] = _("@0Practice Mode:        @1@2 + @3 + @4</fg>")
+    ctrlsHudText[19] = _("@0Practice Mode:                @1@2 + @3 + @4</fg>")
     ctrlsHudText[18] = _("@0Assist Mode:               @1@2 + @3 + @4</fg>")
     hudSubheader(
         getAllPlayers().filter(
