@@ -546,7 +546,8 @@ rule "Update Scorecard":
         # to (isOnSkippedCp) get a red », as their CP wasn't reached by clearing, until
         # leaving it turns it into the ×, also in the lobby, which keeps the run paused on
         # that CP. Spectators' rows show the CP they watch, not theirs, so they don't get it.
-        # It's a » rather than a •, so it can't be mistaken for the pink one by color alone.
+        # It's a » rather than a •, so it can't be mistaken for the pink one by color alone,
+        # after a space, like the ×, as it ran into the name.
         # A change to either mark changes the CP or the section too, which refreshes the
         # scorecard (scorecardKey).
         scorecard = "{}\n{}{}{}{}{}{}".format(
@@ -568,7 +569,7 @@ rule "Update Scorecard":
                 else ""
             ),
             (
-                "<fgFF4646FF>»</fg>"
+                " <fgFF4646FF>»</fg>"
                 if scorecardPlayers[index].isRunLegit
                 and isOnSkippedCp(scorecardPlayers[index])
                 and scorecardPlayers[index].scorecardSection != 4
