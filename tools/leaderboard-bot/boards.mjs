@@ -33,9 +33,9 @@ export function readData(file) {
   }
   return execFileSync("git", ["show", `origin/${DATA_BRANCH}:${file}`], { cwd: REPO, encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
 }
-// The server, the Top 10 Rating (Unassisted), Former Top 10 Rating (Unassisted), Top 10 Rating (Assisted), Former Top
-// 10 Rating (Assisted), Former Top 10 Rating (Global), Legacy Top 10 Rating, ratings heading, and badges heading roles'
-// IDs (roles.mjs gives them out), the other badges' IDs, and the courses
+// The server, the Top 10 Run, Former Top 10 Run, Top 10 Rating (Unassisted), Former Top 10 Rating (Unassisted), Top 10
+// Rating (Assisted), Former Top 10 Rating (Assisted), Former Top 10 Rating (Global), Legacy Top 10 Rating, ratings
+// heading, and badges heading roles' IDs (roles.mjs gives them out), the other badges' IDs, and the courses
 export const {
   guild: GUILD, roles: ROLES = {}, courses: COURSES,
 } = JSON.parse(fs.readFileSync(path.join(HERE, "courses.json"), "utf8"));
