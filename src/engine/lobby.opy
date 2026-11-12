@@ -1043,16 +1043,16 @@ rule "Load HUD Page":
         )
     # The scorecard and the Top 3s show full on the page, with made-up players, so turning
     # them off shows the room they can take: 12 players, each section of the scorecard
-    # (disqualified, Assist Mode, freemode, spectating, lobby), and runs that aren't anyone's
-    # real ones. Laid out like the real ones (Update Scorecard, Load Leaderboard, Record Top
-    # Run).
+    # (disqualified, Assist Mode, freemode, spectating, lobby) and mark (skipped CP, assisted
+    # run), and runs that aren't anyone's real ones. Laid out like the real ones (Update
+    # Scorecard, Load Leaderboard, Record Top Run).
     hudPageScorecard = "{}    {}       {}{}".format(
         iconString(Icon.FLAG),
         iconString(Icon.BOLT),
         iconString(Icon.SKULL),
         (
-            "\n87     6:41       12     GrappleGod"
-            "\n64     5:02       8       HammondFan"
+            "\n87     6:41       12     GrappleGod<fgFF4646FF>•</fg>"
+            "\n64     5:02       8       HammondFan<fgFF80C0FF>•</fg>"
             "\n41     3:57       6       Minefield"
             "\n30     2:48       21     RollOut"
             "\n22     2:05       3       SpinnyBoi"
