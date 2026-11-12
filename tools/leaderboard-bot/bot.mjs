@@ -154,10 +154,13 @@ function message(course, runs, fresh, assisted = false) {
 // A legacy board: nobody is new on it, so it's posted as just the picture, with no text
 const legacyMessage = () => ({ content: "", users: [] });
 // A course with no runs yet: no congrats, no pings, and an invitation instead of the link to watch runs. While the
-// course's route is broken nobody can take up the invitation, so it's struck through with a note saying why. Each
-// line of the note needs its own "-#", since Discord's subtext only covers the line it starts.
+// course's route is broken nobody can take up the invitation, so it's struck through with a note saying why. A
+// broken course with a beta code in courses.json still works on that code, so the invitation stands, with a note
+// pointing to it. Each line of the note needs its own "-#", since Discord's subtext only covers the line it starts.
 const emptyMessage = (course) => ({
-  content: course.broken
+  content: course.broken && course.beta
+    ? `No times yet. Be the first to set one!\n-# The latest code no longer works due to Overwatch's map updates.\n-# Play the Beta code, \`${course.beta}\`, instead.`
+    : course.broken
     ? "No times yet. ~~Be the first to set one!~~\n-# This course no longer works due to Overwatch's map updates.\n-# No new times can be set for now."
     : "No times yet. Be the first to set one!",
   users: [],
