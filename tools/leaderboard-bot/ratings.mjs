@@ -21,8 +21,8 @@
 // do the legacy boards, from before May 2026 (loadCourses({ legacy: true })), whose times were only to the second
 // ("4:30.--", read as 4:30.00).
 //
-// The Global rating adds each player's unassisted and assisted ratings together (combine), so it's worth up to 2,000,
-// and ranks and tiers the totals the same way. The Legacy rating stays out of it: its boards can't change any more.
+// The Global rating puts each player's unassisted and assisted ratings together (combine), with each assisted course
+// rating at half, and ranks and tiers the totals the same way. The Legacy rating stays out of it: its boards can't change any more.
 
 export const TIERS = [0.1, 1, 5, 10, 25, 50, 75, 90];
 // The Discord role for a tier: "Top 10%", or "Rated" for the bottom 10% (tier null), with its rating's suffix:
@@ -104,27 +104,33 @@ function ranked(list) {
   return list;
 }
 
-// The Global rating: rate()'s results for the unassisted and the assisted boards, added up per player (courses: the
-// courses they've run either way). The website's ratings(then, "global") (index.html) and the Worker's combine()
-// (cloudflare/ratings.js in ballhallaa/ballkour.com) work it out the same way: keep them in step.
+// The Global rating: rate()'s results for the unassisted and the assisted boards, put together per player (courses:
+// the courses they've run either way). Each assisted course rating counts half as much as an unassisted one
+// (ASSISTED_WEIGHT), and both kinds are spread over the courses the unassisted rating counts: an assisted record on
+// one of 11 courses adds 45 (half of 1,000, over 11), where an unassisted one adds 91. The website's
+// ratings(then, "global") (index.html) and the Worker's combine() (cloudflare/ratings.js in ballhallaa/ballkour.com)
+// work it out the same way: keep them in step.
 // → { counted: [course numbers], players: [{ key, name, discord, rating, courses, rank, tier }] }
-export function combine(ratings) {
+export const ASSISTED_WEIGHT = 0.5;
+export function combine([unassisted, assisted]) {
+  // The assisted rating is an average over the remakes alone: this turns it into its share of the Global rating
+  const scale = (ASSISTED_WEIGHT * assisted.counted.length) / (unassisted.counted.length || 1);
   const players = new Map();
-  for (const p of ratings.flatMap((r) => r.players)) {
+  for (const [r, weight] of [[unassisted, 1], [assisted, scale]]) for (const p of r.players) {
     if (!players.has(p.key)) players.set(p.key, { key: p.key, name: p.name, discord: p.discord, date: p.date, rating: 0, ran: new Set() });
     const g = players.get(p.key);
-    g.rating += p.rating;
+    g.rating += p.rating * weight;
     for (const n of Object.keys(p.points)) g.ran.add(n);
     // Named as on their newest run
     if ((p.date || "") > g.date) { g.date = p.date; g.name = p.name; }
   }
-  const counted = [...new Set(ratings.flatMap((r) => r.counted))].sort((a, b) => a - b);
+  const counted = [...new Set([unassisted, assisted].flatMap((r) => r.counted))].sort((a, b) => a - b);
   return { counted, players: ranked([...players.values()].map(({ ran, ...p }) => ({ ...p, courses: ran.size }))) };
 }
 
 // Everyone (their Discord IDs) who has been in a rating's top 10 at some point: the rating as it stood at the end of
 // each day with a run, from the runs dated up to then (with today's courses and removed runs). With one set of courses,
-// it's that set's rating (the unassisted or the assisted one), and with two, the Global rating, the two added up.
+// it's that set's rating (the unassisted or the assisted one), and with two, the Global rating (see combine).
 // roles.mjs gives Former Top 10 Rating by it, so it isn't lost to someone who leaves the server and comes back, or
 // whose Top 10 Rating was taken away by hand.
 // sets: [courses], or [unassisted, assisted] for the Global rating, each as loadCourses() gives them
