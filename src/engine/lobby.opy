@@ -352,8 +352,19 @@ macro isAimingAtHudSite(player):
 
 macro hudLeftAimRow(player):
     lobbyAimRow(
-        player, ROW_ANGLE, LANGUAGE_SPACING, HUD_LEFT_ROWS, -HUD_ACROSS, HUD_ROW_WIDTH
+        player,
+        ROW_ANGLE,
+        LANGUAGE_SPACING,
+        HUD_LEFT_ROWS + 1,
+        -HUD_ACROSS,
+        HUD_ROW_WIDTH
     )
+
+
+# A left column line's row: Disqualified's line has 2 rows, Disqualified and Assist Mode On
+# under it, so the lines after it are a row further down
+macro hudLeftRow(line):
+    (line + (line > HUD_DISQUALIFIED))
 
 
 macro hudRightAimRow(player):
@@ -858,7 +869,7 @@ rule "Load Languages":
     languageRow(
         3,
         HUD_CP_MISTAKES,
-        _(counterHudText[2]).replace(
+        _(counterHudText[6]).replace(
             "@0",
             hudPageValue(
                 HUD_CP_MISTAKES, localPlayer.cpMistakes[localPlayer.runCurrentCp]
@@ -872,7 +883,16 @@ rule "Load Languages":
         5, HUD_TIME, "{} {}".format(iconString(Icon.BOLT), localPlayer.runTimeFormatted)
     )
     languageRow(
-        6, HUD_MISTAKES, "{} {}".format(iconString(Icon.SKULL), localPlayer.runMistakes)
+        6,
+        HUD_MISTAKES,
+        (
+            "{} {}".format(
+                abilityIconString(Hero.WRECKING_BALL, Button.CROUCH),
+                localPlayer.runGroundTimeFormatted
+            )
+            if localPlayer.isInAssistMode
+            else "{} {}".format(iconString(Icon.SKULL), localPlayer.runMistakes)
+        )
     )
     languageRow(
         7, HUD_SPLIT_CP, "{} {}".format(iconString(Icon.FLAG), localPlayer.viewCp)
@@ -1012,6 +1032,39 @@ rule "Load Stats Page":
     )
 
 
+# A strike over a text: a line of em dashes, dashes[language] long (en, de, es, fr, it, ja, ko,
+# pl, pt, ru, th, tr, zh_cn, zh_tw), as the Workshop has no strikethrough. Up to 50 fit.
+macro strikeDashes(dashes):
+    "——————————————————————————————————————————————————".substring(
+        0, dashes[localPlayer.__languageIndex__]
+    )
+
+
+# A HUD page row that can't be turned off: its text struck through (strikeDashes), in its
+# color, at a left column row
+macro hudStrikeRow(text, row, color, dashes):
+    createInWorldText(
+        getAllPlayers().filter(lambda localPlayer: isHudPage(localPlayer)),
+        text.replace("\n", ""),
+        hudLeftPos[row],
+        HUD_ROW_SIZE,
+        Clip.NONE,
+        WorldTextReeval.VISIBILITY_AND_STRING,
+        color
+    )
+    hudPageTexts.append(getLastCreatedText())
+    createInWorldText(
+        getAllPlayers().filter(lambda localPlayer: isHudPage(localPlayer)),
+        strikeDashes(dashes),
+        hudLeftPos[row],
+        HUD_ROW_SIZE,
+        Clip.NONE,
+        WorldTextReeval.VISIBILITY_AND_STRING,
+        color
+    )
+    hudPageTexts.append(getLastCreatedText())
+
+
 # A HUD page row: a line as the HUD shows it, in its color while it's on and gray while
 # it's off. Its values and keys are filled in and white like on the course, and gray with
 # the rest of it while it's off (hudPageWhite). While it's looked at, it gets the buttons'
@@ -1019,7 +1072,7 @@ rule "Load Stats Page":
 macro hudPageRow(line, text, pos, color):
     createInWorldText(
         getAllPlayers().filter(lambda localPlayer: isHudPage(localPlayer)),
-        lobbyButton(text, hudLeftAimRow(localPlayer) == line),
+        lobbyButton(text, hudLeftAimRow(localPlayer) == hudLeftRow(line)),
         pos,
         HUD_ROW_SIZE,
         Clip.NONE,
@@ -1030,10 +1083,11 @@ macro hudPageRow(line, text, pos, color):
 
 
 rule "Load HUD Page":
-    # Each column's rows are numbered from 1, the left column's like their lines
+    # Each column's rows are numbered from 1, the left column's like their lines up to
+    # Disqualified, which has a second row for Assist Mode On (hudLeftRow)
     hudLeftPos = []
     hudRightPos = []
-    for index in range(1, HUD_LEFT_ROWS + 1):
+    for index in range(1, HUD_LEFT_ROWS + 2):
         hudLeftPos[index] = columnAt(
             ROW_ANGLE + LANGUAGE_SPACING * (index - 1), -HUD_ACROSS
         )
@@ -1083,7 +1137,7 @@ rule "Show HUD Page":
     # Its texts only exist while someone's on it, as every text's definition adds to the
     # server's load, like an open run's info (lbRunInfo). The HUD itself shows around the
     # page (isCourseHudShown), lines that only show sometimes too, so turning a row off shows
-    # what goes and what moves up. Its own texts are all made in one tick (12 of them), as
+    # what goes and what moves up. Its own texts are all made in one tick (14 of them), as
     # the main page's texts it borrows wait for them (isLobbyPageShown). Its ballkour.com row
     # is the leaderboard's first tab (Load Leaderboard).
     hudPageTexts = []
@@ -1094,7 +1148,7 @@ rule "Show HUD Page":
             _(runHudText).replace("@0", inputBindingString(Button.ULTIMATE)),
             HUD_CONTROLS
         ),
-        hudLeftPos[HUD_CONTROLS],
+        hudLeftPos[hudLeftRow(HUD_CONTROLS)],
         rgb(230, 151, 0)
     )
     hudPageRow(
@@ -1105,7 +1159,7 @@ rule "Show HUD Page":
             .replace("@1", inputBindingString(Button.MELEE)),
             HUD_FAQ
         ),
-        hudLeftPos[HUD_FAQ],
+        hudLeftPos[hudLeftRow(HUD_FAQ)],
         rgb(230, 151, 0)
     )
     hudPageRow(
@@ -1115,69 +1169,31 @@ rule "Show HUD Page":
         .replace("@1", hudPageWhite(HUD_HINTS))
         .replace("@2", inputBindingString(Button.ULTIMATE))
         .replace("@3", inputBindingString(Button.ABILITY_2)),
-        hudLeftPos[HUD_HINTS],
+        hudLeftPos[hudLeftRow(HUD_HINTS)],
         rgb(230, 151, 0)
     )
-    # Assist Mode On and Disqualified, which share a line, can't be turned off (Run:
-    # isDisqualifiedShown), so their row lists both, Assist Mode On in its pink, and is struck
-    # through. The Workshop has no strikethrough, so a line of em dashes lies over it, about as
-    # wide as its text: 0.75 dashes per Latin or Cyrillic letter (21 cover ASSIST MODE ON /
-    # DISQUALIFIED), 1 per CJK character, and 0.4 per Thai character, as Thai counts its marks
-    # as characters, and 1.8 for the " / ". Up to 50 dashes fit.
-    createInWorldText(
-        getAllPlayers().filter(lambda localPlayer: isHudPage(localPlayer)),
-        "<fgFF80C0FF>{}</fg> / {}".format(
-            _(counterHudText[4]).replace("\n", ""),
-            _(counterHudText[3]).replace("\n", "")
-        ),
-        hudLeftPos[HUD_DISQUALIFIED],
-        HUD_ROW_SIZE,
-        Clip.NONE,
-        WorldTextReeval.VISIBILITY_AND_STRING,
-        rgb(255, 70, 70)
+    # Disqualified and Assist Mode On under it, which share a line, can't be turned off (Run:
+    # isDisqualifiedShown), so their rows are struck through, each in its own color. The
+    # dashes are counted per language to cover each translation, so a changed translation
+    # needs its count checked in-game (an em dash is about 12 px wide at 1080p).
+    hudStrikeRow(
+        _(counterHudText[3]),
+        HUD_DISQUALIFIED,
+        rgb(255, 70, 70),
+        [9, 11, 10, 8, 9, 3, 3, 15, 12, 15, 7, 8, 8, 8]
     )
-    hudPageTexts.append(getLastCreatedText())
-    createInWorldText(
-        getAllPlayers().filter(lambda localPlayer: isHudPage(localPlayer)),
-        "——————————————————————————————————————————————————".substring(
-            0,
-            round(
-                (
-                    strLen(_(counterHudText[3]).replace("\n", ""))
-                    + strLen(_(counterHudText[4]).replace("\n", ""))
-                )
-                * [
-                    0.75,
-                    0.75,
-                    0.78,
-                    0.71,
-                    0.73,
-                    1.31,
-                    1.2,
-                    0.89,
-                    0.78,
-                    0.97,
-                    0.55,
-                    0.76,
-                    1.48,
-                    1.48
-                ][localPlayer.__languageIndex__]
-                + 1.8
-            )
-        ),
-        hudLeftPos[HUD_DISQUALIFIED],
-        HUD_ROW_SIZE,
-        Clip.NONE,
-        WorldTextReeval.VISIBILITY_AND_STRING,
-        rgb(255, 70, 70)
+    hudStrikeRow(
+        _(counterHudText[4]),
+        HUD_DISQUALIFIED + 1,
+        rgb(255, 128, 192),
+        [11, 14, 18, 14, 18, 14, 12, 22, 18, 20, 10, 13, 11, 11]
     )
-    hudPageTexts.append(getLastCreatedText())
     # Freemode On and Practice Mode On share a line (Controls: Load Freemode HUD), and so
-    # its row, which lists both, like Assist Mode On / Disqualified's
+    # its row, which lists both
     hudPageRow(
         HUD_FREEMODE,
         "{} / {}".format(_(freemodeHudText), _(practiceModeHudText)),
-        hudLeftPos[HUD_FREEMODE],
+        hudLeftPos[hudLeftRow(HUD_FREEMODE)],
         rgb(203, 135, 255)
     )
     hudPageRow(
@@ -1185,28 +1201,34 @@ rule "Show HUD Page":
         _(spectatorHudText[4])
         .replace("\n", "")
         .replace("@0", hudPageValue(HUD_SPECTATORS, HUD_PAGE_SPECTATORS)),
-        hudLeftPos[HUD_SPECTATORS],
+        hudLeftPos[hudLeftRow(HUD_SPECTATORS)],
         rgb(0, 190, 255)
     )
     hudPageRow(
         HUD_SPECTATING,
         _(spectatorHudText[0]).replace("\n", ""),
-        hudLeftPos[HUD_SPECTATING],
+        hudLeftPos[hudLeftRow(HUD_SPECTATING)],
         rgb(0, 190, 255)
     )
     hudPageRow(
-        HUD_FREECAM, _(spectatorHudText[2]), hudLeftPos[HUD_FREECAM], rgb(230, 151, 0)
+        HUD_FREECAM,
+        _(spectatorHudText[2]),
+        hudLeftPos[hudLeftRow(HUD_FREECAM)],
+        rgb(230, 151, 0)
     )
     hudPageRow(
         HUD_DISCONNECTED,
         _(spectatorHudText[3]),
-        hudLeftPos[HUD_DISCONNECTED],
+        hudLeftPos[hudLeftRow(HUD_DISCONNECTED)],
         Color.WHITE
     )
     # The scorecard's rows are other players, so it gets a name
     lobbyHudText[10] = _("Scores")
     hudPageRow(
-        HUD_SCORECARD, _(lobbyHudText[10]), hudLeftPos[HUD_SCORECARD], rgb(230, 151, 0)
+        HUD_SCORECARD,
+        _(lobbyHudText[10]),
+        hudLeftPos[hudLeftRow(HUD_SCORECARD)],
+        rgb(230, 151, 0)
     )
     # The borrowed texts show in the same tick, so both sides show up together
     isHudPageReady = true
@@ -1345,8 +1367,11 @@ rule "Select Input":
             eventPlayer.lobbyPage = 1
         else:
             # The row looked at, as its line's HUD_ number: the left column's rows are numbered
-            # from 1 like their lines, and the right column's follow them
+            # from 1 like their lines, but for Assist Mode On's row under Disqualified's
+            # (hudLeftRow), and the right column's follow them
             eventPlayer.lobbyAim = hudLeftAimRow(eventPlayer)
+            if eventPlayer.lobbyAim > HUD_DISQUALIFIED:
+                eventPlayer.lobbyAim--
             if eventPlayer.lobbyAim == 0:
                 eventPlayer.lobbyAim = hudRightAimRow(eventPlayer)
                 if eventPlayer.lobbyAim > 0:

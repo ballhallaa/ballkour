@@ -139,8 +139,7 @@ macro isDisqualifiedShown(player):
 
 # Whether Disqualified says Assist Mode instead: while the viewed runner is in it, unless the
 # run is disqualified, which counts for neither leaderboard then (Disqualified shows Assist
-# Mode On under it then), and apart from on the HUD page, whose row for the line says
-# Disqualified
+# Mode On under it then), and apart from on the HUD page, which shows both that way
 macro isAssistModeShown(player):
     (
         player.viewRunner.isInAssistMode
@@ -273,7 +272,11 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
+    # In Assist Mode, where landing isn't a mistake, they're Redos: the falls and resets. The
+    # HUD page says both, like its row (Lobby: Load Languages), as the line shows in both.
     counterHudText[2] = _("Mistakes: @0")
+    counterHudText[5] = _("Redos: @0")
+    counterHudText[6] = _("Mistakes/Redos: @0")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: isCourseHudShown(localPlayer)
@@ -281,7 +284,15 @@ rule "Load HUD":
             and localPlayer.faqPage == 0
             and isHudLineOn(localPlayer, HUD_CP_MISTAKES)
         ),
-        _(counterHudText[2]).replace(
+        (
+            _(counterHudText[6])
+            if isHudPage(localPlayer)
+            else (
+                _(counterHudText[5])
+                if localPlayer.viewRunner.isInAssistMode
+                else _(counterHudText[2])
+            )
+        ).replace(
             "@0",
             ("<fgFFFFFFFF>{}</fg>").format(
                 localPlayer.viewRunner.cpMistakes[localPlayer.viewRunner.runCurrentCp]
@@ -372,8 +383,20 @@ rule "Load HUD":
                 if areHudLinesOff(localPlayer, HUD_CP, 2)
                 else ""
             ),
-            iconString(Icon.SKULL),
-            localPlayer.viewRunner.runMistakes
+            (
+                abilityIconString(Hero.WRECKING_BALL, Button.CROUCH)
+                if localPlayer.viewRunner.isInAssistMode
+                else iconString(Icon.SKULL)
+            ),
+            (
+                (
+                    localPlayer.viewRunner.runGroundTime
+                    if isDebugOn
+                    else localPlayer.viewRunner.runGroundTimeFormatted
+                )
+                if localPlayer.viewRunner.isInAssistMode
+                else localPlayer.viewRunner.runMistakes
+            )
         ),
         HudPosition.RIGHT,
         1.2,
@@ -387,8 +410,7 @@ rule "Load HUD":
     # leaderboard. Neither can be turned off (isDisqualifiedShown). A disqualified run in
     # Assist Mode shows both, Disqualified with Assist Mode On under it, so the mode still
     # shows. Each is its own text, centered on its own like the rest of the column, as one
-    # text would left-align its two lines. The HUD page shows both on Disqualified's line,
-    # Assist Mode On / Disqualified, like its row.
+    # text would left-align its two lines. The HUD page shows both that way too, like its rows.
     counterHudText[3] = _("\nDisqualified")
     counterHudText[4] = _("\nAssist Mode On")
     hudSubtext(
@@ -397,25 +419,18 @@ rule "Load HUD":
             and not isAssistModeShown(localPlayer)
             and localPlayer.faqPage == 0
         ),
-        (
-            "\n<fgFF80C0FF>{}</fg> / {}".format(
-                _(counterHudText[4]).replace("\n", ""),
-                _(counterHudText[3]).replace("\n", "")
-            )
-            if isHudPage(localPlayer)
-            else _(counterHudText[3])
-        ),
+        _(counterHudText[3]),
         HudPosition.LEFT,
         0.9,
         rgb(255, 70, 70),
         HudReeval.VISIBILITY_AND_STRING
     )
-    # Under Disqualified when the run is disqualified, so it drops its blank line then
+    # Under Disqualified when the run is disqualified, or on the HUD page, so it drops its
+    # blank line then
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: isDisqualifiedShown(localPlayer)
-            and localPlayer.viewRunner.isInAssistMode
-            and not isHudPage(localPlayer)
+            and (localPlayer.viewRunner.isInAssistMode or isHudPage(localPlayer))
             and localPlayer.faqPage == 0
         ),
         (
@@ -654,6 +669,9 @@ def resetRun():
     eventPlayer.scorecardSecond = 0
     scorecardDirty = true
     eventPlayer.runMistakes = 0
+    stopChasingVariable(eventPlayer.runGroundTime)
+    eventPlayer.runGroundTime = 0
+    eventPlayer.runGroundTimeFormatted = "0.00"
     # A delta still showing from the last run's clear would hide the new run's live times
     eventPlayer.isShowingSplitDelta = false
     # Pace projects each run from its own splits, unlike the per-CP Best and Avg
