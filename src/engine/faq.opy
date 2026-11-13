@@ -213,7 +213,7 @@ rule "Load HUD":
     faqHudText[7] = (
         "\n\n<fg80D0FFFF>What do </fg><fgE69700FF>Runs</fg><fg80D0FFFF> and </fg><fgE69700FF>Attempts</fg><fg80D0FFFF> count?</fg>"
         "\n<fgE69700FF>Runs</fg> counts the runs you've finished or restarted. <fgE69700FF>Attempts</fg> counts your mistakes"
-        "\nand clears on this checkpoint, over all your runs."
+        "\n(<fgE69700FF>Redos</fg> in <fgFF80C0FF>Assist Mode</fg>) and clears on this checkpoint, over all your runs."
     )
     faqHudText[8] = (
         "\n\n<fg80D0FFFF>What do </fg><fgE69700FF>Attempt</fg><fg80D0FFFF> and </fg><fgE69700FF>Split</fg><fg80D0FFFF> mean?</fg>"
@@ -265,6 +265,7 @@ rule "Load HUD":
         "\n<fgCB87FFFF>Freemode</fg> is practice, with no timer and all your abilities. You can't clear checkpoints in it,"
         "\nso it doesn't <fgFF4646FF>disqualify</fg> your run. <fgFF80C0FF>Assist Mode</fg> gives you every ability, as often as you like,"
         "\nand landing isn't a mistake, while checkpoints still clear. Its runs have their own leaderboard."
+        "\nInstead of mistakes, it times how long you're on the ground where landing would be one."
     )
     # Page 4
     faqHudText[16] = (

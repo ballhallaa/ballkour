@@ -301,6 +301,10 @@ msgstr ""
 msgid "{0} | {1}"
 msgstr "{0} | {1}"
 
+#. file run.opy, rule "Load HUD"
+msgid "Mistakes/Redos: @0"
+msgstr "Erros/Repetições: @0"
+
 #. 2 occurrences:
 #.  - file run.opy, rule "Load HUD"
 #.  - file completion.opy, rule "Run Text"
@@ -318,6 +322,10 @@ msgstr "Partidas: @0"
 #. file run.opy, rule "Load HUD"
 msgid "Attempts: @0"
 msgstr "Tentativas: @0"
+
+#. file run.opy, rule "Load HUD"
+msgid "Redos: @0"
+msgstr "Repetições: @0"
 
 #. file run.opy, rule "Load HUD"
 msgid "All-Time Top 3"

@@ -47,6 +47,48 @@ rule "Missed Checkpoint":
     eventPlayer.isLoading = false
 
 
+# Assist Mode's stand-in for Missed Checkpoint: instead of a mistake and a reset, the time on
+# the ground in the same spots counts up. Assist Mode doesn't track the grapple (cpData[12],
+# cpData[13]), so an orb checkpoint's ground counts as its route until every orb is grabbed.
+rule "Ground Time":
+    @Event eachPlayer
+    @Condition eventPlayer.isInAssistMode == true
+    @Condition (
+        eventPlayer.isRunPaused or eventPlayer.isInFreemode or eventPlayer.isRunFinished
+    ) == false
+    @Condition eventPlayer.runCurrentCp < lastCp
+    @Condition (
+        eventPlayer.cpData[5] == null
+        or hasAllOrbs(eventPlayer)
+        and not eventPlayer.cpData[17]
+    ) == true
+    @Condition eventPlayer.isOnGround() == true
+    @Condition (
+        eventPlayer.hasSpawned()
+        and not eventPlayer.isLoading
+        and not eventPlayer.isInLobby
+        and not eventPlayer.hasStatus(Status.ROOTED)
+    ) == true
+    @Condition eventPlayer.spectating[0] == false
+    @Condition (
+        distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
+        > eventPlayer.cpData[1]
+    )
+    @Condition (
+        distance(eventPlayer.getPosition(), eventPlayer.cpData[7])
+        > eventPlayer.cpData[8]
+    )
+    @Condition eventPlayer.isDummy() == false
+
+    # Rechecks every tick while it counts: a Wait Until on the rule's conditions would spell
+    # them all out again
+    chaseAtRate(eventPlayer.runGroundTime, Math.INFINITY, 1)
+    wait()
+    if RULE_CONDITION:
+        loop()
+    stopChasingVariable(eventPlayer.runGroundTime)
+
+
 rule "Already Bhopped":
     @Event eachPlayer
     @Condition (

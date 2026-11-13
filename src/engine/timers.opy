@@ -52,6 +52,10 @@ rule "Update Run Format":
         eventPlayer.timeToFormat = eventPlayer.cpTime
         formatTime()
         eventPlayer.cpTimeFormatted = eventPlayer.timeFormatted
+        if eventPlayer.isInAssistMode:
+            eventPlayer.timeToFormat = eventPlayer.runGroundTime
+            formatTime()
+            eventPlayer.runGroundTimeFormatted = eventPlayer.timeFormatted
         # Until the current split passes the average, Pace stays what Load Pace set
         if eventPlayer.runTime - eventPlayer.splitStart > eventPlayer.paceSplit:
             eventPlayer.timeToFormat = (

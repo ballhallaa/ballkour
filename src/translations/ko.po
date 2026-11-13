@@ -301,6 +301,10 @@ msgstr ""
 msgid "{0} | {1}"
 msgstr "{0} | {1}"
 
+#. file run.opy, rule "Load HUD"
+msgid "Mistakes/Redos: @0"
+msgstr "실수/재시도: @0"
+
 #. 2 occurrences:
 #.  - file run.opy, rule "Load HUD"
 #.  - file completion.opy, rule "Run Text"
@@ -318,6 +322,10 @@ msgstr "플레이 횟수: @0"
 #. file run.opy, rule "Load HUD"
 msgid "Attempts: @0"
 msgstr "시도 횟수: @0"
+
+#. file run.opy, rule "Load HUD"
+msgid "Redos: @0"
+msgstr "재시도: @0"
 
 #. file run.opy, rule "Load HUD"
 msgid "All-Time Top 3"

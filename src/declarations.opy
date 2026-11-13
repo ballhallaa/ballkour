@@ -170,6 +170,9 @@ playervar runFurthestCp
 playervar runTime
 playervar runTimeFormatted
 playervar runMistakes
+# Assist Mode: time on the ground where an unassisted run would have reset (Mistake: Ground Time)
+playervar runGroundTime
+playervar runGroundTimeFormatted
 playervar runFinalTimeFormatted
 playervar runFinalMistakes
 playervar runCount
