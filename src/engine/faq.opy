@@ -242,7 +242,7 @@ rule "Load HUD":
     )
     faqHudText[12] = (
         "\n\n<fg80D0FFFF>What's on the scorecard?</fg>"
-        "\nEach player's checkpoint, time, and mistakes, sorted by furthest and then fastest."
+        "\nEach player's checkpoint, time, and mistakes (ground time for <fgFF80C0FF>assisted</fg> runs), sorted by furthest and then fastest."
         "\nRunners come first, then <fgFF4646FF>disqualified</fg> runners in <fgFF4646FF>red</fg>, players in <fgFF80C0FF>Assist Mode</fg> in <fgFF80C0FF>pink</fg>,"
         "\nplayers in <fgCB87FFFF>Freemode</fg> in <fgCB87FFFF>purple</fg>, players in <fg00BEFFFF>Spectate</fg> in <fg00BEFFFF>blue</fg>, and players in the lobby in <fg808080FF>gray</fg>."
         "\n<fgFF4646FF>Disqualified</fg> runs are marked <fgFF4646FF>×</fg>, runs that were in <fgFF80C0FF>Assist Mode</fg> <fgFF80C0FF>•</fg>, and players"

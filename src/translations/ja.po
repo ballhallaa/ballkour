@@ -59,6 +59,10 @@ msgstr ""
 msgid "<fgFF80C0FF>               Assisted Run</fg>"
 msgstr "<fgFF80C0FF>          アシストラン</fg>"
 
+#. file completion.opy, rule "Run Text"
+msgid "Ground Time: @0"
+msgstr "接地時間：@0"
+
 #. file controls.opy, rule "Load Freemode HUD"
 msgid "Freemode On"
 msgstr "フリーモード ON"

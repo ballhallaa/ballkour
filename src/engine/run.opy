@@ -50,28 +50,38 @@ macro scorecardOrder(player):
 
 
 # Everything a player's scorecard row shows but the time, and its section, so a change to
-# them can refresh the scorecard at once. The CP stays under 1000, and the flags fit below 1.
+# them can refresh the scorecard at once, an assisted run's ground seconds included. The CP stays under 1000, and the flags fit below 1.
 macro scorecardKey(player):
     (
         player.viewCp
-        + player.runMistakes * 1000
+        + (player.runMistakes + floor(player.runGroundTime)) * 1000
         + player.isRunLegit * 0.5
         + scorecardSectionOf(player) * 0.0625
     )
 
 
 # A Top 3 row (Lobby: Load Leaderboard, Completion: Record Top Run) added to topText: rank,
-# time, mistakes and name, in the rank's color, with a pink • after it if topMarked. Padded
-# like the scorecard's columns, but for 2-digit mistakes, and times of 7+ characters.
-macro topRunRow(topText, topRank, topName, topMistakes, topTime, topMarked):
-    "{}\n{}{}   {}{}{}×{}{}</fg>{}".format(
+# time, score and name, in the rank's color, with a pink • after it if topMarked. The score
+# is mistakes with a ×, or an assisted run's ground time, formatted like the time. Padded like
+# the scorecard's columns, but for times of 7+ characters, and the score's column by its
+# length, as a digit is about 2 spaces and a × too: 9 spaces wide, or 14 while topWide, for
+# ground times, which take up to 13 (1:05.20), as : is about 2 spaces and . 1.
+macro topRunRow(topText, topRank, topName, topScore, topTime, topMarked, topWide):
+    "{}\n{}{}   {}{}{}{}{}</fg>{}".format(
         topText,
         ["<fgFFFF00FF>", "<fgB0C4DEFF>", "<fgC46A30FF>"][topRank],
         topRank + 1,
         topTime,
         "     " if strLen(topTime) < 8 else "   ",
-        topMistakes,
-        "     " if strLen("{}".format(topMistakes)) < 2 else "   ",
+        topScore,
+        "              ".substring(
+            0,
+            max(
+                1,
+                (14 if topWide else 9)
+                - [0, 2, 4, 6, 7, 9, 0, 13, 15][min(strLen("{}".format(topScore)), 8)]
+            )
+        ),
         topName,
         "<fgFF80C0FF>•</fg>" if topMarked else ""
     )
@@ -79,10 +89,8 @@ macro topRunRow(topText, topRank, topName, topMistakes, topTime, topMarked):
 
 # A Lobby Top 3 row for a rank no run holds yet, with the leaderboard's placeholders,
 # laid out like topRunRow
-macro topRunPlaceholderRow(topText, topRank):
-    "{}\n{}{}   -:--.--     -×     ---</fg>".format(
-        topText, ["<fgFFFF00FF>", "<fgB0C4DEFF>", "<fgC46A30FF>"][topRank], topRank + 1
-    )
+macro topRunPlaceholderRow(topText, topRank, topWide):
+    topRunRow(topText, topRank, "---", "-×", "-:--.--", false, topWide)
 
 
 # Whether the scorecard lists its rows: not when the only player listed is the viewer
@@ -542,24 +550,58 @@ rule "Update Scorecard":
     # One string rebuilt on each change and each runner's second, instead of a HUD text per runner:
     # Overwatch reprocesses every HUD text's definition every 5s (see Translated HUD Text).
     # A string only shows its first 4 icons, so they head the columns instead of filling each row.
+    # Assisted runs show their ground time instead of mistakes, like the time, so while one's
+    # listed their column is 2 spaces wider and headed Skull/Piledriver, the 4th icon, or just
+    # Piledriver while every run listed is assisted.
+    scorecardHasGround = len(scorecardPlayers.filter(lambda p: p.isRunAssisted)) > 0
     scorecard = "{}    {}       {}".format(
-        iconString(Icon.FLAG), iconString(Icon.BOLT), iconString(Icon.SKULL)
+        iconString(Icon.FLAG),
+        iconString(Icon.BOLT),
+        (
+            (
+                "{}/{}".format(
+                    iconString(Icon.SKULL),
+                    abilityIconString(Hero.WRECKING_BALL, Button.CROUCH)
+                )
+                if len(scorecardPlayers.filter(lambda p: not p.isRunAssisted)) > 0
+                else abilityIconString(Hero.WRECKING_BALL, Button.CROUCH)
+            )
+            if scorecardHasGround
+            else iconString(Icon.SKULL)
+        )
     )
     scorecardRows = len(scorecardPlayers)
     for index in range(len(scorecardPlayers)):
         scorecardTime = scorecardPlayers[index].runTimeFormatted.split(".")[0]
         # The time's column fits h:mm:ss. Its padding is by length, since colons are narrower than digits.
-        scorecardRow = "{}{}{}{}{}{}{}".format(
+        scorecardRow = "{}{}{}{}".format(
             scorecardPlayers[index].viewCp,
             scorecardPad(scorecardPlayers[index].viewCp),
             scorecardTime,
             "             ".substring(
                 0, [0, 13, 11, 0, 7, 5, 0, 2][strLen(scorecardTime)]
-            ),
-            scorecardPlayers[index].runMistakes,
-            scorecardPad(scorecardPlayers[index].runMistakes),
-            scorecardPlayers[index]
+            )
         )
+        # An assisted run's ground time in whole seconds, like the time, padded by length to
+        # the column's 11 spaces (a colon is about 2), and mistakes 2 spaces further out
+        if scorecardPlayers[index].isRunAssisted:
+            scorecardTime = scorecardPlayers[index].runGroundTimeFormatted.split(".")[0]
+            scorecardRow = "{}{}{}{}".format(
+                scorecardRow,
+                scorecardTime,
+                "         ".substring(
+                    0, [0, 9, 7, 0, 3, 1, 0, 1][strLen(scorecardTime)]
+                ),
+                scorecardPlayers[index]
+            )
+        else:
+            scorecardRow = "{}{}{}{}{}".format(
+                scorecardRow,
+                scorecardPlayers[index].runMistakes,
+                scorecardPad(scorecardPlayers[index].runMistakes),
+                "  " if scorecardHasGround else "",
+                scorecardPlayers[index]
+            )
         # Each section in its own color, disqualified or not: runners in the HUD's orange,
         # disqualified runners red, like Disqualified at the top left, Assist Mode pink, like
         # its own line there, freemode violet, like Freemode On, spectating blue, like
