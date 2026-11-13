@@ -7,7 +7,6 @@ settings courseSettings(3, Paraíso, NT5G3K, MXJ0W, "paraiso")
 
 #!optimizeStrict
 #!rulePrefix "Course"
-#!include "../../settings.opy"
 #!include "../../../leaderboards/3-paraíso.opy"
 #!include "checkpoints.opy"
 

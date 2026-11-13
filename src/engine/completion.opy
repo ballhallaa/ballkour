@@ -297,8 +297,8 @@ rule "Run Text":
 def updateStats():
     @Name "Update Lobby Stats"
 
-    # Wrapped so release builds leave the subroutine out entirely
-    if DEV:
+    # Wrapped so builds without +stats leave the subroutine out entirely
+    if isLobbyStatsOn:
         lobbyStats[2]++
         lobbyStats[3] += eventPlayer.runTime
         eventPlayer.timeToFormat = lobbyStats[3]

@@ -7,7 +7,6 @@ settings courseSettings(2, Blizzard World (Winter), GMWRF, 8Y14F, "blizzWorldWin
 
 #!optimizeStrict
 #!rulePrefix "Course"
-#!include "../../settings.opy"
 #!include "../../../leaderboards/2-blizzard-world.opy"
 #!include "checkpoints.opy"
 
