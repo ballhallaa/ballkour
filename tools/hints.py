@@ -298,8 +298,10 @@ def same_route(a, b):
 
 
 def cp_count(course):
+    """Counts the lines of the cps array, which hold one checkpoint each."""
     checkpoints = course.with_name("checkpoints.opy").read_text()
-    return len(CP_RE.findall(checkpoints))
+    cps = checkpoints[checkpoints.index("cps = compress(") :]
+    return len(CP_RE.findall(cps[: cps.index("\n    )")]))
 
 
 def format_ranges(numbers):
