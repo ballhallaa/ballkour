@@ -136,7 +136,7 @@ rule "Load Objects":
     createEffect(
         getAllPlayers().filter(lambda localPlayer: isViewingCp(localPlayer)),
         Effect.RING,
-        Color.GREEN,
+        Color.WHITE,
         cps[localPlayer.viewCp][0],
         cps[localPlayer.viewCp][1],
         EffectReeval.VISIBILITY_POSITION_AND_RADIUS
@@ -167,7 +167,7 @@ rule "Load Objects":
         cps[localPlayer.viewCp][7] - vect(0, 0.5, 0),
         Icon.FLAG,
         IconReeval.VISIBILITY_AND_POSITION,
-        Color.GREEN
+        Color.AQUA
     )
     createEffect(
         getAllPlayers().filter(lambda localPlayer: isViewingCp(localPlayer)),
