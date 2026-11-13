@@ -592,9 +592,13 @@ rule "Load Leaderboard":
                 )
         else:
             lbObj = lb[index]
-        # lbObj[i]: [0]name [1]time [2]mistakes [3]alignmentSeparator [4]rankColor
+        # lbObj[i]: [0]name [1]time [2]mistakes, or an assisted run's ground time
+        # [3]alignmentSeparator [4]rankColor [5]Top 3 row
         lbObj = lbObj.split(",")
         lbObj[3] = lbObj[3].replace("'", "")
+        # The assisted board's empty rows get a ground time placeholder like the time's
+        if index > 10 and lb[index] == null:
+            lbObj[2] = " -:--.--"
         # Gold, silver and bronze, then the rest
         lbObj[4] = ["<fgFFFF00FF>", "<fgB0C4DEFF>", "<fgC46A30FF>", "<fgFFFFFFFF>"][
             min(lbRank, 4) - 1
@@ -607,7 +611,11 @@ rule "Load Leaderboard":
             iconString(Icon.BOLT),
             lbObj[4],
             lbObj[1],
-            iconString(Icon.SKULL),
+            (
+                abilityIconString(Hero.WRECKING_BALL, Button.CROUCH)
+                if index > 10
+                else iconString(Icon.SKULL)
+            ),
             lbObj[2]
         )
         # The row without its alignment, for the run info (lbRunInfo)
@@ -618,7 +626,11 @@ rule "Load Leaderboard":
             iconString(Icon.BOLT),
             lbObj[4],
             lbObj[1],
-            iconString(Icon.SKULL),
+            (
+                abilityIconString(Hero.WRECKING_BALL, Button.CROUCH)
+                if index > 10
+                else iconString(Icon.SKULL)
+            ),
             lbObj[2]
         )
         # Each leaderboard's first 3 rows, placeholders and all, are its All-Time Top 3 on
@@ -626,14 +638,21 @@ rule "Load Leaderboard":
         if lbRank <= 3:
             lbObj[1] = lbObj[1].replace(" ", "")
             lbObj[2] = lbObj[2].replace(" ", "")
+            # The assisted one's scores are ground times, without the ×. One row is laid out
+            # for either, so topRunRow is only spelled out once.
+            lbObj[5] = topRunRow(
+                "",
+                lbRank - 1,
+                lbObj[0],
+                (lbObj[2] if index > 10 else "{}×".format(lbObj[2])),
+                lbObj[1],
+                false,
+                index > 10
+            )
             if index <= 10:
-                allTimeRunsText = topRunRow(
-                    allTimeRunsText, lbRank - 1, lbObj[0], lbObj[2], lbObj[1], false
-                )
+                allTimeRunsText = "{}{}".format(allTimeRunsText, lbObj[5])
             else:
-                allTimeAssistedText = topRunRow(
-                    allTimeAssistedText, lbRank - 1, lbObj[0], lbObj[2], lbObj[1], false
-                )
+                allTimeAssistedText = "{}{}".format(allTimeAssistedText, lbObj[5])
     # The rows, which show the runs of the leaderboard each player picked (lbBoard)
     for index in range(1, 11):
         createInWorldText(

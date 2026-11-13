@@ -10,6 +10,7 @@ rule "Joins":
     # They're on the scorecard before their first run (Update Scorecard), with a 0 time and
     # no ×, like a new run's
     eventPlayer.runTimeFormatted = "0.00"
+    eventPlayer.runGroundTimeFormatted = "0.00"
     eventPlayer.isRunLegit = true
     # Every HUD line on, filled out to HUD_LINES, as an index past an array's end fills the
     # rest with zeros

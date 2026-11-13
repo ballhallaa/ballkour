@@ -102,7 +102,14 @@ rule "Final Checkpoint Reached":
         eventPlayer.runCount++
         eventPlayer.isRunFinished = true
         eventPlayer.runFinalTimeFormatted = eventPlayer.runTimeFormatted
-        eventPlayer.runFinalMistakes = eventPlayer.runMistakes
+        # An assisted run's score is its ground time (Mistake: Ground Time), formatted like
+        # its time, which the completion text and the Lobby Top 3 show instead of mistakes
+        if eventPlayer.isRunAssisted:
+            eventPlayer.timeToFormat = eventPlayer.runGroundTime
+            formatTime()
+            eventPlayer.runFinalMistakes = eventPlayer.timeFormatted
+        else:
+            eventPlayer.runFinalMistakes = eventPlayer.runMistakes
         eventPlayer.isViewingRunCompletionText = true
         if eventPlayer.isRunLegit:
             recordTopRun()
@@ -115,7 +122,8 @@ rule "Final Checkpoint Reached":
 def recordTopRun():
     @Name "Record Top Run"
 
-    # topRuns lists runs as [0]time [1]name [2]mistakes [3]timeFormatted [4]assisted
+    # topRuns lists runs as [0]time [1]name [2]mistakes, or an assisted run's ground time
+    # [3]timeFormatted [4]assisted
     # By name, so a run stays listed after its player leaves, and one player can only hold one
     # spot, with their best run, assisted or not
     topRunsScratch = topRuns.filter(lambda run: run[1] == "{}".format(eventPlayer))
@@ -132,20 +140,29 @@ def recordTopRun():
     topRunsScratch = sorted(topRunsScratch, lambda run: run[0]).slice(0, 3)
     topRuns = topRunsScratch
     topRunsText = ""
-    # The mistakes get a × in the row's color, as a red one marks a disqualified run there.
-    # Assisted runs get a pink • after the name, like Assist Mode's pink, outside the row's
-    # color, as the scorecard's red × is. Ranks no run holds yet get placeholders.
+    # The mistakes get a × in the row's color, as a red one marks a disqualified run there,
+    # and assisted runs show their ground time instead, which widens the column for every row
+    # while one's listed. Assisted runs get a pink • after the name, like Assist Mode's pink,
+    # outside the row's color, as the scorecard's red × is. Ranks no run holds yet get
+    # placeholders.
     for index in range(len(topRunsScratch)):
         topRunsText = topRunRow(
             topRunsText,
             index,
             topRunsScratch[index][1],
-            topRunsScratch[index][2],
+            (
+                topRunsScratch[index][2]
+                if topRunsScratch[index][4]
+                else "{}×".format(topRunsScratch[index][2])
+            ),
             topRunsScratch[index][3],
-            topRunsScratch[index][4]
+            topRunsScratch[index][4],
+            len(topRunsScratch.filter(lambda run: run[4])) > 0
         )
     for index in range(len(topRunsScratch), 3):
-        topRunsText = topRunPlaceholderRow(topRunsText, index)
+        topRunsText = topRunPlaceholderRow(
+            topRunsText, index, len(topRunsScratch.filter(lambda run: run[4])) > 0
+        )
 
 
 rule "Load Run Text":
@@ -217,15 +234,25 @@ rule "Run Text":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
+    # An assisted run's ground time instead, with Piledriver's icon, like its HUD line
     completionHudText[3] = _("Mistakes: @0\n")
+    completionHudText[8] = _("Ground Time: @0\n")
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.isViewingRunCompletionText
             and localPlayer.faqPage == 0
         ),
         "{} {}".format(
-            iconString(Icon.SKULL),
-            _(completionHudText[3]).replace(
+            (
+                abilityIconString(Hero.WRECKING_BALL, Button.CROUCH)
+                if localPlayer.isRunAssisted
+                else iconString(Icon.SKULL)
+            ),
+            (
+                _(completionHudText[8])
+                if localPlayer.isRunAssisted
+                else _(completionHudText[3])
+            ).replace(
                 "@0", ("<fgFFFFFFFF>{}</fg>").format(localPlayer.runFinalMistakes)
             )
         ),
