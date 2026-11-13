@@ -8,8 +8,8 @@
 // with "(Assisted)" after them: Top 0.1% (Assisted) to Top 90% (Assisted), Rated (Assisted), and Unrated (Assisted)
 // for everyone else. Everyone has one of each set. And so do the legacy boards, from before May 2026: Top 0.1%
 // (Legacy) to Top 90% (Legacy) and Rated (Legacy), only for the players on them (there's no Unrated (Legacy)). And so
-// does the Global rating, the unassisted and assisted ratings added up: Top 0.1% (Global) to Top 90% (Global), Rated
-// (Global), and Unrated (Global).
+// does the Global rating, the unassisted and assisted ratings put together (see combine() in ratings.mjs): Top 0.1%
+// (Global) to Top 90% (Global), Rated (Global), and Unrated (Global).
 //
 // It also gives out Top 10 Run to anyone with a run on a course's top 10 right now, unassisted or assisted, and Former
 // Top 10 Run once none of their runs is on one any more, and Top 10 Rating (Unassisted) to the unassisted rating's 10 best players, and Former Top 10 Rating
