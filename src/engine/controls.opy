@@ -950,9 +950,9 @@ def assistModeInput():
 
 
 rule "Load Freemode HUD":
-    # Under Disqualified (0.9), with a blank line above it unless Disqualified, which brings
-    # its own, is showing. The HUD page shows it either way, so it can be turned off ahead of
-    # time.
+    # Under Disqualified (0.9) and Assist Mode On (0.95), with a blank line above it unless
+    # either, which brings its own, is showing. The HUD page shows it either way, so it can be
+    # turned off ahead of time.
     # Practice Mode On takes its place, as the two never show together
     freemodeHudText = _("Freemode On")
     practiceModeHudText = _("Practice Mode On")

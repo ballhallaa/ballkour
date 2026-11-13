@@ -384,39 +384,49 @@ rule "Load HUD":
     # Freemode On. Freemode On drops its own blank line while it shows, so the two sit together.
     # The HUD page shows it either way, as it's one of the lines it turns off.
     # In Assist Mode it says Assist Mode On instead, in pink, as the run is for the assisted
-    # leaderboard. One text for both, as texts are capped at 128 per server (Lobby: Load
-    # Buttons), and neither can be turned off (isDisqualifiedShown). A disqualified run in
-    # Assist Mode shows both, Disqualified with Assist Mode On under it in pink, so the mode
-    # still shows. The HUD page shows both, Assist Mode On / Disqualified, like its row.
+    # leaderboard. Neither can be turned off (isDisqualifiedShown). A disqualified run in
+    # Assist Mode shows both, Disqualified with Assist Mode On under it, so the mode still
+    # shows. Each is its own text, centered on its own like the rest of the column, as one
+    # text would left-align its two lines. The HUD page shows both on Disqualified's line,
+    # Assist Mode On / Disqualified, like its row.
     counterHudText[3] = _("\nDisqualified")
     counterHudText[4] = _("\nAssist Mode On")
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: isDisqualifiedShown(localPlayer)
+            and not isAssistModeShown(localPlayer)
+            and localPlayer.faqPage == 0
+        ),
+        (
+            "\n<fgFF80C0FF>{}</fg> / {}".format(
+                _(counterHudText[4]).replace("\n", ""),
+                _(counterHudText[3]).replace("\n", "")
+            )
+            if isHudPage(localPlayer)
+            else _(counterHudText[3])
+        ),
+        HudPosition.LEFT,
+        0.9,
+        rgb(255, 70, 70),
+        HudReeval.VISIBILITY_AND_STRING
+    )
+    # Under Disqualified when the run is disqualified, so it drops its blank line then
+    hudSubtext(
+        getAllPlayers().filter(
+            lambda localPlayer: isDisqualifiedShown(localPlayer)
+            and localPlayer.viewRunner.isInAssistMode
+            and not isHudPage(localPlayer)
             and localPlayer.faqPage == 0
         ),
         (
             _(counterHudText[4])
             if isAssistModeShown(localPlayer)
-            else (
-                "\n<fgFF80C0FF>{}</fg> / {}".format(
-                    _(counterHudText[4]).replace("\n", ""),
-                    _(counterHudText[3]).replace("\n", "")
-                )
-                if isHudPage(localPlayer)
-                else (
-                    "{}\n<fgFF80C0FF>{}</fg>".format(
-                        _(counterHudText[3]), _(counterHudText[4]).replace("\n", "")
-                    )
-                    if localPlayer.viewRunner.isInAssistMode
-                    else _(counterHudText[3])
-                )
-            )
+            else _(counterHudText[4]).replace("\n", "")
         ),
         HudPosition.LEFT,
-        0.9,
-        rgb(255, 128, 192) if isAssistModeShown(localPlayer) else rgb(255, 70, 70),
-        HudReeval.VISIBILITY_STRING_AND_COLOR
+        0.95,
+        rgb(255, 128, 192),
+        HudReeval.VISIBILITY_AND_STRING
     )
     # The All-Time Top 3, then the Lobby Top 3, at the bottom of the right column, under the
     # splits, in one HUD text so they left-align. Hiding the scorecard leaves them up. The
