@@ -1,10 +1,15 @@
 // The leaderboard picture: a course's top 10 in two columns, in the website's look.
 // bot.mjs fills it in and screenshots the .card element.
 
+import { groundText } from "./boards.mjs";
+
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
 const BOLT = '<svg class="i" viewBox="0 0 24 24"><path fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>';
 const STAR = '<svg class="i" viewBox="0 0 24 24"><path fill="currentColor" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" d="M11.53 2.3a.53.53 0 0 1 .94 0l2.31 4.68a2.12 2.12 0 0 0 1.6 1.16l5.16.75a.53.53 0 0 1 .3.91l-3.74 3.64a2.12 2.12 0 0 0-.61 1.88l.88 5.14a.53.53 0 0 1-.77.56l-4.62-2.43a2.12 2.12 0 0 0-1.97 0L6.4 21.01a.53.53 0 0 1-.77-.56l.88-5.14a2.12 2.12 0 0 0-.61-1.88L2.16 9.8a.53.53 0 0 1 .3-.91l5.16-.75a2.12 2.12 0 0 0 1.6-1.16z"/></svg>';
+// A run played in Assist Mode has its ground time instead of mistakes, beside an arrow down onto the ground, as on the
+// website
+const GROUND = '<svg class="i" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 17V3"/><path d="m6 11 6 6 6-6"/><path d="M19 21H5"/></g></svg>';
 const SKULL = '<svg class="i" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12.5 17-.5-1-.5 1h1z"/><path d="M15 22a1 1 0 0 0 1-1v-1a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20v1a1 1 0 0 0 1 1z"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="12" r="1"/></g></svg>';
 
 // fonts: { "Barlow-500": "file://…woff2", … }; missing files fall back to the stacks below
@@ -24,7 +29,8 @@ function fontFaces(fonts) {
 
 /**
  * course: { name, flag, code, by, remaker, legacyCode } from courses.json, board: board number, date: "YYYY-MM-DD",
- * runs: [{ name, time, mistakes, date }] (up to 10), fresh: Set of the runs that are new,
+ * runs: [{ name, time, mistakes, date }] (up to 10, an assisted board's with ground instead of mistakes: see
+ * groundText in boards.mjs), fresh: Set of the runs that are new,
  * people: Map of run → { name, avatar } from Discord, ratings: Map of run → its player's rating over every course,
  * logo: data URI or "",
  * legacy: true for the board from before May 2026, whose times have no hundredths ("4:30.--"),
@@ -48,7 +54,7 @@ export function cardHtml({ course, board, date, runs, fresh, people, ratings = n
       `<span class="rank">${i + 1}</span>` +
       `<span class="line"><span class="name">${esc(r.name)}</span>${isNew ? '<span class="tag">New</span>' : ""}</span>` +
       `<span class="time">${BOLT}${timeHtml(r.time)}</span>` +
-      `<span class="miss">${SKULL}${r.mistakes}</span>` +
+      `<span class="miss">${Number.isInteger(r.ground) ? GROUND + groundText(r.ground) : SKULL + r.mistakes}</span>` +
       (who ? `<span class="dc">${pfp}<span>${esc(who.name)}</span></span>` : "") +
       // Beside the date: the player's rating over every course, as on the website's Player ratings (no thousands
       // separator, like there: a rating only reaches 1000)
@@ -110,6 +116,8 @@ ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 .pts .i { width: 15px; height: 15px; color: var(--gold); }
 .time { grid-area: time; }
 .miss { grid-area: miss; }
+/* An assisted board's ground times ("1:05.20") need more room than mistakes */
+.card.assisted .run { grid-template-columns: 34px minmax(0, 1fr) auto 110px; }
 .time, .miss { display: inline-flex; align-items: center; justify-content: flex-end; gap: 7px; font: 700 23px/1 var(--mono); color: var(--ink); }
 .miss { font-size: 20px; color: var(--ink-2); }
 .i { width: 21px; height: 21px; flex: none; }
@@ -137,7 +145,7 @@ ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 .foot .cta { color: var(--volt); }
 .foot .broken { color: var(--coral); }
 </style>
-<div class="card">
+<div class="card${assisted ? " assisted" : ""}">
   <canvas id="warp"></canvas>
   <div class="head">
     <div>

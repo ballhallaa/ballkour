@@ -6,11 +6,14 @@
 // release, then pad each name as usual. assistedLbRunInfo(…) lines go in loadRunInfo with the others.
 import fs from "node:fs";
 import path from "node:path";
-import { REPO, loadCourses, parseOpy } from "./boards.mjs";
+import { REPO, loadCourses, parseOpy, groundText } from "./boards.mjs";
 import { standings } from "./ratings.mjs";
 
+// The third field of a board's line: a run's mistakes, or on the assisted board, its ground time, written the way the
+// lobby shows it ("12.34", under the Piledriver's icon), which parseOpy() reads back as ground
+const third = (r) => (Number.isInteger(r.ground) ? groundText(r.ground) : r.mistakes);
 const sameRuns = (a, b) => a.length === b.length && a.every((r, i) =>
-  r.name === b[i].name && r.time === b[i].time && r.mistakes === b[i].mistakes && r.discord === b[i].discord);
+  r.name === b[i].name && r.time === b[i].time && third(r) === third(b[i]) && r.discord === b[i].discord);
 const assisted = new Map(loadCourses({ assisted: true }).map((c) => [c.n, c]));
 let behind = 0;
 for (const c of loadCourses()) {
@@ -22,7 +25,7 @@ for (const c of loadCourses()) {
     if (sameRuns(file, top)) continue;
     behind++;
     console.log(`\n${c.course.file} (${c.n} ${c.course.name}${board === "lb" ? "" : ", assisted"}):\n`);
-    top.forEach((r, i) => console.log(`    ${board}[${i + 1}] = "${r.name.toUpperCase()}, ${r.time}, ${r.mistakes}, ''"${r.discord ? `  # discord: ${r.discord}` : ""}`));
+    top.forEach((r, i) => console.log(`    ${board}[${i + 1}] = "${r.name.toUpperCase()}, ${r.time}, ${third(r)}, ''"${r.discord ? `  # discord: ${r.discord}` : ""}`));
     console.log("");
     top.forEach((r, i) => console.log(`    ${board}RunInfo(${i + 1}, "${r.date}", "${r.video.replace(/^https:\/\//, "")}")`));
   }

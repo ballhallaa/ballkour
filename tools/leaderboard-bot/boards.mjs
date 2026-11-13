@@ -52,19 +52,30 @@ export function isoDate(s) {
   return mi >= 0 ? `${m[3]}-${String(mi + 1).padStart(2, "0")}-${m[2].padStart(2, "0")}` : "";
 }
 export const toSeconds = (t) => t.split(":").reduce((sum, part) => sum * 60 + Number(part), 0);
-const byTime = (a, b) => toSeconds(a.time) - toSeconds(b.time) || a.mistakes - b.mistakes;
+// A run played in Assist Mode has no mistakes: the game times how long it's on the ground where landing would be one
+// ("ground" in runs.json, in whole hundredths of a second), and that breaks ties on its board instead (score()).
+// groundText writes it like a time, the way the game and the website show it: "12.34", or "1:05.20".
+const score = (r) => (Number.isInteger(r.ground) ? r.ground : r.mistakes);
+export function groundText(cs) {
+  const m = Math.floor(cs / 6000), s = ((cs % 6000) / 100).toFixed(2);
+  return m ? `${m}:${s.padStart(5, "0")}` : s;
+}
+const byTime = (a, b) => toSeconds(a.time) - toSeconds(b.time) || score(a) - score(b);
 
 // lb[i] = "NAME, M:SS.cc, MISTAKES, '...'"  # discord: ID
 // and lbRunInfo(rank, "YYYY-MM-DD", "host/path"), the same as the website reads. With board "assistedLb", the
 // in-game assisted top 10 instead (assistedLb[i] and assistedLbRunInfo), which only game-boards.mjs reads: the
-// assisted boards are made from runs.json alone.
+// assisted boards are made from runs.json alone. Its third field is the ground time ("12.34", see score).
 export function parseOpy(text, board = "lb") {
   const at = `(?<![A-Za-z0-9_])${board}`;
   if (!new RegExp(`${at}\\s*=\\s*\\[\\s*\\]`).test(text)) return null; // file layout changed: don't guess
   const rows = [];
   for (const m of text.matchAll(new RegExp(`${at}\\[(\\d+)\\]\\s*=\\s*"([^"]*)"(?:[ \\t]*#[ \\t]*discord:[ \\t]*(\\d{17,20})\\b)?`, "g"))) {
     const [name, time, miss] = m[2].split(",").map((s) => s.trim());
-    if (name && TIME.test(time) && /^\d+$/.test(miss)) rows[Number(m[1])] = { name, discord: m[3] || "", time, mistakes: Number(miss), date: "", video: "" };
+    const ground = board === "assistedLb" ? /^(?:(\d{1,2}):)?(\d{1,2})\.(\d{2})$/.exec(miss) : null;
+    const tie = ground ? { ground: (Number(ground[1] || 0) * 60 + Number(ground[2])) * 100 + Number(ground[3]) }
+      : board !== "assistedLb" && /^\d+$/.test(miss) ? { mistakes: Number(miss) } : null;
+    if (name && TIME.test(time) && tie) rows[Number(m[1])] = { name, discord: m[3] || "", time, ...tie, date: "", video: "" };
   }
   for (const m of text.matchAll(new RegExp(`${at}RunInfo\\(\\s*(\\d+)\\s*,\\s*"([^"]*)"\\s*,\\s*"([^"]*)"\\s*\\)`, "g"))) {
     const r = rows[Number(m[1])];
@@ -74,7 +85,8 @@ export function parseOpy(text, board = "lb") {
   }
   return rows.filter(Boolean).slice(0, 10);
 }
-// { "name", "discord", "time", "mistakes", "date", "video" }, as in the classic courses' files → a clean run, or null
+// { "name", "discord", "time", "mistakes", "date", "video" }, as in the classic courses' files, or an assisted run with
+// "ground" instead of "mistakes" (see score) → a clean run, or null
 // A legacy run, timed to the second ("4:30.--") with no date or video → a clean run, or null
 const LEGACY_TIME = /^(\d{1,2}:)?\d{1,2}:\d{2}(\.--|\.\d{2})?$/;
 function cleanLegacy(r) {
@@ -82,12 +94,12 @@ function cleanLegacy(r) {
   return { name: r.name.trim(), discord: DISCORD_ID.test(r.discord) ? r.discord : "", time: r.time, mistakes: r.mistakes, date: "", video: "" };
 }
 export function cleanRun(r) {
-  if (!r || typeof r.name !== "string" || !r.name.trim() || !TIME.test(r.time) || !Number.isInteger(r.mistakes) || r.mistakes < 0) return null;
+  if (!r || typeof r.name !== "string" || !r.name.trim() || !TIME.test(r.time) || !Number.isInteger(score(r)) || score(r) < 0) return null;
   return {
     name: r.name.trim(),
     discord: DISCORD_ID.test(r.discord) ? r.discord : "",
     time: r.time,
-    mistakes: r.mistakes,
+    ...(Number.isInteger(r.ground) ? { ground: r.ground } : { mistakes: r.mistakes }),
     date: isoDate(r.date),
     video: typeof r.video === "string" && /^https:\/\/[^\s"'<>]+$/.test(r.video) ? r.video : "",
   };

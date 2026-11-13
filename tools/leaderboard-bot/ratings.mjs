@@ -34,7 +34,10 @@ export const GLOBAL_SUFFIX = " (Global)";
 export const roleName = (tier, suffix = "") => (tier === null ? "Rated" : `Top ${tier}%`) + suffix;
 
 const seconds = (t) => t.replace(/\.--$/, "").split(":").reduce((sum, part) => sum * 60 + Number(part), 0);
-const byTime = (a, b) => seconds(a.time) - seconds(b.time) || a.mistakes - b.mistakes;
+// What breaks a tie on time: a run's mistakes, or for a run played in Assist Mode, which has none, its time on the
+// ground ("ground", in whole hundredths of a second). Each board only has one kind.
+export const score = (r) => (Number.isInteger(r.ground) ? r.ground : r.mistakes);
+const byTime = (a, b) => seconds(a.time) - seconds(b.time) || score(a) - score(b);
 
 // A player is their Discord ID, or for a run without one, its in-game name. In-game names aren't unique (Overwatch
 // hides the BattleTag number), so a name only stands for a player on runs with no ID.
@@ -64,7 +67,7 @@ export function standings(course) {
 }
 
 // courses: [{ n, broken, file, more, removed, boards }] as standings() takes them, runs { name, discord, time,
-// mistakes, date } with dates as YYYY-MM-DD
+// mistakes (or ground), date } with dates as YYYY-MM-DD
 // → { counted: [course numbers], players: [{ key, name, discord, rating, points: { n: points }, courses, rank, tier }] }
 export function rate(courses) {
   const counted = [];

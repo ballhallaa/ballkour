@@ -30,7 +30,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { chromium } from "playwright";
 import { cardHtml } from "./card.mjs";
-import { HERE, HISTORY, DATA_ROOT, readData, GUILD, COURSES, DISCORD_ID, ASSISTED, loadCourses } from "./boards.mjs";
+import { HERE, HISTORY, DATA_ROOT, readData, GUILD, COURSES, DISCORD_ID, ASSISTED, loadCourses, groundText } from "./boards.mjs";
 import { TOKEN, api } from "./discord.mjs";
 import { standings, rate, playerKey } from "./ratings.mjs";
 
@@ -69,11 +69,11 @@ if (!["both", "unassisted", "assisted"].includes(BOARDS)) {
 // The player is their Discord ID when both runs have one, and their name otherwise
 const samePlayer = (a, b) => (a.discord && b.discord ? a.discord === b.discord : a.name.toUpperCase() === b.name.toUpperCase());
 // The runs that weren't on the board before: each old run matches one new run with the same player, time and
-// mistakes, so a new run that ties an old one exactly still counts
+// mistakes (or ground time, on an assisted board), so a new run that ties an old one exactly still counts
 function freshRuns(runs, before) {
   const left = [...before];
   return new Set(runs.filter((r) => {
-    const i = left.findIndex((b) => b.time === r.time && b.mistakes === r.mistakes && samePlayer(b, r));
+    const i = left.findIndex((b) => b.time === r.time && b.mistakes === r.mistakes && b.ground === r.ground && samePlayer(b, r));
     if (i >= 0) left.splice(i, 1);
     return i < 0;
   }));
@@ -167,7 +167,7 @@ const emptyMessage = (course) => ({
 });
 // Text for screen readers (Discord's image description)
 const altText = (course, board, runs, legacy, assisted) => runs.length
-  ? `${course.name} ${legacy ? "legacy top 10, before May 2026" : `${assisted ? "assisted " : ""}top 10, board ${board}`}: ` + runs.map((r, i) => `${i + 1}. ${r.name} ${r.time}, ${r.mistakes} mistakes`).join("; ")
+  ? `${course.name} ${legacy ? "legacy top 10, before May 2026" : `${assisted ? "assisted " : ""}top 10, board ${board}`}: ` + runs.map((r, i) => `${i + 1}. ${r.name} ${r.time}, ${Number.isInteger(r.ground) ? `${groundText(r.ground)} on the ground` : `${r.mistakes} mistakes`}`).join("; ")
   : `${course.name} top 10: no times yet`;
 
 /* ---------- Fonts and logo for the picture ---------- */
