@@ -112,8 +112,8 @@ rule "Record Jump":
 def saveHintRoute():
     @Name "Save Route"
 
-    # Wrapped so release builds leave the subroutine out entirely
-    if DEV:
+    # Wrapped so builds without +hint-recorder leave the subroutine out entirely
+    if isHintRecorderOn:
         if (
             len(eventPlayer.hintRecording) == 0
             or distance(eventPlayer.hintRecording[0], eventPlayer.cpData[0])

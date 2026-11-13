@@ -7,7 +7,6 @@ settings courseSettings(1, Watchpoint: Gibraltar, 59W28, 9GTJH, {"watchpointGibr
 
 #!optimizeStrict
 #!rulePrefix "Course"
-#!include "../../settings.opy"
 #!include "../../../leaderboards/1-watchpoint-gibraltar.opy"
 #!include "checkpoints.opy"
 #!include "hints.opy"

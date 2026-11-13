@@ -6,9 +6,9 @@ Recording workflow:
      File". Overwatch then writes each match's Inspector log to
      C:/Documents/Overwatch/Workshop on Windows, or ~/.steam/steam/steamapps/compatdata/2357570/pfx/drive_c/users/steamuser/Documents/Overwatch/Workshop/
      on Linux.
-  2. Compile the course from develop: the Hint Recorder is only in dev builds, whose
-     src/VERSION ends in -dev, and release builds leave it out. In the course's
-     Workshop Settings, turn on "Hint Recorder", then host the lobby.
+  2. Compile the course from develop with +hint-recorder on the end of src/VERSION
+     (e.g. 2026.11.13-beta.01+hint-recorder): builds without it leave the Hint
+     Recorder out. It's on from the start, so host the lobby.
   3. Play checkpoints normally. Completing a checkpoint saves the path you took as
      its hint, starting from where you were last at rest in the checkpoint ring (or from
      arriving, if you carry momentum in), so setups like walljumps are included.

@@ -1,13 +1,17 @@
-# Settings
-globalvar settings_
-# Debug, Server Load, Lobby Stats and the Hint Recorder only exist in dev builds (a VERSION ending in -dev), so release builds don't spend elements on them
-macro DEV = strContains(VERSION, "-dev")
-macro isDebugOn = DEV and settings_[0]
-macro isServerLoadOn = DEV and settings_[3]
-macro isLobbyStatsOn = DEV and settings_[1]
-macro isHintRecorderOn = DEV and settings_[2]
-# A VERSION ending in +all-ctrls (e.g. 2026.11.02-beta.1-dev+all-ctrls) shows every Controls
-# line on screen at once, for checking their padding, with no Workshop Setting to wait on
+# Tags on the end of VERSION (e.g. 2026.11.13-beta.01+stats+load) compile in the dev-only
+# features, already on, so release builds and builds tagged for one feature don't spend elements
+# on the others. Any number of tags can go on, in any order:
+#   +inspector: the Workshop Inspector and its logs, and raw times in place of formatted ones
+#   +load (or +server-load): the host's Server Load HUD
+#   +stats: Lobby Stats
+#   +hint-recorder: the Hint Recorder (tools/hints.py)
+#   +all-ctrls: every Controls line on screen at once, for checking their padding
+macro isDebugOn = strContains(VERSION, "+inspector")
+macro isServerLoadOn = strContains(VERSION, "+load") or strContains(
+    VERSION, "+server-load"
+)
+macro isLobbyStatsOn = strContains(VERSION, "+stats")
+macro isHintRecorderOn = strContains(VERSION, "+hint-recorder")
 macro ALL_CONTROLS = strContains(VERSION, "+all-ctrls")
 
 # Leaderboard

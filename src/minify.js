@@ -2,7 +2,7 @@
 // while it reads a pasted script in. It only changes how the script is written, never an element:
 // no comments, indentation or rule names (but Source Code's), and variables and subroutines get the
 // shortest names.
-// Dev builds stay readable for the Workshop editor and Inspector.
+// Builds with a +tag on VERSION (declarations.opy) stay readable for the Workshop editor and Inspector.
 
 // One change to an element, in every build: OverPy gives __languageIndex__ (#!translateWithPlayerVar
 // in ballkour.opy) a starting value in an "Initialize player variables" rule, which only its own
@@ -23,8 +23,8 @@ if (sourceCodeRule) {
         content.slice(0, firstRule) + sourceCodeRule[0].slice(1) + "\n" + content.slice(firstRule);
 }
 
-// The version is in the description, as a dev version ends in -dev, before any +tag
-if (!/-dev(\+\S+)? \\n\\nLatest Code/.test(content)) {
+// The version is in the description, which a tagged version ends in +tag
+if (!/\+\S+ \\n\\nLatest Code/.test(content)) {
     var STRING_OR_NAME = /"[^"\\]*(?:\\.[^"\\]*)*"|[A-Za-z_][A-Za-z0-9_]*/g;
     var COMMENT = /^"[^"\\]*(?:\\.[^"\\]*)*"$/;
     var DECLARATION = /^\d+: (\S+)$/;

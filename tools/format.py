@@ -135,10 +135,14 @@ def check_compiled_output(changed):
         before, after = Path(tmp, "before"), Path(tmp, "after")
         for copy in (before, after):
             shutil.copytree(SRC, copy)
-            # Dev builds leave nothing out, so the dev-only code is checked too
+            # Tagged for every dev-only feature (declarations.opy), so their code is checked too
             version = copy / "VERSION"
             version.write_text(
-                re.sub(r'"([^"]*?)(-dev)?"', r'"\1-dev"', version.read_text())
+                re.sub(
+                    r'"([^"+]*)[^"]*"',
+                    r'"\1+inspector+load+stats+hint-recorder"',
+                    version.read_text(),
+                )
             )
         # The courses include their leaderboards from beside src/, which both copies share
         shutil.copytree(SRC.parent / "leaderboards", Path(tmp, "leaderboards"))
