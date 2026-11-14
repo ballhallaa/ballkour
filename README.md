@@ -206,6 +206,8 @@ Every course has a top 10 on [ballkour.com/leaderboards](https://ballkour.com/le
 
 To submit a run, sign in with Discord at [ballkour.com/submit](https://ballkour.com/submit) and send your time with a link to your video. It goes on the board straight away, and a new top-10 time goes up once a moderator checks the video.
 
+Every run is also posted in the runs channels on our [Discord](https://ballkour.com/discord), with a picture of what it did: its time and mistakes (or ground time), its course rating and rank, and the player's rating, rank, Top %, courses run, Top 10s, Podiums, and Records, for its kind of board and over every board. The picture is drawn by [run-picture.yml](.github/workflows/run-picture.yml) in the same look as the website.
+
 ## Features
 
 - **Checkpoint rules:** Some checkpoints block or utilize only Grapple, Shield Bounce, and/or Piledriver.

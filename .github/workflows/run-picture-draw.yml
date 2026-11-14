@@ -1,0 +1,86 @@
+# A run's picture for its post on Discord (and the DM to its player once a moderator checks it): run-picture.mjs draws
+# its stats in the website's look and swaps the picture in for the text. Started by run-picture.yml, which
+# ballkour.com's Worker starts on main (see "Run pictures" in cloudflare/worker.js there).
+name: Run picture (draw)
+
+on:
+  workflow_call:
+    inputs:
+      post:
+        description: "What to draw and the message to put it in (JSON, from ballkour.com's Worker)"
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  draw:
+    # Pinned, like the leaderboard bot: this Playwright version's browser setup doesn't know Ubuntu 26 yet
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    # One at a time for each message, the newest winning: a moderator's check while one is drawing starts another, for
+    # its new numbers
+    concurrency:
+      group: run-picture-${{ fromJSON(inputs.post).id }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: develop
+          sparse-checkout: tools/leaderboard-bot
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          package-manager-cache: false # the bot has no lockfile to cache by
+
+      # The same cache as the leaderboard bot's Chromium. The picture only has Latin letters and numbers, so it needs
+      # none of the bot's extra fonts.
+      - name: Restore Chromium
+        id: chromium
+        uses: actions/cache/restore@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-ubuntu-24.04-${{ hashFiles('tools/leaderboard-bot/package.json') }}
+
+      - name: Install
+        working-directory: tools/leaderboard-bot
+        run: |
+          # Keeps trying for up to 5 minutes, for npm's or Playwright's server being down
+          retry() {
+            until "$@"; do
+              if [ "$SECONDS" -ge 300 ]; then
+                echo "Still failing after 5 minutes, giving up"
+                return 1
+              fi
+              echo "Failed, trying again in 20 s"
+              sleep 20
+            done
+          }
+          retry npm install --no-audit --no-fund
+          retry npx playwright install chromium
+
+      - name: Save Chromium
+        if: steps.chromium.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ steps.chromium.outputs.cache-primary-key }}
+
+      # The details go in through the environment, never into the script itself
+      - name: Draw the picture and swap it in
+        working-directory: tools/leaderboard-bot
+        env:
+          POST: ${{ inputs.post }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+        run: node run-picture.mjs
+
+      - name: Keep the picture
+        if: always()
+        uses: actions/upload-artifact@v6
+        with:
+          name: run-picture
+          path: tools/leaderboard-bot/out/run-*.png
+          if-no-files-found: ignore
+          retention-days: 7
