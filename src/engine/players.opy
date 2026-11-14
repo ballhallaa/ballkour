@@ -107,7 +107,13 @@ rule "Joins":
 def showCpNameplate():
     @Name "Show Checkpoint On Nameplate"
 
-    eventPlayer.nameplate = _("{} | {}").format(eventPlayer, eventPlayer.runCurrentCp)
+    # Freemode keeps its tag through anything that moves the player between CPs
+    if eventPlayer.isInFreemode:
+        eventPlayer.nameplate = _("{} | FREEMODE").format(eventPlayer)
+    else:
+        eventPlayer.nameplate = _("{} | {}").format(
+            eventPlayer, eventPlayer.runCurrentCp
+        )
 
 
 rule "Leaves":

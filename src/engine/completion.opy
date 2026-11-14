@@ -116,7 +116,7 @@ rule "Final Checkpoint Reached":
     eventPlayer.isInFreemode = true
     # Practice Mode ends here (Next CP onto the last one), which is Freemode now
     eventPlayer.isInPracticeMode = false
-    eventPlayer.nameplate = _("{} | FREEMODE").format(eventPlayer)
+    showCpNameplate()
 
 
 def recordTopRun():

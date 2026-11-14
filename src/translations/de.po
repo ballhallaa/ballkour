@@ -4,15 +4,6 @@ msgstr ""
 "Language: de\n"
 "X-Generator: OverPy\n"
 
-# TODO: check if all occurrences have the same translation
-#. 3 occurrences:
-#.  - file completion.opy, rule "Final Checkpoint Reached"
-#.  - file controls.opy, rule "Subroutine freemodeInput"
-#.  - file spectator.opy, rule "Subroutine disableSpectator"
-#, hasMultipleOccurrencesNotification
-msgid "{0} | FREEMODE"
-msgstr "{0} | FREIER MODUS"
-
 #. file completion.opy, rule "Run Text"
 msgid "Congrats, @0!"
 msgstr "Glückwunsch, @0!"
@@ -300,6 +291,12 @@ msgid ""
 msgstr ""
 "Serverneustart:\n"
 "1 Min."
+
+# TODO: check if all occurrences have the same translation
+#. file players.opy, rule "Subroutine showCpNameplate"
+#, hasMultipleOccurrencesNotification
+msgid "{0} | FREEMODE"
+msgstr "{0} | FREIER MODUS"
 
 #. file players.opy, rule "Subroutine showCpNameplate"
 msgid "{0} | {1}"
