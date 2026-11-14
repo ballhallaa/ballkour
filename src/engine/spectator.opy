@@ -217,7 +217,8 @@ def disableSpectator():
     # So the player is first held on the checkpoint they land on, and Wrecking Ball spawns
     # there. The camera already shows it, and they're invisible (the swap keeps it, and it
     # hides them from their own camera too) and nameless, so nobody sees them move. Freemode
-    # leaves them where they are instead.
+    # leaves them where they are instead, unless the nearest walkable spot can't see their feet
+    # or head, which means they're inside the map, so they're dropped on that spot.
     if not eventPlayer.isInFreemode:
         if eventPlayer.faqPage == 0:
             eventPlayer.startCamera(
@@ -231,6 +232,18 @@ def disableSpectator():
         eventPlayer.nameplate = _("{}").format("")
         eventPlayer.startForcingPosition(cps[eventPlayer.spectating[4]][0], false)
         # The camera gets its own tick too, so the swap still happens alone
+        wait()
+    elif not (
+        isInLoS(
+            nearestWalkablePosition(eventPlayer.getPosition()) + vect(0, 1.5, 0),
+            eventPlayer.getPosition() + vect(0, 0.2, 0)
+        )
+        and isInLoS(
+            nearestWalkablePosition(eventPlayer.getPosition()) + vect(0, 1.5, 0),
+            eventPlayer.getPosition() + vect(0, 1.5, 0)
+        )
+    ):
+        eventPlayer.teleport(nearestWalkablePosition(eventPlayer.getPosition()))
         wait()
     swapToWreckingBall()
     # The rest is spread over two ticks instead of landing on one: the player first, then the
