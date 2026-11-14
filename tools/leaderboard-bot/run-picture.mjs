@@ -11,10 +11,10 @@
 // message is one that webhook sent, and channel can be left out.
 import fs from "node:fs";
 import path from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { api, sleep } from "./discord.mjs";
-import { runCardHtml, runCardAlt } from "./run-card.mjs";
+import { runCardHtml, runCardAlt, splitRunLine } from "./run-card.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const post = JSON.parse(process.env.POST || "null");
@@ -54,10 +54,11 @@ if ((e.color ?? null) !== (expect.color ?? null) || ((e.footer && e.footer.text)
   process.exit(0);
 }
 
-// The fonts, from @fontsource (as bot.mjs has them)
+// The fonts, from @fontsource (as bot.mjs has them), inside the page: it's made with setContent, so it's about:blank,
+// which can't load file:// addresses (they fell back to the runner's wider fonts, cutting the course's name short)
 const file = (pkg, name) => {
   const p = path.join(HERE, "node_modules", pkg, "files", name);
-  return fs.existsSync(p) ? pathToFileURL(p).href : "";
+  return fs.existsSync(p) ? `data:font/woff2;base64,${fs.readFileSync(p).toString("base64")}` : "";
 };
 const fonts = {
   "Barlow-400-normal": file("@fontsource/barlow", "barlow-latin-400-normal.woff2"),
@@ -89,6 +90,7 @@ try {
   const page = await browser.newPage({ viewport: { width: 1000, height: 1200 }, deviceScaleFactor: 2 });
   await page.setContent(runCardHtml({ picture: post.picture, fonts, logo }));
   await page.evaluate(() => document.fonts.ready);
+  await page.evaluate(splitRunLine);
   png = await page.locator(".card").screenshot({ omitBackground: true });
 } finally {
   await browser.close();
