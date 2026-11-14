@@ -31,7 +31,8 @@ function fontFaces(fonts) {
  * course: { name, flag, code, by, remaker, legacyCode } from courses.json, board: board number, date: "YYYY-MM-DD",
  * runs: [{ name, time, mistakes, date }] (up to 10, an assisted board's with ground instead of mistakes: see
  * groundText in boards.mjs), fresh: Set of the runs that are new,
- * people: Map of run → { name, avatar } from Discord, ratings: Map of run → its player's rating over every course,
+ * people: Map of run → { name, avatar } from Discord, ratings: Map of run → its player's rating over every course
+ * ({ rating, share, tier }: the rating, their actual Top % in it, and their tier, see topShare in ratings.mjs),
  * logo: data URI or "",
  * legacy: true for the board from before May 2026, whose times have no hundredths ("4:30.--"),
  * assisted: true for a course's assisted board (runs played in Assist Mode), whose ratings are the assisted rating
@@ -50,15 +51,20 @@ export function cardHtml({ course, board, date, runs, fresh, people, ratings = n
     const isNew = fresh.has(r);
     const who = people.get(r);
     const pfp = who && who.avatar ? `<img class="pfp" src="${who.avatar}" alt="">` : "";
+    const q = ratings.get(r);
     return `<li class="run${i < 3 ? " p" + (i + 1) : ""}${isNew ? " fresh" : ""}">` +
       `<span class="rank">${i + 1}</span>` +
-      `<span class="line"><span class="name">${esc(r.name)}</span>${isNew ? '<span class="tag">New</span>' : ""}</span>` +
+      // After the name: their Top % in the rating beside the date, gold when their tier (and role) is the Top 5% or
+      // better, as on the website, then New
+      `<span class="line"><span class="name">${esc(r.name)}</span>` +
+        (q ? `<span class="tag share${q.tier !== null && q.tier <= 5 ? " elite" : ""}">Top ${q.share}%</span>` : "") +
+        `${isNew ? '<span class="tag">New</span>' : ""}</span>` +
       `<span class="time">${BOLT}${timeHtml(r.time)}</span>` +
       `<span class="miss">${Number.isInteger(r.ground) ? GROUND + groundText(r.ground) : SKULL + r.mistakes}</span>` +
       (who ? `<span class="dc">${pfp}<span>${esc(who.name)}</span></span>` : "") +
       // Beside the date: the player's rating over every course, as on the website's Player ratings (no thousands
       // separator, like there: a rating only reaches 1000)
-      `<span class="date">${ratings.has(r) ? `<span class="pts">${STAR}${Math.round(ratings.get(r))}</span>` : ""}${esc(r.date || "")}</span>` +
+      `<span class="date">${q ? `<span class="pts">${STAR}${Math.round(q.rating)}</span>` : ""}${esc(r.date || "")}</span>` +
       `</li>`;
   };
   const slots = Array.from({ length: 10 }, (_, i) => runs[i] || null);
@@ -106,23 +112,24 @@ body { margin: 0; background: var(--void); }
 .logo img { position: relative; width: 100%; height: 100%; }
 .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 22px; }
 ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
-.run { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto 66px; grid-template-areas: "rank name time miss" "rank dc date date"; align-items: center; align-content: center; gap: 7px 12px;
+.run { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto 54px; grid-template-areas: "rank name time miss" "rank dc date date"; align-items: center; align-content: center; gap: 7px 12px;
   height: 74px; padding: 0 16px; border-radius: 11px; background: rgba(9,15,13,.93); border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
 .rank { grid-area: rank; font: 700 22px/1 var(--mono); color: var(--ink-3); }
-.line { grid-area: name; min-width: 0; display: flex; align-items: center; gap: 9px; }
-.name { min-width: 0; white-space: nowrap; overflow: hidden; font: 700 25px/1.1 var(--body), var(--cjk); letter-spacing: .03em; text-transform: uppercase; color: var(--ink); }
+.line { grid-area: name; min-width: 0; display: flex; align-items: center; gap: 7px; }
+.name { min-width: 0; white-space: nowrap; overflow: hidden; font: 700 24px/1.1 var(--body), var(--cjk); letter-spacing: .03em; text-transform: uppercase; color: var(--ink); }
 .date { grid-area: date; justify-self: end; display: inline-flex; align-items: center; gap: 14px; font: 400 13.5px/1 var(--mono); color: var(--ink-3); }
 .pts { display: inline-flex; align-items: center; gap: 5px; color: var(--ink-2); }
 .pts .i { width: 15px; height: 15px; color: var(--gold); }
 .time { grid-area: time; }
 .miss { grid-area: miss; }
 /* An assisted board's ground times ("1:05.20") need more room than mistakes */
-.card.assisted .run { grid-template-columns: 34px minmax(0, 1fr) auto 110px; }
-.time, .miss { display: inline-flex; align-items: center; justify-content: flex-end; gap: 7px; font: 700 23px/1 var(--mono); color: var(--ink); }
-.miss { font-size: 20px; color: var(--ink-2); }
-.i { width: 21px; height: 21px; flex: none; }
+.card.assisted .run { grid-template-columns: 34px minmax(0, 1fr) auto 92px; }
+/* A little smaller than the run pictures' numbers, so the name has room for its Top % tag */
+.time, .miss { display: inline-flex; align-items: center; justify-content: flex-end; gap: 5px; font: 700 19px/1 var(--mono); color: var(--ink); }
+.miss { font-size: 16px; color: var(--ink-2); }
+.i { width: 17px; height: 17px; flex: none; }
 .time .i { color: var(--volt); }
-.miss .i { width: 19px; height: 19px; color: var(--coral); }
+.miss .i { width: 15px; height: 15px; color: var(--coral); }
 .dc { grid-area: dc; min-width: 0; display: flex; align-items: center; gap: 7px; font: 600 16px/1.1 var(--body), var(--cjk); color: var(--discord); }
 .dc > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pfp { width: 22px; height: 22px; flex: none; border-radius: 50%; object-fit: cover; }
@@ -133,7 +140,9 @@ ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 .time .na { color: var(--ink-3); }
 .run.empty { opacity: .38; }
 .run.empty .name, .run.empty .time { color: var(--ink-3); }
-.tag { flex: none; padding: 3px 6px; border-radius: 5px; font: 700 11px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--volt); background: rgba(0,230,151,.12); border: 1px solid rgba(0,230,151,.4); }
+.tag { flex: none; padding: 3px 5px; border-radius: 5px; font: 700 10px/1 var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--volt); background: rgba(0,230,151,.12); border: 1px solid rgba(0,230,151,.4); }
+.tag.share { color: #33c6ff; background: rgba(51,198,255,.1); border-color: rgba(51,198,255,.34); }
+.tag.share.elite { color: var(--gold); background: rgba(255,213,79,.1); border-color: rgba(255,213,79,.34); }
 /* Course number on the left, the board's link in the middle (centered on the card), the note on the right.
    The labels match the lines under the title. A legacy board notes that videos weren't required for its runs; the
    note is kept short so it fits on one line in caps beside the longer /legacy link. An empty board invites the first time in volt instead, or, when the course is broken and no times can be set (no
@@ -168,8 +177,8 @@ ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 <script>
 // Names too long for their row shrink to fit instead of being cut off
 document.querySelectorAll(".name").forEach((el) => {
-  let size = 25;
-  while (el.scrollWidth > el.clientWidth && size > 16) el.style.fontSize = (size -= 0.5) + "px";
+  let size = 24;
+  while (el.scrollWidth > el.clientWidth && size > 14) el.style.fontSize = (size -= 0.5) + "px";
 });
 // A still frame of the site's warp field, bursting from behind the logo (or the top right corner)
 const cv = document.getElementById("warp"), card = cv.parentElement;

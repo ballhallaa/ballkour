@@ -32,7 +32,7 @@ import { chromium } from "playwright";
 import { cardHtml } from "./card.mjs";
 import { HERE, HISTORY, DATA_ROOT, readData, GUILD, COURSES, DISCORD_ID, ASSISTED, loadCourses, groundText } from "./boards.mjs";
 import { TOKEN, api } from "./discord.mjs";
-import { standings, rate, playerKey } from "./ratings.mjs";
+import { standings, rate, playerKey, topShare } from "./ratings.mjs";
 
 const OUT = path.join(HERE, "out");
 const DRY = !!process.env.DRY_RUN;
@@ -209,7 +209,9 @@ const kinds = LEGACY ? [] : [
   ...(BOARDS !== "unassisted" ? [{ assisted: true, key: ASSISTED, courses: loadCourses({ assisted: true }) }] : []),
 ];
 for (const kind of kinds) {
-  kind.ratingOf = new Map(rate(kind.courses).players.map((p) => [p.key, p.rating]));
+  // Each player's rating, and their actual Top % (share) and tier in it, for the tag after their name
+  const { players } = rate(kind.courses);
+  kind.ratingOf = new Map(players.map((p) => [p.key, { rating: p.rating, share: topShare(p.rank, players.length), tier: p.tier }]));
   const boards = new Map(kind.courses.map((c) => [c.n, c]));
   for (const course of COURSES) {
     const archived = (history[course.n] && Array.isArray(history[course.n][kind.key])) ? history[course.n][kind.key] : [];

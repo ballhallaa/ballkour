@@ -95,6 +95,11 @@ export function rate(courses) {
   return { counted, players: ranked(list) };
 }
 
+// Where a place puts a player among how many are rated: their actual Top %, which the boards' pictures show after
+// their names (#1 of 16 is the Top 6.3%, where their tier, and role, is Top 10%). It's rounded up to a tenth, so it
+// never reads better than it is. The website (topShare in index.html) works it out the same way.
+export const topShare = (rank, total) => Math.ceil((rank / total) * 1000 - 1e-9) / 10;
+
 // Rated players, best first (then whoever has run more courses, then by name), each with their place and tier.
 // Players with the same rating share the better place.
 function ranked(list) {
