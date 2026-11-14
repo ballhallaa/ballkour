@@ -878,8 +878,8 @@ def freemodeInput():
         eventPlayer.setSecondaryFireEnabled(true)
         eventPlayer.setAbility2Enabled(true)
         eventPlayer.allowButton(Button.CROUCH)
-        eventPlayer.nameplate = _("{} | FREEMODE").format(eventPlayer)
         eventPlayer.isInFreemode = true
+        showCpNameplate()
     else:
         eventPlayer.isLoading = true
         # Freemode can't clear CPs, and turning it off away from the CP puts the player back

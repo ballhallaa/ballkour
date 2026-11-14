@@ -279,12 +279,10 @@ def disableSpectator():
     eventPlayer.spectating[2] = false
     eventPlayer.spectating[3] = false
     loadCpData()
-    if eventPlayer.isInFreemode:
-        eventPlayer.nameplate = _("{} | FREEMODE").format(eventPlayer)
-    else:
+    if not eventPlayer.isInFreemode:
         setCpAbilities()
         cpResetPlayer()
-        showCpNameplate()
+    showCpNameplate()
     eventPlayer.isLoading = false
 
 
