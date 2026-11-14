@@ -24,7 +24,9 @@
 // The Global rating puts each player's unassisted and assisted ratings together (combine), with each assisted course
 // rating at half, and ranks and tiers the totals the same way. The Legacy rating stays out of it: its boards can't change any more.
 
-export const TIERS = [0.1, 1, 5, 10, 25, 50, 75, 90];
+// The tiers, best first: Top 0.1%, Top 1%, Top 5%, Top 10%, then every 10% from Top 20% to Top 90% (until November
+// 2026, it was Top 25%, Top 50%, Top 75%, and Top 90% after Top 10%). The website and the Worker have the same list.
+export const TIERS = [0.1, 1, 5, 10, 20, 30, 40, 50, 60, 70, 80, 90];
 // The Discord role for a tier: "Top 10%", or "Rated" for the bottom 10% (tier null), with its rating's suffix:
 // "Top 10% (Unassisted)", "Top 10% (Assisted)", "Rated (Legacy)", "Top 1% (Global)"
 export const UNASSISTED_SUFFIX = " (Unassisted)";
