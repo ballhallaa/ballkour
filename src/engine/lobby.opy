@@ -374,20 +374,21 @@ macro hudRightAimRow(player):
 
 
 # A button's text: its label, with arrows on either side while it's looked at, like the
-# leaderboard's row. Only its text changes, so nothing moves.
+# leaderboard's row. Only its text changes, so nothing moves. The label goes into one of two
+# stored templates (lobbyArrows) instead of being written out with and without the arrows, as
+# every copy of it costs elements.
 macro lobbyButton(label, isAimedAt):
-    (
-        "{}  {}  {}".format(
-            iconString(Icon.ARROW_RIGHT), label, iconString(Icon.ARROW_LEFT)
-        )
-        if isAimedAt
-        else label
-    )
+    lobbyArrows[isAimedAt].replace("@", label)
 
 
 rule "Load Buttons":
     # Checkpoint: Expand Data has unpacked cps by now, as its file is included first
     lobbyCam = cps[0][0] + vect(0, LOBBY_HEIGHT, 0)
+    # lobbyArrows[i]: [0]notAimedAt [1]aimedAt, for lobbyButton
+    lobbyArrows = [
+        "@",
+        "{}  @  {}".format(iconString(Icon.ARROW_RIGHT), iconString(Icon.ARROW_LEFT))
+    ]
     # The view from LOOK_ANGLE: ahead, up and to the right. Every look at the page measures
     # from them, so they're worked out once here instead of in each text.
     lobbyForward = directionFromAngles(lobbyAngle, LOOK_ANGLE)

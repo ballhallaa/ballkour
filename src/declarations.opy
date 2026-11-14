@@ -54,6 +54,7 @@ globalvar hintColors
 
 # Lobby
 globalvar lobbyCam
+globalvar lobbyArrows
 globalvar langPos
 globalvar langNames
 globalvar lobbyAngle
@@ -452,8 +453,10 @@ macro isFreePlay(player):
 
 
 # Every mistake also ends an attempt at the CP. Practice Mode's don't count toward the run,
-# which is paused.
-macro addMistake():
+# which is paused. A subroutine, as many rules count mistakes.
+def addMistake():
+    @Name "Add Mistake"
+
     eventPlayer.runMistakes += not eventPlayer.isInPracticeMode
     eventPlayer.cpAttempts[eventPlayer.runCurrentCp]++
     eventPlayer.cpMistakes[eventPlayer.runCurrentCp]++

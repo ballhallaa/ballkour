@@ -161,8 +161,11 @@ macro spectatorCamPos(target):
     )
 
 
-# The camera reevaluates its positions, so it keeps following the target without being restarted
-macro startSpectatorCamera():
+# The camera reevaluates its positions, so it keeps following the target without being restarted.
+# A subroutine, as its raycast costs many elements and it starts from several places.
+def startSpectatorCamera():
+    @Name "Start Spectator Camera"
+
     eventPlayer.startCamera(
         spectatorCamPos(eventPlayer.spectating[1]),
         eventPlayer.spectating[1].getEyePosition()
