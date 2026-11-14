@@ -51,6 +51,10 @@ msgid "<fgFF80C0FF>               Assisted Run</fg>"
 msgstr "<fgFF80C0FF>                Partie assistée</fg>"
 
 #. file completion.opy, rule "Run Text"
+msgid "<fgFFD200FF>       Top-10 </fg><fgFF80C0FF>Assisted</fg><fgFFD200FF> Time!</fg>"
+msgstr "<fgFFD200FF>      Temps </fg><fgFF80C0FF>assisté</fg><fgFFD200FF> du top 10 !</fg>"
+
+#. file completion.opy, rule "Run Text"
 msgid "Ground Time: @0"
 msgstr "Temps au sol : @0"
 

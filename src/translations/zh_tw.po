@@ -51,6 +51,10 @@ msgid "<fgFF80C0FF>               Assisted Run</fg>"
 msgstr "<fgFF80C0FF>    輔助模式成績</fg>"
 
 #. file completion.opy, rule "Run Text"
+msgid "<fgFFD200FF>       Top-10 </fg><fgFF80C0FF>Assisted</fg><fgFFD200FF> Time!</fg>"
+msgstr "<fgFF80C0FF>輔助</fg><fgFFD200FF>前10名成績！</fg>"
+
+#. file completion.opy, rule "Run Text"
 msgid "Ground Time: @0"
 msgstr "觸地時間：@0"
 

@@ -226,7 +226,10 @@ rule "Run Text":
         "{} {}".format(
             iconString(Icon.FIRE),
             _(completionHudText[2]).replace(
-                "@0", ("<fgFFFFFFFF>{}</fg>").format(timeToBeatFormatted)
+                "@0",
+                ("<fgFFFFFFFF>{}</fg>").format(
+                    timeToBeatFormatted[localPlayer.isRunAssisted]
+                )
             )
         ),
         HudPosition.TOP,
@@ -277,10 +280,14 @@ rule "Run Text":
         "<fgFFFFFFFF>Thanks for Playing!</fg>"
     )
     # Goes above completionHudText[4] too, for a run Assist Mode was on for, which goes on the
-    # assisted leaderboard, so its video says which board it's for. In Assist Mode's pink, and
-    # never with Top-10 Time!, as the time to beat is the regular leaderboard's.
+    # assisted leaderboard, so its video says which board it's for. In Assist Mode's pink.
     completionHudText[7] = _("<fgFF80C0FF>               Assisted Run</fg>")
-    # One text for the four endings, as texts are capped at 128 per server, HUD texts
+    # In its place for an assisted run that makes the assisted leaderboard's top 10, with
+    # Assisted in Assist Mode's pink
+    completionHudText[9] = _(
+        "<fgFFD200FF>       Top-10 </fg><fgFF80C0FF>Assisted</fg><fgFFD200FF> Time!</fg>"
+    )
+    # One text for the five endings, as texts are capped at 128 per server, HUD texts
     # included (Lobby: Load Buttons). Every line has its own color, so the text's is unseen.
     hudSubheader(
         getAllPlayers().filter(
@@ -291,11 +298,17 @@ rule "Run Text":
             _(completionHudText[6])
             if not localPlayer.isRunLegit
             else (
-                "{}\n{}".format(_(completionHudText[7]), _(completionHudText[4]))
+                (
+                    "{}\n{}".format(_(completionHudText[9]), _(completionHudText[4]))
+                    if timeToBeat[1] == 0 or localPlayer.runTime <= timeToBeat[1]
+                    else "{}\n{}".format(
+                        _(completionHudText[7]), _(completionHudText[4])
+                    )
+                )
                 if localPlayer.isRunAssisted
                 else (
                     "{}\n{}".format(_(completionHudText[5]), _(completionHudText[4]))
-                    if timeToBeat == 0 or localPlayer.runTime <= timeToBeat
+                    if timeToBeat[0] == 0 or localPlayer.runTime <= timeToBeat[0]
                     else _(completionHudText[4])
                 )
             )
