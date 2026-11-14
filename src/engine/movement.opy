@@ -73,13 +73,12 @@ rule "Grapple Use":
     elif not isFreePlay(eventPlayer):
         waitUntil(not eventPlayer.isFiringSecondaryFire(), Math.INFINITY)
         eventPlayer.setAbilityCooldown(Button.SECONDARY_FIRE, 0)
+    # Orb checkpoints allow any number of grapples once the first one has left the checkpoint
     if eventPlayer.cpData[5] != null and not isFreePlay(eventPlayer):
         if (
             distance(eventPlayer.getPosition(), eventPlayer.cpData[0])
-            > eventPlayer.cpData[1]
+            <= eventPlayer.cpData[1]
         ):
-            eventPlayer.setSecondaryFireEnabled(false)
-        else:
             eventPlayer.cpData[13] = false
         waitUntil(not eventPlayer.isFiringSecondaryFire(), Math.INFINITY)
         eventPlayer.setAbilityCooldown(Button.SECONDARY_FIRE, 0)

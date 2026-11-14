@@ -2,9 +2,10 @@
 #!rulePrefix "Orb Checkpoint"
 
 # A checkpoint with orbs (cpData[5]) has to be left with a grapple, after which the player may
-# roll along the ground and jump as long as they stay fast, until they have every orb. After
-# that, any landing but the next checkpoint is a Missed Checkpoint. Reaching the next checkpoint
-# without them all is a mistake too (Completion: Checkpoint (No Skipping)).
+# grapple again as often as they like, and roll along the ground and jump as long as they stay
+# fast, until they have every orb. After that, any landing but the next checkpoint is a Missed
+# Checkpoint. Reaching the next checkpoint without them all is a mistake too (Completion:
+# Checkpoint (No Skipping)).
 
 
 # The orbs not grabbed yet, and of those, the ones the ball is touching. The ball's centre is
@@ -71,6 +72,8 @@ rule "Too Slow":
     ) == true
     @Condition eventPlayer.cpData[5] != null
     @Condition eventPlayer.cpData[13] == true
+    # Not while a later grapple pulls the ball, like the first one
+    @Condition eventPlayer.cpData[12] == false
     # Only on the ground before the last orb: after it every landing is a mistake anyway, and a
     # jump up to an orb can slow down in the air
     @Condition hasAllOrbs(eventPlayer) == false
