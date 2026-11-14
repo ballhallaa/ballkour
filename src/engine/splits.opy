@@ -31,10 +31,22 @@ macro splitsHudVisibility(line):
     )
 
 
-# A runner's sideways speed in tenths of a m/s, for the speedometer
-macro speedTenths(runner):
+# The speed a player's speedometer shows, in tenths of a m/s: the viewed runner's sideways
+# speed, or in disconnected freecam, where no runner is viewed, the player's own flying speed
+macro speedTenths(player):
     round(
-        distance(vect(0, 0, 0), vect(runner.getVelocity().x, 0, runner.getVelocity().z))
+        (
+            player.getSpeed()
+            if player.spectating[3]
+            else distance(
+                vect(0, 0, 0),
+                vect(
+                    player.viewRunner.getVelocity().x,
+                    0,
+                    player.viewRunner.getVelocity().z
+                )
+            )
+        )
         * 10
     )
 
@@ -183,7 +195,8 @@ rule "Load HUD":
     # Speed sits under Pace at the same size, and stays on wherever the course HUD shows,
     # past the last CP too, as it can't be turned off on the HUD page. It's the viewed
     # runner's sideways speed, so falling doesn't count, to a tenth of a m/s. In
-    # disconnected freecam the CP above ends in 1 blank line, so it brings the 2nd.
+    # disconnected freecam it's the player's own speed, up and down too, as there's no
+    # gravity to leave out, and the CP above ends in 1 blank line, so it brings the 2nd.
     splitsHudText[5] = _("Speed: <fgFFFFFFFF>@0 m/s</fg>")
     hudSubtext(
         getAllPlayers().filter(
@@ -195,8 +208,7 @@ rule "Load HUD":
             _(splitsHudText[5]).replace(
                 "@0",
                 "{}.{}".format(
-                    floor(speedTenths(localPlayer.viewRunner) / 10),
-                    speedTenths(localPlayer.viewRunner) % 10
+                    floor(speedTenths(localPlayer) / 10), speedTenths(localPlayer) % 10
                 )
             )
         ),

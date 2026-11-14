@@ -11,11 +11,11 @@
 // does the Global rating, the unassisted and assisted ratings put together (see combine() in ratings.mjs): Top 0.1%
 // (Global) to Top 90% (Global), Rated (Global), and Unrated (Global).
 //
-// It also gives out Top 10 Run to anyone with a run on a course's top 10 right now, unassisted or assisted, and Former
-// Top 10 Run once none of their runs is on one any more, and Top 10 Rating (Unassisted) to the unassisted rating's 10 best players, and Former Top 10 Rating
-// (Unassisted) once they drop out of them (see "The Top 10 roles" below), the same with Top 10 Rating (Assisted) and
-// Former Top 10 Rating (Assisted) for the assisted rating and Top 10 Rating (Global) and Former Top 10 Rating (Global)
-// for the Global one, and Legacy Top 10 Rating to the Legacy rating's 10 best players (see "Legacy Top 10 Rating"
+// It also gives out Top-10 Run to anyone with a run on a course's top 10 right now, unassisted or assisted, and Former
+// Top-10 Run once none of their runs is on one any more, and Top-10 Rating (Unassisted) to the unassisted rating's 10 best players, and Former Top-10 Rating
+// (Unassisted) once they drop out of them (see "The Top-10 roles" below), the same with Top-10 Rating (Assisted) and
+// Former Top-10 Rating (Assisted) for the assisted rating and Top-10 Rating (Global) and Former Top-10 Rating (Global)
+// for the Global one, and Legacy Top-10 Rating to the Legacy rating's 10 best players (see "Legacy Top-10 Rating"
 // below). And the ratings heading, the empty role that heads the rating roles on a member's profile, to everyone with a
 // rating role, Unrated (Unassisted) and Unrated (Assisted) included, which is every member (see "The ratings heading"
 // below). And the badges heading, the empty role that heads the badges, to everyone with a Top 10 role or another
@@ -26,14 +26,14 @@
 //   DISCORD_BOT_TOKEN  the bot's token. Without it, the ratings are only printed.
 //   DRY_RUN=1          print what would change, but don't create or give out any roles
 //   RESET_TOP10=1      take every Top 10 role from everyone who shouldn't have it, given by hand or not. Without it,
-//                      anyone who had Top 10 Rating keeps Former Top 10 Rating, and Legacy Top 10 Rating is never
-//                      taken away. For once, after the Top 10 roles went from runs on a top 10 to places in a rating
+//                      anyone who had Top-10 Rating keeps Former Top-10 Rating, and Legacy Top-10 Rating is never
+//                      taken away. For once, after the Top-10 roles went from runs on a top 10 to places in a rating
 //                      (November 2026)
 //
-// The rating roles and Top 10 Rating (Global) are found by name, so keep the words of their names as they are. Emojis
-// or symbols around them are fine ("🥇 Top 10%", "🌐 Top 10 Rating (Global)"), and so are their color and place in
-// the list. Any that are missing are made, with no permissions. Top 10 Run and Former Top 10 Run, the unassisted and
-// assisted Top 10 Rating roles, Former Top 10 Rating (Global) and Legacy Top 10 Rating are found by their IDs in
+// The rating roles and Top-10 Rating (Global) are found by name, so keep the words of their names as they are. Emojis
+// or symbols around them are fine ("🥇 Top 10%", "🌐 Top-10 Rating (Global)"), and so are their color and place in
+// the list. Any that are missing are made, with no permissions. Top-10 Run and Former Top-10 Run, the unassisted and
+// assisted Top-10 Rating roles, Former Top-10 Rating (Global) and Legacy Top-10 Rating are found by their IDs in
 // courses.json instead, and so are the ratings
 // heading (ratingsHeading), the badges heading (badgesHeading), and the other badges (badges). The bot needs Manage
 // Roles, its own role has to be above the rating roles and the badges heading in Server Settings → Roles, and it needs
@@ -82,9 +82,12 @@ const existing = await api("GET", `/guilds/${GUILD}/roles`);
 // A role's name without emojis or symbols around it: "🥇 Top 10%" is the Top 10% role. A name is compared after the
 // same is done to it, which also drops the closing ")" of "(Assisted)" from both.
 const bare = (s) => s.replace(/^[^\p{L}\p{N}]+|(?<=%|[\p{L}\p{N}])[^\p{L}\p{N}%]+$/gu, "");
-// The ID of the role with this name, which is made if there's none
+// The ID of the role with this name, which is made if there's none. A hyphen counts as a space, so a role renamed
+// from "Top 10 Rating (Global)" to "Top-10 Rating (Global)" (November 2026) is found by either name, and the bot and
+// the server can change over in any order.
+const sameName = (a, b) => bare(a).replace(/-/g, " ") === bare(b).replace(/-/g, " ");
 async function roleNamed(name) {
-  const found = existing.find((r) => bare(r.name) === bare(name));
+  const found = existing.find((r) => sameName(r.name, name));
   if (found) return found.id;
   if (DRY) { console.log(`Would make the ${name} role`); return `new ${name}`; }
   try {
@@ -113,25 +116,25 @@ const roleLabel = (set, role) => label(set.tierOfRole.get(role), set.suffix);
 const nameOf = new Map();
 for (const { players } of ratings) for (const p of players) if (p.discord && !nameOf.has(p.discord)) nameOf.set(p.discord, p.name);
 
-/* The Top 10 roles: Top 10 Rating for a rating's 10 best players right now (and anyone tied with #10), and Former Top
-   10 Rating for who has been in them (see everTop10 in ratings.mjs, worked out again from the runs each time). The
-   unassisted and assisted ones, and Former Top 10 Rating (Global), are found by their IDs in courses.json (or else by
-   name), and Top 10 Rating (Global) by name, like the rating roles. */
-// Each Former role is named "Former " and its pair's name: Former Top 10 Rating (Assisted)
-const TOP10 = "Top 10 Rating";
+/* The Top-10 roles: Top-10 Rating for a rating's 10 best players right now (and anyone tied with #10), and Former
+   Top-10 Rating for who has been in them (see everTop10 in ratings.mjs, worked out again from the runs each time). The
+   unassisted and assisted ones, and Former Top-10 Rating (Global), are found by their IDs in courses.json (or else by
+   name), and Top-10 Rating (Global) by name, like the rating roles. */
+// Each Former role is named "Former " and its pair's name: Former Top-10 Rating (Assisted)
+const TOP10 = "Top-10 Rating";
 const top10Of = (set) => new Set(set.players.filter((p) => p.discord && p.rank <= 10).map((p) => p.discord));
 const top10Sets = [
   { name: TOP10 + UNASSISTED_SUFFIX, top: ROLES.top10, former: ROLES.formerTop10, now: () => top10Of(ratings[0]), was: () => everTop10([courses]) },
   { name: TOP10 + ASSISTED_SUFFIX, top: ROLES.top10Assisted, former: ROLES.formerTop10Assisted, now: () => top10Of(ratings[1]), was: () => everTop10([assistedCourses]) },
   { name: TOP10 + GLOBAL_SUFFIX, top: "", former: ROLES.formerTop10Global, now: () => top10Of(ratings[3]), was: () => everTop10([courses, assistedCourses]) },
 ];
-/* Top 10 Run: who has a run on a course's top 10 right now, unassisted or assisted, broken courses too, and Former Top
-   10 Run: who has been on a posted board (history.json), and isn't on a top 10 now. Runs taken off for good (runs.json's
+/* Top-10 Run: who has a run on a course's top 10 right now, unassisted or assisted, broken courses too, and Former
+   Top-10 Run: who has been on a posted board (history.json), and isn't on a top 10 now. Runs taken off for good (runs.json's
    "removed") count for neither. Both are found by their IDs in courses.json (top10Run and formerTop10Run). */
 if (ROLES.top10Run && ROLES.formerTop10Run) {
   const both = [...courses, ...assistedCourses];
   top10Sets.unshift({
-    name: "Top 10 Run",
+    name: "Top-10 Run",
     top: ROLES.top10Run,
     former: ROLES.formerTop10Run,
     now: () => new Set(both.flatMap((c) => standings(c).top).map((r) => r.discord).filter(Boolean)),
@@ -145,7 +148,7 @@ for (const set of top10Sets) {
   set.was = set.was();
 }
 
-/* Legacy Top 10 Rating: the Legacy rating's 10 best players (and anyone tied with #10), from the legacy boards
+/* Legacy Top-10 Rating: the Legacy rating's 10 best players (and anyone tied with #10), from the legacy boards
    (history.json's "legacy", from before May 2026). Only players with a Discord ID count, and most legacy runs have none
    until their player claims them on ballkour.com and a moderator links them. */
 const onLegacyTop10 = top10Of(ratings[2]);
@@ -235,8 +238,8 @@ for (const m of members) {
 }
 // Each member's roles as they are once a change is made (or would be, on a dry run), for the badges heading after them
 const change = (m, method, role) => { m.roles = method === "PUT" ? [...m.roles, role] : m.roles.filter((r) => r !== role); };
-/* Top 10 Rating for a place in a rating's top 10 now, Former Top 10 Rating once they drop out, and the same with Top 10
-   Run and Former Top 10 Run for a run on a top 10. Former is only ever taken away from someone back in the top 10, so
+/* Top-10 Rating for a place in a rating's top 10 now, Former Top-10 Rating once they drop out, and the same with Top-10
+   Run and Former Top-10 Run for a run on a top 10. Former is only ever taken away from someone back in the top 10, so
    one given by hand stays, and anyone who had the Top 10 role gets it (unless RESET_TOP10 is set: then it's only for
    who has been in the top 10, and taken from everyone else). */
 for (const set of top10Sets) {
@@ -267,7 +270,7 @@ for (const set of top10Sets) {
     }
   }
 }
-/* Legacy Top 10 Rating for a place in the Legacy rating's top 10. It's only ever given, never taken away, so one given
+/* Legacy Top-10 Rating for a place in the Legacy rating's top 10. It's only ever given, never taken away, so one given
    by hand stays (and a link undone by hand means taking it away by hand too), unless RESET_TOP10 is set: then it's
    taken from everyone outside the top 10. */
 if (ROLES.legacyTop10) {
@@ -292,8 +295,8 @@ if (ROLES.legacyTop10) {
   }
 }
 /* The badges heading: an empty role whose name heads the badges on a member's profile (badgesHeading in courses.json).
-   Everyone with a badge has it, and nobody else. The badges are the Top 10 roles (Top 10 Run or Former Top 10 Run, Top
-   10 Rating or Former Top 10 Rating, unassisted, assisted or global, and Legacy Top 10 Rating), as they are once this
+   Everyone with a badge has it, and nobody else. The badges are the Top-10 roles (Top-10 Run or Former Top-10 Run,
+   Top-10 Rating or Former Top-10 Rating, unassisted, assisted or global, and Legacy Top-10 Rating), as they are once this
    run is done, and the other
    roles listed in courses.json's badges (Helper, Bug Hunter, and the rest).
    Someone who gets or loses one of those others gets or loses the heading on the next run (after a board is posted,

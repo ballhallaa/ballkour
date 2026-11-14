@@ -204,14 +204,14 @@ PQZDY
 
 Every course has a top 10 on [ballkour.com/leaderboards](https://ballkour.com/leaderboards), and the [Player ratings](https://ballkour.com/leaderboards/ratings) rank everyone over every course.
 
-To submit a run, sign in with Discord at [ballkour.com/submit](https://ballkour.com/submit) and send your time with a link to your video. It goes on the board straight away, and a new top 10 time goes up once a moderator checks the video.
+To submit a run, sign in with Discord at [ballkour.com/submit](https://ballkour.com/submit) and send your time with a link to your video. It goes on the board straight away, and a new top-10 time goes up once a moderator checks the video.
 
 ## Features
 
 - **Checkpoint rules:** Some checkpoints block or utilize only Grapple, Shield Bounce, and/or Piledriver.
 - **Skip, go back, freemode:** Practice any checkpoint, or roam the map with the clock paused.
 - **Quality of life:** A cleaner HUD with easier menu controls. Hold to restart a checkpoint or your whole run, pause anytime and resume later, and get a bhop of grace on every checkpoint.
-- **Lobby leaderboard:** On the Ballkour remakes, the top 10 times hang in the lobby and the finish screen shows the time to beat.
+- **Lobby leaderboard:** On the Ballkour remakes, the top-10 times hang in the lobby and the finish screen shows the time to beat.
 
 ### Beta
 
