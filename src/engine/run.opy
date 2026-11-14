@@ -73,7 +73,9 @@ macro scorecardKey(player):
 # time, with GROUND_MARK. Padded like the scorecard's columns, but for times of 7+
 # characters, and the score's column by its length, as a digit is about 2 spaces and a × too:
 # 9 spaces wide, or 14 while topWide, for ground times, which take up to 13 (1:05.20), as :
-# is about 2 spaces and . 1. GROUND_MARK takes 3 of them.
+# is about 2 spaces and . 1. GROUND_MARK takes 3 of them. The All-Time Top 3 (Assisted)'s
+# -:--.-- placeholder, much narrower than its length says, as a - is about 1 space, gets the
+# 5-space gap the other columns have instead.
 macro topRunRow(
     topText, topRank, topName, topScore, topGround, topTime, topMarked, topWide
 ):
@@ -86,11 +88,17 @@ macro topRunRow(
         "{}{}".format(topScore, GROUND_MARK) if topGround else topScore,
         "              ".substring(
             0,
-            max(
-                1,
-                (14 if topWide else 9)
-                - [0, 2, 4, 6, 7, 9, 0, 13, 15][min(strLen("{}".format(topScore)), 8)]
-                - (3 if topGround else 0)
+            (
+                5
+                if topScore == "-:--.--"
+                else max(
+                    1,
+                    (14 if topWide else 9)
+                    - [0, 2, 4, 6, 7, 9, 0, 13, 15][
+                        min(strLen("{}".format(topScore)), 8)
+                    ]
+                    - (3 if topGround else 0)
+                )
             )
         ),
         topName,
