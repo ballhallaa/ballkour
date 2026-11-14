@@ -17,13 +17,26 @@ function fontFaces(fonts) {
 
 /**
  * picture: from the Worker (runBlocks' picture() in cloudflare/worker.js on ballkour.com):
- *   { sections: [{ heading, rows: [{ label, value, from?, chip?: { text, tone }, note? }] }], tone }
+ *   { sections: [{ heading, rows: [{ label, value, from?, chip?: { text, tone }, note? }] }], tone,
+ *     run?: { name, course, assisted, date }, status?: { text, tone } }
+ * run: whose run it is, on which course, and when, under the wordmark; status: where a top-10 run stands with the
+ * moderators, at its right ("held", "approved" or "down").
  * tone is "held" (waiting for a check: yellow), "down" (turned down: red), or "up"/"approved" (green), as the post's
  * colour. A chip's tone is "up" (mint), "down" (coral), "new" (blue), or "same" (grey ▲ 0).
  * columns: how many sections side by side (the first two, then the next two under them, …).
  * width: the card's width in CSS pixels (the picture is twice that, at deviceScaleFactor 2).
+ * logo: the logo as a data URI (as bot.mjs gets it), or "" for the wordmark alone.
  */
-export function runCardHtml({ picture, fonts, columns = 2, width = 640 }) {
+// The line with whose run it is (see runCardHtml)
+function runLine({ run, status }) {
+  if (!run && !status) return "";
+  const dot = '<span class="dot">·</span>';
+  const parts = run ? [`<span class="who">${esc(run.name)}</span>`, `<span class="course">${esc(run.course)}</span>`,
+    run.assisted && '<span class="mode">Assisted</span>', run.date && `<span>${esc(run.date)}</span>`].filter(Boolean) : [];
+  return `<div class="runline"><div class="runinfo">${parts.join(dot).replace(`${dot}<span class="mode">`, '<span class="mode">')}</div>` +
+    `${status ? `<span class="status ${esc(status.tone)}">${esc(status.text)}</span>` : ""}</div>`;
+}
+export function runCardHtml({ picture, fonts, logo = "", columns = 2, width = 680 }) {
   const chip = (c) => (c ? `<span class="chip ${esc(c.tone)}">${esc(c.text)}</span>` : "<span></span>");
   const row = (r) => `<div class="row"><span class="label">${esc(r.label)}</span>` +
     `<span class="value">${r.from !== undefined ? `<span class="was">${esc(r.from)} →</span> ` : ""}${esc(r.value)}</span>${chip(r.chip)}` +
@@ -64,15 +77,46 @@ h2 { margin: 0; padding: 11px 0 6px; font: 500 15px/1.3 var(--body); color: var(
 .chip.down { color: var(--coral); background: rgba(255, 106, 79, .12); }
 .chip.new { color: var(--arc); background: rgba(51, 198, 255, .12); }
 .note { grid-column: 1 / -1; font: 400 13px/1.4 var(--body); color: var(--ink-2); }
+/* Across the top: the logo and the wordmark, as on the website's home page (.wordmark in index.html there): Exo 2,
+   BALL in white on an orange shadow, KOUR in the site's green on a dark green one, like the banner */
+.brand { grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; padding: 4px 4px 2px; }
+.logo { position: relative; width: 54px; height: 54px; flex: none; }
+.logo::before { content: ""; position: absolute; inset: -10%; border-radius: 50%; background: conic-gradient(#ff4b3e, #ff9a2e, #ffd23f, #00e697, #33c6ff, #5a6bff, #a54bd8, #ff4b3e); filter: blur(8px); opacity: .45; }
+.logo img { position: relative; width: 100%; height: 100%; }
+.word { padding-right: .08em; font: italic 900 32px/.9 "Exo 2", "Barlow Condensed", sans-serif; text-transform: uppercase; color: #fff;
+  text-shadow: .035em .035em 0 #ff9a2e, 0 0 .45em rgba(0, 230, 151, .3); }
+.word b { font-weight: inherit; color: var(--volt); text-shadow: .035em .035em 0 #075c3e, 0 0 .45em rgba(0, 230, 151, .35); }
+/* Under it, the banner's line, in its spaced capitals, and at the right, its slanted ballkour.com tag */
+.names { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+.tagline { font: 600 10.5px/1 var(--body); letter-spacing: .2em; text-transform: uppercase; color: var(--ink-2); white-space: nowrap; }
+.site { margin-left: auto; margin-right: 6px; padding: 7px 14px 7px 12px; background: var(--volt); transform: skewX(-12deg); box-shadow: 3px 3px 0 #ff9a2e; border-radius: 2px; }
+.site span { display: inline-block; transform: skewX(12deg); font: 700 15px/1 var(--body); color: #001a10; white-space: nowrap; }
+/* The run: the player, the course, Assisted for its assisted board, and the day, with its status at the right */
+.runline { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; padding: 2px 4px 0; font: 500 14px/1.3 var(--body); color: var(--ink-2); white-space: nowrap; }
+/* Only the course's name gives way (…) when the line is too long, so the player, the day, and the status always show */
+.runinfo { display: flex; align-items: center; gap: 9px; min-width: 0; }
+.runinfo .course { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.runinfo > :not(.course) { flex: none; }
+.runline .who { font-weight: 700; color: var(--ink); }
+.runline .dot { color: var(--ink-3); }
+.mode { padding: 3px 6px; border-radius: 5px; font: 600 10.5px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: #ff80c0; background: rgba(255, 128, 192, .12); border: 1px solid rgba(255, 128, 192, .5); }
+.status { flex: none; margin-left: auto; padding: 5px 9px; border-radius: 6px; font: 600 13px/1 var(--body); }
+.status.held { color: var(--gold); background: rgba(255, 213, 79, .12); border: 1px solid rgba(255, 213, 79, .45); }
+.status.approved { color: var(--volt); background: rgba(0, 230, 151, .12); border: 1px solid rgba(0, 230, 151, .45); }
+.status.down { color: var(--coral); background: rgba(255, 106, 79, .12); border: 1px solid rgba(255, 106, 79, .45); }
 .chip.same { color: var(--ink-3); background: rgba(255, 255, 255, .06); }
 </style></head><body>
-<div class="card ${esc(picture.tone || "")}">${picture.sections.map(section).join("")}</div>
+<div class="card ${esc(picture.tone || "")}"><div class="brand">${logo ? `<div class="logo"><img src="${esc(logo)}" alt=""></div>` : ""}<div class="names"><span class="word">BALL<b>KOUR</b></span>` +
+    `<span class="tagline">Wrecking Ball parkour courses for Overwatch</span></div><span class="site"><span>» ballkour.com</span></span></div>` +
+    `${runLine(picture)}${picture.sections.map(section).join("")}</div>
 </body></html>`;
 }
 
 // What the picture says, for screen readers (Discord's image description, at most 1,024 characters)
 export function runCardAlt(picture) {
-  const text = picture.sections.map((s) => `${s.heading}: ` + s.rows.map((r) =>
+  const { run, status } = picture;
+  const head = run ? `${run.name} on ${run.course}${run.assisted ? " (assisted)" : ""}${run.date ? `, ${run.date}` : ""}${status ? `, ${status.text.toLowerCase()}` : ""}. ` : "";
+  const text = head + picture.sections.map((s) => `${s.heading}: ` + s.rows.map((r) =>
     `${r.label} ${r.from !== undefined ? `${r.from} to ` : ""}${r.value}${r.chip && r.chip.tone !== "same" ? ` (${r.chip.text})` : ""}${r.note ? `, ${r.note}` : ""}`).join(", ")).join(". ");
   return text.length > 1024 ? text.slice(0, 1021) + "…" : text;
 }

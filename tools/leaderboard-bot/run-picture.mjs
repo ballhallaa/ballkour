@@ -63,15 +63,31 @@ const fonts = {
   "Barlow-400-normal": file("@fontsource/barlow", "barlow-latin-400-normal.woff2"),
   "Barlow-500-normal": file("@fontsource/barlow", "barlow-latin-500-normal.woff2"),
   "Barlow-600-normal": file("@fontsource/barlow", "barlow-latin-600-normal.woff2"),
+  "Barlow-700-normal": file("@fontsource/barlow", "barlow-latin-700-normal.woff2"),
   "JetBrains Mono-500-normal": file("@fontsource/jetbrains-mono", "jetbrains-mono-latin-500-normal.woff2"),
   "JetBrains Mono-600-normal": file("@fontsource/jetbrains-mono", "jetbrains-mono-latin-600-normal.woff2"),
 };
+
+// The logo, from the website (as bot.mjs gets it); without it, the picture has the wordmark alone
+async function dataUri(url) {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return "";
+    return `data:${res.headers.get("content-type") || "image/png"};base64,${Buffer.from(await res.arrayBuffer()).toString("base64")}`;
+  } catch {
+    return "";
+  }
+}
+const logo = await dataUri("https://ballkour.com/assets/logo.webp");
+// And the wordmark's font, Exo 2: the website's own copy, so it's the same as the home page's wordmark
+const exo = await dataUri("https://ballkour.com/assets/fonts/exo-2-latin-900-italic.woff2");
+if (exo) fonts["Exo 2-900-italic"] = exo;
 
 const browser = await chromium.launch();
 let png;
 try {
   const page = await browser.newPage({ viewport: { width: 1000, height: 1200 }, deviceScaleFactor: 2 });
-  await page.setContent(runCardHtml({ picture: post.picture, fonts }));
+  await page.setContent(runCardHtml({ picture: post.picture, fonts, logo }));
   await page.evaluate(() => document.fonts.ready);
   png = await page.locator(".card").screenshot({ omitBackground: true });
 } finally {

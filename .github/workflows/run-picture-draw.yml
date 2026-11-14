@@ -35,8 +35,46 @@ jobs:
           node-version: 22
           package-manager-cache: false # the bot has no lockfile to cache by
 
-      # The same cache as the leaderboard bot's Chromium. The picture only has Latin letters and numbers, so it needs
-      # none of the bot's extra fonts.
+      # The player's name and the course's flag, under the wordmark, can be Chinese or Japanese, and the flag is an emoji:
+      # the same fonts as the leaderboard bot's pictures, from its cache (copied from leaderboard-bot.yml: keep the two
+      # alike)
+      # The fonts the fonts-noto-cjk and fonts-noto-color-emoji packages install, downloaded from Noto's own releases
+      # and kept in the cache, so the runner's Ubuntu mirror being down can't stop the boards. Saved to the cache as soon
+      # as they're downloaded, even if the run then fails.
+      - name: Restore the fonts for Chinese/Japanese names and flags
+        id: fonts
+        uses: actions/cache/restore@v6
+        with:
+          path: ~/.local/share/fonts/noto
+          key: fonts-noto-cjk-Sans2.004-emoji-v2.051
+
+      - name: Download the fonts for Chinese/Japanese names and flags
+        if: steps.fonts.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/.local/share/fonts/noto
+          cd ~/.local/share/fonts/noto
+          # Keeps trying for up to 5 minutes, through GitHub hiccups too
+          get() { curl -fsSL --connect-timeout 10 --max-time 120 --retry 30 --retry-all-errors --retry-delay 10 --retry-max-time 300 -O "$1"; }
+          get https://github.com/notofonts/noto-cjk/raw/Sans2.004/Sans/OTC/NotoSansCJK-Regular.ttc
+          get https://github.com/notofonts/noto-cjk/raw/Sans2.004/Sans/OTC/NotoSansCJK-Bold.ttc
+          get https://github.com/googlefonts/noto-emoji/raw/v2.051/fonts/NotoColorEmoji.ttf
+          sha256sum -c <<'EOF'
+          b76b0433203017ca80401b2ee0dd69350349871c4b19d504c34dbdd80541690a  NotoSansCJK-Regular.ttc
+          faa5f3656a78b2e2d450d27fe8382c778bc2b6bb5ea29c986664a6a435056ceb  NotoSansCJK-Bold.ttc
+          72a635cb3d2f3524c51620cdde406b217204e8a6a06c6a096ff8ed4b5fd6e27b  NotoColorEmoji.ttf
+          EOF
+
+      - name: Save the fonts for Chinese/Japanese names and flags
+        if: steps.fonts.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: ~/.local/share/fonts/noto
+          key: ${{ steps.fonts.outputs.cache-primary-key }}
+
+      - name: Install the fonts
+        run: fc-cache -f && fc-list | grep -E "NotoSansCJK-(Regular|Bold)|NotoColorEmoji" | sort
+
+      # The same cache as the leaderboard bot's Chromium
       - name: Restore Chromium
         id: chromium
         uses: actions/cache/restore@v6
