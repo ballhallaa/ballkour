@@ -138,6 +138,10 @@ rule "Shield Bounce Use":
     eventPlayer.setAbilityCooldown(Button.ABILITY_2, 0)
     if isFreePlay(eventPlayer):
         eventPlayer.setAbility2Enabled(true)
+        # Holding the button bounces again every 0.5s. Releasing aborts the wait, so taps
+        # still bounce right away
+        wait(0.5, Wait.ABORT_WHEN_FALSE)
+        loop()
     elif eventPlayer.cpData[3] and not eventPlayer.cpData[14]:
         eventPlayer.cpData[14] = true
         eventPlayer.setAbility2Enabled(false)
