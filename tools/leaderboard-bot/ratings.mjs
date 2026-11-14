@@ -134,8 +134,8 @@ export function combine([unassisted, assisted]) {
 // Everyone (their Discord IDs) who has been in a rating's top 10 at some point: the rating as it stood at the end of
 // each day with a run, from the runs dated up to then (with today's courses and removed runs). With one set of courses,
 // it's that set's rating (the unassisted or the assisted one), and with two, the Global rating (see combine).
-// roles.mjs gives Former Top 10 Rating by it, so it isn't lost to someone who leaves the server and comes back, or
-// whose Top 10 Rating was taken away by hand.
+// roles.mjs gives Former Top-10 Rating by it, so it isn't lost to someone who leaves the server and comes back, or
+// whose Top-10 Rating was taken away by hand.
 // sets: [courses], or [unassisted, assisted] for the Global rating, each as loadCourses() gives them
 export function everTop10(sets) {
   const upTo = (day) => (r) => (r.date || "") <= day;
