@@ -1,0 +1,23 @@
+# ballkour.com's Worker starts this for each run post (and checked-run DM) it sends on Discord (startPicture in
+# cloudflare/worker.js there), through workflow_dispatch with the GitHub App. That only reaches workflows on the default
+# branch, main, so this lives there too, and draws with run-picture-draw.yml from develop.
+name: Run picture
+run-name: Run picture for message ${{ fromJSON(inputs.post).id }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      post:
+        description: "What to draw and the message to put it in (JSON, from ballkour.com's Worker)"
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  draw:
+    uses: ballhallaa/ballkour/.github/workflows/run-picture-draw.yml@develop
+    with:
+      post: ${{ inputs.post }}
+    secrets: inherit
