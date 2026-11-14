@@ -15,13 +15,13 @@
 # With boards, it only posts the unassisted boards, or only the assisted ones:
 #   gh workflow run leaderboard-bot.yml --ref develop -f dry_run=false -f course=all -f no_congrats=true -f boards=unassisted
 # After posting, it gives every rated player their rating role on Discord, Top 0.1% (Unassisted) … Top 90% (Unassisted)
-# or Rated (Unassisted), the same with (Assisted) for the assisted rating and (Legacy) for the Legacy rating, Top 10 Run
-# and Former Top 10 Run, Top 10 Rating and Former Top 10 Rating (Unassisted, Assisted and Global), Legacy Top 10
+# or Rated (Unassisted), the same with (Assisted) for the assisted rating and (Legacy) for the Legacy rating, Top-10 Run
+# and Former Top-10 Run, Top-10 Rating and Former Top-10 Rating (Unassisted, Assisted and Global), Legacy Top-10
 # Rating, and the ratings heading over them (roles.mjs). It also runs once a day, from
 # .github/workflows/leaderboard-daily.yml on main: GitHub only runs scheduled workflows from the default branch, so a
 # schedule here would never start.
-# With reset_top10, the Top 10 roles are also taken from everyone who shouldn't have them, given by hand or not (once,
-# after the Top 10 roles changed in November 2026):
+# With reset_top10, the Top-10 roles are also taken from everyone who shouldn't have them, given by hand or not (once,
+# after the Top-10 roles changed in November 2026):
 #   gh workflow run leaderboard-bot.yml --ref develop -f dry_run=true -f reset_top10=true
 name: Leaderboard bot
 
@@ -61,7 +61,7 @@ on:
         options: [both, unassisted, assisted]
         default: both
       reset_top10:
-        description: "Take the Top 10 roles from everyone who shouldn't have them, given by hand or not"
+        description: "Take the Top-10 roles from everyone who shouldn't have them, given by hand or not"
         type: boolean
         default: false
 
