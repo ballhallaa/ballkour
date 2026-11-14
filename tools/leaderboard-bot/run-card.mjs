@@ -4,7 +4,8 @@
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 
-// fonts: { "Barlow-500-normal": "file://…woff2", … }, as bot.mjs makes them; missing files fall back to the stacks below
+// fonts: { "Barlow-500-normal": "file://…woff2" or "data:…", … }, as bot.mjs and run-picture.mjs make them; missing files
+// fall back to the stacks below
 function fontFaces(fonts) {
   return Object.entries(fonts || {})
     .filter(([, url]) => url)
@@ -30,11 +31,19 @@ function fontFaces(fonts) {
 // The line with whose run it is (see runCardHtml)
 function runLine({ run, status }) {
   if (!run && !status) return "";
-  const dot = '<span class="dot">·</span>';
-  const parts = run ? [`<span class="who">${esc(run.name)}</span>`, `<span class="course">${esc(run.course)}</span>`,
-    run.assisted && '<span class="mode">Assisted</span>', run.date && `<span>${esc(run.date)}</span>`].filter(Boolean) : [];
-  return `<div class="runline"><div class="runinfo">${parts.join(dot).replace(`${dot}<span class="mode">`, '<span class="mode">')}</div>` +
+  const dot = (cls = "") => `<span class="dot${cls}">·</span>`;
+  const info = run ? `<span class="who">${esc(run.name)}</span>` +
+    (run.course ? `${dot(" lead")}<span class="course">${esc(run.course)}</span>` : "") +
+    (run.assisted ? '<span class="mode">Assisted</span>' : "") +
+    (run.date ? `${dot()}<span>${esc(run.date)}</span>` : "") : "";
+  return `<div class="runline"><div class="runinfo">${info}</div>` +
     `${status ? `<span class="status ${esc(status.tone)}">${esc(status.text)}</span>` : ""}</div>`;
+}
+// In the page, once its fonts are in: when the course's name is cut short on that line, it goes on a line of its own
+// under it, with Assisted (like paintRunPicture in index.html on ballkour.com)
+export function splitRunLine() {
+  const c = document.querySelector(".runinfo .course");
+  if (c && c.scrollWidth > c.clientWidth) c.closest(".runline").classList.add("two");
 }
 export function runCardHtml({ picture, fonts, logo = "", columns = 2, width = 680 }) {
   const chip = (c) => (c ? `<span class="chip ${esc(c.tone)}">${esc(c.text)}</span>` : "<span></span>");
@@ -97,6 +106,13 @@ h2 { margin: 0; padding: 11px 0 6px; font: 500 15px/1.3 var(--body); color: var(
 .runinfo { display: flex; align-items: center; gap: 9px; min-width: 0; }
 .runinfo .course { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .runinfo > :not(.course) { flex: none; }
+/* Or, when it would (splitRunLine), the course and Assisted go on a line of their own under the rest, and the course
+   only gives way if it's too long even for that */
+.runline.two { flex-wrap: wrap; column-gap: 9px; row-gap: 2px; }
+.runline.two .runinfo { display: contents; }
+.runline.two .lead { display: none; }
+.runline.two::after { content: ""; order: 1; flex-basis: 100%; }
+.runline.two .course, .runline.two .mode { order: 2; }
 .runline .who { font-weight: 700; color: var(--ink); }
 .runline .dot { color: var(--ink-3); }
 .mode { padding: 3px 6px; border-radius: 5px; font: 600 10.5px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: #ff80c0; background: rgba(255, 128, 192, .12); border: 1px solid rgba(255, 128, 192, .5); }
