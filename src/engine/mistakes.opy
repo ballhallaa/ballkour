@@ -53,9 +53,7 @@ rule "Missed Checkpoint":
 rule "Ground Time":
     @Event eachPlayer
     @Condition eventPlayer.isInAssistMode == true
-    @Condition (
-        eventPlayer.isRunPaused or eventPlayer.isInFreemode or eventPlayer.isRunFinished
-    ) == false
+    @Condition (eventPlayer.isRunPaused or eventPlayer.isInFreemode) == false
     @Condition eventPlayer.runCurrentCp < lastCp
     @Condition (
         eventPlayer.cpData[5] == null
