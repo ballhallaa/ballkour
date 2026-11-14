@@ -27,6 +27,13 @@ macro isOnSkippedCp(player):
 macro SCORECARD_SECTIONS = 6
 
 
+# Marks a ground time on the scorecard and the Top 3s, as × marks mistakes: a line like the
+# ground, after a space. It's ASCII, so it keeps the base font: ▼, ↓ and most other symbols
+# switch a whole text to the fallback font, as a CJK character does (tested 2026-11-13).
+# With its space, about 3 spaces wide.
+macro GROUND_MARK = " _"
+
+
 macro scorecardSectionOf(player):
     (
         5
@@ -62,24 +69,28 @@ macro scorecardKey(player):
 
 # A Top 3 row (Lobby: Load Leaderboard, Completion: Record Top Run) added to topText: rank,
 # time, score and name, in the rank's color, with a pink • after it if topMarked. The score
-# is mistakes with a ×, or an assisted run's ground time, formatted like the time. Padded like
-# the scorecard's columns, but for times of 7+ characters, and the score's column by its
-# length, as a digit is about 2 spaces and a × too: 9 spaces wide, or 14 while topWide, for
-# ground times, which take up to 13 (1:05.20), as : is about 2 spaces and . 1.
-macro topRunRow(topText, topRank, topName, topScore, topTime, topMarked, topWide):
+# is mistakes with a ×, or with topGround an assisted run's ground time, formatted like the
+# time, with GROUND_MARK. Padded like the scorecard's columns, but for times of 7+
+# characters, and the score's column by its length, as a digit is about 2 spaces and a × too:
+# 9 spaces wide, or 14 while topWide, for ground times, which take up to 13 (1:05.20), as :
+# is about 2 spaces and . 1. GROUND_MARK takes 3 of them.
+macro topRunRow(
+    topText, topRank, topName, topScore, topGround, topTime, topMarked, topWide
+):
     "{}\n{}{}   {}{}{}{}{}</fg>{}".format(
         topText,
         ["<fgFFFF00FF>", "<fgB0C4DEFF>", "<fgC46A30FF>"][topRank],
         topRank + 1,
         topTime,
         "     " if strLen(topTime) < 8 else "   ",
-        topScore,
+        "{}{}".format(topScore, GROUND_MARK) if topGround else topScore,
         "              ".substring(
             0,
             max(
                 1,
                 (14 if topWide else 9)
                 - [0, 2, 4, 6, 7, 9, 0, 13, 15][min(strLen("{}".format(topScore)), 8)]
+                - (3 if topGround else 0)
             )
         ),
         topName,
@@ -90,7 +101,7 @@ macro topRunRow(topText, topRank, topName, topScore, topTime, topMarked, topWide
 # A Lobby Top 3 row for a rank no run holds yet, with the leaderboard's placeholders,
 # laid out like topRunRow
 macro topRunPlaceholderRow(topText, topRank, topWide):
-    topRunRow(topText, topRank, "---", "-×", "-:--.--", false, topWide)
+    topRunRow(topText, topRank, "---", "-×", false, "-:--.--", false, topWide)
 
 
 # Whether the scorecard lists its rows: not when the only player listed is the viewer
@@ -576,16 +587,16 @@ rule "Update Scorecard":
                 0, [0, 13, 11, 0, 7, 5, 0, 2][strLen(scorecardTime)]
             )
         )
-        # An assisted run's ground time in whole seconds, like the time, padded by length to
-        # the column's 11 spaces (a colon is about 2), and mistakes 2 spaces further out
+        # An assisted run's ground time in whole seconds, like the time, with GROUND_MARK,
+        # padded by length to the column's 11 spaces (a colon is about 2, the mark 3), and
+        # mistakes 2 spaces further out
         if scorecardPlayers[index].isRunAssisted:
             scorecardTime = scorecardPlayers[index].runGroundTimeFormatted.split(".")[0]
-            scorecardRow = "{}{}{}{}".format(
+            scorecardRow = "{}{}{}{}{}".format(
                 scorecardRow,
                 scorecardTime,
-                "         ".substring(
-                    0, [0, 9, 7, 0, 3, 1, 0, 1][strLen(scorecardTime)]
-                ),
+                GROUND_MARK,
+                "      ".substring(0, [0, 6, 4, 0, 1, 1, 0, 1][strLen(scorecardTime)]),
                 scorecardPlayers[index]
             )
         else:
