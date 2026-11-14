@@ -452,9 +452,9 @@ rule "Load HUD":
         HudReeval.VISIBILITY_AND_STRING
     )
     # The All-Time Top 3, then the Lobby Top 3, at the bottom of the right column, under the
-    # splits, in one HUD text so they left-align. Hiding the scorecard leaves them up. The
-    # splits end without blank lines, so they bring 2; without the splits, Mistakes above
-    # already ends in blank lines, and the CP while spectating ends in 1.
+    # speedometer, in one HUD text so they left-align. Hiding the scorecard leaves them up.
+    # The speedometer is always above them on the course and ends without blank lines, so
+    # they bring 2.
     # In the lobby, with nothing above it, the Lobby Top 3 starts at the top.
     # The All-Time Top 3 lists the leaderboard's runs, with (Unassisted) after its title, or
     # in Assist Mode the assisted one's, with a pink (Assisted). The Lobby Top 3 lists the
@@ -469,13 +469,7 @@ rule "Load HUD":
             and localPlayer.faqPage == 0
         ),
         "{}{}{}".format(
-            (
-                "\n\n"
-                if isCourseHudShown(localPlayer)
-                and not localPlayer.spectating[3]
-                and areSplitsShown(localPlayer)
-                else ("\n" if localPlayer.spectating[3] else "")
-            ),
+            ("\n\n" if isCourseHudShown(localPlayer) else ""),
             (
                 "{}{}{}".format(
                     _(allTimeRunsHudText),

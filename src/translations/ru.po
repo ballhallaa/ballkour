@@ -405,5 +405,9 @@ msgid "Split: @0"
 msgstr "Сплит: @0"
 
 #. file splits.opy, rule "Load HUD"
+msgid "Speed: <fgFFFFFFFF>@0 m/s</fg>"
+msgstr "Скорость: <fgFFFFFFFF>@0 м/с</fg>"
+
+#. file splits.opy, rule "Load HUD"
 msgid "Pace: @0"
 msgstr "Прогноз: @0"
