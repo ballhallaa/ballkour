@@ -288,8 +288,6 @@ playervar cpHoldSteps
 playervar spectating
 playervar firstPersonSpectatingTime
 playervar spectateTargets
-playervar heroSwapTime
-playervar swapCooldownLeft
 
 playervar index 127
 

@@ -2,35 +2,10 @@
 #!rulePrefix "Spectator"
 
 
-# A hero swap spikes the server's load, and two close together spike it even more (toggling
-# out right after toggling in read 152-220%), so the inputs that swap between Wrecking Ball
-# and Jetpack Cat wait until 2 seconds after the player's last swap
-macro SWAP_COOLDOWN = 2
-
-
-macro canSwapHero(player):
-    getTotalTimeElapsed() - player.heroSwapTime >= SWAP_COOLDOWN
-
-
 # Controls: Ultimate Input, and the lobby's Spectate button
 def toggleSpectator():
     @Name "Toggle"
 
-    # A press during the cooldown only says how long is left, so it needs pressing again
-    if not canSwapHero(eventPlayer):
-        # Stored first: worked out inside the translated message, it read over 2s too high
-        eventPlayer.swapCooldownLeft = (
-            ceil(
-                (SWAP_COOLDOWN - (getTotalTimeElapsed() - eventPlayer.heroSwapTime))
-                * 10
-            )
-            / 10
-        )
-        smallMessage(
-            eventPlayer,
-            _("SPECTATOR COOLDOWN: {}s").format(eventPlayer.swapCooldownLeft)
-        )
-        return
     # spectating[i]: [0]isSpectating [1]whoPlayerIsSpectating [2]isInFreecam [3]isInDisconnectedFreecam [4]disconnectedFreecamCp [5]isFirstPersonSpectating [6]isTransitioningIntoFirstPerson [7]hasSpectatableTargets [8]crosshairTarget [9]crosshairTargetDelay [10]spectatorAmnt [11]queuedCamPos [12]queuedCamLookAt
     if not eventPlayer.spectating[0]:
         enableSpectator()
@@ -320,7 +295,7 @@ macro watchInputKeyNow():
     )
 
 
-# Like ultInputReady (Controls). Only switching from freecam swaps hero, hence canSwapHero.
+# Like ultInputReady (Controls).
 macro watchInputReady():
     (
         not eventPlayer.watchInputDone
@@ -333,19 +308,16 @@ macro watchInputReady():
                     or eventPlayer.watchInputKey % 512 == WATCH_NEXT_PLAYER
                 )
                 and eventPlayer.spectating[7]
-                and (not eventPlayer.spectating[2] or canSwapHero(eventPlayer))
             )
             or (
                 eventPlayer.watchInputKey % 512 == WATCH_CROSSHAIR_PLAYER
                 and eventPlayer.spectating[2]
                 and eventPlayer.spectating[7]
-                and canSwapHero(eventPlayer)
             )
             or (
                 eventPlayer.watchInputKey % 512 == WATCH_REATTACH
                 and eventPlayer.spectating[1] != null
                 and eventPlayer.spectating[2]
-                and canSwapHero(eventPlayer)
             )
         )
     )
@@ -467,7 +439,6 @@ rule "Enable Freecam Input":
     @Condition eventPlayer.spectating[5] == false
     @Condition eventPlayer.isLoading == false
     @Condition eventPlayer.faqPage == 0
-    @Condition canSwapHero(eventPlayer)
     # Disconnected without freecam means waiting in Freecam Queue
     @Condition eventPlayer.spectating[3] == false
 
@@ -523,20 +494,8 @@ def enableFreecam():
 def swapToJetpackCat():
     @Name "Swap To Jetpack Cat"
 
-    # Swaps, then waits until it's done before the caller changes anything else about the player:
-    # a swap at the same moment as the rest of spectator mode (collision, gravity, buttons, camera,
-    # teleports) peaked around 180% server load, against ~135% when the swap finished first.
-    # The swap alone reads around 100%, so first it waits up to half a second for a reading under 50%,
-    # to keep it off other spikes like the one Overwatch has every 5 seconds.
-    # heroSwapTime is for canSwapHero, which is waited out here too since not every caller is an
-    # input that checks it (going to the lobby, a new run, Prev./Next Checkpoint).
     if eventPlayer.getHero() != Hero.JETPACK_CAT:
-        waitUntil(canSwapHero(eventPlayer), SWAP_COOLDOWN)
-        waitUntil(getServerLoad() < 50, 0.5)
-        eventPlayer.heroSwapTime = getTotalTimeElapsed()
         eventPlayer.startForcingHero(Hero.JETPACK_CAT)
-        waitUntil(eventPlayer.getHero() == Hero.JETPACK_CAT, 1)
-        wait(0.25)
 
 
 def swapToWreckingBall():
@@ -544,12 +503,7 @@ def swapToWreckingBall():
 
     # Like Swap To Jetpack Cat
     if eventPlayer.getHero() != Hero.WRECKING_BALL:
-        waitUntil(canSwapHero(eventPlayer), SWAP_COOLDOWN)
-        waitUntil(getServerLoad() < 50, 0.5)
-        eventPlayer.heroSwapTime = getTotalTimeElapsed()
         eventPlayer.startForcingHero(Hero.WRECKING_BALL)
-        waitUntil(eventPlayer.getHero() == Hero.WRECKING_BALL, 1)
-        wait(0.25)
 
 
 rule "Freecam Speed Boost":
@@ -633,8 +587,6 @@ rule "Freecam Queue":
 
     # One hero swap at a time, since a hero swap spikes the server's load and several watchers can lose their
     # target at once. Skips anyone who left, left spectator mode or started watching someone else meanwhile.
-    # Like Swap To Jetpack Cat, the swap waits for a quiet moment and finishes before Enable Freecam
-    # changes anything else.
     if (
         entityExists(freecamQueue[0])
         and freecamQueue[0].spectating[0]
@@ -642,15 +594,7 @@ rule "Freecam Queue":
         and not freecamQueue[0].spectating[2]
         and freecamQueue[0].getHero() != Hero.JETPACK_CAT
     ):
-        waitUntil(getServerLoad() < 50, 0.5)
-        freecamQueue[0].heroSwapTime = getTotalTimeElapsed()
         freecamQueue[0].startForcingHero(Hero.JETPACK_CAT)
-        waitUntil(
-            not entityExists(freecamQueue[0])
-            or freecamQueue[0].getHero() == Hero.JETPACK_CAT,
-            1
-        )
-        wait(0.25)
     if (
         entityExists(freecamQueue[0])
         and freecamQueue[0].spectating[0]
