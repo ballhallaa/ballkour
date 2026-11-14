@@ -123,12 +123,17 @@ macro hasAllOrbs(player):
     (player.cpData[16] == 2 ** len(player.cpData[5]) - 1)
 
 
-# Until the runner being viewed (the player, unless spectating) grabs it
+# Until the runner being viewed (the player, unless spectating) grabs it. A disconnected
+# spectator still has the runner they left for Reattach, but views another CP, so every
+# orb shows
 macro isViewingOrb(player, orbIndex):
     (
         isViewingCp(player)
         and cps[player.viewCp][5][orbIndex] != null
-        and not hasGrabbedOrb(player.viewRunner, orbIndex)
+        and (
+            (player.spectating[0] and player.spectating[3])
+            or not hasGrabbedOrb(player.viewRunner, orbIndex)
+        )
     )
 
 
