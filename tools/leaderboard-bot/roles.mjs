@@ -1,8 +1,8 @@
 // Gives every rated player on the Discord server one role for their place in the player ratings: Top 0.1%, Top 1%,
-// Top 5%, Top 10%, Top 25%, Top 50%, Top 75% or Top 90%, the best one they reach, or Rated for the bottom 10%, each
-// with "(Unassisted)" after it: Top 0.1% (Unassisted) and so on. Everyone else on the server (not bots) gets
-// Unrated (Unassisted). Their other rating roles are taken away, so nobody has two. Only runs with a Discord ID count
-// toward someone's role. The ratings are worked out in ratings.mjs.
+// Top 5%, Top 10%, Top 20%, Top 30%, Top 40%, Top 50%, Top 60%, Top 70%, Top 80% or Top 90%, the best one they
+// reach, or Rated for the bottom 10%, each with "(Unassisted)" after it: Top 0.1% (Unassisted) and so on. Everyone
+// else on the server (not bots) gets Unrated (Unassisted). Their other rating roles are taken away, so nobody has two.
+// Only runs with a Discord ID count toward someone's role. The ratings are worked out in ratings.mjs.
 //
 // The assisted boards (runs played in Assist Mode) have a rating of their own, with roles of their own, the same ones
 // with "(Assisted)" after them: Top 0.1% (Assisted) to Top 90% (Assisted), Rated (Assisted), and Unrated (Assisted)
