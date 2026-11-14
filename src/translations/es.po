@@ -384,10 +384,6 @@ msgstr ""
 msgid "{0} | FREECAM"
 msgstr "{0} | CÁMARA LIBRE"
 
-#. file spectator.opy, rule "Subroutine toggleSpectator"
-msgid "SPECTATOR COOLDOWN: {0}s"
-msgstr "ENFRIAMIENTO DE ESPECTADOR: {0} s"
-
 #. file splits.opy, rule "Load HUD"
 msgid "Attempt: @0"
 msgstr "Intento: @0"
