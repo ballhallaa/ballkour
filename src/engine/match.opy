@@ -31,23 +31,28 @@ rule "Initialize":
         players = []
         # lobbyStats[i]: [0]players [1]rejoins [2]legitRuns [3]totalRunTime [4]totalRunTimeFormatted [5]totalMistakes [6]avgRunTime [7]avgRunTimeFormatted [8]avgMistakes
         lobbyStats = [0, 0, 0, 0, "00:00.00", 0, 0, "00:00.00", 0]
-    # timeToBeat: the 10th place's time in seconds, or 0 while the leaderboard has fewer than 10 runs
-    timeToBeat = 0
-    timeToBeatFormatted = "00:00.00"
-    if lb[10] != null:
-        timeToBeatFormatted = lb[10].split(",")[1].replace(" ", "")
-        # Reads [H:]M:SS.cc left to right: each ":" carries the units read so far into the next one,
-        # which leaves the seconds and hundredths in lbObj as one number (SScc)
-        lbObj = 0
-        for index in range(strLen(timeToBeatFormatted)):
-            if timeToBeatFormatted.charAt(index) == ":":
-                timeToBeat = (timeToBeat + lbObj) * 60
-                lbObj = 0
-            elif timeToBeatFormatted.charAt(index) != ".":
-                lbObj = lbObj * 10 + "0123456789".strIndex(
-                    timeToBeatFormatted.charAt(index)
-                )
-        timeToBeat += lbObj / 100
+    # timeToBeat[0] and [1]: the regular and assisted leaderboards' 10th place times in seconds,
+    # each 0 while its leaderboard has fewer than 10 runs. A run's completion text shows the one
+    # for the leaderboard it goes on.
+    timeToBeat = [0, 0]
+    timeToBeatFormatted = ["00:00.00", "00:00.00"]
+    for lbRank in range(2):
+        if [lb, assistedLb][lbRank][10] != null:
+            timeToBeatFormatted[lbRank] = (
+                [lb, assistedLb][lbRank][10].split(",")[1].replace(" ", "")
+            )
+            # Reads [H:]M:SS.cc left to right: each ":" carries the units read so far into the next
+            # one, which leaves the seconds and hundredths in lbObj as one number (SScc)
+            lbObj = 0
+            for index in range(strLen(timeToBeatFormatted[lbRank])):
+                if timeToBeatFormatted[lbRank].charAt(index) == ":":
+                    timeToBeat[lbRank] = (timeToBeat[lbRank] + lbObj) * 60
+                    lbObj = 0
+                elif timeToBeatFormatted[lbRank].charAt(index) != ".":
+                    lbObj = lbObj * 10 + "0123456789".strIndex(
+                        timeToBeatFormatted[lbRank].charAt(index)
+                    )
+            timeToBeat[lbRank] += lbObj / 100
     nameplateObjs = []
     tinyNameplateObjs = []
 
