@@ -556,7 +556,7 @@ rule "Update Scorecard":
     # Overwatch reprocesses every HUD text's definition every 5s (see Translated HUD Text).
     # A string only shows its first 4 icons, so they head the columns instead of filling each row.
     # Assisted runs show their ground time instead of mistakes, like the time, so while one's
-    # listed their column is 2 spaces wider and headed Skull/Piledriver, the 4th icon, or just
+    # listed their column is 4 spaces wider and headed Skull/Piledriver, the 4th icon, or just
     # Piledriver while every run listed is assisted. A single icon sits 7 spaces after the
     # bolt, and Skull/Piledriver 5, so the pair sits over the column instead of past it.
     scorecardHasGround = len(scorecardPlayers.filter(lambda p: p.isRunAssisted)) > 0
@@ -588,16 +588,25 @@ rule "Update Scorecard":
                 0, [0, 13, 11, 0, 7, 5, 0, 2][strLen(scorecardTime)]
             )
         )
-        # An assisted run's ground time in whole seconds, like the time, with GROUND_MARK,
-        # padded by length to the column's 11 spaces (a colon is about 2, the mark 3), and
-        # mistakes 2 spaces further out
+        # An assisted run's ground time with GROUND_MARK: under a minute in hundredths
+        # (18.13), from a minute in whole seconds, like the time (1:05). Padded to the
+        # column's 13 spaces (a digit is about 2, a colon 2, a . 1, the mark 3), by length,
+        # and for 4 characters by format, as 5.20 is narrower than 1:05. Mistakes sit 4
+        # spaces further out, so the columns line up.
         if scorecardPlayers[index].isRunAssisted:
-            scorecardTime = scorecardPlayers[index].runGroundTimeFormatted.split(".")[0]
+            scorecardTime = scorecardPlayers[index].runGroundTimeFormatted
+            if strContains(scorecardTime, ":"):
+                scorecardTime = scorecardTime.split(".")[0]
             scorecardRow = "{}{}{}{}{}".format(
                 scorecardRow,
                 scorecardTime,
                 GROUND_MARK,
-                "      ".substring(0, [0, 6, 4, 0, 1, 1, 0, 1][strLen(scorecardTime)]),
+                "   ".substring(
+                    0,
+                    [0, 0, 0, 0, 3, 1, 0, 0, 2, 1, 0, 1][
+                        strLen(scorecardTime) + 4 * strContains(scorecardTime, ":")
+                    ]
+                ),
                 scorecardPlayers[index]
             )
         else:
@@ -605,7 +614,7 @@ rule "Update Scorecard":
                 scorecardRow,
                 scorecardPlayers[index].runMistakes,
                 scorecardPad(scorecardPlayers[index].runMistakes),
-                "  " if scorecardHasGround else "",
+                "    " if scorecardHasGround else "",
                 scorecardPlayers[index]
             )
         # Each section in its own color, disqualified or not: runners in the HUD's orange,
