@@ -68,6 +68,9 @@ export function cardHtml({ course, board, date, runs, fresh, people, ratings = n
       `</li>`;
   };
   const slots = Array.from({ length: 10 }, (_, i) => runs[i] || null);
+  // The mistakes column is as wide as the widest mistakes or ground time on the board (its icon, the gap, and a 9.6px
+  // character each in JetBrains Mono at 16px), so the times line up close beside them and the names get the rest
+  const missChars = Math.max(1, ...slots.filter(Boolean).map((r) => String(Number.isInteger(r.ground) ? groundText(r.ground) : r.mistakes).length));
   // Two lines under the title: which board this is, then the course's code and who made it. A broken code is shown
   // like any other, unless the course has a beta code that still works (beta in courses.json): then that's the one
   // shown, as Beta, since it's the code to play. A legacy board was set on the original course, so it shows that
@@ -112,7 +115,7 @@ body { margin: 0; background: var(--void); }
 .logo img { position: relative; width: 100%; height: 100%; }
 .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 22px; }
 ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
-.run { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto 54px; grid-template-areas: "rank name time miss" "rank dc date date"; align-items: center; align-content: center; gap: 7px 12px;
+.run { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto calc(20px + var(--miss-chars) * 9.6px); grid-template-areas: "rank name time miss" "rank dc date date"; align-items: center; align-content: center; gap: 7px 12px;
   height: 74px; padding: 0 16px; border-radius: 11px; background: rgba(9,15,13,.93); border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
 .rank { grid-area: rank; font: 700 22px/1 var(--mono); color: var(--ink-3); }
 .line { grid-area: name; min-width: 0; display: flex; align-items: center; gap: 7px; }
@@ -122,8 +125,6 @@ ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 .pts .i { width: 15px; height: 15px; color: var(--gold); }
 .time { grid-area: time; }
 .miss { grid-area: miss; }
-/* An assisted board's ground times ("1:05.20") need more room than mistakes */
-.card.assisted .run { grid-template-columns: 34px minmax(0, 1fr) auto 92px; }
 /* A little smaller than the run pictures' numbers, so the name has room for its Top % tag */
 .time, .miss { display: inline-flex; align-items: center; justify-content: flex-end; gap: 5px; font: 700 19px/1 var(--mono); color: var(--ink); }
 .miss { font-size: 16px; color: var(--ink-2); }
@@ -154,7 +155,7 @@ ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
 .foot .cta { color: var(--volt); }
 .foot .broken { color: var(--coral); }
 </style>
-<div class="card${assisted ? " assisted" : ""}">
+<div class="card${assisted ? " assisted" : ""}" style="--miss-chars: ${missChars}">
   <canvas id="warp"></canvas>
   <div class="head">
     <div>
