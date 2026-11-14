@@ -66,6 +66,10 @@ rule "Update Run Format":
             )
             formatTime()
             eventPlayer.paceEtaFormatted = eventPlayer.timeFormatted
+    # The scorecard shows ground times under a minute in hundredths, which change between
+    # its rebuilds, so it rebuilds once more with the paused run's final ground time
+    if eventPlayer.isRunAssisted:
+        scorecardDirty = true
     eventPlayer.isTimerActive = false
 
 
