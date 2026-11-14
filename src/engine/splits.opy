@@ -31,6 +31,14 @@ macro splitsHudVisibility(line):
     )
 
 
+# A runner's sideways speed in tenths of a m/s, for the speedometer
+macro speedTenths(runner):
+    round(
+        distance(vect(0, 0, 0), vect(runner.getVelocity().x, 0, runner.getVelocity().z))
+        * 10
+    )
+
+
 rule "Load HUD":
     # A header, the biggest HUD text, so the CP stands above the times under it.
     # A flag icon instead of a word, so it needs no translation and stays narrow in every language.
@@ -168,6 +176,32 @@ rule "Load HUD":
         ),
         HudPosition.RIGHT,
         2.5,
+        rgb(230, 151, 0),
+        HudReeval.VISIBILITY_AND_STRING
+    )
+
+    # Speed sits under Pace at the same size, and stays on wherever the course HUD shows,
+    # past the last CP too, as it can't be turned off on the HUD page. It's the viewed
+    # runner's sideways speed, so falling doesn't count, to a tenth of a m/s. In
+    # disconnected freecam the CP above ends in 1 blank line, so it brings the 2nd.
+    splitsHudText[5] = _("Speed: <fgFFFFFFFF>@0 m/s</fg>")
+    hudSubtext(
+        getAllPlayers().filter(
+            lambda localPlayer: isCourseHudShown(localPlayer)
+            and localPlayer.faqPage == 0
+        ),
+        "{}{}".format(
+            "\n" if localPlayer.spectating[3] else "",
+            _(splitsHudText[5]).replace(
+                "@0",
+                "{}.{}".format(
+                    floor(speedTenths(localPlayer.viewRunner) / 10),
+                    speedTenths(localPlayer.viewRunner) % 10
+                )
+            )
+        ),
+        HudPosition.RIGHT,
+        2.6,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
