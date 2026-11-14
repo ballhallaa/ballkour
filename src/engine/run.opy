@@ -557,9 +557,10 @@ rule "Update Scorecard":
     # A string only shows its first 4 icons, so they head the columns instead of filling each row.
     # Assisted runs show their ground time instead of mistakes, like the time, so while one's
     # listed their column is 2 spaces wider and headed Skull/Piledriver, the 4th icon, or just
-    # Piledriver while every run listed is assisted.
+    # Piledriver while every run listed is assisted. A single icon sits 7 spaces after the
+    # bolt, and Skull/Piledriver 5, so the pair sits over the column instead of past it.
     scorecardHasGround = len(scorecardPlayers.filter(lambda p: p.isRunAssisted)) > 0
-    scorecard = "{}    {}       {}".format(
+    scorecard = "{}    {}     {}".format(
         iconString(Icon.FLAG),
         iconString(Icon.BOLT),
         (
@@ -569,10 +570,10 @@ rule "Update Scorecard":
                     abilityIconString(Hero.WRECKING_BALL, Button.CROUCH)
                 )
                 if len(scorecardPlayers.filter(lambda p: not p.isRunAssisted)) > 0
-                else abilityIconString(Hero.WRECKING_BALL, Button.CROUCH)
+                else "  {}".format(abilityIconString(Hero.WRECKING_BALL, Button.CROUCH))
             )
             if scorecardHasGround
-            else iconString(Icon.SKULL)
+            else "  {}".format(iconString(Icon.SKULL))
         )
     )
     scorecardRows = len(scorecardPlayers)
