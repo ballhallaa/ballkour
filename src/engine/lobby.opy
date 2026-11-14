@@ -638,13 +638,14 @@ rule "Load Leaderboard":
         if lbRank <= 3:
             lbObj[1] = lbObj[1].replace(" ", "")
             lbObj[2] = lbObj[2].replace(" ", "")
-            # The assisted one's scores are ground times, without the ×. One row is laid out
-            # for either, so topRunRow is only spelled out once.
+            # The assisted one's scores are ground times, with a " _" instead of the ×. One row
+            # is laid out for either, so topRunRow is only spelled out once.
             lbObj[5] = topRunRow(
                 "",
                 lbRank - 1,
                 lbObj[0],
                 (lbObj[2] if index > 10 else "{}×".format(lbObj[2])),
+                index > 10,
                 lbObj[1],
                 false,
                 index > 10

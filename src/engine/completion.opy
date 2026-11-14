@@ -141,10 +141,10 @@ def recordTopRun():
     topRuns = topRunsScratch
     topRunsText = ""
     # The mistakes get a × in the row's color, as a red one marks a disqualified run there,
-    # and assisted runs show their ground time instead, which widens the column for every row
-    # while one's listed. Assisted runs get a pink • after the name, like Assist Mode's pink,
-    # outside the row's color, as the scorecard's red × is. Ranks no run holds yet get
-    # placeholders.
+    # and assisted runs show their ground time instead, with a " _" (GROUND_MARK), which
+    # widens the column for every row while one's listed. Assisted runs get a pink • after the
+    # name, like Assist Mode's pink, outside the row's color, as the scorecard's red × is.
+    # Ranks no run holds yet get placeholders.
     for index in range(len(topRunsScratch)):
         topRunsText = topRunRow(
             topRunsText,
@@ -155,6 +155,7 @@ def recordTopRun():
                 if topRunsScratch[index][4]
                 else "{}×".format(topRunsScratch[index][2])
             ),
+            topRunsScratch[index][4],
             topRunsScratch[index][3],
             topRunsScratch[index][4],
             len(topRunsScratch.filter(lambda run: run[4])) > 0
