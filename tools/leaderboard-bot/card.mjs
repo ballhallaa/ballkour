@@ -176,10 +176,22 @@ ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
       : `<span class="note cta">Be the first to set a time</span>`) + `</div>
 </div>
 <script>
-// Names too long for their row shrink to fit instead of being cut off
-document.querySelectorAll(".name").forEach((el) => {
-  let size = 24;
-  while (el.scrollWidth > el.clientWidth && size > 14) el.style.fontSize = (size -= 0.5) + "px";
+// Names too long for their row shrink to fit instead of being cut off. One that still won't fit beside its Top % and
+// New tags gets the whole line, and its tags go on the line under it, after the Discord name, as on the website.
+document.querySelectorAll(".run").forEach((row) => {
+  const el = row.querySelector(".name");
+  const fit = () => {
+    let size = 24;
+    el.style.fontSize = "";
+    while (el.scrollWidth > el.clientWidth && size > 14) el.style.fontSize = (size -= 0.5) + "px";
+  };
+  fit();
+  const tags = row.querySelectorAll(".line .tag");
+  if (el.scrollWidth <= el.clientWidth || !tags.length) return;
+  let dc = row.querySelector(".dc");
+  if (!dc) { dc = document.createElement("span"); dc.className = "dc"; row.querySelector(".date").before(dc); }
+  dc.append(...tags);
+  fit();
 });
 // A still frame of the site's warp field, bursting from behind the logo (or the top right corner)
 const cv = document.getElementById("warp"), card = cv.parentElement;
