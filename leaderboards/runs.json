@@ -1,10 +1,6 @@
 {
   "runs": {},
-  "pending": {
-    "1": [
-      {"name": "BALLHALLAA", "discord": "175372497720573953", "time": "3:24.59", "ground": 622, "date": "2026-11-14", "video": "https://www.youtube.com/watch?v=yMpIBgLnTsM", "id": "8", "sentAt": "2026-11-14T06:32:48Z", "mode": "assisted"}
-    ]
-  },
+  "pending": {},
   "declined": {},
   "removed": {},
   "lastId": 8
