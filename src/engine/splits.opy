@@ -32,10 +32,11 @@ macro splitsHudVisibility(line):
 
 
 # The speed a player's speedometer shows, in tenths of a m/s: the viewed runner's sideways
-# speed, or in disconnected freecam, where no runner is viewed, the player's own flying speed
+# speed, or in disconnected freecam, where no runner is viewed, the player's own flying speed.
+# Update Every Frame reads it every tick, as speeds otherwise only update every few ticks.
 macro speedTenths(player):
     round(
-        (
+        updateEveryFrame(
             player.getSpeed()
             if player.spectating[3]
             else player.viewRunner.getHorizontalSpeed()
