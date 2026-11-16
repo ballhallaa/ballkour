@@ -260,6 +260,4 @@ def cpResetPlayer():
         eventPlayer.cpData[10] = false
         eventPlayer.cpData[11] = false
         eventPlayer.cpData[14] = false
-        eventPlayer.setAbility2Enabled(
-            eventPlayer.cpData[3] or eventPlayer.isInAssistMode
-        )
+        eventPlayer.setAbility2Enabled(eventPlayer.cpData[3] or isFreePlay(eventPlayer))
