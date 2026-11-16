@@ -2,9 +2,7 @@
 #!rulePrefix ""
 
 
-# The first rule of the script (minify.js moves it above OverPy's own), with its name kept even
-# in a release build, so the link is the first thing someone reading the script sees. It logs
-# before Initialize turns the Inspector off.
+# The source code's link, logged before Initialize turns the Inspector off
 rule "Source Code":
     logToInspector("ballkour.com/source-code")
 
