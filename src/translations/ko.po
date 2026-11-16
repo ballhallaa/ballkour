@@ -317,6 +317,10 @@ msgid "Mistakes: @0"
 msgstr "실수: @0"
 
 #. file run.opy, rule "Load HUD"
+msgid "Course by @0, Remastered by ballhallaa"
+msgstr "코스 제작: @0, 리마스터: ballhallaa"
+
+#. file run.opy, rule "Load HUD"
 msgid "Controls: <fgFFFFFFFF>@0 (Hold)</fg>"
 msgstr "조작: <fgFFFFFFFF>@0 (길게 누르기)</fg>"
 

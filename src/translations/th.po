@@ -317,6 +317,10 @@ msgid "Mistakes: @0"
 msgstr "ความผิดพลาด: @0"
 
 #. file run.opy, rule "Load HUD"
+msgid "Course by @0, Remastered by ballhallaa"
+msgstr "ด่านโดย @0, รีมาสเตอร์โดย ballhallaa"
+
+#. file run.opy, rule "Load HUD"
 msgid "Controls: <fgFFFFFFFF>@0 (Hold)</fg>"
 msgstr "การควบคุม: <fgFFFFFFFF>@0 (กดค้าง)</fg>"
 

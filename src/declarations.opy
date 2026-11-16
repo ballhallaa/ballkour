@@ -40,7 +40,14 @@ globalvar lastCp = -1
 globalvar cpDefaults
 # Orbs past each checkpoint line's own, as pairs: vect(checkpoint, 0, 0), then the orb
 globalvar cpExtraOrbs
+# Sizes past cpDefaults, one vect(checkpoint, cpSize, nextCpSize) each; 0 keeps the default
+globalvar cpSizes = []
+# Landings away from a checkpoint, as pairs: vect(checkpoint, 0, 0), then where the jump to it
+# lands; clearing it there teleports the player to the checkpoint
+globalvar cpLandings = []
 globalvar cpOrbScratch
+# Each size a checkpoint ring has, with one set of ring effects per size
+globalvar cpRingSizes
 
 # Hints
 globalvar hintData
@@ -124,6 +131,7 @@ globalvar freemodeHudText
 globalvar practiceModeHudText
 globalvar hintsHudText = []
 globalvar runHudText
+globalvar creditHudText
 globalvar counterHudText = []
 globalvar splitsHudText = []
 globalvar spectatorHudText = []

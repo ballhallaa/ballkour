@@ -7,6 +7,9 @@ rule "Expand Data":
     # [0]cpLocation [1]cpSize [2]isGrappleAllowed [3]isShieldBounceAllowed [4]isPiledriverAllowed [5]orbLocations [6]orbSize [7]nextCpLocation [8]nextCpSize
     # and the final checkpoint becomes [0]cpLocation [1]cpSize
     # orbLocations is the line's orb, then the map's cpExtraOrbs for it, or null without any
+    # cpSize and nextCpSize come from cpDefaults, unless the map's cpSizes changes them
+    # nextCpLocation is the next checkpoint's, unless the map's cpLandings puts it elsewhere.
+    # Checkpoint (No Skipping) then teleports the player from there to the checkpoint.
     cpOrbScratch = []
     if cpExtraOrbs:
         hintScratch = cpExtraOrbs
@@ -39,6 +42,16 @@ rule "Expand Data":
             cpDefaults[2]
         ]
     cps[lastCp] = [hintScratch[lastCp * 3], cpDefaults[0]]
+    for index in range(len(cpSizes)):
+        if cpSizes[index].y:
+            cps[cpSizes[index].x][1] = cpSizes[index].y
+        if cpSizes[index].z:
+            cps[cpSizes[index].x][8] = cpSizes[index].z
+    for index in range(len(cpLandings) / 2):
+        # Through hintScratch, which is done with, since a nested write costs ~30 elements more
+        hintScratch = cps[cpLandings[index * 2].x - 1]
+        hintScratch[7] = cpLandings[index * 2 + 1]
+        cps[cpLandings[index * 2].x - 1] = hintScratch
 
 
 def loadCpData():
@@ -138,14 +151,6 @@ macro isViewingOrb(player, orbIndex):
 
 
 rule "Load Objects":
-    createEffect(
-        getAllPlayers().filter(lambda localPlayer: isViewingCp(localPlayer)),
-        Effect.RING,
-        Color.WHITE,
-        cps[localPlayer.viewCp][0],
-        cps[localPlayer.viewCp][1],
-        EffectReeval.VISIBILITY_POSITION_AND_RADIUS
-    )
     # The orbs look like the ones in Fasteroid's fork of the Giga editor (orange), without
     # their arrow. One effect per orb slot, as many as the checkpoint with the most orbs needs.
     for index in range(sorted(cps.map(lambda cp: len(cp[5]))).last()):
@@ -159,14 +164,6 @@ rule "Load Objects":
             cps[localPlayer.viewCp][6],
             EffectReeval.VISIBILITY_POSITION_AND_RADIUS
         )
-    createEffect(
-        getAllPlayers().filter(lambda localPlayer: isViewingCp(localPlayer)),
-        Effect.RING,
-        Color.AQUA,
-        cps[localPlayer.viewCp][7],
-        cps[localPlayer.viewCp][8],
-        EffectReeval.VISIBILITY_POSITION_AND_RADIUS
-    )
     createIcon(
         getAllPlayers().filter(lambda localPlayer: isViewingCp(localPlayer)),
         cps[localPlayer.viewCp][7] - vect(0, 0.5, 0),
@@ -174,14 +171,48 @@ rule "Load Objects":
         IconReeval.VISIBILITY_AND_POSITION,
         Color.AQUA
     )
-    createEffect(
-        getAllPlayers().filter(lambda localPlayer: isViewingCp(localPlayer)),
-        Effect.LIGHT_SHAFT,
-        Color.GRAY,
-        cps[localPlayer.viewCp][7],
-        cps[localPlayer.viewCp][8],
-        EffectReeval.VISIBILITY_POSITION_AND_RADIUS
-    )
+    # One set of rings per size, each with its size fixed: a changing radius animates over
+    # about a second, so a checkpoint of another size would grow or shrink into place
+    cpRingSizes = []
+    for index in range(lastCp):
+        if cps[index][1] not in cpRingSizes:
+            cpRingSizes.append(cps[index][1])
+        if cps[index][8] not in cpRingSizes:
+            cpRingSizes.append(cps[index][8])
+    for index in range(len(cpRingSizes)):
+        createEffect(
+            getAllPlayers().filter(
+                lambda localPlayer: isViewingCp(localPlayer)
+                and cps[localPlayer.viewCp][1] == evalOnce(cpRingSizes[index])
+            ),
+            Effect.RING,
+            Color.WHITE,
+            cps[localPlayer.viewCp][0],
+            evalOnce(cpRingSizes[index]),
+            EffectReeval.VISIBILITY_POSITION_AND_RADIUS
+        )
+        createEffect(
+            getAllPlayers().filter(
+                lambda localPlayer: isViewingCp(localPlayer)
+                and cps[localPlayer.viewCp][8] == evalOnce(cpRingSizes[index])
+            ),
+            Effect.RING,
+            Color.AQUA,
+            cps[localPlayer.viewCp][7],
+            evalOnce(cpRingSizes[index]),
+            EffectReeval.VISIBILITY_POSITION_AND_RADIUS
+        )
+        createEffect(
+            getAllPlayers().filter(
+                lambda localPlayer: isViewingCp(localPlayer)
+                and cps[localPlayer.viewCp][8] == evalOnce(cpRingSizes[index])
+            ),
+            Effect.LIGHT_SHAFT,
+            Color.GRAY,
+            cps[localPlayer.viewCp][7],
+            evalOnce(cpRingSizes[index]),
+            EffectReeval.VISIBILITY_POSITION_AND_RADIUS
+        )
 
 
 def faceNextCp():
@@ -221,7 +252,10 @@ def cpResetPlayer():
     if eventPlayer.runCurrentCp < lastCp:
         if eventPlayer.cpData[5] != null:
             eventPlayer.cpData[13] = false
-            eventPlayer.setSecondaryFireEnabled(true)
+            # Unless the orb checkpoint disables the grapple (Orb Checkpoint: No Grapple)
+            eventPlayer.setSecondaryFireEnabled(
+                eventPlayer.cpData[2] or isFreePlay(eventPlayer)
+            )
             eventPlayer.cpData[16] = false
         eventPlayer.cpData[10] = false
         eventPlayer.cpData[11] = false

@@ -317,6 +317,10 @@ msgid "Mistakes: @0"
 msgstr "失誤：@0"
 
 #. file run.opy, rule "Load HUD"
+msgid "Course by @0, Remastered by ballhallaa"
+msgstr "關卡作者：@0，重製：ballhallaa"
+
+#. file run.opy, rule "Load HUD"
 msgid "Controls: <fgFFFFFFFF>@0 (Hold)</fg>"
 msgstr "操作：<fgFFFFFFFF>@0 (長按)</fg>"
 
