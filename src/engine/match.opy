@@ -20,13 +20,9 @@ rule "Initialize":
     disableAnnouncer()
     disableGamemodeCompletion()
     setMatchTime(0)
-    if not isDebugOn and not isHintRecorderOn:
-        disableInspector()
-    else:
-        # Sets the Source Code rule's line apart from the debug logs that follow
-        logToInspector(
-            "----------------------------------------------------------------------"
-        )
+    # Off in every build while the match's first ticks build the course's data and texts.
+    # +inspector and +hint-recorder builds turn it on after (Inspector After Startup).
+    disableInspector()
     if isLobbyStatsOn:
         players = []
         # lobbyStats[i]: [0]players [1]rejoins [2]legitRuns [3]totalRunTime [4]totalRunTimeFormatted [5]totalMistakes [6]avgRunTime [7]avgRunTimeFormatted [8]avgMistakes
@@ -55,6 +51,25 @@ rule "Initialize":
             timeToBeat[lbRank] += lbObj / 100
     nameplateObjs = []
     tinyNameplateObjs = []
+
+
+rule "Inspector After Startup":
+    @Condition (isDebugOn or isHintRecorderOn) == true
+
+    # Once Decompress Routes has decoded the hints (it clears hintData), the host has joined,
+    # and any DEDs have spawned (ded[0] counts them)
+    waitUntil(
+        hintData == null
+        and hostPlayer.hasSpawned()
+        and not hostPlayer.isLoading
+        and ded[0] >= len(dedBots),
+        Math.INFINITY
+    )
+    enableInspector()
+    # Sets the Source Code rule's line apart from the debug logs that follow
+    logToInspector(
+        "----------------------------------------------------------------------"
+    )
 
 
 rule "Start Elapsed Timer":
