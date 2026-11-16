@@ -14,8 +14,8 @@
     { "n": 10, "name": "Horizon Lunar Colony", "flag": "🌙", "by": "Senimar", "code": "JEFA9", "file": "leaderboards/10-horizon-lunar-colony.json", "channel": "1533657150122102905" },
     { "n": 11, "name": "Blizzard World", "flag": "🇺🇸", "by": "Senimar", "code": "D6WC7", "file": "leaderboards/11-blizzard-world.json", "channel": "1533657355752050798" },
     { "n": 12, "name": "Circuit Royal", "flag": "🇲🇨", "by": "Senimar", "code": "71GPZ", "file": "leaderboards/12-circuit-royal.json", "channel": "1533657497976438844" },
-    { "n": 13, "name": "Neon Junction", "flag": "🇯🇵", "by": "Senimar", "code": "EPWMD", "file": "leaderboards/13-neon-junction.json", "channel": "1533657675643093211" },
+    { "n": 13, "name": "Neon Junction", "flag": "🇯🇵", "by": "Senimar", "code": "0XRE9", "file": "leaderboards/13-neon-junction.json", "channel": "1533657675643093211" },
     { "n": 14, "name": "King’s Row", "flag": "🇬🇧", "by": "Senimar", "code": "PQZDY", "file": "leaderboards/14-kings-row.json", "channel": "1533659492959649932" },
-    { "n": 15, "name": "Eichenwalde", "flag": "🇩🇪", "by": "Senimar", "code": "R6TYG", "broken": true, "file": "leaderboards/15-eichenwalde.json", "channel": "1498162954204610570" }
+    { "n": 15, "name": "Eichenwalde", "flag": "🇩🇪", "by": "Senimar", "code": "PCFYS", "file": "leaderboards/15-eichenwalde.json", "channel": "1498162954204610570" }
   ]
 }
