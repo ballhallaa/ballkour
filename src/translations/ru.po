@@ -317,6 +317,10 @@ msgid "Mistakes: @0"
 msgstr "Ошибки: @0"
 
 #. file run.opy, rule "Load HUD"
+msgid "Course by @0, Remastered by ballhallaa"
+msgstr "Трасса: @0, ремастер: ballhallaa"
+
+#. file run.opy, rule "Load HUD"
 msgid "Controls: <fgFFFFFFFF>@0 (Hold)</fg>"
 msgstr "Управление: <fgFFFFFFFF>@0 (удерживать)</fg>"
 

@@ -1,7 +1,8 @@
 #!mainFile "../main.opy"
 #!rulePrefix "Orb Checkpoint"
 
-# A checkpoint with orbs (cpData[5]) has to be left with a grapple, after which the player may
+# A checkpoint with orbs (cpData[5]) has to be left with a grapple (unless it disables the
+# grapple), after which the player may
 # grapple again as often as they like, and roll along the ground and jump as long as they stay
 # fast, until they have every orb. After that, any landing but the next checkpoint is a Missed
 # Checkpoint. Reaching the next checkpoint without them all is a mistake too (Completion:
@@ -50,6 +51,9 @@ rule "No Grapple":
     @Condition eventPlayer.cpData[5] != null
     @Condition eventPlayer.cpData[12] == false
     @Condition eventPlayer.cpData[13] == false
+    # Without the grapple, an orb checkpoint plays like one without orbs: any landing short of
+    # the next checkpoint is a Missed Checkpoint
+    @Condition eventPlayer.cpData[2] == true
     @Condition eventPlayer.spectating[0] == false
     @Condition (
         distance(eventPlayer.getPosition(), eventPlayer.cpData[0])

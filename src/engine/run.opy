@@ -238,6 +238,20 @@ rule "Load HUD":
         rgb(0, 224, 146),
         HudReeval.VISIBILITY
     )
+    # The course's credit under it, in the smallest text, shown and hidden with it. Who made
+    # the course is COURSE_AUTHOR, set in the course's file.
+    creditHudText = _("Course by @0, Remastered by ballhallaa")
+    hudSubheader(
+        getAllPlayers().filter(
+            lambda localPlayer: localPlayer.faqPage == 0
+            and isHudLineOn(localPlayer, HUD_SITE)
+        ),
+        _(creditHudText).replace("@0", COURSE_AUTHOR),
+        HudPosition.TOP,
+        0.5,
+        rgb(180, 180, 180),
+        HudReeval.VISIBILITY_AND_STRING
+    )
     # At the top left, with FAQ and Hints under it, in the smallest text. The lobby leaves it
     # out, as its controls are buttons there. Turned off, the lines under it move up, and Hints
     # ends in a blank line in its place, so the 3 lines keep their height and the lines under
