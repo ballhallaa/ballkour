@@ -38,14 +38,7 @@ macro speedTenths(player):
         (
             player.getSpeed()
             if player.spectating[3]
-            else distance(
-                vect(0, 0, 0),
-                vect(
-                    player.viewRunner.getVelocity().x,
-                    0,
-                    player.viewRunner.getVelocity().z
-                )
-            )
+            else player.viewRunner.getHorizontalSpeed()
         )
         * 10
     )
