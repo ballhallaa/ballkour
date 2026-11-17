@@ -73,13 +73,14 @@ export function cardHtml({ course, board, date, runs, fresh, people, ratings = n
   const missChars = Math.max(1, ...slots.filter(Boolean).map((r) => String(Number.isInteger(r.ground) ? groundText(r.ground) : r.mistakes).length));
   // Two lines under the title: which board this is, then the course's code and who made it. A broken code is shown
   // like any other, unless the course has a beta code that still works (beta in courses.json): then that's the one
-  // shown, as Beta, since it's the code to play. A legacy board was set on the original course, so it shows that
+  // shown, as Beta, since it's the code to play. So is a course with only a Beta code (no code in courses.json), like
+  // Paraíso (3), Eichenwalde (4), and Practice Range (5). A legacy board was set on the original course, so it shows that
   // course's code (legacyCode).
   const line = (parts) => parts.filter(Boolean).map((s) => `<span>${s}</span>`).join("<span>·</span>");
   const field = (label, value) => (value ? `${label} <b>${esc(value)}</b>` : "");
   const sub = legacy ? line(["Legacy top 10", "Before May 2026"])
     : line(["Top 10", board ? `Board ${board}` : "", date]);
-  const credits = line([(legacy ? field("Code", course.legacyCode) : course.broken && course.beta ? field("Beta", course.beta) : field("Code", course.code)), field("Course by", course.by)]);
+  const credits = line([(legacy ? field("Code", course.legacyCode) : course.beta && (course.broken || !course.code) ? field("Beta", course.beta) : field("Code", course.code)), field("Course by", course.by)]);
 
   return `<!doctype html><meta charset="utf-8"><style>
 ${fontFaces(fonts)}
