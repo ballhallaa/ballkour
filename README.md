@@ -71,17 +71,29 @@ MXJ0W
 <tr>
 <td align="right">4</td>
 <td>🇩🇪 Eichenwalde</td>
-<td></td>
 <td align="right"><sub>Broken</sub><pre><del>9AVPN</del></pre></td>
+<td align="right"><sub>Beta</sub>
+
+```
+S7QD6
+```
+
+</td>
 </tr>
 <tr>
 <td align="right">5</td>
 <td>🎯 Practice Range</td>
-<td></td>
 <td align="right"><sub>Code</sub>
 
 ```
 KSG9E9
+```
+
+</td>
+<td align="right"><sub>Beta</sub>
+
+```
+7RR2Z
 ```
 
 </td>
