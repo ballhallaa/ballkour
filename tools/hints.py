@@ -259,6 +259,11 @@ def worst_miss(points, times, kept):
 def simplify(points, times, tolerance, max_gap):
     """Adds the sample the spline misses most until every sample is within tolerance, then
     drops the keyframes it can do without. Returns (points, times)."""
+    # A spline can't pass two places at once: of samples sharing a time, keep the last.
+    unique = [
+        k for k in range(len(times)) if k + 1 == len(times) or times[k + 1] > times[k]
+    ]
+    points, times = [points[k] for k in unique], [times[k] for k in unique]
     kept = [0]
     for k in range(1, len(points)):
         if times[k] - times[kept[-1]] > max_gap and k - 1 > kept[-1]:
@@ -266,6 +271,8 @@ def simplify(points, times, tolerance, max_gap):
     if kept[-1] != len(points) - 1:
         kept.append(len(points) - 1)
     while (miss := worst_miss(points, times, kept))[0] > tolerance:
+        if miss[1] in kept:
+            break
         kept = sorted(kept + [miss[1]])
     dropped = True
     while dropped:
