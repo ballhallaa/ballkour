@@ -1,9 +1,12 @@
 # Once a day, the leaderboard bot from develop (.github/workflows/leaderboard-bot.yml there): it posts any board that
 # changed and gives out the roles, so people who joined the Discord server since get theirs. GitHub only runs
 # scheduled workflows from the default branch, which is main, so the schedule lives here and not on develop.
+# ballkour.com's Worker starts it at 00:00 UTC (startDailyBot in cloudflare/worker.js there), through workflow_dispatch,
+# as GitHub's own schedule runs hours late. The schedule stays as a backup, in case the Worker's start fails.
 name: Leaderboard bot (daily)
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: "17 6 * * *"
 
