@@ -1,7 +1,7 @@
 #!include "../../VERSION"
 #!include "../../game-settings.opy"
 
-settings courseSettings(1, Watchpoint: Gibraltar, 59W28, 9GTJH, {"watchpointGibraltar": ["972777519512068292"]})
+settings courseSettings(1, Watchpoint: Gibraltar, 59W28, 9GTJH, "skirmish": {"enabledMaps": [{"watchpointGibraltar": ["972777519512068292"]}]})
 # The course's original author, credited under BALLKOUR.COM
 #!define COURSE_AUTHOR "Spiz"
 

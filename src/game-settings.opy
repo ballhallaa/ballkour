@@ -3,7 +3,8 @@
 # can't read OverPy's Team.1.
 #!define PLAYER_TEAM Team.1
 # Text arguments go in without quotes, as #!define swaps them into the strings below.
-#!define courseSettings(COURSE_ID, COURSE_NAME, LATEST_CODE, BETA_CODE, ENABLED_MAP) { \
+# GAMEMODE is the course's game mode entry: "skirmish" with its map, or "practiceRange".
+#!define courseSettings(COURSE_ID, COURSE_NAME, LATEST_CODE, BETA_CODE, GAMEMODE) { \
     "main": { \
         "description": \
         f"Course COURSE_ID ● COURSE_NAME \n\nv{VERSION} \n\nLatest Code: LATEST_CODE \n\nBeta Code: BETA_CODE" if strContains(VERSION, "-beta.") else \
@@ -21,9 +22,7 @@
         "swapTeamsAfterMatch": false \
     }, \
     "gamemodes": { \
-        "skirmish": { \
-            "enabledMaps": [ENABLED_MAP] \
-        }, \
+        GAMEMODE, \
         "general": { \
             "heroLimit": "off" \
         } \
