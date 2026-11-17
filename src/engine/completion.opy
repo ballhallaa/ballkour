@@ -73,6 +73,7 @@ rule "Checkpoint (No Skipping)":
                 Relativity.TO_WORLD,
                 Impulse.CANCEL_CONTRARY_MOTION_XYZ
             )
+            eventPlayer.setStatusEffect(null, Status.ROOTED, 0.2)
             eventPlayer.isLoading = false
         playEffect(
             eventPlayer, DynamicEffect.RING_EXPLOSION_SOUND, null, eventPlayer, 100
