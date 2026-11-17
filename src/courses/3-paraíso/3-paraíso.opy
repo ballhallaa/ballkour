@@ -1,7 +1,7 @@
 #!include "../../VERSION"
 #!include "../../game-settings.opy"
 
-settings courseSettings(3, Paraíso, NT5G3K, MXJ0W, "paraiso")
+settings courseSettings(3, Paraíso, NT5G3K, MXJ0W, "skirmish": {"enabledMaps": ["paraiso"]})
 # The course's original author, credited under BALLKOUR.COM
 #!define COURSE_AUTHOR "Spiz"
 

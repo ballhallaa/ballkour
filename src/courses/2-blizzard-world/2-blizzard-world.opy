@@ -1,7 +1,7 @@
 #!include "../../VERSION"
 #!include "../../game-settings.opy"
 
-settings courseSettings(2, Blizzard World (Winter), GMWRF, 8Y14F, "blizzWorldWinter")
+settings courseSettings(2, Blizzard World (Winter), GMWRF, 8Y14F, "skirmish": {"enabledMaps": ["blizzWorldWinter"]})
 # The course's original author, credited under BALLKOUR.COM
 #!define COURSE_AUTHOR "Spiz"
 
