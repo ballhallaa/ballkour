@@ -19,8 +19,7 @@ _Wrecking Ball parkour courses for Overwatch_
 <tr><td colspan="4">Courses by <b>Spiz</b></td></tr>
 <tr>
 <td align="right">1</td>
-<td>🇬🇮 Watchpoint: Gibraltar<br>
-<sub>Remaker: ballhallaa</sub></td>
+<td>🇬🇮 Watchpoint: Gibraltar</td>
 <td align="right"><sub>Latest</sub>
 
 ```
@@ -38,8 +37,7 @@ _Wrecking Ball parkour courses for Overwatch_
 </tr>
 <tr>
 <td align="right">2</td>
-<td>🇺🇸 Blizzard World (Winter)<br>
-<sub>Remaker: ballhallaa</sub></td>
+<td>🇺🇸 Blizzard World (Winter)</td>
 <td align="right"><sub>Latest</sub>
 
 ```
@@ -57,8 +55,7 @@ GMWRF
 </tr>
 <tr>
 <td align="right">3</td>
-<td>🇧🇷 Paraíso<br>
-<sub>Remaker: ballhallaa</sub></td>
+<td>🇧🇷 Paraíso</td>
 <td align="right"><sub>Broken</sub><pre><del>NT5G3K</del></pre></td>
 <td align="right"><sub>Beta</sub>
 
