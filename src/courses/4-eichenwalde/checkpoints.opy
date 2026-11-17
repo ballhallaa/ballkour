@@ -131,21 +131,25 @@ rule "Checkpoints":
         ]
     )
     # Sizes past cpDefaults: vect(checkpoint, cpSize, nextCpSize), 0 keeps the default
-    cpSizes = [vect(2, 0, 3), vect(3, 3, 0), vect(48, 4.1, 0), vect(55, 3, 0), vect(66, 0, 1.75), vect(96, 2.25, 0)]
+    cpSizes = compress(
+        [vect(2, 0, 3), vect(3, 3, 0), vect(48, 4.1, 0), vect(55, 3, 0), vect(66, 0, 1.75), vect(96, 2.25, 0)]
+    )
     # Landings away from a checkpoint, as pairs: vect(checkpoint, 0, 0), then where the jump to
     # it lands. Clearing it there teleports the player to the checkpoint.
-    cpLandings = [
-        vect(29, 0, 0), vect(33.27, 13.75, -85.64),
-        vect(43, 0, 0), vect(16.40, 9.83, -42.09),
-        vect(44, 0, 0), vect(20.12, 9.00, -25.03),
-        vect(45, 0, 0), vect(82.95, 21.15, -64.41),
-        vect(48, 0, 0), vect(114.13, 14.72, -31.08),
-        vect(49, 0, 0), vect(114.93, 14.72, -31.01),
-        vect(56, 0, 0), vect(89.05, 13.04, -64.65),
-        vect(67, 0, 0), vect(42.88, 6.13, -62.35),
-        vect(87, 0, 0), vect(34.56, 6.02, -71.06),
-        vect(90, 0, 0), vect(7.45, 5.80, -65.04),
-        vect(91, 0, 0), vect(48.30, 11.72, -79.63),
-        vect(92, 0, 0), vect(102.22, 17.71, -71.93),
-        vect(96, 0, 0), vect(34.10, 14.00, -79.23)
-    ]
+    cpLandings = compress(
+        [
+            vect(29, 0, 0), vect(33.27, 13.75, -85.64),
+            vect(43, 0, 0), vect(16.40, 9.83, -42.09),
+            vect(44, 0, 0), vect(20.12, 9.00, -25.03),
+            vect(45, 0, 0), vect(82.95, 21.15, -64.41),
+            vect(48, 0, 0), vect(114.13, 14.72, -31.08),
+            vect(49, 0, 0), vect(114.93, 14.72, -31.01),
+            vect(56, 0, 0), vect(89.05, 13.04, -64.65),
+            vect(67, 0, 0), vect(42.88, 6.13, -62.35),
+            vect(87, 0, 0), vect(34.56, 6.02, -71.06),
+            vect(90, 0, 0), vect(7.45, 5.80, -65.04),
+            vect(91, 0, 0), vect(48.30, 11.72, -79.63),
+            vect(92, 0, 0), vect(102.22, 17.71, -71.93),
+            vect(96, 0, 0), vect(34.10, 14.00, -79.23)
+        ]
+    )
