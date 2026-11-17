@@ -29,7 +29,7 @@ globalvar assistedRunCount
 globalvar lbRowText
 globalvar lbRunText
 globalvar lbRunPad
-globalvar lbRunViewers
+globalvar lbRunInfoText
 globalvar timeToBeat
 globalvar timeToBeatFormatted
 
@@ -485,39 +485,13 @@ def addMistake():
 # Leaderboard
 # A run's submission date and video link, for the players who opened it from its row
 # (Lobby: Select Input). The course leaderboards use it, so it's defined here.
-# Only open runs get their text, as every text's definition adds to the server's load.
-# Workshop text is uppercase and video links aren't, so this overlays progress bar texts,
-# which can show lowercase. They only line up in the Latin font, and one CJK character
-# changes a text's whole font, so the row with the runner's name is its own text (Show Run
-# Info), like the close line.
-# It follows the player's camera: the blank lines (lbRunPad) lift it toward the top of the
-# screen and push its progress bar off the screen. Each run's 3 texts are separate actions,
-# as only literal text is lowercased, so everything they share is kept short: the blank
-# lines are stored. Texts are remade whenever a run is opened or closed, which reaches the
-# player after their open run has already changed, so each viewer's open run is checked
-# again: the last run's date and link would show under the new row until then.
-macro lbRunInfo(rank, date, link):
-    lbRunViewers = getAllPlayers().filter(
-        lambda localPlayer: localPlayer.lbInfoRow == rank
-    )
-    if len(lbRunViewers) > 0:
-        createCasedProgressBarIwt(
-            3,
-            getAllPlayers().filter(lambda localPlayer: localPlayer.lbInfoRow == rank),
-            "{}{}\n<fgFFFFFFFF>{}</fg>\n<fgFFFFFFFF>{}</fg>{}".format(
-                lbRunPad[0], lbRunPad[4], date, link, lbRunPad[1]
-            ),
-            updateEveryFrame(
-                localPlayer.getEyePosition() + localPlayer.getFacingDirection() * 10
-            ),
-            1,
-            Clip.NONE,
-            rgb(230, 151, 0),
-            ProgressWorldTextReeval.VISIBILITY_AND_POSITION
-        )
-
-
+# Workshop text is uppercase and video links aren't, so it's drawn as overlaid progress bar
+# texts, which can show lowercase: OverPy's createCasedProgressBarIwt spreads the letters
+# over them. It only takes literal text, which made 3 texts per run, about 170 elements
+# a run. Instead run-info.js does the same split while compiling, into
+# lbRunInfoText[rank], the 3 layers' strings, which Show Run Info's 3 texts pick from by
+# the viewer's open run.
+#!define lbRunInfo(rank, date, link) __script__("run-info.js")
 # An assisted leaderboard run's, the same way: its rows are lbInfoRow 11 to 20, after the
 # regular leaderboard's (Lobby: Load Leaderboard)
-macro assistedLbRunInfo(rank, date, link):
-    lbRunInfo(rank + 10, date, link)
+#!define assistedLbRunInfo(assistedRank, date, link) __script__("run-info.js")
