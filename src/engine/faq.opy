@@ -153,20 +153,7 @@ rule "Load HUD":
     # under it. Turned off, Hints moves up and ends in a blank line in its place, like for
     # Controls (Run: Load HUD).
     faqHudText[0] = _("FAQ: <fgFFFFFFFF>@0 + @1</fg>")
-    hudSubheader(
-        getAllPlayers().filter(
-            lambda localPlayer: isCourseHudShown(localPlayer)
-            and localPlayer.faqPage == 0
-            and isHudLineOn(localPlayer, HUD_FAQ)
-        ),
-        _(faqHudText[0])
-        .replace("@0", inputBindingString(Button.ULTIMATE))
-        .replace("@1", inputBindingString(Button.MELEE)),
-        HudPosition.LEFT,
-        0.1,
-        rgb(230, 151, 0),
-        HudReeval.VISIBILITY_AND_STRING
-    )
+    # Shown in Hints' text (Controls: Load Hints HUD)
     # Each answer is its own string in white, with its question in light blue and the game's own
     # labels (controls, HUD and lobby names) in orange, in questions too, the ones
     # ballkour.com/faq marks. A mode or HUD text keeps its own HUD's color instead (Freemode

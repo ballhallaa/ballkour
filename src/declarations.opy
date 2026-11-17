@@ -70,15 +70,21 @@ globalvar lobbyUp
 globalvar lobbyRight
 globalvar lobbyPos
 globalvar lobbyStats
-# The HUD page's rows in its left and right columns, from 1, with [0] far below the lobby
-globalvar hudLeftPos
+# The HUD page's rows in its right column, from 1
 globalvar hudRightPos
+# The HUD page's boxes (Lobby: Load HUD Page): [0] ballkour.com and the credit, [1] to [5]
+# the left column's, [6] to [9] the right column's. Each box's lines' HUD_ numbers, the page
+# angle of its first line, where a look at it is measured from across the page, and where
+# its text goes
+globalvar hudBoxLines
+globalvar hudBoxTop
+globalvar hudBoxAcross
+globalvar hudBoxPos
 # The HUD page's texts, which only exist while someone's on it (Lobby: Show HUD Page)
 globalvar hudPageTexts
 # Whether the HUD page's own texts exist yet, which the main page's texts it borrows wait for
 # (Lobby: Show HUD Page)
 globalvar isHudPageReady
-# Disqualified's row, as its spot in hudLeftPos holds the arrows' parking spot instead
 # The lobby players Pull Back or Release is turning, for the tick it runs
 globalvar lobbyPulled
 # Made-up rows the HUD shows on the HUD page in place of the scorecard and Top 3s
@@ -396,7 +402,11 @@ macro HUD_SPLIT_STATS = 21
 macro HUD_PACE = 22
 macro HUD_ALL_TIME_TOP = 23
 macro HUD_LOBBY_TOP = 24
-macro HUD_LINES = 25
+# The course's credit under ballkour.com, and Assist Mode On under Disqualified, last as they
+# were added last
+macro HUD_CREDIT = 25
+macro HUD_ASSIST = 26
+macro HUD_LINES = 27
 # The lobby page that turns them on and off (lobbyPage)
 macro HUD_PAGE = 3
 # The made-up spectator count the HUD shows on the HUD page, so Spectators has a number

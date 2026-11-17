@@ -20,22 +20,6 @@ rule "Load HUD":
     # capped at 128 per server, HUD texts included (Lobby: Load Buttons).
     spectatorHudText[0] = _("\nSpectating")
     spectatorHudText[1] = _("\nSpectating @0")
-    hudSubtext(
-        getAllPlayers().filter(
-            lambda localPlayer: (localPlayer.spectating[0] or isHudPage(localPlayer))
-            and localPlayer.faqPage == 0
-            and isHudLineOn(localPlayer, HUD_SPECTATING)
-        ),
-        (
-            _(spectatorHudText[1]).replace("@0", localPlayer.spectating[1])
-            if localPlayer.spectating[0] and localPlayer.spectating[1] != null
-            else _(spectatorHudText[0])
-        ),
-        HudPosition.LEFT,
-        2,
-        rgb(0, 190, 255),
-        HudReeval.VISIBILITY_AND_STRING
-    )
     spectatorHudText[2] = _("Freecam On")
     hudSubtext(
         getAllPlayers().filter(
@@ -70,24 +54,54 @@ rule "Load HUD":
         Color.WHITE,
         HudReeval.VISIBILITY_AND_STRING
     )
-    # Spectated Player's HUD, under Freemode On (1) so it moves only when the player toggles
-    # freemode, not Freemode On whenever spectators come and go. Only the number is white, like
-    # the HUD's other numbers, so the label stays blue.
+    # Spectated Player's HUD, under Freemode On (0.9) so it moves only when the player
+    # toggles freemode, not Freemode On whenever spectators come and go. Only the number is
+    # white, like the HUD's other numbers, so the label stays blue.
+    # Spectating is under it in the same text, as texts are capped at 128 per server (Lobby:
+    # Load Buttons), each left out while it's turned off
     spectatorHudText[4] = _("\nSpectators: @0")
     hudSubtext(
         getAllPlayers().filter(
-            lambda localPlayer: (
-                localPlayer.spectating[10] > 0 or isHudPage(localPlayer)
+            lambda localPlayer: localPlayer.faqPage == 0
+            and (
+                (localPlayer.spectating[10] > 0 or isHudPage(localPlayer))
+                and isHudLineOn(localPlayer, HUD_SPECTATORS)
+                or (localPlayer.spectating[0] or isHudPage(localPlayer))
+                and isHudLineOn(localPlayer, HUD_SPECTATING)
             )
-            and localPlayer.faqPage == 0
-            and isHudLineOn(localPlayer, HUD_SPECTATORS)
         ),
-        _(spectatorHudText[4]).replace(
-            "@0",
-            "<fgFFFFFFFF>{}</fg>".format(
-                HUD_PAGE_SPECTATORS
-                if isHudPage(localPlayer)
-                else localPlayer.spectating[10]
+        "{}{}".format(
+            (
+                _(spectatorHudText[4]).replace(
+                    "@0",
+                    "<fgFFFFFFFF>{}</fg>".format(
+                        HUD_PAGE_SPECTATORS
+                        if isHudPage(localPlayer)
+                        else localPlayer.spectating[10]
+                    )
+                )
+                if (localPlayer.spectating[10] > 0 or isHudPage(localPlayer))
+                and isHudLineOn(localPlayer, HUD_SPECTATORS)
+                else ""
+            ),
+            (
+                "{}{}".format(
+                    (
+                        "\n"
+                        if (localPlayer.spectating[10] > 0 or isHudPage(localPlayer))
+                        and isHudLineOn(localPlayer, HUD_SPECTATORS)
+                        else ""
+                    ),
+                    (
+                        _(spectatorHudText[1]).replace("@0", localPlayer.spectating[1])
+                        if localPlayer.spectating[0]
+                        and localPlayer.spectating[1] != null
+                        else _(spectatorHudText[0])
+                    )
+                )
+                if (localPlayer.spectating[0] or isHudPage(localPlayer))
+                and isHudLineOn(localPlayer, HUD_SPECTATING)
+                else ""
             )
         ),
         HudPosition.LEFT,
