@@ -16,6 +16,7 @@ rule "Leaderboard":
     # The assisted leaderboard, for runs played in Assist Mode, laid out the same way, with
     # assistedLbRunInfo(rank, date, link) for its runs' info in loadRunInfo
     assistedLb = []
+    assistedLb[1] = "BALLHALLAA, 3:24.59, 6.22, '                  '"  # discord: 175372497720573953
 
 
 def loadRunInfo():
@@ -32,3 +33,4 @@ def loadRunInfo():
     lbRunInfo(8, "2026-06-12", "medal.tv/games/overwatch/clips/mTG72hXv3vOdGEDPP")
     lbRunInfo(9, "2026-06-10", "youtu.be/OaXIV4kSh_k")
     lbRunInfo(10, "2026-09-30", "medal.tv/games/overwatch/clips/nDcPQeGIujXfUqe5G")
+    assistedLbRunInfo(1, "2026-11-14", "youtu.be/yMpIBgLnTsM")
