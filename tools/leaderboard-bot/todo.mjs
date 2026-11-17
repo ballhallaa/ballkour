@@ -26,7 +26,8 @@ const courses = [...byCourse.values()];
 const TITLE = "**In-game leaderboards to update**";
 const head = `${TITLE} (${behind.length} board${behind.length === 1 ? "" : "s"} on ${courses.length} course${courses.length === 1 ? "" : "s"}):`;
 const foot = "Run `node tools/leaderboard-bot/game-boards.mjs` for the lines to paste.";
-const lines = courses.map(({ course, modes }) => `- **${course.name} (${course.n})**: ${modes.join(" and ")}`);
+// "1 🇬🇮 Watchpoint: Gibraltar", with the course's flag from courses.json
+const lines = courses.map(({ course, modes }) => `- **${course.n} ${course.flag || "•"} ${course.name}**: ${modes.join(" and ")}`);
 let message = [head, ...lines, "", foot].join("\n");
 // Cut down to Discord's limit (far more courses than there are), saying how many are left out
 for (let keep = lines.length - 1; message.length > LIMIT && keep > 0; keep--) {
