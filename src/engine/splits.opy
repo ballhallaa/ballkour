@@ -187,7 +187,7 @@ rule "Load HUD":
     )
 
     # Speed sits under Pace at the same size, and stays on wherever the course HUD shows,
-    # past the last CP too, as it can't be turned off on the HUD page. It's the viewed
+    # past the last CP too, unless it's turned off on the HUD page. It's the viewed
     # runner's sideways speed, so falling doesn't count, to a tenth of a m/s. In
     # disconnected freecam it's the player's own speed, up and down too, as there's no
     # gravity to leave out, and the CP above ends in 1 blank line, so it brings the 2nd.
@@ -196,6 +196,7 @@ rule "Load HUD":
         getAllPlayers().filter(
             lambda localPlayer: isCourseHudShown(localPlayer)
             and localPlayer.faqPage == 0
+            and isHudLineOn(localPlayer, HUD_SPEED)
         ),
         "{}{}".format(
             "\n" if localPlayer.spectating[3] else "",

@@ -317,8 +317,8 @@ msgid "Mistakes: @0"
 msgstr "Errori: @0"
 
 #. file run.opy, rule "Load HUD"
-msgid "Course by @0, Remastered by ballhallaa"
-msgstr "Percorso di @0, rimasterizzato da ballhallaa"
+msgid "Course by @0"
+msgstr "Percorso di @0"
 
 #. file run.opy, rule "Load HUD"
 msgid "Controls: <fgFFFFFFFF>@0 (Hold)</fg>"

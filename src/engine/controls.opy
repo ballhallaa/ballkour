@@ -949,34 +949,80 @@ def assistModeInput():
         eventPlayer.isLoading = false
 
 
+# Whether Freemode On's line shows
+macro isFreemodeLineShown(player):
+    (
+        (
+            (player.isInFreemode or player.isInPracticeMode)
+            and not player.spectating[0]
+            or isHudPage(player)
+        )
+        and isHudLineOn(player, HUD_FREEMODE)
+    )
+
+
 rule "Load Freemode HUD":
-    # Under Disqualified (0.9) and Assist Mode On (0.95), with a blank line above it unless
-    # either, which brings its own, is showing. The HUD page shows it either way, so it can be
-    # turned off ahead of time.
+    # Under Disqualified and Assist Mode On (Run: Load HUD), in one text with them, as texts
+    # are capped at 128 per server (Lobby: Load Buttons), each line in its own color, under
+    # one blank line. A line that doesn't show is left out, and the ones under it move up. The
+    # HUD page shows it either way, so it can be turned off ahead of time.
     # Practice Mode On takes its place, as the two never show together
     freemodeHudText = _("Freemode On")
     practiceModeHudText = _("Practice Mode On")
+    # Which of the 3 lines show is worked out once, mapping over a one-item array of
+    # them, as each check is long and they'd each be written out again where they're used
     hudSubtext(
         getAllPlayers().filter(
-            lambda localPlayer: (
-                (localPlayer.isInFreemode or localPlayer.isInPracticeMode)
-                and not localPlayer.spectating[0]
-                or isHudPage(localPlayer)
-            )
-            and localPlayer.faqPage == 0
-            and isHudLineOn(localPlayer, HUD_FREEMODE)
-        ),
-        "{}{}".format(
-            "" if isDisqualifiedShown(localPlayer) else "\n",
-            (
-                _(practiceModeHudText)
-                if localPlayer.isInPracticeMode and not isHudPage(localPlayer)
-                else _(freemodeHudText)
+            lambda localPlayer: localPlayer.faqPage == 0
+            and (
+                isDisqualifiedShown(localPlayer)
+                and (
+                    not isAssistModeShown(localPlayer)
+                    or isHudLineOn(localPlayer, HUD_ASSIST)
+                )
+                or isFreemodeLineShown(localPlayer)
             )
         ),
+        [
+            [
+                isDisqualifiedLineShown(localPlayer),
+                isAssistLineShown(localPlayer),
+                isFreemodeLineShown(localPlayer)
+            ]
+        ].map(
+            lambda f: "\n{}{}{}".format(
+                (
+                    "<fgFF4646FF>{}</fg>".format(_(counterHudText[3]).replace("\n", ""))
+                    if f[0]
+                    else ""
+                ),
+                (
+                    "{}<fgFF80C0FF>{}</fg>".format(
+                        "\n" if f[0] else "", _(counterHudText[4]).replace("\n", "")
+                    )
+                    if f[1]
+                    else ""
+                ),
+                (
+                    "{}<fgCB87FFFF>{}</fg>".format(
+                        "\n" if f[0] or f[1] else "",
+                        (
+                            _(practiceModeHudText)
+                            if localPlayer.isInPracticeMode
+                            and not isHudPage(localPlayer)
+                            else _(freemodeHudText)
+                        )
+                    )
+                    if f[2]
+                    else ""
+                )
+            )
+        )[
+            0
+        ],
         HudPosition.LEFT,
-        1,
-        rgb(203, 135, 255),
+        0.9,
+        Color.WHITE,
         HudReeval.VISIBILITY_AND_STRING
     )
 
@@ -1064,7 +1110,26 @@ rule "Load Hints HUD":
         # The 3 lines at the top left keep their height, so the lines under them stay clear of
         # the player's name tag on the 4th line: a blank line for itself while it's turned
         # off, and one at the end for each of Controls and FAQ turned off, which move up
-        "{}{}{}".format(
+        # Controls and FAQ above it, in the same text, as texts are capped at 128 per server
+        # (Lobby: Load Buttons), each left out while it's turned off
+        "{}{}{}{}{}".format(
+            (
+                "{}\n".format(
+                    _(runHudText).replace("@0", inputBindingString(Button.ULTIMATE))
+                )
+                if isCourseHudShown(localPlayer)
+                and isHudLineOn(localPlayer, HUD_CONTROLS)
+                else ""
+            ),
+            (
+                "{}\n".format(
+                    _(faqHudText[0])
+                    .replace("@0", inputBindingString(Button.ULTIMATE))
+                    .replace("@1", inputBindingString(Button.MELEE))
+                )
+                if isCourseHudShown(localPlayer) and isHudLineOn(localPlayer, HUD_FAQ)
+                else ""
+            ),
             (
                 " "
                 if localPlayer.hudHidden[HUD_HINTS]
@@ -1090,7 +1155,7 @@ rule "Load Hints HUD":
             "\n" if localPlayer.hudHidden[HUD_FAQ] else ""
         ),
         HudPosition.LEFT,
-        0.2,
+        0,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )

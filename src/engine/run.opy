@@ -147,11 +147,19 @@ macro hudLinesGap(player):
     ("" if areHudLinesOff(player, HUD_RUNS, 3) else "\n\n")
 
 
-# Whether Disqualified shows: while the viewed run doesn't count, or the viewed runner is in
-# Assist Mode (see isAssistModeShown), outside disconnected freecam. It can't be turned off, as
-# it says the run won't count, or which leaderboard it's for, and the HUD page shows both on its
-# row, struck through, so it's clear they stay. (Freemode On can show with Assist Mode On, so it
-# has a row of its own.)
+# Whether the CP's part of the CP, time and mistakes text shows: while it's on, or as the
+# blank lines under the counters when Time and Mistakes are both off
+macro cpPart(player):
+    (
+        isHudLineOn(player, HUD_CP)
+        or areHudLinesOff(player, HUD_TIME, 2)
+        and not areHudLinesOff(player, HUD_RUNS, 3)
+        and not player.spectating[3]
+    )
+
+
+# Whether Disqualified's spot shows: while the viewed run doesn't count, or the viewed runner
+# is in Assist Mode (see isAssistModeShown), outside disconnected freecam
 macro isDisqualifiedShown(player):
     (
         isCourseHudShown(player)
@@ -172,6 +180,22 @@ macro isAssistModeShown(player):
         player.viewRunner.isInAssistMode
         and player.viewRunner.isRunLegit
         and not isHudPage(player)
+    )
+
+
+# Whether Disqualified's line shows. It can't be turned off, as it says the run won't count,
+# and the HUD page strikes its line through, so it's clear it stays.
+macro isDisqualifiedLineShown(player):
+    (isDisqualifiedShown(player) and not isAssistModeShown(player))
+
+
+# Whether Assist Mode On's line shows: in Disqualified's place, or under it for a disqualified
+# run, unless it's turned off. It can be, as the ground time's icon on the right says so too.
+macro isAssistLineShown(player):
+    (
+        isDisqualifiedShown(player)
+        and (player.viewRunner.isInAssistMode or isHudPage(player))
+        and isHudLineOn(player, HUD_ASSIST)
     )
 
 
@@ -227,6 +251,21 @@ rule "Load HUD":
         rgb(0, 224, 146),
         HudReeval.VISIBILITY
     )
+    # The course's credit under it, in the smallest text. Its own text: as one text's
+    # subheader it sat beside the header (lab video). Who made the course is COURSE_AUTHOR,
+    # set in the course's file.
+    creditHudText = _("Course by @0")
+    hudSubheader(
+        getAllPlayers().filter(
+            lambda localPlayer: localPlayer.faqPage == 0
+            and isHudLineOn(localPlayer, HUD_CREDIT)
+        ),
+        _(creditHudText).replace("@0", COURSE_AUTHOR),
+        HudPosition.TOP,
+        0.5,
+        rgb(180, 180, 180),
+        HudReeval.VISIBILITY_AND_STRING
+    )
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.faqPage > 0
@@ -238,37 +277,11 @@ rule "Load HUD":
         rgb(0, 224, 146),
         HudReeval.VISIBILITY
     )
-    # The course's credit under it, in the smallest text, shown and hidden with it. Who made
-    # the course is COURSE_AUTHOR, set in the course's file.
-    creditHudText = _("Course by @0, Remastered by ballhallaa")
-    hudSubheader(
-        getAllPlayers().filter(
-            lambda localPlayer: localPlayer.faqPage == 0
-            and isHudLineOn(localPlayer, HUD_SITE)
-        ),
-        _(creditHudText).replace("@0", COURSE_AUTHOR),
-        HudPosition.TOP,
-        0.5,
-        rgb(180, 180, 180),
-        HudReeval.VISIBILITY_AND_STRING
-    )
     # At the top left, with FAQ and Hints under it, in the smallest text. The lobby leaves it
     # out, as its controls are buttons there. Turned off, the lines under it move up, and Hints
     # ends in a blank line in its place, so the 3 lines keep their height and the lines under
     # them stay clear of the player's name tag on the 4th line (Controls: Load Hints HUD).
     runHudText = _("Controls: <fgFFFFFFFF>@0 (Hold)</fg>")
-    hudSubheader(
-        getAllPlayers().filter(
-            lambda localPlayer: isCourseHudShown(localPlayer)
-            and localPlayer.faqPage == 0
-            and isHudLineOn(localPlayer, HUD_CONTROLS)
-        ),
-        _(runHudText).replace("@0", inputBindingString(Button.ULTIMATE)),
-        HudPosition.LEFT,
-        0,
-        rgb(230, 151, 0),
-        HudReeval.VISIBILITY_AND_STRING
-    )
     # Runs counts the runs finished or restarted (see Initialize New Run). Attempts counts the
     # CP's mistakes and clears, and Mistakes only its mistakes, over all the player's runs, like
     # its Best and Avg.
@@ -279,68 +292,80 @@ rule "Load HUD":
     # The CP keeps 2 blank lines under them, like the 2 above the splits, so the 3 sections read
     # apart. Hiding them gives it 5, about their height, so the CP barely moves (runStatsGap).
     counterHudText[0] = _("Runs: @0")
-    hudSubheader(
-        getAllPlayers().filter(
-            lambda localPlayer: isCourseHudShown(localPlayer)
-            and not localPlayer.spectating[3]
-            and localPlayer.faqPage == 0
-            and isHudLineOn(localPlayer, HUD_RUNS)
-        ),
-        _(counterHudText[0]).replace(
-            "@0", ("<fgFFFFFFFF>{}</fg>").format(localPlayer.viewRunner.runCount)
-        ),
-        HudPosition.RIGHT,
-        0,
-        rgb(230, 151, 0),
-        HudReeval.VISIBILITY_AND_STRING
-    )
     counterHudText[1] = _("Attempts: @0")
-    hudSubheader(
-        getAllPlayers().filter(
-            lambda localPlayer: isCourseHudShown(localPlayer)
-            and not localPlayer.spectating[3]
-            and localPlayer.faqPage == 0
-            and isHudLineOn(localPlayer, HUD_ATTEMPTS)
-        ),
-        _(counterHudText[1]).replace(
-            "@0",
-            ("<fgFFFFFFFF>{}</fg>").format(
-                localPlayer.viewRunner.cpAttempts[localPlayer.viewRunner.runCurrentCp]
-            )
-        ),
-        HudPosition.RIGHT,
-        0.1,
-        rgb(230, 151, 0),
-        HudReeval.VISIBILITY_AND_STRING
-    )
     # In Assist Mode, where landing isn't a mistake, they're Redos: the falls and resets. The
     # HUD page says both, like its row (Lobby: Load Languages), as the line shows in both.
     counterHudText[2] = _("Mistakes: @0")
     counterHudText[5] = _("Redos: @0")
     counterHudText[6] = _("Mistakes/Redos: @0")
+    # One text for the 3, as texts are capped at 128 per server (Lobby: Load Buttons). A
+    # line turned off is left out, and the ones under it move up.
     hudSubheader(
         getAllPlayers().filter(
             lambda localPlayer: isCourseHudShown(localPlayer)
             and not localPlayer.spectating[3]
             and localPlayer.faqPage == 0
-            and isHudLineOn(localPlayer, HUD_CP_MISTAKES)
-        ),
-        (
-            _(counterHudText[6])
-            if isHudPage(localPlayer)
-            else (
-                _(counterHudText[5])
-                if localPlayer.viewRunner.isInAssistMode
-                else _(counterHudText[2])
+            and not (
+                localPlayer.hudHidden[HUD_RUNS]
+                and localPlayer.hudHidden[HUD_ATTEMPTS]
+                and localPlayer.hudHidden[HUD_CP_MISTAKES]
             )
-        ).replace(
-            "@0",
-            ("<fgFFFFFFFF>{}</fg>").format(
-                localPlayer.viewRunner.cpMistakes[localPlayer.viewRunner.runCurrentCp]
+        ),
+        "{}{}{}".format(
+            (
+                _(counterHudText[0]).replace(
+                    "@0",
+                    ("<fgFFFFFFFF>{}</fg>").format(localPlayer.viewRunner.runCount)
+                )
+                if isHudLineOn(localPlayer, HUD_RUNS)
+                else ""
+            ),
+            (
+                "{}{}".format(
+                    "\n" if isHudLineOn(localPlayer, HUD_RUNS) else "",
+                    _(counterHudText[1]).replace(
+                        "@0",
+                        ("<fgFFFFFFFF>{}</fg>").format(
+                            localPlayer.viewRunner.cpAttempts[
+                                localPlayer.viewRunner.runCurrentCp
+                            ]
+                        )
+                    )
+                )
+                if isHudLineOn(localPlayer, HUD_ATTEMPTS)
+                else ""
+            ),
+            (
+                "{}{}".format(
+                    (
+                        "\n"
+                        if isHudLineOn(localPlayer, HUD_RUNS)
+                        or isHudLineOn(localPlayer, HUD_ATTEMPTS)
+                        else ""
+                    ),
+                    (
+                        _(counterHudText[6])
+                        if isHudPage(localPlayer)
+                        else (
+                            _(counterHudText[5])
+                            if localPlayer.viewRunner.isInAssistMode
+                            else _(counterHudText[2])
+                        )
+                    ).replace(
+                        "@0",
+                        ("<fgFFFFFFFF>{}</fg>").format(
+                            localPlayer.viewRunner.cpMistakes[
+                                localPlayer.viewRunner.runCurrentCp
+                            ]
+                        )
+                    )
+                )
+                if isHudLineOn(localPlayer, HUD_CP_MISTAKES)
+                else ""
             )
         ),
         HudPosition.RIGHT,
-        0.2,
+        0,
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
@@ -348,11 +373,12 @@ rule "Load HUD":
     # A line turned off hands its blank lines to the one above, and the ones above it to the
     # one below. With all 3 off under a counter, the CP stays as just its blank lines, so the
     # counters stay apart from the splits.
+    # One text for the 3, as texts are capped at 128 per server (Lobby: Load Buttons). The
+    # CP's part shows as above (cpPart), and each part after the first starts on a new line.
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: isCourseHudShown(localPlayer)
             and localPlayer.faqPage == 0
-            # Spelled out instead of areHudLinesOff, which the Workshop can't nest in a filter
             and (
                 isHudLineOn(localPlayer, HUD_CP)
                 or localPlayer.hudHidden[HUD_TIME]
@@ -363,23 +389,81 @@ rule "Load HUD":
                     and localPlayer.hudHidden[HUD_CP_MISTAKES]
                 )
                 and not localPlayer.spectating[3]
+                or not localPlayer.spectating[3]
+                and not (
+                    localPlayer.hudHidden[HUD_TIME]
+                    and localPlayer.hudHidden[HUD_MISTAKES]
+                )
             )
         ),
-        "{}{}".format(
-            runStatsGap(localPlayer),
+        "{}{}{}".format(
             (
-                ("{} {}/{}\n{}").format(
-                    iconString(Icon.FLAG),
-                    localPlayer.viewCp,
-                    lastCp,
+                "{}{}".format(
+                    runStatsGap(localPlayer),
                     (
-                        "\n"
-                        if areHudLinesOff(localPlayer, HUD_TIME, 2)
-                        and not localPlayer.spectating[3]
+                        ("{} {}/{}\n{}").format(
+                            iconString(Icon.FLAG),
+                            localPlayer.viewCp,
+                            lastCp,
+                            (
+                                "\n"
+                                if areHudLinesOff(localPlayer, HUD_TIME, 2)
+                                and not localPlayer.spectating[3]
+                                else ""
+                            )
+                        )
+                        if isHudLineOn(localPlayer, HUD_CP)
                         else ""
                     )
                 )
-                if isHudLineOn(localPlayer, HUD_CP)
+                if cpPart(localPlayer)
+                else ""
+            ),
+            (
+                # Debug mode turns off Update Run Format, so it shows the raw time
+                ("{}{}{} {}\n{}").format(
+                    "\n" if cpPart(localPlayer) else "",
+                    hudLinesGap(localPlayer) if localPlayer.hudHidden[HUD_CP] else "",
+                    iconString(Icon.BOLT),
+                    (
+                        localPlayer.viewRunner.runTime
+                        if isDebugOn
+                        else localPlayer.viewRunner.runTimeFormatted
+                    ),
+                    "\n" if localPlayer.hudHidden[HUD_MISTAKES] else ""
+                )
+                if not localPlayer.spectating[3] and isHudLineOn(localPlayer, HUD_TIME)
+                else ""
+            ),
+            (
+                ("{}{}{} {}\n\n").format(
+                    (
+                        "\n"
+                        if cpPart(localPlayer) or isHudLineOn(localPlayer, HUD_TIME)
+                        else ""
+                    ),
+                    (
+                        hudLinesGap(localPlayer)
+                        if areHudLinesOff(localPlayer, HUD_CP, 2)
+                        else ""
+                    ),
+                    (
+                        abilityIconString(Hero.WRECKING_BALL, Button.CROUCH)
+                        if localPlayer.viewRunner.isInAssistMode
+                        else iconString(Icon.SKULL)
+                    ),
+                    (
+                        (
+                            localPlayer.viewRunner.runGroundTime
+                            if isDebugOn
+                            else localPlayer.viewRunner.runGroundTimeFormatted
+                        )
+                        if localPlayer.viewRunner.isInAssistMode
+                        else localPlayer.viewRunner.runMistakes
+                    )
+                )
+                if not localPlayer.spectating[3]
+                and isHudLineOn(localPlayer, HUD_MISTAKES)
                 else ""
             )
         ),
@@ -388,102 +472,15 @@ rule "Load HUD":
         rgb(230, 151, 0),
         HudReeval.VISIBILITY_AND_STRING
     )
-    # Debug mode turns off Update Run Format, so it shows the raw time
-    hudSubtext(
-        getAllPlayers().filter(
-            lambda localPlayer: isCourseHudShown(localPlayer)
-            and not localPlayer.spectating[3]
-            and localPlayer.faqPage == 0
-            and isHudLineOn(localPlayer, HUD_TIME)
-        ),
-        ("{}{} {}\n{}").format(
-            hudLinesGap(localPlayer) if localPlayer.hudHidden[HUD_CP] else "",
-            iconString(Icon.BOLT),
-            (
-                localPlayer.viewRunner.runTime
-                if isDebugOn
-                else localPlayer.viewRunner.runTimeFormatted
-            ),
-            "\n" if localPlayer.hudHidden[HUD_MISTAKES] else ""
-        ),
-        HudPosition.RIGHT,
-        1.1,
-        rgb(230, 151, 0),
-        HudReeval.VISIBILITY_AND_STRING
-    )
-    hudSubtext(
-        getAllPlayers().filter(
-            lambda localPlayer: isCourseHudShown(localPlayer)
-            and not localPlayer.spectating[3]
-            and localPlayer.faqPage == 0
-            and isHudLineOn(localPlayer, HUD_MISTAKES)
-        ),
-        ("{}{} {}\n\n").format(
-            (
-                hudLinesGap(localPlayer)
-                if areHudLinesOff(localPlayer, HUD_CP, 2)
-                else ""
-            ),
-            (
-                abilityIconString(Hero.WRECKING_BALL, Button.CROUCH)
-                if localPlayer.viewRunner.isInAssistMode
-                else iconString(Icon.SKULL)
-            ),
-            (
-                (
-                    localPlayer.viewRunner.runGroundTime
-                    if isDebugOn
-                    else localPlayer.viewRunner.runGroundTimeFormatted
-                )
-                if localPlayer.viewRunner.isInAssistMode
-                else localPlayer.viewRunner.runMistakes
-            )
-        ),
-        HudPosition.RIGHT,
-        1.2,
-        rgb(230, 151, 0),
-        HudReeval.VISIBILITY_AND_STRING
-    )
     # At the top left, under Hints and above Freemode On, with a blank line above it like
     # Freemode On. Freemode On drops its own blank line while it shows, so the two sit together.
     # The HUD page shows it either way, as it's one of the lines it turns off.
     # In Assist Mode it says Assist Mode On instead, in pink, as the run is for the assisted
-    # leaderboard. Neither can be turned off (isDisqualifiedShown). A disqualified run in
-    # Assist Mode shows both, Disqualified with Assist Mode On under it, so the mode still
-    # shows. Each is its own text, centered on its own like the rest of the column, as one
-    # text would left-align its two lines. The HUD page shows both that way too, like its rows.
+    # leaderboard. A disqualified run in Assist Mode shows both, Disqualified with Assist Mode
+    # On under it, so the mode still shows. The HUD page shows both. They're in Freemode On's
+    # text (Controls: Load Freemode HUD).
     counterHudText[3] = _("\nDisqualified")
     counterHudText[4] = _("\nAssist Mode On")
-    hudSubtext(
-        getAllPlayers().filter(
-            lambda localPlayer: isDisqualifiedShown(localPlayer)
-            and not isAssistModeShown(localPlayer)
-            and localPlayer.faqPage == 0
-        ),
-        _(counterHudText[3]),
-        HudPosition.LEFT,
-        0.9,
-        rgb(255, 70, 70),
-        HudReeval.VISIBILITY_AND_STRING
-    )
-    # Under Disqualified when the run is disqualified, or on the HUD page, so it drops its
-    # blank line then
-    hudSubtext(
-        getAllPlayers().filter(
-            lambda localPlayer: isDisqualifiedShown(localPlayer)
-            and (localPlayer.viewRunner.isInAssistMode or isHudPage(localPlayer))
-            and localPlayer.faqPage == 0
-        ),
-        (
-            _(counterHudText[4])
-            if isAssistModeShown(localPlayer)
-            else _(counterHudText[4]).replace("\n", "")
-        ),
-        HudPosition.LEFT,
-        0.95,
-        rgb(255, 128, 192),
-        HudReeval.VISIBILITY_AND_STRING
-    )
     # The All-Time Top 3, then the Lobby Top 3, at the bottom of the right column, under the
     # speedometer, in one HUD text so they left-align. Hiding the scorecard leaves them up.
     # The speedometer is always above them on the course and ends without blank lines, so
