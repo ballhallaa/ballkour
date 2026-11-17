@@ -10,7 +10,7 @@
 // Every course is worth up to 1,000 points: 1000 × ln(1 + (e − 1) × record ÷ time)². The record gets all of them,
 // and it's lucio.surf's curve for a player who has run every map, at a tenth of its 10,000 (it was 10,000 here too
 // until November 2026). A rating is the average over every course that isn't
-// broken, with 0 for the ones a player hasn't run (and for courses nobody has run yet), so a new or faster run never
+// broken (a remake whose latest code is broken still counts, as its Beta code works), with 0 for the ones a player hasn't run (and for courses nobody has run yet), so a new or faster run never
 // lowers it, and the first run on a course changes nobody else's rating. A player's tier is the share of rated
 // players at their place or ahead of it: #4 of 40 (10%) is in the Top 10%, and so is #1 of 16 (6.25%), since the
 // Top 0.1% needs 1,000 players. Everyone past
