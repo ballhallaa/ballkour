@@ -154,7 +154,7 @@ export function loadCourses({ assisted = false, legacy = false } = {}) {
     return {
       course,
       n: course.n,
-      broken: !!course.broken,
+      broken: !!course.broken && !course.remaker, // for rate(): a remake's broken is only its latest code
       ok: !!file,
       file: file || [],
       more: runs[course.n] || [],
