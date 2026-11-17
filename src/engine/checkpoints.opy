@@ -15,6 +15,16 @@ rule "Expand Data":
         hintScratch = cpExtraOrbs
         decompressScratch()
         cpOrbScratch = hintScratch
+    # cpSizes and cpLandings are compressed too, as a vect() is ~7 elements. A map
+    # without them leaves them empty arrays, which read as false.
+    if cpSizes:
+        hintScratch = cpSizes
+        decompressScratch()
+        cpSizes = hintScratch
+    if cpLandings:
+        hintScratch = cpLandings
+        decompressScratch()
+        cpLandings = hintScratch
     hintScratch = cps
     decompressScratch()
     lastCp = (len(hintScratch) - 1) / 3

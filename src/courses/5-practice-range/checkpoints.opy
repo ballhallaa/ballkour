@@ -135,26 +135,30 @@ rule "Checkpoints":
         ]
     )
     # Sizes past cpDefaults: vect(checkpoint, cpSize, nextCpSize), 0 keeps the default
-    cpSizes = [
-        vect(1, 0, 0.8), vect(2, 0.8, 0), vect(5, 0, 5), vect(6, 5, 0),
-        vect(20, 0, 2.25), vect(21, 2.25, 2.25), vect(22, 2.25, 1), vect(24, 0, 1),
-        vect(25, 1, 0), vect(28, 0, 1.25), vect(29, 1.25, 1.25), vect(30, 1.25, 0),
-        vect(43, 0, 1.5), vect(44, 1.5, 1.25), vect(45, 1.25, 0), vect(47, 0, 1),
-        vect(63, 0, 2.25), vect(64, 2.25, 0), vect(78, 0, 5), vect(81, 0, 2.75),
-        vect(82, 2.75, 0), vect(84, 0, 2.75), vect(85, 2.75, 0), vect(92, 0, 1)
-    ]
+    cpSizes = compress(
+        [
+            vect(1, 0, 0.8), vect(2, 0.8, 0), vect(5, 0, 5), vect(6, 5, 0),
+            vect(20, 0, 2.25), vect(21, 2.25, 2.25), vect(22, 2.25, 1), vect(24, 0, 1),
+            vect(25, 1, 0), vect(28, 0, 1.25), vect(29, 1.25, 1.25), vect(30, 1.25, 0),
+            vect(43, 0, 1.5), vect(44, 1.5, 1.25), vect(45, 1.25, 0), vect(47, 0, 1),
+            vect(63, 0, 2.25), vect(64, 2.25, 0), vect(78, 0, 5), vect(81, 0, 2.75),
+            vect(82, 2.75, 0), vect(84, 0, 2.75), vect(85, 2.75, 0), vect(92, 0, 1)
+        ]
+    )
     # Landings away from a checkpoint, as pairs: vect(checkpoint, 0, 0), then where the jump to
     # it lands. Clearing it there teleports the player to the checkpoint.
-    cpLandings = [
-        vect(18, 0, 0), vect(13.38, 7.08, -10.76),
-        vect(19, 0, 0), vect(12.63, 6.00, 2.99),
-        vect(48, 0, 0), vect(99.24, 0.29, 22.49),
-        vect(49, 0, 0), vect(70.07, 5.00, 16.68),
-        vect(55, 0, 0), vect(77.10, 8.00, 30.43),
-        vect(58, 0, 0), vect(39.32, 5.00, -8.14),
-        vect(72, 0, 0), vect(48.48, 1.00, 25.81),
-        vect(79, 0, 0), vect(49.32, 11.00, -3.05),
-        vect(84, 0, 0), vect(25.38, 12.50, 16.76),
-        vect(93, 0, 0), vect(99.24, 0.29, 22.49),
-        vect(95, 0, 0), vect(73.51, 5.00, 20.34)
-    ]
+    cpLandings = compress(
+        [
+            vect(18, 0, 0), vect(13.38, 7.08, -10.76),
+            vect(19, 0, 0), vect(12.63, 6.00, 2.99),
+            vect(48, 0, 0), vect(99.24, 0.29, 22.49),
+            vect(49, 0, 0), vect(70.07, 5.00, 16.68),
+            vect(55, 0, 0), vect(77.10, 8.00, 30.43),
+            vect(58, 0, 0), vect(39.32, 5.00, -8.14),
+            vect(72, 0, 0), vect(48.48, 1.00, 25.81),
+            vect(79, 0, 0), vect(49.32, 11.00, -3.05),
+            vect(84, 0, 0), vect(25.38, 12.50, 16.76),
+            vect(93, 0, 0), vect(99.24, 0.29, 22.49),
+            vect(95, 0, 0), vect(73.51, 5.00, 20.34)
+        ]
+    )
