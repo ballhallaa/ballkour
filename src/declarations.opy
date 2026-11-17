@@ -406,7 +406,9 @@ macro HUD_LOBBY_TOP = 24
 # were added last
 macro HUD_CREDIT = 25
 macro HUD_ASSIST = 26
-macro HUD_LINES = 27
+# The speedometer, under Pace
+macro HUD_SPEED = 27
+macro HUD_LINES = 28
 # The lobby page that turns them on and off (lobbyPage)
 macro HUD_PAGE = 3
 # The made-up spectator count the HUD shows on the HUD page, so Spectators has a number

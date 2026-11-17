@@ -969,47 +969,57 @@ rule "Load Freemode HUD":
     # Practice Mode On takes its place, as the two never show together
     freemodeHudText = _("Freemode On")
     practiceModeHudText = _("Practice Mode On")
+    # Which of the 3 lines show is worked out once, mapping over a one-item array of
+    # them, as each check is long and they'd each be written out again where they're used
     hudSubtext(
         getAllPlayers().filter(
             lambda localPlayer: localPlayer.faqPage == 0
             and (
-                isDisqualifiedLineShown(localPlayer)
-                or isAssistLineShown(localPlayer)
+                isDisqualifiedShown(localPlayer)
+                and (
+                    not isAssistModeShown(localPlayer)
+                    or isHudLineOn(localPlayer, HUD_ASSIST)
+                )
                 or isFreemodeLineShown(localPlayer)
             )
         ),
-        "\n{}{}{}".format(
-            (
-                "<fgFF4646FF>{}</fg>".format(_(counterHudText[3]).replace("\n", ""))
-                if isDisqualifiedLineShown(localPlayer)
-                else ""
-            ),
-            (
-                "{}<fgFF80C0FF>{}</fg>".format(
-                    "\n" if isDisqualifiedLineShown(localPlayer) else "",
-                    _(counterHudText[4]).replace("\n", "")
-                )
-                if isAssistLineShown(localPlayer)
-                else ""
-            ),
-            (
-                "{}<fgCB87FFFF>{}</fg>".format(
-                    (
-                        "\n"
-                        if isDisqualifiedLineShown(localPlayer)
-                        or isAssistLineShown(localPlayer)
-                        else ""
-                    ),
-                    (
-                        _(practiceModeHudText)
-                        if localPlayer.isInPracticeMode and not isHudPage(localPlayer)
-                        else _(freemodeHudText)
+        [
+            [
+                isDisqualifiedLineShown(localPlayer),
+                isAssistLineShown(localPlayer),
+                isFreemodeLineShown(localPlayer)
+            ]
+        ].map(
+            lambda f: "\n{}{}{}".format(
+                (
+                    "<fgFF4646FF>{}</fg>".format(_(counterHudText[3]).replace("\n", ""))
+                    if f[0]
+                    else ""
+                ),
+                (
+                    "{}<fgFF80C0FF>{}</fg>".format(
+                        "\n" if f[0] else "", _(counterHudText[4]).replace("\n", "")
                     )
+                    if f[1]
+                    else ""
+                ),
+                (
+                    "{}<fgCB87FFFF>{}</fg>".format(
+                        "\n" if f[0] or f[1] else "",
+                        (
+                            _(practiceModeHudText)
+                            if localPlayer.isInPracticeMode
+                            and not isHudPage(localPlayer)
+                            else _(freemodeHudText)
+                        )
+                    )
+                    if f[2]
+                    else ""
                 )
-                if isFreemodeLineShown(localPlayer)
-                else ""
             )
-        ),
+        )[
+            0
+        ],
         HudPosition.LEFT,
         0.9,
         Color.WHITE,

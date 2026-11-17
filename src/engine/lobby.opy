@@ -52,6 +52,13 @@ macro HUD_LINE_GAP = 1.85
 macro HUD_LEFT_PAD = "­                                                                                                                                            ­"
 macro HUD_LEFT_ACROSS = -2
 macro HUD_LEFT_AIM = -15
+# The right column's boxes that are one text each on the HUD (Runs, the stats and the Top 3s)
+# line up the same way, each row its own text with this invisible line on top. It only has to
+# clear those rows, so it's narrower, and the rows' spot moves less from where they were.
+macro HUD_RIGHT_PAD = (
+    "­                                                                ­"
+)
+macro HUD_RIGHT_ACROSS = 21
 # The room the hover arrows and their gaps take, kept on a box's lines that aren't looked at,
 # so no line moves: spaces, behind a soft hyphen, as Overwatch drops a line's leading and
 # trailing spaces
@@ -370,6 +377,22 @@ macro isAimingAtHudLine(player, angle, across):
 # The k-th line (from 0) of a HUD page box (hudBoxTop), in the column across
 macro isAimingAtBoxLine(box, k, across):
     isAimingAtHudLine(localPlayer, hudBoxTop[box] + HUD_LINE_GAP * k, across)
+
+
+# Where a player is looking on the page (pageAngle, pageAcross), worked out once for a whole
+# box: a box's text maps over a one-item array holding it and its lines' texts, so its lines
+# share them instead of each working them out again
+macro hudLook():
+    vect(pageAngle(localPlayer), pageAcross(localPlayer), 0)
+
+
+# Whether that look (v[0]) is at the k-th line (from 0) of a box (hudBoxTop), in the column
+# across
+macro isLookAtBoxLine(v, box, k, across):
+    (
+        abs(v[0].x - (hudBoxTop[box] + HUD_LINE_GAP * k)) <= HUD_LINE_GAP / 2
+        and abs(v[0].y - (across)) <= HUD_ROW_WIDTH
+    )
 
 
 # A HUD page line's text with its white values and keys back in its row's color
@@ -696,22 +719,25 @@ rule "Load Leaderboard":
         getAllPlayers().filter(lambda localPlayer: isLobbyPageShown(localPlayer)),
         (
             # ballkour.com with the course's credit under it, one line each
-            (
-                "{}"
-                "\n{}"
-            ).format(
-                hudBoxLine(
-                    HUD_SITE, "ballkour.com", "ballkour.com", isAimingAtBoxLine(0, 0, 0)
-                ),
-                hudBoxLine(
-                    HUD_CREDIT,
-                    _(creditHudText).replace("@0", COURSE_AUTHOR),
-                    "<fgB4B4B4FF>{}</fg>".format(
-                        _(creditHudText).replace("@0", COURSE_AUTHOR)
+            [[hudLook(), _(creditHudText).replace("@0", COURSE_AUTHOR)]].map(
+                lambda v: (
+                    "{}"
+                    "\n{}"
+                ).format(
+                    hudBoxLine(
+                        HUD_SITE,
+                        "ballkour.com",
+                        "ballkour.com",
+                        isLookAtBoxLine(v, 0, 0, 0)
                     ),
-                    isAimingAtBoxLine(0, 1, 0)
+                    hudBoxLine(
+                        HUD_CREDIT,
+                        v[1],
+                        "<fgB4B4B4FF>{}</fg>".format(v[1]),
+                        isLookAtBoxLine(v, 0, 1, 0)
+                    )
                 )
-            )
+            )[0]
             if isHudPage(localPlayer)
             else "{}{}­".format(
                 lobbyButton(_(lobbyHudText[13]), isAimingAtTab(localPlayer, -1)),
@@ -869,6 +895,57 @@ macro languageRow(row, line, gaps, hudText):
     )
 
 
+# A right column row that lines up with the rows of its box at one left edge (HUD_RIGHT_PAD),
+# with the arrows' room kept on its line while it isn't looked at, like the left column's
+macro languageBoxRow(row, line, gaps, hudText):
+    createInWorldText(
+        getAllPlayers().filter(lambda localPlayer: isLobbyPageShown(localPlayer)),
+        (
+            # Whether it's looked at, worked out once for both arrows
+            [
+                isAimingAtHudLine(
+                    localPlayer, ROW_ANGLE + HUD_LINE_GAP * (row - 1 + gaps), HUD_ACROSS
+                )
+            ].map(
+                lambda a: (
+                    "{}"
+                    "\n{}{}{}"
+                ).format(
+                    HUD_RIGHT_PAD,
+                    (
+                        "{}  ".format(iconString(Icon.ARROW_RIGHT))
+                        if a
+                        else HUD_ARROW_ROOM_L
+                    ),
+                    hudText,
+                    (
+                        "  {}".format(iconString(Icon.ARROW_LEFT))
+                        if a
+                        else HUD_ARROW_ROOM_R
+                    )
+                )
+            )[
+                0
+            ]
+            if isHudPage(localPlayer)
+            else (
+                "<fg00E092FF>{}</fg>".format(evalOnce(langNames[row - 1]))
+                if localPlayer.__languageIndex__ == row - 1
+                else evalOnce(langNames[row - 1])
+            )
+        ),
+        hudRightPos[row] if isHudPage(localPlayer) else langPos[row],
+        LANGUAGE_SIZE,
+        Clip.NONE,
+        WorldTextReeval.VISIBILITY_POSITION_STRING_AND_COLOR,
+        (
+            rgb(128, 128, 128)
+            if isHudPage(localPlayer) and localPlayer.hudHidden[line]
+            else rgb(230, 151, 0)
+        )
+    )
+
+
 rule "Load Languages":
     lobbyHudText[6] = _("Language")
     createInWorldText(
@@ -906,7 +983,7 @@ rule "Load Languages":
     langPos[0] = langPos[1] + vect(0, -1000, 0)
     # The languages are also the HUD page's right column, which has as many rows (see
     # languageRow)
-    languageRow(
+    languageBoxRow(
         1,
         HUD_RUNS,
         0,
@@ -914,7 +991,7 @@ rule "Load Languages":
             "@0", hudPageValue(HUD_RUNS, localPlayer.runCount)
         )
     )
-    languageRow(
+    languageBoxRow(
         2,
         HUD_ATTEMPTS,
         0,
@@ -925,7 +1002,7 @@ rule "Load Languages":
             )
         )
     )
-    languageRow(
+    languageBoxRow(
         3,
         HUD_CP_MISTAKES,
         0,
@@ -936,19 +1013,19 @@ rule "Load Languages":
             )
         )
     )
-    languageRow(
+    languageBoxRow(
         4,
         HUD_CP,
         1,
         "{} {}/{}".format(iconString(Icon.FLAG), localPlayer.viewCp, lastCp)
     )
-    languageRow(
+    languageBoxRow(
         5,
         HUD_TIME,
         1,
         "{} {}".format(iconString(Icon.BOLT), localPlayer.runTimeFormatted)
     )
-    languageRow(
+    languageBoxRow(
         6,
         HUD_MISTAKES,
         1,
@@ -994,8 +1071,8 @@ rule "Load Languages":
         .replace("\n", "")
         .replace("@0", hudPageValue(HUD_PACE, localPlayer.paceEtaFormatted))
     )
-    languageRow(13, HUD_ALL_TIME_TOP, 3, _(allTimeRunsHudText))
-    languageRow(14, HUD_LOBBY_TOP, 3, _(topRunsHudText))
+    languageBoxRow(13, HUD_ALL_TIME_TOP, 4, _(allTimeRunsHudText))
+    languageBoxRow(14, HUD_LOBBY_TOP, 4, _(topRunsHudText))
     # The languages' arrows, one text that moves to the language looked at. The names are
     # short, so one width clears them all. The HUD page's rows are wider and differ by
     # language, so they carry their own arrows, like the buttons (languageRow).
@@ -1144,7 +1221,8 @@ rule "Load HUD Page":
             HUD_ATTEMPT_STATS,
             HUD_SPLIT,
             HUD_SPLIT_STATS,
-            HUD_PACE
+            HUD_PACE,
+            HUD_SPEED
         ],
         [HUD_ALL_TIME_TOP, HUD_LOBBY_TOP]
     ]
@@ -1175,7 +1253,7 @@ rule "Load HUD Page":
         ROW_ANGLE,
         ROW_ANGLE + HUD_LINE_GAP * 4,
         ROW_ANGLE + HUD_LINE_GAP * 8,
-        ROW_ANGLE + HUD_LINE_GAP * 15
+        ROW_ANGLE + HUD_LINE_GAP * 16
     ]
     # Each box's text sits on its last line: ballkour.com's in the page's middle and the
     # left column's at HUD_LEFT_ACROSS. The right column's rows are a text each
@@ -1186,12 +1264,18 @@ rule "Load HUD Page":
             hudBoxTop[index] + HUD_LINE_GAP * (len(hudBoxLines[index]) - 1),
             HUD_LEFT_ACROSS
         )
+    # The right column's rows, by language row: Speed is under the 12th, its own text (Show
+    # HUD Page), so the Top 3s are a line lower. Its 3 boxes that are one text on the HUD sit
+    # at HUD_RIGHT_ACROSS, so they line up (languageBoxRow).
     hudRightPos = []
     for index in range(1, 15):
         hudRightPos[index] = columnAt(
             ROW_ANGLE
-            + HUD_LINE_GAP * (index - 1 + (index > 3) + (index > 6) + (index > 12)),
-            HUD_ACROSS
+            + HUD_LINE_GAP
+            * (index - 1 + [0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 2, 2, 2, 4, 4][index]),
+            [0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1][index]
+            * (HUD_RIGHT_ACROSS - HUD_ACROSS)
+            + HUD_ACROSS
         )
     # The scorecard and the Top 3s show full on the page, with made-up players, so turning
     # them off shows the room they can take: 12 players, each section of the scorecard
@@ -1235,7 +1319,7 @@ rule "Show HUD Page":
     # Its texts only exist while someone's on it, as every text's definition adds to the
     # server's load, like an open run's info (lbRunInfo). The HUD itself shows around the
     # page (isCourseHudShown), lines that only show sometimes too, so turning a row off shows
-    # what goes and what moves up. Its own texts are all made in one tick (6 of them), as
+    # what goes and what moves up. Its own texts are all made in one tick (7 of them), as
     # the main page's texts it borrows wait for them (isLobbyPageShown). Its ballkour.com row
     # is the leaderboard's first tab (Load Leaderboard).
     hudPageTexts = []
@@ -1243,74 +1327,75 @@ rule "Show HUD Page":
     # HUD_LEFT_PAD, so they all line up.
     hudBoxText(
         1,
-        (
-            "{}"
-            "\n{}"
-            "\n{}"
-            "\n{}"
-        ).format(
-            HUD_LEFT_PAD,
-            hudBoxLine(
-                HUD_CONTROLS,
+        [
+            [
+                hudLook(),
                 _(runHudText).replace("@0", inputBindingString(Button.ULTIMATE)),
-                _(runHudText).replace("@0", inputBindingString(Button.ULTIMATE)),
-                isAimingAtBoxLine(1, 0, HUD_LEFT_AIM)
-            ),
-            hudBoxLine(
-                HUD_FAQ,
                 _(faqHudText[0])
                 .replace("@0", inputBindingString(Button.ULTIMATE))
                 .replace("@1", inputBindingString(Button.MELEE)),
-                _(faqHudText[0])
-                .replace("@0", inputBindingString(Button.ULTIMATE))
-                .replace("@1", inputBindingString(Button.MELEE)),
-                isAimingAtBoxLine(1, 1, HUD_LEFT_AIM)
-            ),
-            hudBoxLine(
-                HUD_HINTS,
                 _(hintsHudText[0])
                 .replace("@0", "")
                 .replace("@1", "<fgFFFFFFFF>")
                 .replace("@2", inputBindingString(Button.ULTIMATE))
-                .replace("@3", inputBindingString(Button.ABILITY_2)),
-                _(hintsHudText[0])
-                .replace("@0", "")
-                .replace("@1", "<fgFFFFFFFF>")
-                .replace("@2", inputBindingString(Button.ULTIMATE))
-                .replace("@3", inputBindingString(Button.ABILITY_2)),
-                isAimingAtBoxLine(1, 2, HUD_LEFT_AIM)
+                .replace("@3", inputBindingString(Button.ABILITY_2))
+            ]
+        ].map(
+            lambda v: (
+                "{}"
+                "\n{}"
+                "\n{}"
+                "\n{}"
+            ).format(
+                HUD_LEFT_PAD,
+                hudBoxLine(
+                    HUD_CONTROLS, v[1], v[1], isLookAtBoxLine(v, 1, 0, HUD_LEFT_AIM)
+                ),
+                hudBoxLine(HUD_FAQ, v[2], v[2], isLookAtBoxLine(v, 1, 1, HUD_LEFT_AIM)),
+                hudBoxLine(
+                    HUD_HINTS, v[3], v[3], isLookAtBoxLine(v, 1, 2, HUD_LEFT_AIM)
+                )
             )
-        ),
+        )[
+            0
+        ],
         rgb(230, 151, 0)
     )
-    # Disqualified can't be turned off (Run: isDisqualifiedLineShown), so it never grays out or
-    # gets arrows, and a second text strikes it through (below). The box's color is Freemode
-    # On's, so its arrows are too.
+    # Disqualified can't be turned off (Run: isDisqualifiedLineShown), so it never grays out
+    # or gets arrows, and a second text strikes it through (below). The box's color is
+    # Freemode On's, so its arrows are too.
     hudBoxText(
         2,
-        (
-            "{}"
-            "\n{}<fgFF4646FF>{}</fg>{}"
-            "\n{}"
-            "\n{}"
-        ).format(
-            HUD_LEFT_PAD,
-            HUD_ARROW_ROOM_L,
-            _(counterHudText[3]).replace("\n", ""),
-            HUD_ARROW_ROOM_R,
-            hudBoxLine(
-                HUD_ASSIST,
+        [
+            [
+                hudLook(),
                 _(counterHudText[4]).replace("\n", ""),
-                "<fgFF80C0FF>{}</fg>".format(_(counterHudText[4]).replace("\n", "")),
-                isAimingAtBoxLine(2, 1, HUD_LEFT_AIM)
-            ),
-            hudBoxLine(
-                HUD_FREEMODE,
-                "{} / {}".format(_(freemodeHudText), _(practiceModeHudText)),
-                "{} / {}".format(_(freemodeHudText), _(practiceModeHudText)),
-                isAimingAtBoxLine(2, 2, HUD_LEFT_AIM)
+                "{} / {}".format(_(freemodeHudText), _(practiceModeHudText))
+            ]
+        ].map(
+            lambda v: (
+                "{}"
+                "\n{}<fgFF4646FF>{}</fg>{}"
+                "\n{}"
+                "\n{}"
+            ).format(
+                HUD_LEFT_PAD,
+                HUD_ARROW_ROOM_L,
+                _(counterHudText[3]).replace("\n", ""),
+                HUD_ARROW_ROOM_R,
+                hudBoxLine(
+                    HUD_ASSIST,
+                    v[1],
+                    "<fgFF80C0FF>{}</fg>".format(v[1]),
+                    isLookAtBoxLine(v, 2, 1, HUD_LEFT_AIM)
+                ),
+                hudBoxLine(
+                    HUD_FREEMODE, v[2], v[2], isLookAtBoxLine(v, 2, 2, HUD_LEFT_AIM)
+                )
             )
-        ),
+        )[
+            0
+        ],
         rgb(203, 135, 255)
     )
     # The strike: the box's lines, so it lines up with it, Disqualified's an em dash line
@@ -1332,72 +1417,86 @@ rule "Show HUD Page":
     )
     hudBoxText(
         3,
-        (
-            "{}"
-            "\n{}"
-            "\n{}"
-        ).format(
-            HUD_LEFT_PAD,
-            hudBoxLine(
-                HUD_SPECTATORS,
+        [
+            [
+                hudLook(),
                 _(spectatorHudText[4])
                 .replace("\n", "")
                 .replace("@0", "<fgFFFFFFFF>{}</fg>".format(HUD_PAGE_SPECTATORS)),
-                _(spectatorHudText[4])
-                .replace("\n", "")
-                .replace("@0", "<fgFFFFFFFF>{}</fg>".format(HUD_PAGE_SPECTATORS)),
-                isAimingAtBoxLine(3, 0, HUD_LEFT_AIM)
-            ),
-            hudBoxLine(
-                HUD_SPECTATING,
-                _(spectatorHudText[0]).replace("\n", ""),
-                _(spectatorHudText[0]).replace("\n", ""),
-                isAimingAtBoxLine(3, 1, HUD_LEFT_AIM)
+                _(spectatorHudText[0]).replace("\n", "")
+            ]
+        ].map(
+            lambda v: (
+                "{}"
+                "\n{}"
+                "\n{}"
+            ).format(
+                HUD_LEFT_PAD,
+                hudBoxLine(
+                    HUD_SPECTATORS, v[1], v[1], isLookAtBoxLine(v, 3, 0, HUD_LEFT_AIM)
+                ),
+                hudBoxLine(
+                    HUD_SPECTATING, v[2], v[2], isLookAtBoxLine(v, 3, 1, HUD_LEFT_AIM)
+                )
             )
-        ),
+        )[
+            0
+        ],
         rgb(0, 190, 255)
     )
     hudBoxText(
         4,
-        (
-            "{}"
-            "\n{}"
-            "\n{}"
-        ).format(
-            HUD_LEFT_PAD,
-            hudBoxLine(
-                HUD_FREECAM,
-                _(spectatorHudText[2]),
-                _(spectatorHudText[2]),
-                isAimingAtBoxLine(4, 0, HUD_LEFT_AIM)
-            ),
-            hudBoxLine(
-                HUD_DISCONNECTED,
-                _(spectatorHudText[3]),
-                "<fgFFFFFFFF>{}</fg>".format(_(spectatorHudText[3])),
-                isAimingAtBoxLine(4, 1, HUD_LEFT_AIM)
+        [[hudLook(), _(spectatorHudText[2]), _(spectatorHudText[3])]].map(
+            lambda v: (
+                "{}"
+                "\n{}"
+                "\n{}"
+            ).format(
+                HUD_LEFT_PAD,
+                hudBoxLine(
+                    HUD_FREECAM, v[1], v[1], isLookAtBoxLine(v, 4, 0, HUD_LEFT_AIM)
+                ),
+                hudBoxLine(
+                    HUD_DISCONNECTED,
+                    v[2],
+                    "<fgFFFFFFFF>{}</fg>".format(v[2]),
+                    isLookAtBoxLine(v, 4, 1, HUD_LEFT_AIM)
+                )
             )
-        ),
+        )[0],
         rgb(230, 151, 0)
     )
     # The scorecard's rows are other players, so it gets a name
     lobbyHudText[10] = _("Scores")
     hudBoxText(
         5,
-        (
-            "{}"
-            "\n{}"
-        ).format(
-            HUD_LEFT_PAD,
-            hudBoxLine(
-                HUD_SCORECARD,
-                _(lobbyHudText[10]),
-                _(lobbyHudText[10]),
-                isAimingAtBoxLine(5, 0, HUD_LEFT_AIM)
+        [[hudLook(), _(lobbyHudText[10])]].map(
+            lambda v: (
+                "{}"
+                "\n{}"
+            ).format(
+                HUD_LEFT_PAD,
+                hudBoxLine(
+                    HUD_SCORECARD, v[1], v[1], isLookAtBoxLine(v, 5, 0, HUD_LEFT_AIM)
+                )
             )
-        ),
+        )[0],
         rgb(230, 151, 0)
     )
+    # Speed, under Pace, the one right column row that isn't a language's
+    createInWorldText(
+        getAllPlayers().filter(lambda localPlayer: isHudPage(localPlayer)),
+        lobbyButton(
+            hudPageText(_(splitsHudText[5]).replace("@0", "0.0"), HUD_SPEED),
+            isAimingAtHudLine(localPlayer, ROW_ANGLE + HUD_LINE_GAP * 14, HUD_ACROSS)
+        ),
+        columnAt(ROW_ANGLE + HUD_LINE_GAP * 14, HUD_ACROSS),
+        HUD_ROW_SIZE,
+        Clip.NONE,
+        WorldTextReeval.VISIBILITY_STRING_AND_COLOR,
+        rgb(128, 128, 128) if localPlayer.hudHidden[HUD_SPEED] else rgb(230, 151, 0)
+    )
+    hudPageTexts.append(getLastCreatedText())
     # The borrowed texts show in the same tick, so both sides show up together
     isHudPageReady = true
     waitUntil(not getAllPlayers().any(lambda p: isHudPage(p)), Math.INFINITY)
