@@ -785,6 +785,10 @@ rule "Load Leaderboard":
     # Courses without runs on either leaderboard have no run info
     if lbRunCount <= 0 and assistedRunCount <= 0:
         return
+    # Each run's date and link, as the strings Show Run Info's texts pick from. A course
+    # without a loadRunInfo calls nothing.
+    lbRunInfoText = []
+    loadRunInfo()
     # Arrows on either side of the row the player is looking at, so they can see which run
     # Interact opens. The 86 spaces between them clear the widest row. Only its position
     # changes (changing its text too flickered): looking at no run moves it to lbPos[0],
@@ -1672,9 +1676,9 @@ rule "Hide Run Info":
 def showRunInfo():
     @Name "Show Run Info"
 
-    # Only open runs have a text (see lbRunInfo), so they're remade whenever that changes.
-    # These are the only progress bar texts, and with no run open there are none, as they
-    # count toward the server's 128 texts (Load Buttons).
+    # The texts only exist while a run is open, 5 for everyone who has one open, and they're
+    # remade whenever that changes. These are the only progress bar texts, and they count
+    # toward the server's 128 texts (Load Buttons).
     destroyAllProgressBarInWorldTexts()
     if not getAllPlayers().any(lambda p: p.lbInfoRow != 0):
         return
@@ -1715,4 +1719,26 @@ def showRunInfo():
         rgb(230, 151, 0),
         ProgressWorldTextReeval.VISIBILITY_POSITION_AND_VALUES
     )
-    loadRunInfo()
+    # The open run's date and link, its 3 lowercased layers (lbRunInfo), which overlay each
+    # other, each viewer's from their open run
+    for index in range(3):
+        createProgressBarInWorldText(
+            getAllPlayers().filter(
+                lambda localPlayer: len(lbRunInfoText[localPlayer.lbInfoRow]) > 0
+            ),
+            0,
+            "{}{}{}{}­".format(
+                lbRunPad[0],
+                lbRunPad[4],
+                lbRunInfoText[localPlayer.lbInfoRow][evalOnce(index)],
+                lbRunPad[1]
+            ),
+            updateEveryFrame(
+                localPlayer.getEyePosition() + localPlayer.getFacingDirection() * 10
+            ),
+            1,
+            Clip.NONE,
+            Color.WHITE,
+            rgb(230, 151, 0),
+            ProgressWorldTextReeval.VISIBILITY_POSITION_AND_VALUES
+        )
