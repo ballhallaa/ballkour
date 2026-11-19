@@ -95,31 +95,6 @@ KSG9E9
 
 </td>
 </tr>
-<tr><td colspan="4">Courses by <b>Fasteroid</b></td></tr>
-<tr>
-<td align="right">6</td>
-<td>🇲🇽 Dorado</td>
-<td></td>
-<td align="right"><sub>Code</sub>
-
-```
-N8ZFR
-```
-
-</td>
-</tr>
-<tr>
-<td align="right">7</td>
-<td>🇬🇷 Ilios</td>
-<td></td>
-<td align="right"><sub>Code</sub>
-
-```
-4BA40
-```
-
-</td>
-</tr>
 <tr><td colspan="4">Courses by <b>Senimar</b> &nbsp;<sub>easiest → hardest</sub></td></tr>
 <tr>
 <td align="right">8</td>

@@ -161,8 +161,7 @@ macro isViewingOrb(player, orbIndex):
 
 
 rule "Load Objects":
-    # The orbs look like the ones in Fasteroid's fork of the Giga editor (orange), without
-    # their arrow. One effect per orb slot, as many as the checkpoint with the most orbs needs.
+    # The orbs are orange. One effect per orb slot, as many as the checkpoint with the most orbs needs.
     for index in range(sorted(cps.map(lambda cp: len(cp[5]))).last()):
         createEffect(
             getAllPlayers().filter(
