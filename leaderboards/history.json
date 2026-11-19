@@ -305,6 +305,10 @@
     "boards": [
       [
         {"name": "BALLMYBLOVED", "discord": "175372497720573953", "time": "7:14.76", "mistakes": 16, "date": "2026-06-05", "video": "https://youtu.be/hNSpNvWyNcI"}
+      ],
+      [
+        {"name": "JAKOBONEDGE", "discord": "390556082256478212", "time": "6:45.04", "mistakes": 31, "date": "2026-11-19", "video": "https://youtu.be/lEHkWgd5VYc"},
+        {"name": "BALLMYBLOVED", "discord": "175372497720573953", "time": "7:14.76", "mistakes": 16, "date": "2026-06-05", "video": "https://youtu.be/hNSpNvWyNcI"}
       ]
     ]
   },
