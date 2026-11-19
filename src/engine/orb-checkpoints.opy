@@ -11,8 +11,7 @@
 
 # The orbs not grabbed yet, and of those, the ones the ball is touching. The ball's centre is
 # 0.7 m up from its position, and in-game a size-1 orb visibly touches the ball 1.24 m from
-# there. Unlike Fasteroid's fork of the Giga editor, the eyes aren't checked: in ball form they
-# sit 1.83 m up, above the ball.
+# there. The eyes aren't checked: in ball form they sit 1.83 m up, above the ball.
 macro orbsLeft(player):
     player.cpData[5].filter(lambda orb, i: not hasGrabbedOrb(player, i))
 

@@ -130,8 +130,8 @@ async function person(id) {
 
 /* ---------- The message ---------- */
 const mdEscape = (s) => String(s).replace(/([\\*_~`|>#-])/g, "\\$1");
-// The course's board on the website: ballkour.com/leaderboards/6 opens Dorado's top 10, and
-// ballkour.com/leaderboards/6/assisted its assisted top 10
+// The course's board on the website: ballkour.com/leaderboards/1 opens Watchpoint: Gibraltar's top 10, and
+// ballkour.com/leaderboards/1/assisted its assisted top 10
 const boardLink = (course, assisted = false) => `ballkour.com/leaderboards/${course.n}${assisted ? "/assisted" : ""}`;
 // assisted: an assisted board
 function message(course, runs, fresh, assisted = false) {
