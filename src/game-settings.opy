@@ -4,11 +4,9 @@
 #!define PLAYER_TEAM Team.1
 # Text arguments go in without quotes, as #!define swaps them into the strings below.
 # GAMEMODE is the course's game mode entry: "skirmish" with its map, or "practiceRange".
-#!define courseSettings(COURSE_ID, COURSE_NAME, LATEST_CODE, BETA_CODE, GAMEMODE) { \
+#!define courseSettings(COURSE_ID, COURSE_NAME, BETA_CODE, GAMEMODE) { \
     "main": { \
-        "description": \
-        f"Course COURSE_ID ● COURSE_NAME \n\nv{VERSION} \n\nLatest Code: LATEST_CODE \n\nBeta Code: BETA_CODE" if strContains(VERSION, "-beta.") else \
-        f"Course COURSE_ID ● COURSE_NAME \n\nv{VERSION} \n\nLatest Code: LATEST_CODE", \
+        "description": f"Course COURSE_ID ● COURSE_NAME \n\nv{VERSION} \n\nBeta Code: BETA_CODE", \
         "modeName": "Ball Parkour ● ballkour.com" \
     }, \
     "lobby": { \
