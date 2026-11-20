@@ -14,7 +14,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { api, sleep } from "./discord.mjs";
-import { runCardHtml, runCardAlt, splitRunLine } from "./run-card.mjs";
+import { runCardHtml, runCardAlt } from "./run-card.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const post = JSON.parse(process.env.POST || "null");
@@ -90,7 +90,6 @@ try {
   const page = await browser.newPage({ viewport: { width: 1000, height: 1200 }, deviceScaleFactor: 2 });
   await page.setContent(runCardHtml({ picture: post.picture, fonts, logo }));
   await page.evaluate(() => document.fonts.ready);
-  await page.evaluate(splitRunLine);
   png = await page.locator(".card").screenshot({ omitBackground: true });
 } finally {
   await browser.close();

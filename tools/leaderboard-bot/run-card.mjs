@@ -19,9 +19,9 @@ function fontFaces(fonts) {
 /**
  * picture: from the Worker (runBlocks' picture() in cloudflare/worker.js on ballkour.com):
  *   { sections: [{ heading, rows: [{ label, value, from?, chip?: { text, tone }, note? }] }], tone,
- *     run?: { name, course, assisted, date }, status?: { text, tone } }
- * run: whose run it is, on which course, and when, under the wordmark; status: where a top-10 run stands with the
- * moderators, at its right ("held", "approved" or "down").
+ *     run?: { name, course, code?: { kind, code }, assisted, date }, status?: { text, tone } }
+ * run: whose run it is, on which course (with its code, kind "Beta" or "Code"), and when, under the wordmark;
+ * status: where a top-10 run stands with the moderators, at its right ("held", "approved" or "down").
  * tone is "held" (waiting for a check: yellow), "down" (turned down: red), or "up"/"approved" (green), as the post's
  * colour. A chip's tone is "up" (mint), "down" (coral), "new" (blue), or "same" (grey ▲ 0).
  * columns: how many sections side by side (the first two, then the next two under them, …).
@@ -35,15 +35,10 @@ function runLine({ run, status }) {
   const info = run ? `<span class="who">${esc(run.name)}</span>` +
     (run.course ? `${dot(" lead")}<span class="course">${esc(run.course)}</span>` : "") +
     (run.assisted ? '<span class="mode">Assisted</span>' : "") +
+    (run.code ? `<span class="code"><span class="kind${run.code.kind === "Beta" ? " beta" : ""}">${esc(run.code.kind)}</span>${esc(run.code.code)}</span>` : "") +
     (run.date ? `${dot()}<span>${esc(run.date)}</span>` : "") : "";
-  return `<div class="runline"><div class="runinfo">${info}</div>` +
+  return `<div class="runline${run && (run.course || run.assisted || run.code) ? " two" : ""}"><div class="runinfo">${info}</div>` +
     `${status ? `<span class="status ${esc(status.tone)}">${esc(status.text)}</span>` : ""}</div>`;
-}
-// In the page, once its fonts are in: when the course's name is cut short on that line, it goes on a line of its own
-// under it, with Assisted (like paintRunPicture in index.html on ballkour.com)
-export function splitRunLine() {
-  const c = document.querySelector(".runinfo .course");
-  if (c && c.scrollWidth > c.clientWidth) c.closest(".runline").classList.add("two");
 }
 export function runCardHtml({ picture, fonts, logo = "", columns = 2, width = 680 }) {
   const chip = (c) => (c ? `<span class="chip ${esc(c.tone)}">${esc(c.text)}</span>` : "<span></span>");
@@ -100,21 +95,26 @@ h2 { margin: 0; padding: 11px 0 6px; font: 500 15px/1.3 var(--body); color: var(
 .tagline { font: 600 10.5px/1 var(--body); letter-spacing: .2em; text-transform: uppercase; color: var(--ink-2); white-space: nowrap; }
 .site { margin-left: auto; margin-right: 6px; padding: 7px 14px 7px 12px; background: var(--volt); transform: skewX(-12deg); box-shadow: 3px 3px 0 #ff9a2e; border-radius: 2px; }
 .site span { display: inline-block; transform: skewX(12deg); font: 700 15px/1 var(--body); color: #001a10; white-space: nowrap; }
-/* The run: the player, the course, Assisted for its assisted board, and the day, with its status at the right */
+/* The run, on two lines (like paintRunPicture in index.html on ballkour.com): the player and the day, with its status
+   at the right, then the course, Assisted for its assisted board, and the course's code under them */
 .runline { grid-column: 1 / -1; display: flex; align-items: center; gap: 12px; padding: 2px 4px 0; font: 500 14px/1.3 var(--body); color: var(--ink-2); white-space: nowrap; }
 /* Only the course's name gives way (…) when the line is too long, so the player, the day, and the status always show */
 .runinfo { display: flex; align-items: center; gap: 9px; min-width: 0; }
 .runinfo .course { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .runinfo > :not(.course) { flex: none; }
-/* Or, when it would (splitRunLine), the course and Assisted go on a line of their own under the rest, and the course
-   only gives way if it's too long even for that */
+/* The course, Assisted, and the code go on the second line (.two), where the course only gives way if it's too long
+   even for that */
 .runline.two { flex-wrap: wrap; column-gap: 9px; row-gap: 2px; }
 .runline.two .runinfo { display: contents; }
 .runline.two .lead { display: none; }
 .runline.two::after { content: ""; order: 1; flex-basis: 100%; }
-.runline.two .course, .runline.two .mode { order: 2; }
+.runline.two .course, .runline.two .mode, .runline.two .code { order: 2; }
 .runline .who { font-weight: 700; color: var(--ink); }
 .runline .dot { color: var(--ink-3); }
+/* The course's code, like its button in the site's course list */
+.runline .code { display: inline-flex; align-items: center; gap: 6px; height: 19px; padding: 0 7px; border-radius: 5px; border: 1px solid rgba(196, 255, 232, .24); background: rgba(255, 255, 255, .03); font: 600 12.5px/1 var(--mono); letter-spacing: .06em; color: var(--ink); }
+.runline .code .kind { font: 600 10px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+.runline .code .kind.beta { color: #ff9a2e; }
 .mode { padding: 3px 6px; border-radius: 5px; font: 600 10.5px/1 var(--mono); letter-spacing: .1em; text-transform: uppercase; color: #ff80c0; background: rgba(255, 128, 192, .12); border: 1px solid rgba(255, 128, 192, .5); }
 .status { flex: none; margin-left: auto; padding: 5px 9px; border-radius: 6px; font: 600 13px/1 var(--body); }
 .status.held { color: var(--gold); background: rgba(255, 213, 79, .12); border: 1px solid rgba(255, 213, 79, .45); }
