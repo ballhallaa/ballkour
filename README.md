@@ -202,20 +202,20 @@ Every run is also posted in the runs channels on our [Discord](https://ballkour.
 
 - **Checkpoint rules:** Some checkpoints block or utilize only Grapple, Shield Bounce, and/or Piledriver.
 - **Skip, go back, freemode:** Practice any checkpoint, or roam the map with the clock paused.
-- **Quality of life:** A cleaner HUD with easier menu controls. Hold to restart a checkpoint or your whole run, pause anytime and resume later, and get a bhop of grace on every checkpoint.
-- **Lobby leaderboard:** On the Ballkour remakes, the top-10 times hang in the lobby and the finish screen shows the time to beat.
 
 ### Beta
 
 Try these with the Beta code of a Ballkour remake.
 
+- **Quality of life:** A cleaner HUD with easier menu controls. Hold to restart a checkpoint or your whole run, pause anytime and resume later, and get a bhop of grace on every checkpoint.
+- **Lobby leaderboard:** The top-10 times hang in the lobby and the finish screen shows the time to beat.
 - **Hints:** A recorded route shows you the way through. Turn hints on yourself, or they switch on after 10 mistakes on one checkpoint.
 - **Spectate:** Watch other runners in first or third person, or fly in freecam mode.
 - **Splits:** Best and average times for every checkpoint, plus a pace timer to see your estimated finish time. Each clear flashes your time against your best and average.
 - **Practice & Assist modes:** Practice Mode lets you replay one checkpoint as many times as you like while your run stays paused. Assist Mode gives you every ability as often as you like and free usage of the ground. Assisted runs have their own leaderboards.
 - **Scorecards:** See every player's checkpoint, time, and mistakes live, along with the lobby's top 3.
 - **Customize HUD:** Turn any line of the HUD on or off from the lobby, so it only shows what you want to see.
-- **Quality of life:** Idle runners shrink so they never block your view, see your current run and attempt numbers, customize the HUD, and view the FAQ if you're a newcomer.
+- **More quality of life:** Idle runners shrink so they never block your view, see your current run and attempt numbers, customize the HUD, and view the FAQ if you're a newcomer.
 - **Translations:** Translated into 13 languages, so each player gets a similar experience in their own language.
 
 ### On ballkour.com
