@@ -1,7 +1,7 @@
 #!include "../../VERSION"
 #!include "../../game-settings.opy"
 
-settings courseSettings(4, Eichenwalde, N/A, S7QD6, "skirmish": {"enabledMaps": [{"eichenwalde": ["972777519512095572"]}]})
+settings courseSettings(4, Eichenwalde, S7QD6, "skirmish": {"enabledMaps": [{"eichenwalde": ["972777519512095572"]}]})
 # The course's original author, credited under BALLKOUR.COM
 #!define COURSE_AUTHOR "Spiz"
 
