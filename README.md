@@ -20,13 +20,7 @@ _Wrecking Ball parkour courses for Overwatch_
 <tr>
 <td align="right">1</td>
 <td>🇬🇮 Watchpoint: Gibraltar</td>
-<td align="right"><sub>Latest</sub>
-
-```
-59W28
-```
-
-</td>
+<td></td>
 <td align="right"><sub>Beta</sub>
 
 ```
@@ -38,13 +32,7 @@ _Wrecking Ball parkour courses for Overwatch_
 <tr>
 <td align="right">2</td>
 <td>🇺🇸 Blizzard World (Winter)</td>
-<td align="right"><sub>Latest</sub>
-
-```
-GMWRF
-```
-
-</td>
+<td></td>
 <td align="right"><sub>Beta</sub>
 
 ```
@@ -56,7 +44,7 @@ GMWRF
 <tr>
 <td align="right">3</td>
 <td>🇧🇷 Paraíso</td>
-<td align="right"><sub>Broken</sub><pre><del>NT5G3K</del></pre></td>
+<td></td>
 <td align="right"><sub>Beta</sub>
 
 ```
@@ -68,7 +56,7 @@ MXJ0W
 <tr>
 <td align="right">4</td>
 <td>🇩🇪 Eichenwalde</td>
-<td align="right"><sub>Broken</sub><pre><del>9AVPN</del></pre></td>
+<td></td>
 <td align="right"><sub>Beta</sub>
 
 ```
@@ -80,13 +68,7 @@ S7QD6
 <tr>
 <td align="right">5</td>
 <td>🎯 Practice Range</td>
-<td align="right"><sub>Code</sub>
-
-```
-KSG9E9
-```
-
-</td>
+<td></td>
 <td align="right"><sub>Beta</sub>
 
 ```
