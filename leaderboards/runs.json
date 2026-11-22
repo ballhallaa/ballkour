@@ -7,8 +7,12 @@
       {"name": "JAKOBONEDGE", "discord": "390556082256478212", "time": "6:45.04", "mistakes": 31, "date": "2026-11-19", "video": "https://youtu.be/lEHkWgd5VYc", "id": "13", "sentAt": "2026-11-19T05:43:38Z", "checkedBy": "175372497720573953", "checkedAt": "2026-11-19T12:58:16Z"}
     ]
   },
-  "pending": {},
+  "pending": {
+    "2": [
+      {"name": "JAKOBONEDGE", "discord": "390556082256478212", "time": "5:58.17", "mistakes": 22, "date": "2026-11-22", "video": "https://youtu.be/QB3yyRvsHng", "id": "14", "sentAt": "2026-11-22T02:27:13Z"}
+    ]
+  },
   "declined": {},
   "removed": {},
-  "lastId": 13
+  "lastId": 14
 }
