@@ -4,14 +4,11 @@
       {"name": "BALLHALLAA", "discord": "175372497720573953", "time": "3:24.59", "ground": 622, "date": "2026-11-14", "video": "https://youtu.be/yMpIBgLnTsM", "id": "12", "sentAt": "2026-11-14T21:56:44Z", "mode": "assisted", "checkedBy": "175372497720573953", "checkedAt": "2026-11-14T21:57:34Z"}
     ],
     "2": [
-      {"name": "JAKOBONEDGE", "discord": "390556082256478212", "time": "6:45.04", "mistakes": 31, "date": "2026-11-19", "video": "https://youtu.be/lEHkWgd5VYc", "id": "13", "sentAt": "2026-11-19T05:43:38Z", "checkedBy": "175372497720573953", "checkedAt": "2026-11-19T12:58:16Z"}
+      {"name": "JAKOBONEDGE", "discord": "390556082256478212", "time": "6:45.04", "mistakes": 31, "date": "2026-11-19", "video": "https://youtu.be/lEHkWgd5VYc", "id": "13", "sentAt": "2026-11-19T05:43:38Z", "checkedBy": "175372497720573953", "checkedAt": "2026-11-19T12:58:16Z"},
+      {"name": "JAKOBONEDGE", "discord": "390556082256478212", "time": "5:58.17", "mistakes": 22, "date": "2026-11-22", "video": "https://youtu.be/QB3yyRvsHng", "id": "14", "sentAt": "2026-11-22T02:27:13Z", "checkedBy": "175372497720573953", "checkedAt": "2026-11-24T22:20:04Z"}
     ]
   },
-  "pending": {
-    "2": [
-      {"name": "JAKOBONEDGE", "discord": "390556082256478212", "time": "5:58.17", "mistakes": 22, "date": "2026-11-22", "video": "https://youtu.be/QB3yyRvsHng", "id": "14", "sentAt": "2026-11-22T02:27:13Z"}
-    ]
-  },
+  "pending": {},
   "declined": {},
   "removed": {},
   "lastId": 14
