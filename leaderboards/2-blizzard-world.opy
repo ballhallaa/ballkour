@@ -3,7 +3,7 @@
 rule "Leaderboard":
     # lb[i]: [0]name [1]time [2]mistakes [3]alignmentSeparator, then a # discord: ID comment to link the player
     lb = []
-    lb[1] = "JAKOBONEDGE, 6:45.04, 31, '           '"  # discord: 390556082256478212
+    lb[1] = "JAKOBONEDGE, 5:58.17, 22, '           '"  # discord: 390556082256478212
     lb[2] = "BALLMYBLOVED, 7:14.76, 16, '          '"  # discord: 175372497720573953
     # The assisted leaderboard, for runs played in Assist Mode, laid out the same way, with
     # assistedLbRunInfo(rank, date, link) for its runs' info in loadRunInfo
@@ -14,5 +14,5 @@ def loadRunInfo():
     @Name "Leaderboard Run Info"
 
     # lbRunInfo(rank, submission date (UTC, YYYY-MM-DD), video link without https://)
-    lbRunInfo(1, "2026-11-19", "youtu.be/lEHkWgd5VYc")
+    lbRunInfo(1, "2026-11-22", "youtu.be/QB3yyRvsHng")
     lbRunInfo(2, "2026-06-05", "youtu.be/hNSpNvWyNcI")
