@@ -22,6 +22,9 @@ export const HISTORY = "leaderboards/history.json";
 // A run played in Assist Mode has "mode": "assisted", and is only on the course's assisted board (and a removed one
 // only comes off that board). Every other run is on its regular board.
 export const RUNS = "leaderboards/runs.json";
+// The roles ball-bot gives someone the moment they join the server, saved by roles.mjs after each run (see there):
+//   { "everyone": [role ID, …], "members": { "Discord ID": [role ID, …], … } }
+export const JOIN_ROLES = "leaderboards/join-roles.json";
 export const ASSISTED = "assisted";
 let fetched = false;
 // One of the files above, as text

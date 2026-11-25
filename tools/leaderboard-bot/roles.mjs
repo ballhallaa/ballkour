@@ -21,8 +21,9 @@
 // below). And the badges heading, the empty role that heads the badges, to everyone with a Top 10 role or another
 // badge, and nobody else (see "The badges heading" below).
 //
-// Run by .github/workflows/leaderboard-bot.yml after the boards are posted, and once a day for people who joined the
-// server since. Settings come from the environment:
+// Run by .github/workflows/leaderboard-bot.yml after the boards are posted, and once a day. Someone who joins the
+// server in between gets their roles from ball-bot the moment they join, from the list this saves (see "The join
+// roles" below). Settings come from the environment:
 //   DISCORD_BOT_TOKEN  the bot's token. Without it, the ratings are only printed.
 //   DRY_RUN=1          print what would change, but don't create or give out any roles
 //   RESET_TOP10=1      take every Top 10 role from everyone who shouldn't have it, given by hand or not. Without it,
@@ -39,7 +40,9 @@
 // Roles, its own role has to be above the rating roles and the badges heading in Server Settings → Roles, and it needs
 // the Server Members Intent (Developer Portal → Bot) to see who has a rating role now. Without the intent, it only
 // checks the rated players, and nobody gets Unrated.
-import { GUILD, ROLES, loadCourses } from "./boards.mjs";
+import fs from "node:fs";
+import path from "node:path";
+import { GUILD, ROLES, DATA_ROOT, JOIN_ROLES, loadCourses } from "./boards.mjs";
 import { TOKEN, api } from "./discord.mjs";
 import { TIERS, UNASSISTED_SUFFIX, ASSISTED_SUFFIX, LEGACY_SUFFIX, GLOBAL_SUFFIX, roleName, rate, combine, everTop10, standings, sameRun } from "./ratings.mjs";
 
@@ -188,6 +191,38 @@ const headingNamed = (id, fallback) => bare(((id && existing.find((r) => r.id ==
    which only knew the regular rating roles. */
 const heading = ROLES.ratingsHeading || "";
 const headingName = headingNamed(heading, "the ratings heading");
+
+/* The join roles (leaderboards/join-roles.json on the leaderboard-data branch): the roles this run would give someone
+   who joins the server, so ball-bot can give them the moment they join instead of at the next run. "members" has
+   every Discord ID on a rating or a top 10, with their roles, and "everyone" the roles for anyone else (the Unrated
+   roles and the ratings heading). They're what a member with no roles at all gets, which is everyone who joins, as
+   Discord takes all of a member's roles away when they leave. Saved before any role is changed, so a role that can't
+   be given doesn't stop it, and not on a dry run, whose new roles have no IDs yet. */
+function joinRoles(id) {
+  const roles = [];
+  for (const set of ratings) {
+    const role = set.want.get(id) || (set.unratedRole ? set.roleOf.get(UNRATED) : undefined);
+    if (role) roles.push(role);
+  }
+  if (heading) roles.push(heading);
+  let badge = false;
+  for (const set of top10Sets) {
+    if (set.now.has(id)) roles.push(set.top);
+    else if (set.was.has(id)) roles.push(set.former);
+    else continue;
+    badge = true;
+  }
+  if (ROLES.legacyTop10 && onLegacyTop10.has(id)) { roles.push(ROLES.legacyTop10); badge = true; }
+  if (ROLES.badgesHeading && badge) roles.push(ROLES.badgesHeading);
+  return roles;
+}
+if (DATA_ROOT && !DRY) {
+  const ids = new Set([...nameOf.keys(), ...top10Sets.flatMap((s) => [...s.now, ...s.was]), ...onLegacyTop10]);
+  const join = { everyone: joinRoles(""), members: {} };
+  for (const id of [...ids].sort()) join.members[id] = joinRoles(id);
+  fs.writeFileSync(path.join(DATA_ROOT, JOIN_ROLES), JSON.stringify(join, null, 1) + "\n");
+}
+
 let changes = 0, failed = false;
 for (const m of members) {
   const id = m.user.id;
