@@ -17,7 +17,8 @@
 # After posting, it gives every rated player their rating role on Discord, Top 0.1% (Unassisted) … Top 90% (Unassisted)
 # or Rated (Unassisted), the same with (Assisted) for the assisted rating and (Legacy) for the Legacy rating, Top-10 Run
 # and Former Top-10 Run, Top-10 Rating and Former Top-10 Rating (Unassisted, Assisted and Global), Legacy Top-10
-# Rating, and the ratings heading over them (roles.mjs). It also runs once a day, from
+# Rating, and the ratings heading over them (roles.mjs), and saves them to leaderboards/join-roles.json on the
+# leaderboard-data branch, for ball-bot to give someone the moment they join the server. It also runs once a day, from
 # .github/workflows/leaderboard-daily.yml on main: GitHub only runs scheduled workflows from the default branch, so a
 # schedule here would never start. That daily run also has Ballkyrie DM ballhallaa the in-game boards to update
 # (todo.mjs), when any are behind.
@@ -276,7 +277,8 @@ jobs:
             tools/leaderboard-bot/out/*.txt
           if-no-files-found: ignore
 
-      # Pushed with the workflow's own token, so it doesn't start another run
+      # Pushed with the workflow's own token, so it doesn't start another run. --autostash, as join-roles.json may have
+      # changed too (saved in the next step)
       - name: Save posted boards to history.json
         if: ${{ always() && !inputs.dry_run && hashFiles('tools/leaderboard-bot/out/commit-message.txt') != '' }}
         working-directory: leaderboard-data
@@ -285,5 +287,18 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add leaderboards/history.json
           git commit -F ../tools/leaderboard-bot/out/commit-message.txt
-          git pull --rebase origin leaderboard-data
+          git pull --rebase --autostash origin leaderboard-data
+          git push origin HEAD:leaderboard-data
+
+      # The roles ball-bot gives someone the moment they join the server (roles.mjs saves them), when they've changed
+      - name: Save the join roles to join-roles.json
+        if: ${{ always() && !inputs.dry_run && hashFiles('leaderboard-data/leaderboards/join-roles.json') != '' }}
+        working-directory: leaderboard-data
+        run: |
+          git add leaderboards/join-roles.json
+          git diff --cached --quiet && exit 0
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore(leaderboard): update the join roles"
+          git pull --rebase --autostash origin leaderboard-data
           git push origin HEAD:leaderboard-data
